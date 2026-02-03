@@ -7,8 +7,8 @@
 
 ### Setup (SETUP)
 
-- [ ] **SETUP-01**: GitHub repository created under totalguardllc@gmail.com
-- [ ] **SETUP-02**: Lovable project connected to GitHub repository
+- [x] **SETUP-01**: GitHub repository created (TotalGuardYardCare/tgyardcarecom)
+- [x] **SETUP-02**: Lovable project connected to GitHub repository
 - [ ] **SETUP-03**: Supabase project created and configured
 - [ ] **SETUP-04**: n8n instance set up (cloud or self-hosted)
 
