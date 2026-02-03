@@ -24,6 +24,11 @@
 - SETUP-01: GitHub repository created
 - SETUP-02: Lovable connected to GitHub
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 01-01-PLAN.md - Connect Lovable to GitHub and verify two-way sync
+
 **Success Criteria:**
 1. GitHub repo exists at github.com/totalguardllc/tgyardcare
 2. Lovable project syncs code to GitHub on save
@@ -122,3 +127,4 @@ All phases complete when:
 
 ---
 *Roadmap created: 2026-02-02*
+*Phase 1 planned: 2026-02-02*
