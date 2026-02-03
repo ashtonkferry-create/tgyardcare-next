@@ -49,6 +49,14 @@ Plans:
 - ANLYT-01: Traffic tracking
 - ANLYT-02: Form submission events
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Supabase project setup and leads table schema
+- [ ] 02-02-PLAN.md — Contact form integration with database
+- [ ] 02-03-PLAN.md — Admin authentication with Supabase Auth
+- [ ] 02-04-PLAN.md — Google Analytics tracking and events
+
 **Success Criteria:**
 1. Supabase project connected to Lovable site
 2. Contact form saves to Supabase `leads` table
@@ -128,3 +136,4 @@ All phases complete when:
 ---
 *Roadmap created: 2026-02-02*
 *Phase 1 planned: 2026-02-02*
+*Phase 2 planned: 2026-02-03*
