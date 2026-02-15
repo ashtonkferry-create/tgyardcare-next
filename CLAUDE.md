@@ -266,6 +266,56 @@ Every page and component MUST include motion:
 
 ---
 
+## AUTO-COMMIT & AUTO-MEMORY (MANDATORY)
+
+These run automatically after every completed unit of work. NEVER wait for the user to ask.
+
+### Auto-Commit Rules
+After completing any task that changes files (code, config, docs, organization, etc.):
+1. Stage only the relevant changed files (never `git add -A` blindly)
+2. Write a clear commit message describing what was done
+3. Commit locally — do NOT push unless the user explicitly asks
+4. If the task was multi-step, commit after each logical chunk, not one giant commit at the end
+
+**Commit message format:**
+```
+<type>: <short description>
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+```
+Types: `feat`, `fix`, `refactor`, `docs`, `style`, `chore`, `test`, `perf`
+
+**Skip auto-commit only when:**
+- The user is just asking questions (no file changes)
+- Work is clearly mid-progress and not at a logical save point
+- The user explicitly says "don't commit" or "hold off on commits"
+
+### Auto-Memory Rules
+After completing any meaningful work, automatically update memory files:
+1. Update `MEMORY.md` with: what was done, current state, any decisions made
+2. Create/update topic files for detailed notes (e.g., `debugging.md`, `patterns.md`)
+3. Record any new preferences, patterns, or lessons learned
+
+**What triggers a memory update:**
+- Completed a feature, fix, or task
+- Learned something about the codebase or user preferences
+- Made an architectural decision
+- Encountered and resolved a problem
+- User expressed a preference or workflow choice
+
+**What to save:**
+- Current project state and progress
+- Decisions made and why
+- User preferences discovered during the session
+- File paths and patterns that matter
+- What worked, what didn't
+
+**Skip memory update only when:**
+- Pure Q&A with no actionable outcome
+- Trivial one-line fixes with no broader context
+
+---
+
 ## TECH RULES
 
 - Server Components by default, Client Components only when needed
