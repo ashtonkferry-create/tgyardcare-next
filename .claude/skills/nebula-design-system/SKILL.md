@@ -1,3 +1,8 @@
+---
+name: nebula-design-system
+description: Workely.AI space-inspired HUD design system with Orbitron/Exo 2 fonts, cyan/purple palette, and glow effects. Use when building any UI component, page, or visual element for workely.ai.
+---
+
 # Nebula Design System — Workely.AI
 
 Use this skill when building any UI component, page, or visual element for workely.ai. The Nebula theme is a space-inspired HUD aesthetic.

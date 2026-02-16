@@ -1,3 +1,8 @@
+---
+name: api-patterns
+description: API route patterns, Server Actions, and external service integrations for workely.ai. Use when creating API routes, server actions, webhooks, or external API calls.
+---
+
 # API Patterns — Workely.AI
 
 Use this skill when working with API routes, Server Actions, or external service integrations.

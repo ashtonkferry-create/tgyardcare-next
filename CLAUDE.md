@@ -112,6 +112,9 @@ Additional MCP routing:
 - Any new feature → Superpowers **brainstorming** skill
 - Writing tests → Superpowers **TDD** skill
 - Debugging → Superpowers **debugging** skill
+- Repeatable automation need with no existing skill → **auto-skill-factory** skill + see `skill-policy.md`
+- Manual skill creation → `/create-skill` command
+- Skill validation → `node .claude/scripts/validate-skills.js`
 
 ---
 

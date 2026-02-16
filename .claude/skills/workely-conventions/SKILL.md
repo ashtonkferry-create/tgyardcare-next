@@ -1,3 +1,8 @@
+---
+name: workely-conventions
+description: Code conventions and consistency rules for workely.ai. Use when making any code change to ensure data access patterns, auth, routing, and component organization follow project standards.
+---
+
 # Workely.AI Code Conventions
 
 Use this skill when making any code change to the workely.ai project to ensure consistency.

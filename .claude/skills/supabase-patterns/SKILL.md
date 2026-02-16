@@ -1,3 +1,8 @@
+---
+name: supabase-patterns
+description: Supabase database patterns, migrations, RLS policies, and auth flows for workely.ai. Use when creating tables, writing migrations, fixing RLS, or working with auth.
+---
+
 # Supabase Patterns — Workely.AI
 
 Use this skill when working with database, migrations, RLS policies, or auth.
