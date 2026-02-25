@@ -101,11 +101,12 @@ Additional MCP routing:
 
 ### Skill Routing
 
-- Any UI/frontend work → **frontend-design** + **nebula-design-system** skills
+- Any UI/frontend work → **frontend-design** + **nebula-design-system** + **claude-cookbooks** skills
 - Any code change → **workely-conventions** skill (auto)
 - Database/auth work → **supabase-patterns** skill
 - API routes/actions → **api-patterns** skill
 - Any React/Next.js code → **vercel-react-best-practices** skill
+- Agent architecture / prompt engineering / multi-agent coordination → **claude-cookbooks** skill
 - Creating a new skill → **skill-creator** skill
 - Building an MCP server → **mcp-builder** skill
 - Visual testing → **webapp-testing** skill
