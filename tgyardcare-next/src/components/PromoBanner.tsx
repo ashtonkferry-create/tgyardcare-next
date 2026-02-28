@@ -3,9 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, Percent, ChevronRight } from 'lucide-react';
 import Link from "next/link";
-import { cn } from '@/lib/utils';
 import { usePromoSettings } from '@/hooks/usePromoSettings';
-import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
 
 interface TimeLeft {
   hours: number;
@@ -15,9 +13,7 @@ interface TimeLeft {
 
 export const PromoBanner = () => {
   const [isVisible, setIsVisible] = useState(true);
-  const { activeSeason } = useSeasonalTheme();
   const { promotions, isLoading, getPromoIndex, getTimeUntilNextPromo } = usePromoSettings();
-  const isWinter = activeSeason === 'winter';
   const [promoIndex, setPromoIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ hours: 0, minutes: 0, seconds: 0 });
 
@@ -78,33 +74,8 @@ export const PromoBanner = () => {
   );
 
   return (
-    <div className={cn(
-      "text-white py-2.5 px-4 border-b relative overflow-hidden",
-      isWinter
-        ? "bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 border-cyan-500/20"
-        : "bg-primary border-primary-foreground/10"
-    )}>
-      {/* Winter snow particles */}
-      {isWinter && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(8)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute bg-white/20 rounded-full animate-snow-fall"
-              style={{
-                width: `${1 + Math.random() * 2}px`,
-                height: `${1 + Math.random() * 2}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${-(Math.random() * 8)}s`,
-                animationDuration: `${5 + Math.random() * 3}s`,
-                filter: 'blur(0.5px)',
-              }}
-            />
-          ))}
-        </div>
-      )}
-      <div className="container mx-auto flex items-center justify-between gap-2 sm:gap-4 relative z-10">
+    <div className="bg-primary text-white py-2.5 px-4 border-b border-primary-foreground/10">
+      <div className="container mx-auto flex items-center justify-between gap-2 sm:gap-4">
         {/* Mobile: entire content is clickable */}
         <Link
           href={currentPromo.path}
