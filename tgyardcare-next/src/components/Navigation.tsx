@@ -10,6 +10,7 @@ import {
   TreePine, CheckCircle2, Clock, FileText, type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useSeasonalTheme } from "@/contexts/SeasonalThemeContext";
 import { MobileNavMenu } from "@/components/MobileNavMenu";
 
@@ -366,12 +367,40 @@ export default function Navigation() {
   const pathname = usePathname();
 
   const { activeSeason } = useSeasonalTheme();
+  const isWinter = activeSeason === 'winter';
 
   const isActivePath = (path: string) => pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-lg border-b border-border/50 shadow-sm nav-seasonal">
-      <div className="container mx-auto px-3 sm:px-4">
+    <nav className={cn(
+      "sticky top-0 z-50 border-b shadow-sm nav-seasonal overflow-hidden",
+      isWinter
+        ? "bg-gradient-to-r from-slate-900 via-slate-800 to-blue-900 border-cyan-500/20"
+        : "bg-background/95 backdrop-blur-lg border-border/50"
+    )}>
+      {/* Winter snow particles */}
+      {isWinter && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(12)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute bg-white/25 rounded-full animate-snow-fall"
+              style={{
+                width: `${1.5 + Math.random() * 2.5}px`,
+                height: `${1.5 + Math.random() * 2.5}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${-(Math.random() * 10)}s`,
+                animationDuration: `${6 + Math.random() * 4}s`,
+                filter: 'blur(0.5px)',
+              }}
+            />
+          ))}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(59,130,246,0.08)_0%,transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(147,197,253,0.06)_0%,transparent_50%)]" />
+        </div>
+      )}
+      <div className="container mx-auto px-3 sm:px-4 relative z-10">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* ---- Logo ---- */}
           <Link href="/" className="flex items-center gap-2 group flex-shrink-0">
