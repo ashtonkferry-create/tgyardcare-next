@@ -403,19 +403,15 @@ export default function Navigation() {
       <div className="container mx-auto px-3 sm:px-4 relative z-10">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* ---- Logo ---- */}
-          <Link href="/" className="flex items-center gap-2 group flex-shrink-0">
+          <Link href="/" className="flex items-center group flex-shrink-0">
             <img
               alt="TotalGuard Yard Care - Professional Lawn Care Services in Madison Wisconsin"
-              src="/lovable-uploads/8efd3e68-ac8f-4cef-82a1-dd4465a3bf17.png"
-              className="h-10 w-10 md:h-14 md:w-14 lg:h-16 lg:w-16 rounded-full hover:scale-110 transition-transform duration-300"
+              src="/images/totalguard-logo-full.png"
+              className="h-12 md:h-16 lg:h-[72px] w-auto hover:scale-105 transition-transform duration-300"
               loading="eager"
               fetchPriority="high"
               decoding="async"
             />
-            <div className="flex flex-col justify-center leading-none">
-              <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-extrabold text-foreground tracking-tight">TOTALGUARD</span>
-              <span className="text-xs sm:text-sm md:text-base lg:text-lg font-bold text-primary tracking-wide">YARD CARE</span>
-            </div>
           </Link>
 
           {/* ---- Desktop Navigation ---- */}

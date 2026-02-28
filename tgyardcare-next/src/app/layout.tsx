@@ -69,8 +69,8 @@ function GlobalJsonLd() {
     name: 'TG Yard Care',
     alternateName: 'TotalGuard Yard Care',
     image:
-      'https://tgyardcare.com/lovable-uploads/8efd3e68-ac8f-4cef-82a1-dd4465a3bf17.png',
-    logo: 'https://tgyardcare.com/lovable-uploads/8efd3e68-ac8f-4cef-82a1-dd4465a3bf17.png',
+      'https://tgyardcare.com/images/totalguard-logo-full.png',
+    logo: 'https://tgyardcare.com/images/totalguard-logo-full.png',
     url: 'https://tgyardcare.com',
     telephone: '+1-608-535-6057',
     email: 'totalguardllc@gmail.com',
