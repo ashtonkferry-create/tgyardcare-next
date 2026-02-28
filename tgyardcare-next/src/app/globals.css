@@ -299,12 +299,6 @@ All colors MUST be HSL.
     }
   }
 
-  /* Hide Lovable badge */
-  [data-lovable-badge],
-  a[href*="lovable.app"],
-  a[href*="lovable.dev"] {
-    display: none !important;
-  }
 }
 
 /* Mobile-first responsive utilities */

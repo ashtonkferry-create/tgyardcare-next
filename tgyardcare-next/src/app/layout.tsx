@@ -56,6 +56,10 @@ export const metadata: Metadata = {
       'x-default': 'https://tgyardcare.com/',
     },
   },
+  other: {
+    'geo.region': 'US-WI',
+    'geo.placename': 'Madison',
+  },
   icons: {
     icon: 'https://storage.googleapis.com/gpt-engineer-file-uploads/dBy3Eb9lpdUVQ8p8JOd8tIKKabx1/uploads/1770045601762-TotalGuard Yard Care LOGO_edited.png',
   },

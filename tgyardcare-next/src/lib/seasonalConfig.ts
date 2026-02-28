@@ -150,7 +150,7 @@ export const BUSINESS_CONFIG = {
   phoneFormatted: '+1-608-535-6057',
   email: 'totalguardllc@gmail.com',
   website: 'https://tgyardcare.com',
-  foundedYear: 2017,
+  foundedYear: 2019,
   socialMedia: {
     facebook: 'https://facebook.com/totalguardyardcare',
     instagram: 'https://instagram.com/tgyardcare',

@@ -7,6 +7,7 @@ import { Toaster as Sonner } from '@/components/ui/sonner';
 import { ChatProvider } from '@/contexts/ChatContext';
 import { SeasonalThemeProvider } from '@/contexts/SeasonalThemeContext';
 import BackToTop from '@/components/BackToTop';
+import { DeferredChatBot } from '@/components/DeferredChatBot';
 import { useState } from 'react';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -19,6 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <Toaster />
             <Sonner />
             <BackToTop />
+            <DeferredChatBot />
             {children}
           </SeasonalThemeProvider>
         </ChatProvider>

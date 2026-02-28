@@ -78,7 +78,8 @@ const residentialColumns: MegaMenuColumn[] = [
       { name: "Fall Cleanup", path: "/services/fall-cleanup", description: "Complete yard prep", icon: CloudRain },
       { name: "Leaf Removal", path: "/services/leaf-removal", description: "Full yard clearing", icon: Leaf },
       { name: "Snow Removal", path: "/services/snow-removal", description: "Reliable residential plowing", icon: Snowflake },
-      { name: "Gutter Cleaning & Guards", path: "/services/gutter-cleaning", description: "Debris-free flow & protection", icon: Home },
+      { name: "Gutter Cleaning", path: "/services/gutter-cleaning", description: "Debris-free flow & maintenance", icon: Home },
+      { name: "Gutter Guards", path: "/services/gutter-guards", description: "Micro-mesh guard installation", icon: Shield },
     ],
   },
 ];
