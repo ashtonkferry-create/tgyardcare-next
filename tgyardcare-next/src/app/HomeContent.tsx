@@ -1,0 +1,516 @@
+'use client';
+
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import Navigation from "@/components/Navigation";
+import { PromoBanner } from "@/components/PromoBanner";
+import Footer from "@/components/Footer";
+import ServiceCard from "@/components/ServiceCard";
+import { GoogleReviewsSection } from "@/components/GoogleReviewsSection";
+import CTASection from "@/components/CTASection";
+import { ScrollProgress } from "@/components/ScrollProgress";
+import { SectionDivider, SectionConnector } from "@/components/SectionTransition";
+import { ProcessTimeline } from "@/components/ProcessTimeline";
+import { ServiceGuarantees } from "@/components/ServiceGuarantees";
+
+import { GlobalSchema } from "@/components/GlobalSchema";
+import { WebsiteSchema } from "@/components/WebsiteSchema";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { Scissors, Leaf, Trees, Trash2, Sparkles, CloudRain, Home, Shield, Flower2, Sprout, Phone, CheckCircle2, Clock, Users, ArrowRight, Package, SprayCan, ChevronLeft, ChevronRight, Snowflake, CircleDot } from "lucide-react";
+import { useState, useEffect } from "react";
+import type { CarouselApi } from "@/components/ui/carousel";
+import { isSnowRemovalSeason } from "@/lib/seasonalServices";
+import { WinterHero } from "@/components/WinterHero";
+import { SummerHero } from "@/components/SummerHero";
+import { FallHero } from "@/components/FallHero";
+import { WinterPriorityServices } from "@/components/WinterPriorityServices";
+import { WinterValueProposition } from "@/components/WinterValueProposition";
+import { WhyMadisonTrust } from "@/components/WhyMadisonTrust";
+import { SeasonalPriorityServices } from "@/components/SeasonalPriorityServices";
+import { FullSeasonContract } from "@/components/FullSeasonContract";
+import { useSeasonalTheme } from "@/contexts/SeasonalThemeContext";
+import mowingImage from "@/assets/service-mowing.jpg";
+import herbicideImage from "@/assets/service-herbicide.jpg";
+import weedingImage from "@/assets/service-weeding.jpg";
+import mulchingImage from "@/assets/service-mulching.jpg";
+import leafRemovalImage from "@/assets/service-leaf-removal.jpg";
+import springCleanupImage from "@/assets/service-spring-cleanup.jpg";
+import fallCleanupImage from "@/assets/service-fall-cleanup.jpg";
+import gutterImage from "@/assets/service-gutter.jpg";
+import gutterGuardsImage from "@/assets/service-gutter-guards.jpg";
+import fertilizationImage from "@/assets/service-fertilization.jpg";
+import snowRemovalImage from "@/assets/service-snow-removal.jpg";
+import pruningImage from "@/assets/service-pruning.jpg";
+import aerationImage from "@/assets/hero-aeration.jpg";
+import googleBadge from "@/assets/google-review-badge.png";
+import nextdoorBadge from "@/assets/nextdoor-fave-badge.png";
+import satisfactionBadge from "@/assets/satisfaction-badge.png";
+
+// Helper to get image src from static imports (Next.js returns objects, not strings)
+function imgSrc(img: string | { src: string }): string {
+  return typeof img === 'string' ? img : img.src;
+}
+
+const baseServices = [{
+  icon: Scissors,
+  title: "Lawn Mowing",
+  description: "Same crew, same day, every week. Mowing, edging, blowing—done in under 45 minutes.",
+  path: "/services/mowing",
+  image: imgSrc(mowingImage)
+}, {
+  icon: SprayCan,
+  title: "Herbicide Services",
+  description: "Targeted treatment with visible results in 7-14 days. We document what was sprayed.",
+  path: "/services/herbicide",
+  image: imgSrc(herbicideImage)
+}, {
+  icon: Leaf,
+  title: "Weeding",
+  description: "Hand-pulled, roots removed. Chemical-free option for beds near edibles.",
+  path: "/services/weeding",
+  image: imgSrc(weedingImage)
+}, {
+  icon: Trees,
+  title: "Mulching",
+  description: "2-3\" depth, edges defined. Old mulch removed if needed. One-visit install.",
+  path: "/services/mulching",
+  image: imgSrc(mulchingImage)
+}, {
+  icon: Trash2,
+  title: "Leaf Removal",
+  description: "Full property cleared and hauled. Zero leaves left behind.",
+  path: "/services/leaf-removal",
+  image: imgSrc(leafRemovalImage)
+}, {
+  icon: Sparkles,
+  title: "Spring Cleanup",
+  description: "Debris removal, bed prep, first mow. Completed in one 2-4 hour visit.",
+  path: "/services/spring-cleanup",
+  image: imgSrc(springCleanupImage)
+}, {
+  icon: CloudRain,
+  title: "Fall Cleanup",
+  description: "Leaves cleared, gutters cleaned, lawn winterized. Done before first frost.",
+  path: "/services/fall-cleanup",
+  image: imgSrc(fallCleanupImage)
+}, {
+  icon: Home,
+  title: "Gutter Cleaning",
+  description: "Full cleanout, downspout flush, inspection. Completion photos sent.",
+  path: "/services/gutter-cleaning",
+  image: imgSrc(gutterImage)
+}, {
+  icon: Shield,
+  title: "Gutter Guards",
+  description: "Micro-mesh guards installed. Warranty documentation included.",
+  path: "/services/gutter-guards",
+  image: imgSrc(gutterGuardsImage)
+}, {
+  icon: Flower2,
+  title: "Garden Beds",
+  description: "Edging, weeding, seasonal planting. Monthly or per-visit plans.",
+  path: "/services/garden-beds",
+  image: imgSrc(mulchingImage)
+}, {
+  icon: Sprout,
+  title: "Fertilization",
+  description: "4-6 applications per season. Timed to Wisconsin growing cycles.",
+  path: "/services/fertilization",
+  image: imgSrc(fertilizationImage)
+}, {
+  icon: CircleDot,
+  title: "Aeration",
+  description: "2-3\" core plugs. Reduces compaction, improves water absorption.",
+  path: "/services/aeration",
+  image: imgSrc(aerationImage)
+}, {
+  icon: Scissors,
+  title: "Bush Trimming",
+  description: "Shrubs shaped and cleaned. Debris removed. Photos provided.",
+  path: "/services/pruning",
+  image: imgSrc(pruningImage)
+}];
+
+const snowRemovalService = {
+  icon: Snowflake,
+  title: "Snow Removal",
+  description: "Triggered at 2\"+ snowfall. Driveway, walks, porch. Salt included.",
+  path: "/services/snow-removal",
+  image: imgSrc(snowRemovalImage)
+};
+
+const services = isSnowRemovalSeason() ? [snowRemovalService, ...baseServices] : baseServices;
+
+export default function HomeContent() {
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const { activeSeason } = useSeasonalTheme();
+
+  useEffect(() => {
+    if (!carouselApi) return;
+    setCurrent(carouselApi.selectedScrollSnap());
+    carouselApi.on("select", () => {
+      setCurrent(carouselApi.selectedScrollSnap());
+    });
+  }, [carouselApi]);
+
+  const scrollSnapList = carouselApi?.scrollSnapList() || [];
+  const totalSlides = scrollSnapList.length;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <ScrollProgress variant="minimal" />
+
+      <GlobalSchema />
+      <WebsiteSchema />
+      <PromoBanner />
+      <Navigation />
+
+      {/* TL;DR for AI/Answer Engines */}
+      <section className="sr-only" aria-label="Business Summary">
+        <p>TotalGuard Yard Care provides professional lawn care and yard maintenance services in Madison, Middleton, Waunakee, and Dane County, Wisconsin. We assign the same crew to your property every visit for consistent quality. Services include mowing, fertilization, gutter cleaning, snow removal, and seasonal cleanups. Call (608) 535-6057 for a free quote.</p>
+      </section>
+
+      {/* HERO: Season-Aware */}
+      {activeSeason === 'winter' && <WinterHero />}
+      {activeSeason === 'summer' && <SummerHero />}
+      {activeSeason === 'fall' && <FallHero />}
+
+      {/* IMMEDIATE TRUST: Stats Strip */}
+      <section className="py-6 md:py-8 bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
+            <div>
+              <div className="text-4xl md:text-5xl font-bold mb-1">500+</div>
+              <div className="text-sm md:text-base opacity-90">Dane County Properties</div>
+            </div>
+            <div>
+              <div className="text-4xl md:text-5xl font-bold mb-1">4.9★</div>
+              <div className="text-sm md:text-base opacity-90">60+ Google Reviews</div>
+            </div>
+            <div>
+              <div className="text-4xl md:text-5xl font-bold mb-1">12</div>
+              <div className="text-sm md:text-base opacity-90">Madison-Area Cities</div>
+            </div>
+            <div>
+              <div className="text-4xl md:text-5xl font-bold mb-1">24hr</div>
+              <div className="text-sm md:text-base opacity-90">Quote Response</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PRIORITY SERVICES: Seasonal */}
+      {activeSeason === 'winter' ? (
+        <>
+          <WinterValueProposition />
+          <WinterPriorityServices />
+        </>
+      ) : (
+        <SeasonalPriorityServices />
+      )}
+
+      {/* TRUST AUTHORITY */}
+      <WhyMadisonTrust />
+
+      {/* PROOF: Trust Badges */}
+      <section className="py-6 md:py-8 bg-background border-y border-border/30">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 max-w-4xl mx-auto">
+            <div className="flex items-center gap-3 group">
+              <img
+                src={imgSrc(googleBadge)}
+                alt="4.9 star Google rating"
+                className="h-12 w-12 object-contain group-hover:scale-110 transition-transform"
+                loading="lazy"
+                width={48}
+                height={48}
+              />
+              <div>
+                <p className="text-sm font-bold text-foreground">4.9★ Google</p>
+                <p className="text-xs text-muted-foreground">Top Rated</p>
+              </div>
+            </div>
+
+            <div className="hidden md:block w-px h-10 bg-border" />
+
+            <div className="flex items-center gap-3 group">
+              <img
+                src={imgSrc(nextdoorBadge)}
+                alt="2024 Nextdoor Neighborhood Fave"
+                className="h-12 w-12 object-contain group-hover:scale-110 transition-transform"
+                loading="lazy"
+                width={48}
+                height={48}
+              />
+              <div>
+                <p className="text-sm font-bold text-foreground">Nextdoor Fave</p>
+                <p className="text-xs text-muted-foreground">2024 Winner</p>
+              </div>
+            </div>
+
+            <div className="hidden md:block w-px h-10 bg-border" />
+
+            <div className="flex items-center gap-3 group">
+              <img
+                src={imgSrc(satisfactionBadge)}
+                alt="100% satisfaction guarantee"
+                className="h-12 w-12 object-contain group-hover:scale-110 transition-transform"
+                loading="lazy"
+                width={48}
+                height={48}
+              />
+              <div>
+                <p className="text-sm font-bold text-foreground">100% Guarantee</p>
+                <p className="text-xs text-muted-foreground">Or We Fix It</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SERVICES: Complete Offerings */}
+      <section id="services" className="py-10 md:py-14 bg-background">
+        <div className="container mx-auto px-4">
+          <SectionConnector className="mb-6" />
+
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 bg-primary/5 text-primary px-4 py-1.5 rounded-full text-xs font-bold mb-3 border border-primary/10">
+              <Sparkles className="h-3.5 w-3.5" />
+              One Call Handles It All
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+              14+ Services. <span className="text-primary">One Trusted Team.</span>
+            </h2>
+            <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
+              Stop juggling contractors. We handle your entire property—lawn to gutters.
+            </p>
+          </div>
+
+          <Carousel opts={{
+            align: "start",
+            loop: true,
+            dragFree: true,
+            containScroll: "trimSnaps"
+          }} setApi={setCarouselApi} className="w-full max-w-6xl mx-auto">
+            <CarouselContent className="-ml-3">
+              {services.map((service, index) => (
+                <CarouselItem key={index} className="pl-3 basis-[80%] sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                  <ServiceCard {...service} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+
+          {totalSlides > 0 && (
+            <div className="flex justify-center items-center gap-2 mt-6">
+              <Button variant="ghost" size="icon" onClick={() => carouselApi?.scrollPrev()} className="rounded-full h-8 w-8" aria-label="Previous">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="flex gap-1.5">
+                {Array.from({ length: totalSlides }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => carouselApi?.scrollTo(index)}
+                    className={`rounded-full transition-all duration-300 ${index === current ? 'bg-primary h-2 w-6' : 'bg-border hover:bg-primary/30 h-2 w-2'}`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => carouselApi?.scrollNext()} className="rounded-full h-8 w-8" aria-label="Next">
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+
+          {/* Residential/Commercial Quick Links */}
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center items-center max-w-xl mx-auto">
+            <Link
+              href="/residential"
+              className="group flex items-center gap-2 px-5 py-2.5 rounded-full border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-sm font-medium text-foreground"
+            >
+              <Home className="h-4 w-4 text-primary" />
+              Residential Services
+              <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+            </Link>
+
+            <Link
+              href="/commercial"
+              className="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all text-sm font-medium"
+            >
+              <Package className="h-4 w-4" />
+              Commercial Services
+              <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-all" />
+            </Link>
+          </div>
+
+          {/* Micro-trust line */}
+          <div className="mt-6 flex justify-center">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-3 w-3 text-primary" />
+                Free Estimates
+              </span>
+              <span className="w-1 h-1 bg-border rounded-full" />
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-3 w-3 text-primary" />
+                Same-Day Response
+              </span>
+              <span className="w-1 h-1 bg-border rounded-full" />
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-3 w-3 text-primary" />
+                Fully Insured
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <SectionDivider />
+
+      {/* FLAGSHIP: Full Season Contract */}
+      <FullSeasonContract />
+
+      {/* PROOF: Before/After */}
+      <section className="py-10 md:py-14 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8">
+            <div className="w-12 h-px bg-border mx-auto mb-6" />
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+              Real Results. <span className="text-primary">Real Properties.</span>
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              Actual transformations from Madison-area homes—no stock photos.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">
+            <div className="order-2 lg:order-1">
+              <div className="relative">
+                <img
+                  alt="Before and after lawn transformation showing improved grass quality and curb appeal"
+                  className="w-full rounded-xl shadow-lg"
+                  loading="lazy"
+                  src="/lovable-uploads/01f91d74-e152-48d0-961c-a2ebcf1e03bf.webp"
+                  width={600}
+                  height={400}
+                />
+                <div className="absolute top-3 left-3 bg-background/90 backdrop-blur-sm border border-border rounded-full px-3 py-1 text-xs font-bold text-foreground shadow-sm">
+                  Madison, WI
+                </div>
+              </div>
+              <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
+                <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                <span><strong className="text-foreground">4-week result:</strong> Weekly mowing + edging + debris removal</span>
+              </div>
+            </div>
+
+            <div className="order-1 lg:order-2 space-y-4">
+              <div className="space-y-3">
+                {[
+                  { label: "Consistent visits", desc: "Same crew, same schedule" },
+                  { label: "Visible improvement", desc: "Within 2-4 weeks" },
+                  { label: "Documented work", desc: "Before/after photos on request" },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-3 p-3 rounded-lg border border-border/50 hover:border-primary/30 transition-colors">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                      <p className="text-xs text-muted-foreground">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Button size="default" variant="accent" asChild className="mt-4">
+                <Link href="/gallery">
+                  View Full Gallery <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <SectionDivider />
+
+      {/* SOCIAL PROOF: Google Reviews */}
+      <GoogleReviewsSection />
+
+      {/* SERVICE STANDARD */}
+      <section className="py-6 md:py-8 bg-gradient-to-b from-background to-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+              <h2 className="text-lg md:text-xl font-bold text-foreground">
+                The TotalGuard Standard
+              </h2>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <span className="text-primary font-bold">4.9★</span> Google Rating
+                </span>
+                <span className="hidden sm:block w-px h-4 bg-border" />
+                <span className="hidden sm:flex items-center gap-1.5">
+                  <span className="text-primary font-bold">500+</span> Clients Served
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3 py-4 border-t border-border/50">
+              <div className="flex items-center gap-2.5">
+                <Clock className="h-4 w-4 text-primary flex-shrink-0" />
+                <div>
+                  <span className="text-sm font-semibold text-foreground block leading-tight">24hr Response</span>
+                  <span className="text-xs text-muted-foreground">Same-day quotes</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                <div>
+                  <span className="text-sm font-semibold text-foreground block leading-tight">Quality Walk</span>
+                  <span className="text-xs text-muted-foreground">Inspected before leaving</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Users className="h-4 w-4 text-primary flex-shrink-0" />
+                <div>
+                  <span className="text-sm font-semibold text-foreground block leading-tight">Same Crew</span>
+                  <span className="text-xs text-muted-foreground">Every single visit</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Shield className="h-4 w-4 text-primary flex-shrink-0" />
+                <div>
+                  <span className="text-sm font-semibold text-foreground block leading-tight">Make-It-Right</span>
+                  <span className="text-xs text-muted-foreground">Free return guarantee</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section className="py-10 md:py-12 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-6">
+              <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">
+                What Happens When You Contact Us
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                No mystery. No runaround. Here&apos;s exactly how it works.
+              </p>
+            </div>
+            <ProcessTimeline variant="horizontal" />
+          </div>
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <CTASection />
+
+      <Footer />
+    </div>
+  );
+}

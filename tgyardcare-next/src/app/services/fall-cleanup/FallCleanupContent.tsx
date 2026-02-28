@@ -18,7 +18,7 @@ function imgSrc(img: string | { src: string }): string {
 }
 
 export default function FallCleanupContent() {
-  const beforeAfterItems: { combinedImage?: string }[] = [];
+  const beforeAfterItems: { combinedImage: string }[] = [];
 
   return (
     <div className="min-h-screen bg-background">

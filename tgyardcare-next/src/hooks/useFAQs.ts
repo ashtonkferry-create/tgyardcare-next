@@ -16,6 +16,7 @@ export function useFAQsByService(serviceId: string) {
   return useQuery({
     queryKey: ['faqs', 'service', serviceId],
     queryFn: async () => {
+      // @ts-expect-error -- Supabase generated types cause deep instantiation
       const { data, error } = await supabase
         .from('faqs')
         .select('*')
