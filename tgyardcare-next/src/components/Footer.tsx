@@ -28,19 +28,13 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-8">
           {/* Company Info */}
           <div className="col-span-2 lg:col-span-2">
-            <Link href="/" className="flex items-center gap-3 mb-4 group">
+            <Link href="/" className="flex items-center mb-4 group">
               <img
                 alt="TotalGuard Yard Care - Madison's Premier Lawn Care Service"
-                className="h-16 w-16 rounded-full group-hover:scale-110 transition-transform"
-                src="/lovable-uploads/785f87d1-0deb-4f52-bb55-562cc863177a.webp"
+                className="h-16 w-auto group-hover:scale-105 transition-transform"
+                src="/images/totalguard-logo-full.png"
                 loading="lazy"
-                width="64"
-                height="64"
               />
-              <div className="flex flex-col justify-center leading-tight">
-                <span className="text-xl font-extrabold text-white tracking-tight">TOTALGUARD</span>
-                <span className="text-base font-bold text-blue-400 tracking-wide">YARD CARE</span>
-              </div>
             </Link>
             <p className="text-slate-400 mb-3 text-sm">
               Madison's reliability-first lawn care company. Serving homeowners across Dane County since day one.
