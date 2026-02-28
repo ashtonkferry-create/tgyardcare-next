@@ -133,7 +133,7 @@ export const PromoBanner = () => {
           href={currentPromo.path}
           className="hidden sm:inline-flex bg-white text-primary hover:bg-white/95 px-4 py-1.5 rounded-md font-semibold text-sm transition-all whitespace-nowrap"
         >
-          Claim Offer
+          Get Your Fast Quote
         </Link>
 
         <button
