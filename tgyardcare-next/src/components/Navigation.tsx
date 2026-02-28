@@ -485,12 +485,10 @@ export default function Navigation() {
           <div className="hidden lg:flex items-center space-x-2 xl:space-x-4">
             <a
               href="tel:608-535-6057"
-              className="flex items-center text-foreground hover:text-primary transition-colors font-bold text-sm xl:text-base group"
+              className="flex items-center gap-2 border border-border/60 rounded-full px-4 py-2 text-foreground hover:text-primary hover:border-primary/40 transition-all font-bold text-sm xl:text-base group"
             >
-              <div className="bg-primary/10 p-2 rounded-full group-hover:bg-primary/20 transition-all mr-2">
-                <Phone className="h-4 w-4 xl:h-5 xl:w-5 text-primary" />
-              </div>
-              <span className="hidden xl:inline">(608) 535-6057</span>
+              <Phone className="h-4 w-4 text-primary" />
+              <span>(608) 535-6057</span>
             </a>
             <Button
               variant="accent"
@@ -498,7 +496,10 @@ export default function Navigation() {
               className="font-bold text-sm xl:text-base px-4 xl:px-8 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
               asChild
             >
-              <Link href="/contact">Get a Free Quote</Link>
+              <Link href="/contact">
+                Get a Free Quote
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </Link>
             </Button>
           </div>
 

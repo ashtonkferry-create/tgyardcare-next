@@ -98,13 +98,36 @@ All colors MUST be HSL.
     color: hsl(24 95% 50%);
   }
 
-  /* WINTER THEME - Cool blues and icy tones */
+  /* WINTER THEME - Cool blues and icy tones, fully dark */
   body.season-winter {
+    --background: 220 40% 7%;
+    --foreground: 210 20% 95%;
+
+    --card: 220 35% 10%;
+    --card-foreground: 210 20% 95%;
+
+    --popover: 220 35% 10%;
+    --popover-foreground: 210 20% 95%;
+
+    --primary: 200 80% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 30% 15%;
+    --secondary-foreground: 210 20% 90%;
+
+    --muted: 220 25% 14%;
+    --muted-foreground: 210 15% 60%;
+
+    --accent: 200 98% 45%;
+    --accent-foreground: 220 40% 7%;
+
+    --border: 220 25% 18%;
+    --input: 220 25% 18%;
+    --ring: 200 80% 40%;
+
     --seasonal-accent: 200 98% 39%;
     --seasonal-gradient-from: 200 98% 45%;
     --seasonal-gradient-to: 210 90% 35%;
-    --accent: 200 98% 45%;
-    --primary: 200 80% 40%;
   }
   body.season-winter .seasonal-hero {
     background: linear-gradient(135deg, hsl(210 50% 12%), hsl(220 45% 8%));
