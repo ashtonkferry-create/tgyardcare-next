@@ -374,7 +374,7 @@ export default function Navigation() {
 
   return (
     <nav className={cn(
-      "sticky top-0 z-50 border-b shadow-sm nav-seasonal overflow-hidden",
+      "sticky top-0 z-50 border-b shadow-sm nav-seasonal",
       isWinter
         ? "bg-gradient-to-r from-slate-900 via-slate-800 to-blue-900 border-cyan-500/20"
         : "bg-background/95 backdrop-blur-lg border-border/50"
