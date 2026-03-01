@@ -46,6 +46,8 @@ interface MegaMenuSidebar {
   badges: SidebarBadge[];
 }
 
+type MegaMenuVariant = 'residential' | 'commercial';
+
 // ---------------------------------------------------------------------------
 // Residential Services Data
 // ---------------------------------------------------------------------------
@@ -224,22 +226,54 @@ function MegaMenu({
   sidebar,
   season,
   isActivePath,
+  variant = 'residential',
 }: {
   columns: MegaMenuColumn[];
   sidebar: MegaMenuSidebar;
   season: string;
   isActivePath: (p: string) => boolean;
+  variant?: MegaMenuVariant;
 }) {
   const SidebarIcon = sidebar.icon;
+  const isCommercial = variant === 'commercial';
+
+  // Accent color classes per variant
+  const accent = {
+    headerText: isCommercial ? 'text-amber-400' : 'text-primary',
+    headerBg: isCommercial ? 'bg-amber-500/15' : 'bg-white/10',
+    headerBorder: isCommercial ? 'border-amber-500/30' : 'border-white/20',
+    iconColor: isCommercial ? 'text-amber-400' : 'text-primary',
+    activeItemBg: isCommercial ? 'bg-amber-500/20' : 'bg-primary/20',
+    activeItemText: isCommercial ? 'text-amber-400' : 'text-primary',
+    hoverText: isCommercial ? 'group-hover:text-amber-400' : 'group-hover:text-primary',
+    sidebarIconBg: isCommercial ? 'bg-amber-500/20' : 'bg-primary/20',
+    sidebarIconColor: isCommercial ? 'text-amber-400' : 'text-primary',
+    bulletColor: isCommercial ? 'text-amber-400' : 'text-primary',
+    ctaBg: isCommercial ? 'bg-amber-500 hover:bg-amber-500/90 hover:shadow-amber-500/25' : 'bg-primary hover:bg-primary/90 hover:shadow-primary/25',
+    ctaText: isCommercial ? 'text-black' : 'text-primary-foreground',
+    barGradient: isCommercial
+      ? 'bg-gradient-to-r from-transparent via-amber-500 to-transparent'
+      : 'bg-gradient-to-r from-transparent via-primary to-transparent',
+    menuBorder: isCommercial ? 'border-amber-500/20' : 'border-primary/20',
+    badgeHoverBg: isCommercial ? 'group-hover/badge:bg-amber-500/20' : 'group-hover/badge:bg-primary/20',
+    badgeHoverIcon: isCommercial ? 'group-hover/badge:text-amber-400' : 'group-hover/badge:text-primary',
+    pulseDot: isCommercial ? 'bg-amber-400' : 'bg-primary',
+  };
 
   return (
-    <div className="w-[920px] bg-gradient-to-br from-[#1a1a1a] via-[#222222] to-[#1a1a1a] rounded-xl shadow-2xl border border-primary/20 overflow-hidden animate-fade-in">
-      {/* Gradient top bar */}
-      <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary" />
+    <div className={`w-[920px] bg-gradient-to-br from-[#1a1a1a] via-[#222222] to-[#1a1a1a] rounded-xl shadow-2xl border ${accent.menuBorder} overflow-hidden animate-fade-in relative`}>
+      {/* Gradient top bar with left/right dim effect */}
+      <div className={`h-1 ${accent.barGradient}`} />
 
       {/* Seasonal floating particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <SeasonalParticles season={season} />
+      </div>
+
+      {/* Subtle radial glow overlays (matches nav bar dim effects) */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(59,130,246,0.06)_0%,transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(147,197,253,0.04)_0%,transparent_50%)]" />
       </div>
 
       <div className="flex relative">
@@ -250,11 +284,11 @@ function MegaMenu({
             return (
               <div key={col.heading} className="space-y-3">
                 {/* Column header */}
-                <div className="flex items-center gap-2 pb-2.5 border-b border-white/20">
-                  <div className="p-1.5 bg-white/10 rounded-lg">
-                    <ColIcon className="h-4 w-4 text-primary" />
+                <div className={`flex items-center gap-2 pb-2.5 border-b ${accent.headerBorder}`}>
+                  <div className={`p-1.5 ${accent.headerBg} rounded-lg`}>
+                    <ColIcon className={`h-4 w-4 ${accent.iconColor}`} />
                   </div>
-                  <span className="text-sm font-bold text-white tracking-tight">{col.heading}</span>
+                  <span className={`text-xs font-bold ${accent.headerText} tracking-widest uppercase`}>{col.heading}</span>
                 </div>
 
                 {/* Service items */}
@@ -269,16 +303,16 @@ function MegaMenu({
                         href={item.path}
                         className={`group flex items-start gap-2.5 py-2 px-2 -mx-2 rounded-lg transition-all duration-200 ${
                           active
-                            ? 'bg-primary/20 text-primary'
+                            ? `${accent.activeItemBg} ${accent.activeItemText}`
                             : 'hover:bg-white/10 hover:translate-x-1'
                         }`}
                       >
                         <ItemIcon className={`h-3.5 w-3.5 mt-0.5 flex-shrink-0 transition-colors ${
-                          active ? 'text-primary' : 'text-white/50 group-hover:text-primary'
+                          active ? accent.activeItemText : `text-white/50 ${accent.hoverText}`
                         }`} />
                         <div className="min-w-0">
                           <span className={`block text-sm leading-tight transition-colors ${
-                            active ? 'text-primary font-semibold' : 'text-white font-medium group-hover:text-primary'
+                            active ? `${accent.activeItemText} font-semibold` : `text-white font-medium ${accent.hoverText}`
                           }`}>
                             {item.name}
                           </span>
@@ -287,7 +321,7 @@ function MegaMenu({
                           </span>
                         </div>
                         {active && (
-                          <div className="ml-auto mt-1 w-1.5 h-1.5 bg-primary rounded-full animate-pulse flex-shrink-0" />
+                          <div className={`ml-auto mt-1 w-1.5 h-1.5 ${accent.pulseDot} rounded-full animate-pulse flex-shrink-0`} />
                         )}
                       </Link>
                     );
@@ -302,8 +336,8 @@ function MegaMenu({
         <div className="w-[240px] bg-white/5 border-l border-white/10 p-5 flex flex-col">
           {/* Icon + heading */}
           <div className="flex items-center gap-2 mb-3">
-            <div className="p-2 bg-primary/20 rounded-lg">
-              <SidebarIcon className="h-5 w-5 text-primary" />
+            <div className={`p-2 ${accent.sidebarIconBg} rounded-lg`}>
+              <SidebarIcon className={`h-5 w-5 ${accent.sidebarIconColor}`} />
             </div>
             <h3 className="text-sm font-bold text-white leading-tight">{sidebar.heading}</h3>
           </div>
@@ -317,7 +351,7 @@ function MegaMenu({
           <ul className="space-y-1.5 mb-4">
             {sidebar.bullets.map((bullet) => (
               <li key={bullet} className="flex items-start gap-2 text-[11px] text-white/70">
-                <CheckCircle2 className="h-3 w-3 text-primary flex-shrink-0 mt-0.5" />
+                <CheckCircle2 className={`h-3 w-3 ${accent.bulletColor} flex-shrink-0 mt-0.5`} />
                 <span>{bullet}</span>
               </li>
             ))}
@@ -326,7 +360,7 @@ function MegaMenu({
           {/* CTA button */}
           <Link
             href={sidebar.ctaHref}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground text-sm font-bold rounded-xl hover:bg-primary/90 hover:scale-105 transition-all shadow-lg hover:shadow-primary/25 mb-2"
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 ${accent.ctaBg} ${accent.ctaText} text-sm font-bold rounded-xl hover:scale-105 transition-all shadow-lg mb-2`}
           >
             {sidebar.ctaLabel}
             <ArrowRight className="h-4 w-4" />
@@ -343,8 +377,8 @@ function MegaMenu({
               const BadgeIcon = badge.icon;
               return (
                 <div key={badge.label} className="flex items-center gap-2 group/badge">
-                  <div className="p-1 bg-white/10 rounded group-hover/badge:bg-primary/20 transition-colors">
-                    <BadgeIcon className="h-3 w-3 text-white/50 group-hover/badge:text-primary transition-colors" />
+                  <div className={`p-1 bg-white/10 rounded ${accent.badgeHoverBg} transition-colors`}>
+                    <BadgeIcon className={`h-3 w-3 text-white/50 ${accent.badgeHoverIcon} transition-colors`} />
                   </div>
                   <span className="text-[10px] text-white/50 group-hover/badge:text-white/80 transition-colors">{badge.label}</span>
                 </div>
@@ -458,6 +492,7 @@ export default function Navigation() {
                     sidebar={commercialSidebar}
                     season={activeSeason}
                     isActivePath={isActivePath}
+                    variant="commercial"
                   />
                 </div>
               )}
