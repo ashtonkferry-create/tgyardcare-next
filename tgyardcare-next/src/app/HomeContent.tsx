@@ -17,7 +17,9 @@ import { GlobalSchema } from "@/components/GlobalSchema";
 import { WebsiteSchema } from "@/components/WebsiteSchema";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Scissors, Leaf, Trees, Trash2, Sparkles, CloudRain, Home, Shield, Flower2, Sprout, Phone, CheckCircle2, Clock, Users, ArrowRight, Package, SprayCan, ChevronLeft, ChevronRight, Snowflake, CircleDot } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
+import { motion } from 'framer-motion';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 import type { CarouselApi } from "@/components/ui/carousel";
 import { isSnowRemovalSeason } from "@/lib/seasonalServices";
 import { WinterHero } from "@/components/WinterHero";
@@ -157,6 +159,16 @@ export default function HomeContent() {
   const scrollSnapList = carouselApi?.scrollSnapList() || [];
   const totalSlides = scrollSnapList.length;
 
+  const trustStats = [
+    { value: '500+', label: 'Dane County Properties' },
+    { value: '4.9★', label: '60+ Google Reviews' },
+    { value: '12', label: 'Madison-Area Cities' },
+    { value: '24hr', label: 'Quote Response' },
+  ];
+
+  const { ref: statsRef, isInView: statsInView } = useScrollReveal();
+  const { ref: badgesRef, isInView: badgesInView } = useScrollReveal();
+
   return (
     <div className="min-h-screen bg-background">
       <ScrollProgress variant="minimal" />
@@ -177,25 +189,21 @@ export default function HomeContent() {
       {activeSeason === 'fall' && <FallHero />}
 
       {/* IMMEDIATE TRUST: Stats Strip */}
-      <section className="py-6 md:py-8 bg-primary text-primary-foreground">
+      <section className="py-6 md:py-8 bg-primary text-primary-foreground" ref={statsRef}>
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
-            <div>
-              <div className="text-4xl md:text-5xl font-bold mb-1">500+</div>
-              <div className="text-sm md:text-base opacity-90">Dane County Properties</div>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold mb-1">4.9★</div>
-              <div className="text-sm md:text-base opacity-90">60+ Google Reviews</div>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold mb-1">12</div>
-              <div className="text-sm md:text-base opacity-90">Madison-Area Cities</div>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold mb-1">24hr</div>
-              <div className="text-sm md:text-base opacity-90">Quote Response</div>
-            </div>
+            {trustStats.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: index * 0.1, duration: 0.5, ease: 'easeOut' }}
+              >
+                <div className="w-8 h-0.5 bg-white/30 mx-auto mb-3" />
+                <div className="text-4xl md:text-5xl font-bold mb-1">{stat.value}</div>
+                <div className="text-sm md:text-base opacity-90">{stat.label}</div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -214,57 +222,37 @@ export default function HomeContent() {
       <WhyMadisonTrust />
 
       {/* PROOF: Trust Badges */}
-      <section className="py-6 md:py-8 bg-background border-y border-border/30">
+      <section className="py-6 md:py-8 bg-background border-y border-blue-100/30" ref={badgesRef}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 max-w-4xl mx-auto">
-            <div className="flex items-center gap-3 group">
-              <img
-                src={imgSrc(googleBadge)}
-                alt="4.9 star Google rating"
-                className="h-12 w-12 object-contain group-hover:scale-110 transition-transform"
-                loading="lazy"
-                width={48}
-                height={48}
-              />
-              <div>
-                <p className="text-sm font-bold text-foreground">4.9★ Google</p>
-                <p className="text-xs text-muted-foreground">Top Rated</p>
-              </div>
-            </div>
-
-            <div className="hidden md:block w-px h-10 bg-border" />
-
-            <div className="flex items-center gap-3 group">
-              <img
-                src={imgSrc(nextdoorBadge)}
-                alt="2024 Nextdoor Neighborhood Fave"
-                className="h-12 w-12 object-contain group-hover:scale-110 transition-transform"
-                loading="lazy"
-                width={48}
-                height={48}
-              />
-              <div>
-                <p className="text-sm font-bold text-foreground">Nextdoor Fave</p>
-                <p className="text-xs text-muted-foreground">2024 Winner</p>
-              </div>
-            </div>
-
-            <div className="hidden md:block w-px h-10 bg-border" />
-
-            <div className="flex items-center gap-3 group">
-              <img
-                src={imgSrc(satisfactionBadge)}
-                alt="100% satisfaction guarantee"
-                className="h-12 w-12 object-contain group-hover:scale-110 transition-transform"
-                loading="lazy"
-                width={48}
-                height={48}
-              />
-              <div>
-                <p className="text-sm font-bold text-foreground">100% Guarantee</p>
-                <p className="text-xs text-muted-foreground">Or We Fix It</p>
-              </div>
-            </div>
+            {[
+              { src: imgSrc(googleBadge), alt: '4.9 star Google rating', title: '4.9★ Google', sub: 'Top Rated' },
+              { src: imgSrc(nextdoorBadge), alt: '2024 Nextdoor Neighborhood Fave', title: 'Nextdoor Fave', sub: '2024 Winner' },
+              { src: imgSrc(satisfactionBadge), alt: '100% satisfaction guarantee', title: '100% Guarantee', sub: 'Or We Fix It' },
+            ].map((badge, index) => (
+              <Fragment key={badge.alt}>
+                {index > 0 && <div className="hidden md:block w-px h-10 bg-blue-100/40" />}
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={badgesInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: index * 0.15, duration: 0.5 }}
+                  className="flex items-center gap-3 group bg-white/80 backdrop-blur-sm border border-blue-100/40 rounded-xl px-4 py-3 shadow-sm hover:shadow-blue-200/30 hover:border-blue-200/60 transition-all duration-300"
+                >
+                  <img
+                    src={badge.src}
+                    alt={badge.alt}
+                    className="h-12 w-12 object-contain group-hover:scale-110 transition-transform"
+                    loading="lazy"
+                    width={48}
+                    height={48}
+                  />
+                  <div>
+                    <p className="text-sm font-bold text-foreground">{badge.title}</p>
+                    <p className="text-xs text-muted-foreground">{badge.sub}</p>
+                  </div>
+                </motion.div>
+              </Fragment>
+            ))}
           </div>
         </div>
       </section>
