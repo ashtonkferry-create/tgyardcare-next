@@ -63,7 +63,7 @@ export default function SnowRemovalContent() {
             role="img"
             aria-label="Professional snow removal service showing snow plow truck clearing driveway of Wisconsin residential home in winter"
           >
-            <div className="absolute inset-0 bg-black/50"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/20" />
           </div>
 
           <div className="relative z-10 container mx-auto px-4 text-center text-white">

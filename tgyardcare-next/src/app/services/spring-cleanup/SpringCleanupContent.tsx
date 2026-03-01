@@ -43,21 +43,21 @@ export default function SpringCleanupContent() {
           role="img"
           aria-label="Professional spring cleanup service showing yard maintenance with raking debris and preparing garden beds for growing season"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/95 to-foreground/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/20" />
         </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-background mb-4 md:mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 md:mb-6">
               Spring Cleanup in <span className="text-accent">Madison & Dane County</span>
             </h1>
-            <p className="text-lg md:text-xl text-background/90 mb-6 md:mb-8">
+            <p className="text-lg md:text-xl text-white/90 mb-6 md:mb-8">
               Wisconsin winters leave behind a mess—but you don't have to deal with it. Complete spring cleanup across Madison, Middleton, Waunakee, and Sun Prairie to jumpstart your growing season.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
               <Button size="lg" variant="accent" className="text-base md:text-lg font-bold" asChild>
                 <Link href="/contact?service=spring-cleanup">Get My Free Quote →</Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-background text-background hover:bg-background hover:text-foreground text-base md:text-lg" asChild>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900 text-base md:text-lg" asChild>
                 <a href="tel:608-535-6057">
                   <Phone className="mr-2 h-5 w-5" />
                   (608) 535-6057

@@ -108,7 +108,7 @@ export default function GutterCleaningMadisonContent() {
           role="img"
           aria-label="Professional gutter cleaning service in Madison Wisconsin"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/95 to-foreground/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/20" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
@@ -118,21 +118,21 @@ export default function GutterCleaningMadisonContent() {
               Madison, Wisconsin
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-background mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               Gutter Cleaning in <span className="text-primary">Madison, WI</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-background/90 mb-6">
+            <p className="text-lg md:text-xl text-white/90 mb-6">
               Complete gutter cleanout with downspout flushing, inspection, and photo documentation.
               Protect your Madison home from water damage.
             </p>
 
             <div className="flex items-center gap-4 mb-8 flex-wrap">
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <Star className="h-5 w-5 text-accent fill-accent" />
                 <span className="font-bold">4.9&#9733; Google Rating</span>
               </div>
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <span>Photo Documentation Included</span>
               </div>
@@ -144,7 +144,7 @@ export default function GutterCleaningMadisonContent() {
                   Get Free Quote <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-background text-background hover:bg-background hover:text-foreground font-bold text-lg" asChild>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900 font-bold text-lg" asChild>
                 <a href="tel:608-535-6057">
                   <Phone className="mr-2 h-5 w-5" />
                   (608) 535-6057

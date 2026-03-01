@@ -110,7 +110,7 @@ export default function LawnCareMiddletonContent() {
           role="img"
           aria-label="Professional lawn mowing service in Middleton Wisconsin"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/95 to-foreground/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/20" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
@@ -120,21 +120,21 @@ export default function LawnCareMiddletonContent() {
               Middleton, Wisconsin
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-background mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               Lawn Mowing in <span className="text-primary">Middleton, WI</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-background/90 mb-6">
+            <p className="text-lg md:text-xl text-white/90 mb-6">
               Professional lawn care for Middleton homeowners. From Pheasant Branch to Middleton Hills,
               we deliver consistent quality with the same crew every visit.
             </p>
 
             <div className="flex items-center gap-4 mb-8 flex-wrap">
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <Star className="h-5 w-5 text-accent fill-accent" />
                 <span className="font-bold">4.9&#9733; Google Rating</span>
               </div>
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <span>Serving All Middleton Neighborhoods</span>
               </div>
@@ -146,7 +146,7 @@ export default function LawnCareMiddletonContent() {
                   Get Free Middleton Quote <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-background text-background hover:bg-background hover:text-foreground font-bold text-lg" asChild>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900 font-bold text-lg" asChild>
                 <a href="tel:608-535-6057">
                   <Phone className="mr-2 h-5 w-5" />
                   (608) 535-6057

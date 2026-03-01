@@ -96,15 +96,15 @@ export default function CommercialLawnCareContent() {
           role="img"
           aria-label="Professional commercial lawn mowing and property maintenance for businesses in Madison, Wisconsin"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/95 to-foreground/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/20" />
         </div>
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
           <div className="max-w-3xl">
             <p className="text-accent font-semibold mb-3 text-sm md:text-base tracking-wide uppercase">Commercial Property Maintenance</p>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-background mb-4 md:mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 md:mb-6 leading-tight">
               Commercial Lawn Care <span className="text-accent">Contracts</span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-background/90 mb-6 md:mb-8 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 md:mb-8 leading-relaxed">
               Predictable, documented lawn maintenance for property managers who need reliability\u2014not excuses. Same crew, same schedule, zero missed visits.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
@@ -113,7 +113,7 @@ export default function CommercialLawnCareContent() {
                   Request Commercial Quote <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto border-background text-background hover:bg-background hover:text-foreground tap-target text-base md:text-lg" asChild>
+              <Button size="lg" variant="outline" className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-gray-900 tap-target text-base md:text-lg" asChild>
                 <a href="tel:608-535-6057">
                   <Phone className="mr-2 h-5 w-5" />
                   (608) 535-6057

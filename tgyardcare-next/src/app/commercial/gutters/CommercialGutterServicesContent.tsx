@@ -107,15 +107,15 @@ export default function CommercialGutterServicesContent() {
           role="img"
           aria-label="Professional commercial gutter cleaning and maintenance for property managers in Madison, Wisconsin"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/95 to-foreground/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/20" />
         </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
             <p className="text-accent font-semibold mb-3 text-sm md:text-base tracking-wide uppercase">Commercial Property Maintenance</p>
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-background mb-4 md:mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 md:mb-6">
               Commercial Gutter <span className="text-accent">Maintenance</span>
             </h1>
-            <p className="text-lg md:text-xl text-background/90 mb-6 md:mb-8">
+            <p className="text-lg md:text-xl text-white/90 mb-6 md:mb-8">
               Documented gutter maintenance that reduces liability exposure and protects your property investment. Photo records with every service.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
@@ -124,7 +124,7 @@ export default function CommercialGutterServicesContent() {
                   Request Commercial Quote <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-background text-background hover:bg-background hover:text-foreground text-base md:text-lg" asChild>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900 text-base md:text-lg" asChild>
                 <a href="tel:608-535-6057">
                   <Phone className="mr-2 h-5 w-5" />
                   (608) 535-6057

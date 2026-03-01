@@ -184,13 +184,15 @@ export default function CommercialContent() {
       </section>
 
       {/* Hero Section - Premium Dark Theme */}
-      <section className="relative min-h-[auto] md:min-h-[70vh] flex items-center py-20 pt-24 md:py-28 md:pt-28 bg-gradient-to-br from-foreground via-foreground/95 to-foreground/90 overflow-hidden">
+      <section className="relative min-h-[auto] md:min-h-[70vh] flex items-center py-20 pt-24 md:py-28 md:pt-28 overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-15"
+          className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${imgSrc(heroImage)})` }}
           role="img"
           aria-label="Professional commercial lawn care services for businesses in Madison, Wisconsin"
-        />
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/20" />
+        </div>
         {/* Decorative elements */}
         <div className="absolute top-20 right-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
@@ -203,10 +205,10 @@ export default function CommercialContent() {
               <span>Fully Insured &bull; Certificate Available on Request</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-background mb-4 md:mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 md:mb-6 leading-tight">
               Commercial Lawn Care <span className="text-accent">Across Dane County</span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-background/90 mb-8 md:mb-10 leading-relaxed max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-white/90 mb-8 md:mb-10 leading-relaxed max-w-2xl mx-auto">
               Professional property maintenance for businesses, HOAs, and commercial properties across Madison, Middleton, Waunakee, Sun Prairie, and all Dane County. Reliable service your tenants and customers notice.
             </p>
 
@@ -217,7 +219,7 @@ export default function CommercialContent() {
                   Get a Free Quote <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto border-background text-background hover:bg-background hover:text-foreground tap-target text-base md:text-lg" asChild>
+              <Button size="lg" variant="outline" className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-gray-900 tap-target text-base md:text-lg" asChild>
                 <a href="tel:608-535-6057">
                   <Phone className="mr-2 h-5 w-5" />
                   (608) 535-6057
@@ -226,7 +228,7 @@ export default function CommercialContent() {
             </div>
 
             {/* Micro-proof points */}
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-background/80 text-sm">
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-white/80 text-sm">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-accent" />
                 <span>Flexible Scheduling</span>
@@ -434,7 +436,7 @@ export default function CommercialContent() {
       />
 
       {/* Custom Maintenance Plans */}
-      <section className="py-20 bg-foreground text-background">
+      <section className="py-20 bg-gray-900 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             Custom Maintenance Plans Available
@@ -448,7 +450,7 @@ export default function CommercialContent() {
                 Get a Custom Quote <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-background text-background hover:bg-background hover:text-foreground" asChild>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900" asChild>
               <a href="tel:608-535-6057">
                 <Phone className="mr-2 h-5 w-5" />
                 (608) 535-6057
