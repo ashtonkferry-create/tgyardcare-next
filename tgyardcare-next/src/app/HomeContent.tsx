@@ -368,14 +368,14 @@ export default function HomeContent() {
       <FullSeasonContract />
 
       {/* PROOF: Before/After */}
-      <section className="py-10 md:py-14 bg-background" ref={galleryRef}>
+      <section className="py-10 md:py-14 bg-white" ref={galleryRef}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-8">
-            <div className="w-12 h-px bg-border mx-auto mb-6" />
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            <div className="w-12 h-px bg-gray-200 mx-auto mb-6" />
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
               Real Results. <span className="text-primary">Real Properties.</span>
             </h2>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            <p className="text-sm text-gray-500 max-w-md mx-auto">
               Actual transformations from Madison-area homes—no stock photos.
             </p>
           </div>
@@ -396,13 +396,13 @@ export default function HomeContent() {
                   width={600}
                   height={400}
                 />
-                <div className="absolute top-3 left-3 bg-background/90 backdrop-blur-sm border border-border rounded-full px-3 py-1 text-xs font-bold text-foreground shadow-sm">
+                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full px-3 py-1 text-xs font-bold text-gray-900 shadow-sm">
                   Madison, WI
                 </div>
               </div>
-              <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
                 <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                <span><strong className="text-foreground">4-week result:</strong> Weekly mowing + edging + debris removal</span>
+                <span><strong className="text-gray-900">4-week result:</strong> Weekly mowing + edging + debris removal</span>
               </div>
             </motion.div>
 
@@ -418,11 +418,11 @@ export default function HomeContent() {
                   { label: "Visible improvement", desc: "Within 2-4 weeks" },
                   { label: "Documented work", desc: "Before/after photos on request" },
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-3 p-3 rounded-lg border border-border/50 hover:border-primary/30 hover:bg-blue-50/50 hover:border-blue-200/50 transition-colors">
+                  <div key={idx} className="flex items-start gap-3 p-3 rounded-lg border border-gray-200/50 hover:border-primary/30 hover:bg-blue-50/50 hover:border-blue-200/50 transition-colors">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-semibold text-foreground">{item.label}</p>
-                      <p className="text-xs text-muted-foreground">{item.desc}</p>
+                      <p className="text-sm font-semibold text-gray-900">{item.label}</p>
+                      <p className="text-xs text-gray-500">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -444,19 +444,19 @@ export default function HomeContent() {
       <GoogleReviewsSection />
 
       {/* SERVICE STANDARD */}
-      <section className="py-6 md:py-8 bg-gradient-to-b from-background to-muted/30" ref={standardRef}>
+      <section className="py-6 md:py-8 bg-white" ref={standardRef}>
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="w-10 h-0.5 bg-gradient-to-r from-blue-300/50 to-transparent mb-4" />
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-              <h2 className="text-lg md:text-xl font-bold text-foreground">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900">
                 The TotalGuard Standard
               </h2>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-4 text-sm text-gray-500">
                 <span className="flex items-center gap-1.5">
                   <span className="text-primary font-bold">4.9★</span> Google Rating
                 </span>
-                <span className="hidden sm:block w-px h-4 bg-border" />
+                <span className="hidden sm:block w-px h-4 bg-gray-200" />
                 <span className="hidden sm:flex items-center gap-1.5">
                   <span className="text-primary font-bold">500+</span> Clients Served
                 </span>
@@ -481,8 +481,8 @@ export default function HomeContent() {
                     <item.icon className="h-4 w-4 text-primary flex-shrink-0" />
                   </div>
                   <div>
-                    <span className="text-sm font-semibold text-foreground block leading-tight">{item.title}</span>
-                    <span className="text-xs text-muted-foreground">{item.desc}</span>
+                    <span className="text-sm font-semibold text-gray-900 block leading-tight">{item.title}</span>
+                    <span className="text-xs text-gray-500">{item.desc}</span>
                   </div>
                 </motion.div>
               ))}
@@ -492,14 +492,14 @@ export default function HomeContent() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="py-10 md:py-12 bg-muted/30">
+      <section className="py-10 md:py-12 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-6">
-              <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
                 What Happens When You Contact Us
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-500">
                 No mystery. No runaround. Here&apos;s exactly how it works.
               </p>
             </div>

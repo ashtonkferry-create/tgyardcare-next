@@ -95,9 +95,9 @@ export function ProcessTimeline({ variant = "vertical", className }: ProcessTime
                   </span>
                 </div>
 
-                <h4 className="text-sm font-bold text-foreground mb-1">{step.title}</h4>
+                <h4 className="text-sm font-bold text-gray-900 mb-1">{step.title}</h4>
                 <p className="text-xs text-primary font-medium mb-1">{step.timing}</p>
-                <p className="text-xs text-muted-foreground">{step.description}</p>
+                <p className="text-xs text-gray-500">{step.description}</p>
               </motion.div>
             );
           })}

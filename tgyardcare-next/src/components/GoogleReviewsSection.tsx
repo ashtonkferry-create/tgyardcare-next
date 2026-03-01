@@ -37,7 +37,7 @@ export function GoogleReviewsSection() {
   const { ref: sectionRef, isInView } = useScrollReveal();
 
   return (
-    <section ref={sectionRef} className="py-12 md:py-16 bg-background">
+    <section ref={sectionRef} className="py-12 md:py-16 bg-white">
       <div className="container mx-auto px-4">
         {/* Google Reviews Schema - Crawlable */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{
@@ -74,7 +74,7 @@ export function GoogleReviewsSection() {
 
         {/* Section Header with Google Branding */}
         <div className="text-center mb-8">
-          <div className="w-12 h-px bg-border mx-auto mb-6" />
+          <div className="w-12 h-px bg-gray-200 mx-auto mb-6" />
 
           {/* Google Trust Indicator */}
           <div className="flex items-center justify-center gap-2.5 mb-4">
@@ -84,12 +84,12 @@ export function GoogleReviewsSection() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
-            <span className="text-sm font-medium text-muted-foreground">
+            <span className="text-sm font-medium text-gray-500">
               Reviews from Google
             </span>
           </div>
 
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
             Verified Customer Reviews
           </h2>
 
@@ -99,7 +99,7 @@ export function GoogleReviewsSection() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={isInView ? { opacity: 1, scale: 1 } : {}}
               transition={{ type: 'spring', bounce: 0.4, duration: 0.6 }}
-              className="text-4xl md:text-5xl font-bold text-foreground"
+              className="text-4xl md:text-5xl font-bold text-gray-900"
             >
               4.9
             </motion.span>
@@ -112,7 +112,7 @@ export function GoogleReviewsSection() {
                   />
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-gray-500">
                 Based on 60+ reviews
               </span>
             </div>
@@ -129,7 +129,7 @@ export function GoogleReviewsSection() {
               transition={{ delay: index * 0.1, duration: 0.5 }}
             >
             <article
-              className="bg-background border border-border rounded-xl p-5 hover:border-primary/30 hover:shadow-md backdrop-blur-sm hover:shadow-blue-100/20 transition-all duration-300"
+              className="bg-white border border-gray-200 rounded-xl p-5 hover:border-primary/30 hover:shadow-md backdrop-blur-sm hover:shadow-blue-100/20 transition-all duration-300"
               itemScope
               itemType="https://schema.org/Review"
             >
@@ -143,10 +143,10 @@ export function GoogleReviewsSection() {
                     </span>
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground text-sm" itemProp="author">
+                    <p className="font-semibold text-gray-900 text-sm" itemProp="author">
                       {review.name}
                     </p>
-                    <p className="text-xs text-muted-foreground">{review.date}</p>
+                    <p className="text-xs text-gray-500">{review.date}</p>
                   </div>
                 </div>
                 {/* Google Icon - Colored */}
@@ -172,7 +172,7 @@ export function GoogleReviewsSection() {
 
               {/* Review Text */}
               <p
-                className="text-sm text-foreground leading-relaxed"
+                className="text-sm text-gray-900 leading-relaxed"
                 itemProp="reviewBody"
               >
                 &ldquo;{review.text}&rdquo;
@@ -183,20 +183,20 @@ export function GoogleReviewsSection() {
         </div>
 
         {/* Review Stats Strip */}
-        <div className="flex flex-wrap justify-center items-center gap-6 mb-6 py-4 border-t border-b border-border/50">
+        <div className="flex flex-wrap justify-center items-center gap-6 mb-6 py-4 border-t border-b border-gray-200/50">
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">60+</p>
-            <p className="text-xs text-muted-foreground">Google Reviews</p>
+            <p className="text-2xl font-bold text-gray-900">60+</p>
+            <p className="text-xs text-gray-500">Google Reviews</p>
           </div>
-          <div className="w-px h-8 bg-border hidden sm:block" />
+          <div className="w-px h-8 bg-gray-200 hidden sm:block" />
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">4.9&#9733;</p>
-            <p className="text-xs text-muted-foreground">Avg Rating</p>
+            <p className="text-2xl font-bold text-gray-900">4.9&#9733;</p>
+            <p className="text-xs text-gray-500">Avg Rating</p>
           </div>
-          <div className="w-px h-8 bg-border hidden sm:block" />
+          <div className="w-px h-8 bg-gray-200 hidden sm:block" />
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">100%</p>
-            <p className="text-xs text-muted-foreground">Would Recommend</p>
+            <p className="text-2xl font-bold text-gray-900">100%</p>
+            <p className="text-xs text-gray-500">Would Recommend</p>
           </div>
         </div>
 
@@ -210,7 +210,7 @@ export function GoogleReviewsSection() {
           <Button
             size="default"
             variant="ghost"
-            className="text-muted-foreground hover:text-foreground"
+            className="text-gray-500 hover:text-gray-900"
             asChild
           >
             <a
