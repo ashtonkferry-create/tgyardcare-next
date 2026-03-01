@@ -134,6 +134,9 @@ export function FullSeasonContract() {
             }}
           />
         ))}
+
+        {/* Aurora shimmer overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/10 via-cyan-900/10 to-blue-900/10 animate-aurora-shimmer pointer-events-none" />
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
@@ -208,7 +211,7 @@ export function FullSeasonContract() {
               <motion.button
                 key={season.label}
                 onClick={() => setActiveSeason(activeSeason === season.label ? null : season.label)}
-                className={`group relative flex items-center gap-2.5 ${season.bg} backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-3.5 cursor-pointer transition-all duration-300 ${activeSeason === season.label ? 'ring-2 ring-primary border-primary/50 shadow-lg shadow-primary/20' : 'hover:border-white/20'}`}
+                className={`group relative flex items-center gap-2.5 ${season.bg} backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-3.5 cursor-pointer transition-all duration-300 ${activeSeason === season.label ? 'ring-2 ring-primary border-primary/50 shadow-lg shadow-primary/20 animate-frost-glow' : 'hover:border-white/20 hover:shadow-lg hover:shadow-cyan-500/10'}`}
                 whileHover={{
                   scale: 1.05,
                   y: -3,
@@ -390,7 +393,7 @@ export function FullSeasonContract() {
               >
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-primary via-emerald-500 to-primary bg-[length:200%_100%] hover:bg-[position:100%_0] text-primary-foreground font-bold text-sm md:text-lg px-5 sm:px-8 md:px-10 py-5 md:py-6 rounded-full shadow-xl shadow-primary/25 transition-all duration-500 group max-w-full"
+                  className="bg-gradient-to-r from-primary via-emerald-500 to-primary bg-[length:200%_100%] hover:bg-[position:100%_0] text-primary-foreground font-bold text-sm md:text-lg px-5 sm:px-8 md:px-10 py-5 md:py-6 rounded-full shadow-xl shadow-primary/25 transition-all duration-500 group max-w-full animate-shimmer-btn"
                   asChild
                 >
                   <Link href={contactLink}>
