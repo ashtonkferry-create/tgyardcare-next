@@ -168,6 +168,9 @@ export default function HomeContent() {
 
   const { ref: statsRef, isInView: statsInView } = useScrollReveal();
   const { ref: badgesRef, isInView: badgesInView } = useScrollReveal();
+  const { ref: servicesRef, isInView: servicesInView } = useScrollReveal();
+  const { ref: galleryRef, isInView: galleryInView } = useScrollReveal();
+  const { ref: standardRef, isInView: standardInView } = useScrollReveal();
 
   return (
     <div className="min-h-screen bg-background">
@@ -258,11 +261,16 @@ export default function HomeContent() {
       </section>
 
       {/* SERVICES: Complete Offerings */}
-      <section id="services" className="py-10 md:py-14 bg-background">
+      <section id="services" className="py-10 md:py-14 bg-background" ref={servicesRef}>
         <div className="container mx-auto px-4">
           <SectionConnector className="mb-6" />
 
-          <div className="text-center mb-8">
+          <motion.div
+            initial={{ opacity: 0, filter: 'blur(8px)' }}
+            animate={servicesInView ? { opacity: 1, filter: 'blur(0px)' } : {}}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-8"
+          >
             <div className="inline-flex items-center gap-2 bg-primary/5 text-primary px-4 py-1.5 rounded-full text-xs font-bold mb-3 border border-primary/10">
               <Sparkles className="h-3.5 w-3.5" />
               One Call Handles It All
@@ -273,7 +281,7 @@ export default function HomeContent() {
             <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
               Stop juggling contractors. We handle your entire property—lawn to gutters.
             </p>
-          </div>
+          </motion.div>
 
           <Carousel opts={{
             align: "start",
@@ -292,7 +300,7 @@ export default function HomeContent() {
 
           {totalSlides > 0 && (
             <div className="flex justify-center items-center gap-2 mt-6">
-              <Button variant="ghost" size="icon" onClick={() => carouselApi?.scrollPrev()} className="rounded-full h-8 w-8" aria-label="Previous">
+              <Button variant="ghost" size="icon" onClick={() => carouselApi?.scrollPrev()} className="rounded-full h-8 w-8 border border-border/50 hover:border-primary/30 hover:bg-primary/5" aria-label="Previous">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <div className="flex gap-1.5">
@@ -305,7 +313,7 @@ export default function HomeContent() {
                   />
                 ))}
               </div>
-              <Button variant="ghost" size="icon" onClick={() => carouselApi?.scrollNext()} className="rounded-full h-8 w-8" aria-label="Next">
+              <Button variant="ghost" size="icon" onClick={() => carouselApi?.scrollNext()} className="rounded-full h-8 w-8 border border-border/50 hover:border-primary/30 hover:bg-primary/5" aria-label="Next">
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -315,7 +323,7 @@ export default function HomeContent() {
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center items-center max-w-xl mx-auto">
             <Link
               href="/residential"
-              className="group flex items-center gap-2 px-5 py-2.5 rounded-full border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-sm font-medium text-foreground"
+              className="group flex items-center gap-2 px-5 py-2.5 rounded-full border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-sm font-medium text-foreground hover:scale-[1.02] hover:shadow-md"
             >
               <Home className="h-4 w-4 text-primary" />
               Residential Services
@@ -324,7 +332,7 @@ export default function HomeContent() {
 
             <Link
               href="/commercial"
-              className="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all text-sm font-medium"
+              className="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all text-sm font-medium hover:scale-[1.02] hover:shadow-md"
             >
               <Package className="h-4 w-4" />
               Commercial Services
@@ -360,7 +368,7 @@ export default function HomeContent() {
       <FullSeasonContract />
 
       {/* PROOF: Before/After */}
-      <section className="py-10 md:py-14 bg-background">
+      <section className="py-10 md:py-14 bg-background" ref={galleryRef}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-8">
             <div className="w-12 h-px bg-border mx-auto mb-6" />
@@ -373,8 +381,13 @@ export default function HomeContent() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">
-            <div className="order-2 lg:order-1">
-              <div className="relative">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={galleryInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.6 }}
+              className="order-2 lg:order-1"
+            >
+              <div className="relative border border-blue-100/30 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-blue-100/20 transition-all duration-500">
                 <img
                   alt="Before and after lawn transformation showing improved grass quality and curb appeal"
                   className="w-full rounded-xl shadow-lg"
@@ -391,16 +404,21 @@ export default function HomeContent() {
                 <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                 <span><strong className="text-foreground">4-week result:</strong> Weekly mowing + edging + debris removal</span>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="order-1 lg:order-2 space-y-4">
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={galleryInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.15 }}
+              className="order-1 lg:order-2 space-y-4"
+            >
               <div className="space-y-3">
                 {[
                   { label: "Consistent visits", desc: "Same crew, same schedule" },
                   { label: "Visible improvement", desc: "Within 2-4 weeks" },
                   { label: "Documented work", desc: "Before/after photos on request" },
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-3 p-3 rounded-lg border border-border/50 hover:border-primary/30 transition-colors">
+                  <div key={idx} className="flex items-start gap-3 p-3 rounded-lg border border-border/50 hover:border-primary/30 hover:bg-blue-50/50 hover:border-blue-200/50 transition-colors">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-semibold text-foreground">{item.label}</p>
@@ -415,7 +433,7 @@ export default function HomeContent() {
                   View Full Gallery <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -426,9 +444,10 @@ export default function HomeContent() {
       <GoogleReviewsSection />
 
       {/* SERVICE STANDARD */}
-      <section className="py-6 md:py-8 bg-gradient-to-b from-background to-muted/30">
+      <section className="py-6 md:py-8 bg-gradient-to-b from-background to-muted/30" ref={standardRef}>
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
+            <div className="w-10 h-0.5 bg-gradient-to-r from-blue-300/50 to-transparent mb-4" />
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
               <h2 className="text-lg md:text-xl font-bold text-foreground">
                 The TotalGuard Standard
@@ -444,35 +463,29 @@ export default function HomeContent() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3 py-4 border-t border-border/50">
-              <div className="flex items-center gap-2.5">
-                <Clock className="h-4 w-4 text-primary flex-shrink-0" />
-                <div>
-                  <span className="text-sm font-semibold text-foreground block leading-tight">24hr Response</span>
-                  <span className="text-xs text-muted-foreground">Same-day quotes</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                <div>
-                  <span className="text-sm font-semibold text-foreground block leading-tight">Quality Walk</span>
-                  <span className="text-xs text-muted-foreground">Inspected before leaving</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <Users className="h-4 w-4 text-primary flex-shrink-0" />
-                <div>
-                  <span className="text-sm font-semibold text-foreground block leading-tight">Same Crew</span>
-                  <span className="text-xs text-muted-foreground">Every single visit</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <Shield className="h-4 w-4 text-primary flex-shrink-0" />
-                <div>
-                  <span className="text-sm font-semibold text-foreground block leading-tight">Make-It-Right</span>
-                  <span className="text-xs text-muted-foreground">Free return guarantee</span>
-                </div>
-              </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3 py-4 border-t border-blue-100/40">
+              {[
+                { icon: Clock, title: '24hr Response', desc: 'Same-day quotes' },
+                { icon: CheckCircle2, title: 'Quality Walk', desc: 'Inspected before leaving' },
+                { icon: Users, title: 'Same Crew', desc: 'Every single visit' },
+                { icon: Shield, title: 'Make-It-Right', desc: 'Free return guarantee' },
+              ].map((item, index) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={standardInView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ delay: index * 0.1, duration: 0.4 }}
+                  className="flex items-center gap-2.5 group"
+                >
+                  <div className="p-1.5 rounded-lg bg-primary/5 group-hover:bg-primary/15 transition-colors">
+                    <item.icon className="h-4 w-4 text-primary flex-shrink-0" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-foreground block leading-tight">{item.title}</span>
+                    <span className="text-xs text-muted-foreground">{item.desc}</span>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </div>
