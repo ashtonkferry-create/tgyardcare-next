@@ -659,11 +659,11 @@ export default function Navigation() {
       <div className="container mx-auto px-3 sm:px-4 relative z-10">
         <div className="flex items-center justify-between h-16 md:h-18 lg:h-20">
           {/* ---- Logo ---- */}
-          <Link href="/" className="flex items-center group flex-shrink-0 -my-2">
+          <Link href="/" className="flex items-center group flex-shrink-0 -my-4">
             <img
               alt="TotalGuard Yard Care - Professional Lawn Care Services in Madison Wisconsin"
               src="/images/totalguard-logo-summer.png"
-              className="h-24 md:h-28 lg:h-32 w-auto hover:scale-105 transition-transform duration-300"
+              className="h-28 md:h-32 lg:h-36 w-auto hover:scale-105 transition-transform duration-300"
               loading="eager"
               fetchPriority="high"
               decoding="async"
