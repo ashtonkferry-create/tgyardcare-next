@@ -604,34 +604,58 @@ export default function Navigation() {
   const openAbout = useCallback(() => { setResidentialOpen(false); setCommercialOpen(false); setAboutOpen(true); }, []);
 
   const { activeSeason } = useSeasonalTheme();
-  const isWinter = activeSeason === 'winter';
 
   const isActivePath = (path: string) => pathname === path;
 
+  // Season-adaptive nav colors — slightly darker than hero to differentiate
+  const navTheme = {
+    winter: {
+      bg: 'bg-gradient-to-r from-slate-950 via-slate-900 to-blue-950',
+      border: 'border-cyan-500/20',
+      hoverText: 'hover:text-cyan-300',
+      accentText: 'text-cyan-400',
+      accentBg: 'bg-cyan-500/20',
+      accentBgHover: 'group-hover:bg-cyan-500/30',
+      ctaFrom: 'from-cyan-500',
+      ctaTo: 'to-teal-400',
+      ctaShadow: 'shadow-cyan-500/25',
+      ctaShadowHover: 'hover:shadow-cyan-500/40',
+      phoneBorder: 'border-white/20',
+      phoneBorderHover: 'hover:border-cyan-400/40',
+    },
+    summer: {
+      bg: 'bg-gradient-to-r from-[#0f2a1a] via-[#142e1e] to-[#1a3a2a]',
+      border: 'border-green-500/20',
+      hoverText: 'hover:text-green-300',
+      accentText: 'text-green-400',
+      accentBg: 'bg-green-500/20',
+      accentBgHover: 'group-hover:bg-green-500/30',
+      ctaFrom: 'from-green-500',
+      ctaTo: 'to-emerald-400',
+      ctaShadow: 'shadow-green-500/25',
+      ctaShadowHover: 'hover:shadow-green-500/40',
+      phoneBorder: 'border-white/20',
+      phoneBorderHover: 'hover:border-green-400/40',
+    },
+    fall: {
+      bg: 'bg-gradient-to-r from-stone-950 via-stone-900 to-amber-950',
+      border: 'border-amber-500/20',
+      hoverText: 'hover:text-amber-300',
+      accentText: 'text-amber-400',
+      accentBg: 'bg-amber-500/20',
+      accentBgHover: 'group-hover:bg-amber-500/30',
+      ctaFrom: 'from-amber-500',
+      ctaTo: 'to-orange-400',
+      ctaShadow: 'shadow-amber-500/25',
+      ctaShadowHover: 'hover:shadow-amber-500/40',
+      phoneBorder: 'border-white/20',
+      phoneBorderHover: 'hover:border-amber-400/40',
+    },
+  } as const;
+  const t = navTheme[activeSeason] ?? navTheme.summer;
+
   return (
-    <nav className="sticky top-0 z-50 border-b shadow-lg nav-seasonal bg-gradient-to-r from-slate-900 via-slate-800 to-blue-900 border-cyan-500/20">
-      {/* Winter snow particles */}
-      {isWinter && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(12)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute bg-white/25 rounded-full animate-snow-fall"
-              style={{
-                width: `${1.5 + Math.random() * 2.5}px`,
-                height: `${1.5 + Math.random() * 2.5}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${-(Math.random() * 10)}s`,
-                animationDuration: `${6 + Math.random() * 4}s`,
-                filter: 'blur(0.5px)',
-              }}
-            />
-          ))}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(59,130,246,0.08)_0%,transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(147,197,253,0.06)_0%,transparent_50%)]" />
-        </div>
-      )}
+    <nav className={cn("sticky top-0 z-50 border-b shadow-lg nav-seasonal", t.bg, t.border)}>
       <div className="container mx-auto px-3 sm:px-4 relative z-10">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* ---- Logo ---- */}
@@ -654,7 +678,7 @@ export default function Navigation() {
               onMouseEnter={openResidential}
               onMouseLeave={() => setResidentialOpen(false)}
             >
-              <button className="flex items-center text-white/90 hover:text-cyan-300 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5">
+              <button className={`flex items-center text-white/90 ${t.hoverText} transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5`}>
                 Residential Services
                 <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${residentialOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -686,7 +710,7 @@ export default function Navigation() {
               onMouseEnter={openCommercial}
               onMouseLeave={() => setCommercialOpen(false)}
             >
-              <button className="flex items-center text-white/90 hover:text-cyan-300 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5">
+              <button className={`flex items-center text-white/90 ${t.hoverText} transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5`}>
                 Commercial Services
                 <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${commercialOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -716,7 +740,7 @@ export default function Navigation() {
             {/* Portfolio link (no dropdown) */}
             <Link
               href="/gallery"
-              className="text-white/90 hover:text-cyan-300 hover:bg-white/5 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg"
+              className={`text-white/90 ${t.hoverText} hover:bg-white/5 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg`}
             >
               Portfolio
             </Link>
@@ -727,7 +751,7 @@ export default function Navigation() {
               onMouseEnter={openAbout}
               onMouseLeave={() => setAboutOpen(false)}
             >
-              <button className="flex items-center text-white/90 hover:text-cyan-300 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5">
+              <button className={`flex items-center text-white/90 ${t.hoverText} transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5`}>
                 About Us
                 <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${aboutOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -778,16 +802,16 @@ export default function Navigation() {
           <div className="hidden lg:flex items-center space-x-2 xl:space-x-4">
             <a
               href="tel:608-535-6057"
-              className="flex items-center gap-2 border border-white/20 rounded-full px-4 py-2 text-white hover:text-cyan-300 hover:border-cyan-400/40 transition-all font-bold text-sm xl:text-base group"
+              className={`flex items-center gap-2 border ${t.phoneBorder} rounded-full px-4 py-2 text-white ${t.hoverText} ${t.phoneBorderHover} transition-all font-bold text-sm xl:text-base group`}
             >
-              <div className="bg-cyan-500/20 p-1.5 rounded-full group-hover:bg-cyan-500/30 transition-colors">
-                <Phone className="h-4 w-4 text-cyan-400" />
+              <div className={`${t.accentBg} p-1.5 rounded-full ${t.accentBgHover} transition-colors`}>
+                <Phone className={`h-4 w-4 ${t.accentText}`} />
               </div>
               <span>(608) 535-6057</span>
             </a>
             <Link
               href="/contact"
-              className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-teal-400 text-white font-bold text-sm xl:text-base px-5 xl:px-7 py-2.5 rounded-full shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/40 hover:scale-105 transition-all"
+              className={`flex items-center gap-2 bg-gradient-to-r ${t.ctaFrom} ${t.ctaTo} text-white font-bold text-sm xl:text-base px-5 xl:px-7 py-2.5 rounded-full shadow-lg ${t.ctaShadow} hover:shadow-xl ${t.ctaShadowHover} hover:scale-105 transition-all`}
             >
               Get a Free Quote
               <ArrowRight className="h-4 w-4" />
@@ -798,12 +822,12 @@ export default function Navigation() {
           <div className="flex items-center gap-1 sm:gap-2 lg:hidden">
             <a
               href="tel:608-535-6057"
-              className="p-2.5 rounded-full bg-cyan-500/15 hover:bg-cyan-500/25 transition-all tap-target flex items-center justify-center"
+              className={`p-2.5 rounded-full ${t.accentBg} hover:opacity-80 transition-all tap-target flex items-center justify-center`}
             >
-              <Phone className="h-5 w-5 text-cyan-400" />
+              <Phone className={`h-5 w-5 ${t.accentText}`} />
             </a>
             <button
-              className="p-2.5 text-white hover:text-cyan-300 hover:bg-white/10 transition-all rounded-lg tap-target flex items-center justify-center"
+              className={`p-2.5 text-white ${t.hoverText} hover:bg-white/10 transition-all rounded-lg tap-target flex items-center justify-center`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <Menu className="h-6 w-6" />
