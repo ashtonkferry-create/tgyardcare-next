@@ -1,6 +1,8 @@
 'use client';
 
 import { Star, ExternalLink } from "lucide-react";
+import { motion } from 'framer-motion';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -32,8 +34,10 @@ const googleReviews = [
 const GOOGLE_BUSINESS_URL = "https://share.google/ztAY29NZSUFqJIBiy";
 
 export function GoogleReviewsSection() {
+  const { ref: sectionRef, isInView } = useScrollReveal();
+
   return (
-    <section className="py-12 md:py-16 bg-background">
+    <section ref={sectionRef} className="py-12 md:py-16 bg-background">
       <div className="container mx-auto px-4">
         {/* Google Reviews Schema - Crawlable */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{
@@ -91,7 +95,14 @@ export function GoogleReviewsSection() {
 
           {/* Aggregate Rating Display - Google Style */}
           <div className="flex items-center justify-center gap-3 mt-4">
-            <span className="text-4xl md:text-5xl font-bold text-foreground">4.9</span>
+            <motion.span
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={isInView ? { opacity: 1, scale: 1 } : {}}
+              transition={{ type: 'spring', bounce: 0.4, duration: 0.6 }}
+              className="text-4xl md:text-5xl font-bold text-foreground"
+            >
+              4.9
+            </motion.span>
             <div className="flex flex-col items-start">
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
@@ -111,9 +122,14 @@ export function GoogleReviewsSection() {
         {/* Review Cards - Clean, Authentic Design */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto mb-8">
           {googleReviews.map((review, index) => (
-            <article
+            <motion.div
               key={index}
-              className="bg-background border border-border rounded-xl p-5 hover:border-primary/30 hover:shadow-md transition-all duration-300"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
+            >
+            <article
+              className="bg-background border border-border rounded-xl p-5 hover:border-primary/30 hover:shadow-md backdrop-blur-sm hover:shadow-blue-100/20 transition-all duration-300"
               itemScope
               itemType="https://schema.org/Review"
             >
@@ -121,7 +137,7 @@ export function GoogleReviewsSection() {
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   {/* Avatar Initial */}
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:ring-2 hover:ring-blue-200/50 transition-all">
                     <span className="text-sm font-bold text-primary">
                       {review.name.charAt(0)}
                     </span>
@@ -162,6 +178,7 @@ export function GoogleReviewsSection() {
                 &ldquo;{review.text}&rdquo;
               </p>
             </article>
+            </motion.div>
           ))}
         </div>
 
