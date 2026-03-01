@@ -65,7 +65,7 @@ export const PromoBanner = () => {
         <Percent className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </div>
       <p className="text-sm sm:text-base font-medium whitespace-nowrap">
-        Save <span className="font-bold">{currentPromo.discount} OFF</span> on {currentPromo.service}
+        Save <span className={cn("font-bold", isWinter && "animate-frost-text-glow")}>{currentPromo.discount} OFF</span> on {currentPromo.service}
       </p>
 
       {/* Compact Countdown Timer */}
@@ -81,28 +81,32 @@ export const PromoBanner = () => {
     <div className={cn(
       "text-white py-2.5 px-4 border-b relative overflow-hidden",
       isWinter
-        ? "bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 border-cyan-500/20"
+        ? "bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 border-cyan-400/10"
         : "bg-primary border-primary-foreground/10"
     )}>
       {/* Winter snow particles */}
       {isWinter && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(8)].map((_, i) => (
+          {[...Array(12)].map((_, i) => (
             <div
               key={i}
               className="absolute bg-white/20 rounded-full animate-snow-fall"
               style={{
-                width: `${1 + Math.random() * 2}px`,
-                height: `${1 + Math.random() * 2}px`,
+                width: `${1.5 + Math.random() * 3}px`,
+                height: `${1.5 + Math.random() * 3}px`,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
                 animationDelay: `${-(Math.random() * 8)}s`,
                 animationDuration: `${5 + Math.random() * 3}s`,
-                filter: 'blur(0.5px)',
+                filter: 'blur(0.5px) drop-shadow(0 0 2px rgba(147, 197, 253, 0.5))',
               }}
             />
           ))}
         </div>
+      )}
+      {/* Frost shimmer bottom line */}
+      {isWinter && (
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent" />
       )}
       <div className="container mx-auto flex items-center justify-between gap-2 sm:gap-4 relative z-10">
         {/* Mobile: entire content is clickable */}
@@ -114,7 +118,7 @@ export const PromoBanner = () => {
             <Percent className="h-3.5 w-3.5" />
           </div>
           <p className="text-sm font-medium whitespace-nowrap">
-            <span className="font-bold">{currentPromo.discount} OFF</span> {currentPromo.service}
+            <span className={cn("font-bold", isWinter && "animate-frost-text-glow")}>{currentPromo.discount} OFF</span> {currentPromo.service}
           </p>
           <div className="flex items-center gap-0.5 ml-1">
             <span className="bg-white/20 rounded px-1 py-0.5 font-mono font-bold text-[10px]">
