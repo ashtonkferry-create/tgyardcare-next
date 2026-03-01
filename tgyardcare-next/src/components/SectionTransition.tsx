@@ -116,7 +116,7 @@ export function SectionWave({
 export function SectionDivider({ className }: { className?: string }) {
   return (
     <div className={cn("py-6 md:py-8", className)}>
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-blue-200/40 to-transparent" />
     </div>
   );
 }
