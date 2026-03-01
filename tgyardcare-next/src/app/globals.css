@@ -267,6 +267,70 @@ All colors MUST be HSL.
   animation: pulse-subtle 2s ease-in-out infinite;
 }
 
+/* Winter Wonderland Enhancements */
+@keyframes aurora-shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes frost-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px 0 rgba(56, 189, 248, 0);
+  }
+  50% {
+    box-shadow: 0 0 15px 2px rgba(56, 189, 248, 0.15);
+  }
+}
+
+@keyframes frost-text-glow {
+  0%, 100% {
+    text-shadow: 0 0 20px rgba(56, 189, 248, 0);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+  }
+}
+
+@keyframes shimmer-btn {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes draw-line {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-aurora-shimmer {
+  background-size: 200% 200%;
+  animation: aurora-shimmer 8s ease-in-out infinite;
+}
+
+.animate-frost-glow {
+  animation: frost-glow 3s ease-in-out infinite;
+}
+
+.animate-frost-text-glow {
+  animation: frost-text-glow 3s ease-in-out infinite;
+}
+
+.animate-shimmer-btn {
+  background-size: 200% auto;
+  animation: shimmer-btn 3s linear infinite;
+}
+
 @layer base {
   * {
     @apply border-border;
