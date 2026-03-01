@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { X, Percent, ChevronRight } from 'lucide-react';
-import Link from "next/link";
 import { cn } from '@/lib/utils';
 import { usePromoSettings } from '@/hooks/usePromoSettings';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
+import QuickQuoteDialog from '@/components/QuickQuoteDialog';
 
 interface TimeLeft {
   hours: number;
@@ -42,6 +42,7 @@ export const PromoBanner = () => {
   const bt = bannerTheme[activeSeason] ?? bannerTheme.summer;
   const [promoIndex, setPromoIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ hours: 0, minutes: 0, seconds: 0 });
+  const [showQuoteDialog, setShowQuoteDialog] = useState(false);
 
   // Update promo index when promotions load
   useEffect(() => {
@@ -105,8 +106,8 @@ export const PromoBanner = () => {
       <div className={`absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent ${bt.shimmerLine} to-transparent`} />
       <div className="container mx-auto flex items-center justify-between gap-2 sm:gap-4 relative z-10">
         {/* Mobile: entire content is clickable */}
-        <Link
-          href={currentPromo.path}
+        <button
+          onClick={() => setShowQuoteDialog(true)}
           className="flex sm:hidden items-center gap-2 flex-1 justify-center group"
         >
           <div className="flex items-center justify-center bg-white/20 rounded-full w-6 h-6 flex-shrink-0">
@@ -121,19 +122,19 @@ export const PromoBanner = () => {
             </span>
           </div>
           <ChevronRight className="h-4 w-4 opacity-70 group-active:translate-x-0.5 transition-transform" />
-        </Link>
+        </button>
 
         {/* Desktop: content is not clickable, separate button */}
         <div className="hidden sm:flex items-center gap-3 flex-1 justify-center">
           <BannerContent />
         </div>
 
-        <Link
-          href={currentPromo.path}
+        <button
+          onClick={() => setShowQuoteDialog(true)}
           className={`hidden sm:inline-flex ${bt.ctaBg} px-4 py-1.5 rounded-md font-semibold text-sm transition-all whitespace-nowrap`}
         >
-          Get Your Fast Quote
-        </Link>
+          Claim Offer
+        </button>
 
         <button
           onClick={() => setIsVisible(false)}
@@ -143,6 +144,15 @@ export const PromoBanner = () => {
           <X className="h-4 w-4" />
         </button>
       </div>
+
+      {currentPromo && (
+        <QuickQuoteDialog
+          open={showQuoteDialog}
+          onOpenChange={setShowQuoteDialog}
+          promoService={currentPromo.service}
+          promoDiscount={currentPromo.discount}
+        />
+      )}
     </div>
   );
 };
