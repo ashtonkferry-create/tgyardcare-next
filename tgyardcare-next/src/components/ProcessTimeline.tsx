@@ -1,6 +1,8 @@
 'use client';
 
 import { Phone, FileText, Calendar, Users, CheckCircle2, ArrowDown } from "lucide-react";
+import { motion } from 'framer-motion';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { cn } from "@/lib/utils";
 
 /**
@@ -45,6 +47,8 @@ const processSteps = [
 ];
 
 export function ProcessTimeline({ variant = "vertical", className }: ProcessTimelineProps) {
+  const { ref: timelineRef, isInView } = useScrollReveal();
+
   if (variant === "compact") {
     return (
       <div className={cn("py-6 border-y border-border/50", className)}>
@@ -67,18 +71,24 @@ export function ProcessTimeline({ variant = "vertical", className }: ProcessTime
 
   if (variant === "horizontal") {
     return (
-      <div className={cn("py-8", className)}>
+      <div ref={timelineRef} className={cn("py-8", className)}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {processSteps.map((step, idx) => {
             const Icon = step.icon;
             return (
-              <div key={idx} className="relative text-center">
-                {/* Connector line */}
+              <motion.div
+                key={step.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: idx * 0.15, duration: 0.5 }}
+                className="relative text-center"
+              >
+                {/* Frost connector line */}
                 {idx < processSteps.length - 1 && (
-                  <div className="hidden md:block absolute top-6 left-[60%] w-[80%] h-px bg-border" />
+                  <div className="hidden md:block absolute top-6 left-[60%] w-[80%] h-px bg-gradient-to-r from-blue-200/50 via-blue-300/30 to-blue-200/50" />
                 )}
 
-                <div className="relative inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-3">
+                <div className="relative inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 border border-transparent hover:shadow-blue-300/30 hover:shadow-lg hover:border-blue-400 transition-all duration-300 mb-3">
                   <Icon className="h-5 w-5 text-primary" />
                   <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
                     {idx + 1}
@@ -88,7 +98,7 @@ export function ProcessTimeline({ variant = "vertical", className }: ProcessTime
                 <h4 className="text-sm font-bold text-foreground mb-1">{step.title}</h4>
                 <p className="text-xs text-primary font-medium mb-1">{step.timing}</p>
                 <p className="text-xs text-muted-foreground">{step.description}</p>
-              </div>
+              </motion.div>
             );
           })}
         </div>
@@ -98,21 +108,27 @@ export function ProcessTimeline({ variant = "vertical", className }: ProcessTime
 
   // Default: vertical timeline
   return (
-    <div className={cn("py-8", className)}>
+    <div ref={timelineRef} className={cn("py-8", className)}>
       <div className="space-y-0">
         {processSteps.map((step, idx) => {
           const Icon = step.icon;
           const isLast = idx === processSteps.length - 1;
 
           return (
-            <div key={idx} className="relative flex gap-4">
+            <motion.div
+              key={step.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: idx * 0.15, duration: 0.5 }}
+              className="relative flex gap-4"
+            >
               {/* Timeline spine */}
               <div className="flex flex-col items-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 border-2 border-primary z-10">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 border-2 border-primary hover:shadow-blue-300/30 hover:shadow-lg hover:border-blue-400 transition-all duration-300 z-10">
                   <Icon className="h-4 w-4 text-primary" />
                 </div>
                 {!isLast && (
-                  <div className="w-0.5 h-full bg-gradient-to-b from-primary/30 to-border min-h-[60px]" />
+                  <div className="w-0.5 h-full bg-gradient-to-b from-blue-200/50 via-blue-300/30 to-blue-200/50 min-h-[60px]" />
                 )}
               </div>
 
@@ -130,7 +146,7 @@ export function ProcessTimeline({ variant = "vertical", className }: ProcessTime
                   <span className="font-medium">{step.outcome}</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
