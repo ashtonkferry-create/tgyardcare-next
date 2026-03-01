@@ -657,13 +657,13 @@ export default function Navigation() {
   return (
     <nav className={cn("sticky top-0 z-50 border-b shadow-lg nav-seasonal", t.bg, t.border)}>
       <div className="container mx-auto px-3 sm:px-4 relative z-10">
-        <div className="flex items-center justify-between h-16 md:h-20">
+        <div className="flex items-center justify-between h-20 md:h-24">
           {/* ---- Logo ---- */}
           <Link href="/" className="flex items-center group flex-shrink-0">
             <img
               alt="TotalGuard Yard Care - Professional Lawn Care Services in Madison Wisconsin"
               src="/images/totalguard-logo-summer.png"
-              className="h-12 md:h-14 lg:h-16 w-auto hover:scale-105 transition-transform duration-300"
+              className="h-14 md:h-[72px] lg:h-20 w-auto hover:scale-105 transition-transform duration-300"
               loading="eager"
               fetchPriority="high"
               decoding="async"
