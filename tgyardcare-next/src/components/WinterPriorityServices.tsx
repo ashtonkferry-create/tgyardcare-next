@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import Link from "next/link";
 import { ArrowRight, Snowflake, Shield, Clock, AlertTriangle, CheckCircle2, Phone, Crown, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 interface PackageProps {
   name: string;
@@ -29,7 +31,7 @@ function CompactPackageCard({
   return (
     <div className={cn(
       "relative rounded-xl transition-all duration-300 flex flex-col",
-      "hover:shadow-lg",
+      "hover:shadow-lg hover:-translate-y-1",
       isCommercial
         ? "bg-gradient-to-br from-slate-900 to-slate-800 text-white ring-1 ring-amber-500/30"
         : isBestDeal
@@ -114,6 +116,8 @@ function CompactPackageCard({
 }
 
 export function WinterPriorityServices() {
+  const { ref: sectionRef, isInView } = useScrollReveal();
+
   const packages: PackageProps[] = [
     {
       name: "Essential",
@@ -156,14 +160,19 @@ export function WinterPriorityServices() {
   ];
 
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+    <section ref={sectionRef} className="py-16 md:py-24 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
       {/* Subtle Background */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-blue-100/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-100/30 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         {/* Header */}
-        <div className="text-center mb-10 md:mb-14">
+        <motion.div
+          className="text-center mb-10 md:mb-14"
+          initial={{ opacity: 0, filter: 'blur(8px)' }}
+          animate={isInView ? { opacity: 1, filter: 'blur(0px)' } : {}}
+          transition={{ duration: 0.7 }}
+        >
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 py-2 rounded-full text-sm font-bold mb-4 shadow-md">
             <Snowflake className="h-4 w-4" />
             Winter 2024-25
@@ -174,10 +183,11 @@ export function WinterPriorityServices() {
               Winter Protection
             </span>
           </h2>
-          <p className="text-slate-600 text-base md:text-lg max-w-xl mx-auto">
+          <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent mx-auto mt-4" />
+          <p className="text-slate-600 text-base md:text-lg max-w-xl mx-auto mt-4">
             Three options for every need. All backed by our 24/7 response guarantee.
           </p>
-        </div>
+        </motion.div>
 
         {/* Urgency Banner */}
         <div className="flex justify-center mb-10">
@@ -190,7 +200,14 @@ export function WinterPriorityServices() {
         {/* Packages Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-5 max-w-4xl mx-auto mb-12">
           {packages.map((pkg, idx) => (
-            <CompactPackageCard key={idx} {...pkg} />
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 25, scale: 0.97 }}
+              animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+              transition={{ delay: idx * 0.12, duration: 0.5, ease: 'easeOut' }}
+            >
+              <CompactPackageCard {...pkg} />
+            </motion.div>
           ))}
         </div>
 
