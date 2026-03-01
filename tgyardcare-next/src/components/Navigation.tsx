@@ -662,7 +662,7 @@ export default function Navigation() {
           <Link href="/" className="flex items-center group flex-shrink-0">
             <img
               alt="TotalGuard Yard Care - Professional Lawn Care Services in Madison Wisconsin"
-              src="/images/totalguard-logo-full.png"
+              src="/images/totalguard-logo-summer.png"
               className="h-12 md:h-14 lg:h-16 w-auto hover:scale-105 transition-transform duration-300"
               loading="eager"
               fetchPriority="high"

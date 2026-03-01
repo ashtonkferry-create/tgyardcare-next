@@ -79,7 +79,7 @@ export default function Footer() {
               <img
                 alt="TotalGuard Yard Care - Madison's Premier Lawn Care Service"
                 className="h-16 md:h-20 w-auto group-hover:scale-105 transition-transform"
-                src="/images/totalguard-logo-full.png"
+                src="/images/totalguard-logo-summer.png"
                 loading="lazy"
               />
             </Link>
