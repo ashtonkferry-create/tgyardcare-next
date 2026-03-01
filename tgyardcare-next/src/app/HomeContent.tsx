@@ -225,7 +225,7 @@ export default function HomeContent() {
       <WhyMadisonTrust />
 
       {/* PROOF: Trust Badges */}
-      <section className="py-6 md:py-8 bg-background border-y border-blue-100/30" ref={badgesRef}>
+      <section className="py-6 md:py-8 bg-white border-y border-gray-200/50" ref={badgesRef}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 max-w-4xl mx-auto">
             {[
@@ -234,12 +234,12 @@ export default function HomeContent() {
               { src: imgSrc(satisfactionBadge), alt: '100% satisfaction guarantee', title: '100% Guarantee', sub: 'Or We Fix It' },
             ].map((badge, index) => (
               <Fragment key={badge.alt}>
-                {index > 0 && <div className="hidden md:block w-px h-10 bg-blue-100/40" />}
+                {index > 0 && <div className="hidden md:block w-px h-10 bg-gray-200" />}
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={badgesInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ delay: index * 0.15, duration: 0.5 }}
-                  className="flex items-center gap-3 group bg-white/80 backdrop-blur-sm border border-blue-100/40 rounded-xl px-4 py-3 shadow-sm hover:shadow-blue-200/30 hover:border-blue-200/60 transition-all duration-300"
+                  className="flex items-center gap-3 group bg-white backdrop-blur-sm border border-gray-200/60 rounded-xl px-4 py-3 shadow-sm hover:shadow-blue-200/30 hover:border-blue-200/60 transition-all duration-300"
                 >
                   <img
                     src={badge.src}
@@ -250,8 +250,8 @@ export default function HomeContent() {
                     height={48}
                   />
                   <div>
-                    <p className="text-sm font-bold text-foreground">{badge.title}</p>
-                    <p className="text-xs text-muted-foreground">{badge.sub}</p>
+                    <p className="text-sm font-bold text-gray-900">{badge.title}</p>
+                    <p className="text-xs text-gray-500">{badge.sub}</p>
                   </div>
                 </motion.div>
               </Fragment>
@@ -261,7 +261,7 @@ export default function HomeContent() {
       </section>
 
       {/* SERVICES: Complete Offerings */}
-      <section id="services" className="py-10 md:py-14 bg-background" ref={servicesRef}>
+      <section id="services" className="py-10 md:py-14 bg-white" ref={servicesRef}>
         <div className="container mx-auto px-4">
           <SectionConnector className="mb-6" />
 
@@ -275,10 +275,10 @@ export default function HomeContent() {
               <Sparkles className="h-3.5 w-3.5" />
               One Call Handles It All
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
               14+ Services. <span className="text-primary">One Trusted Team.</span>
             </h2>
-            <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
+            <p className="text-gray-500 text-sm md:text-base max-w-md mx-auto">
               Stop juggling contractors. We handle your entire property—lawn to gutters.
             </p>
           </motion.div>
@@ -300,7 +300,7 @@ export default function HomeContent() {
 
           {totalSlides > 0 && (
             <div className="flex justify-center items-center gap-2 mt-6">
-              <Button variant="ghost" size="icon" onClick={() => carouselApi?.scrollPrev()} className="rounded-full h-8 w-8 border border-border/50 hover:border-primary/30 hover:bg-primary/5" aria-label="Previous">
+              <Button variant="ghost" size="icon" onClick={() => carouselApi?.scrollPrev()} className="rounded-full h-8 w-8 border border-gray-200 hover:border-primary/30 hover:bg-primary/5" aria-label="Previous">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <div className="flex gap-1.5">
@@ -308,12 +308,12 @@ export default function HomeContent() {
                   <button
                     key={index}
                     onClick={() => carouselApi?.scrollTo(index)}
-                    className={`rounded-full transition-all duration-300 ${index === current ? 'bg-primary h-2 w-6' : 'bg-border hover:bg-primary/30 h-2 w-2'}`}
+                    className={`rounded-full transition-all duration-300 ${index === current ? 'bg-primary h-2 w-6' : 'bg-gray-300 hover:bg-primary/30 h-2 w-2'}`}
                     aria-label={`Go to slide ${index + 1}`}
                   />
                 ))}
               </div>
-              <Button variant="ghost" size="icon" onClick={() => carouselApi?.scrollNext()} className="rounded-full h-8 w-8 border border-border/50 hover:border-primary/30 hover:bg-primary/5" aria-label="Next">
+              <Button variant="ghost" size="icon" onClick={() => carouselApi?.scrollNext()} className="rounded-full h-8 w-8 border border-gray-200 hover:border-primary/30 hover:bg-primary/5" aria-label="Next">
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -323,16 +323,16 @@ export default function HomeContent() {
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center items-center max-w-xl mx-auto">
             <Link
               href="/residential"
-              className="group flex items-center gap-2 px-5 py-2.5 rounded-full border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-sm font-medium text-foreground hover:scale-[1.02] hover:shadow-md"
+              className="group flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all text-sm font-medium text-gray-900 hover:scale-[1.02] hover:shadow-md"
             >
               <Home className="h-4 w-4 text-primary" />
               Residential Services
-              <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              <ArrowRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
             </Link>
 
             <Link
               href="/commercial"
-              className="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all text-sm font-medium hover:scale-[1.02] hover:shadow-md"
+              className="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-gray-900 text-white hover:bg-gray-800 transition-all text-sm font-medium hover:scale-[1.02] hover:shadow-md"
             >
               <Package className="h-4 w-4" />
               Commercial Services
@@ -342,17 +342,17 @@ export default function HomeContent() {
 
           {/* Micro-trust line */}
           <div className="mt-6 flex justify-center">
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-4 text-xs text-gray-500">
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-3 w-3 text-primary" />
                 Free Estimates
               </span>
-              <span className="w-1 h-1 bg-border rounded-full" />
+              <span className="w-1 h-1 bg-gray-300 rounded-full" />
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-3 w-3 text-primary" />
                 Same-Day Response
               </span>
-              <span className="w-1 h-1 bg-border rounded-full" />
+              <span className="w-1 h-1 bg-gray-300 rounded-full" />
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-3 w-3 text-primary" />
                 Fully Insured
