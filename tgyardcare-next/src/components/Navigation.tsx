@@ -559,12 +559,7 @@ export default function Navigation() {
   const isActivePath = (path: string) => pathname === path;
 
   return (
-    <nav className={cn(
-      "sticky top-0 z-50 border-b shadow-sm nav-seasonal",
-      isWinter
-        ? "bg-gradient-to-r from-slate-900 via-slate-800 to-blue-900 border-cyan-500/20"
-        : "bg-background/95 backdrop-blur-lg border-border/50"
-    )}>
+    <nav className="sticky top-0 z-50 border-b shadow-lg nav-seasonal bg-gradient-to-r from-slate-900 via-slate-800 to-blue-900 border-cyan-500/20">
       {/* Winter snow particles */}
       {isWinter && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -588,13 +583,13 @@ export default function Navigation() {
         </div>
       )}
       <div className="container mx-auto px-3 sm:px-4 relative z-10">
-        <div className="flex items-center justify-between h-24 md:h-28">
+        <div className="flex items-center justify-between h-16 md:h-20">
           {/* ---- Logo ---- */}
           <Link href="/" className="flex items-center group flex-shrink-0">
             <img
               alt="TotalGuard Yard Care - Professional Lawn Care Services in Madison Wisconsin"
               src="/images/totalguard-logo-full.png"
-              className="h-24 md:h-32 lg:h-40 w-auto hover:scale-105 transition-transform duration-300"
+              className="h-12 md:h-14 lg:h-16 w-auto hover:scale-105 transition-transform duration-300"
               loading="eager"
               fetchPriority="high"
               decoding="async"
@@ -609,7 +604,7 @@ export default function Navigation() {
               onMouseEnter={() => setResidentialOpen(true)}
               onMouseLeave={() => setResidentialOpen(false)}
             >
-              <button className="flex items-center text-foreground hover:text-primary transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-primary/5">
+              <button className="flex items-center text-white/90 hover:text-cyan-300 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5">
                 Residential Services
                 <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${residentialOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -632,7 +627,7 @@ export default function Navigation() {
               onMouseEnter={() => setCommercialOpen(true)}
               onMouseLeave={() => setCommercialOpen(false)}
             >
-              <button className="flex items-center text-foreground hover:text-primary transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-primary/5">
+              <button className="flex items-center text-white/90 hover:text-cyan-300 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5">
                 Commercial Services
                 <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${commercialOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -653,7 +648,7 @@ export default function Navigation() {
             {/* Portfolio link (no dropdown) */}
             <Link
               href="/gallery"
-              className="text-foreground hover:text-primary hover:bg-primary/5 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg"
+              className="text-white/90 hover:text-cyan-300 hover:bg-white/5 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg"
             >
               Portfolio
             </Link>
@@ -664,7 +659,7 @@ export default function Navigation() {
               onMouseEnter={() => setAboutOpen(true)}
               onMouseLeave={() => setAboutOpen(false)}
             >
-              <button className="flex items-center text-foreground hover:text-primary transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-primary/5">
+              <button className="flex items-center text-white/90 hover:text-cyan-300 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5">
                 About Us
                 <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${aboutOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -706,34 +701,32 @@ export default function Navigation() {
           <div className="hidden lg:flex items-center space-x-2 xl:space-x-4">
             <a
               href="tel:608-535-6057"
-              className="flex items-center gap-2 border border-border/60 rounded-full px-4 py-2 text-foreground hover:text-primary hover:border-primary/40 transition-all font-bold text-sm xl:text-base group"
+              className="flex items-center gap-2 border border-white/20 rounded-full px-4 py-2 text-white hover:text-cyan-300 hover:border-cyan-400/40 transition-all font-bold text-sm xl:text-base group"
             >
-              <Phone className="h-4 w-4 text-primary" />
+              <div className="bg-cyan-500/20 p-1.5 rounded-full group-hover:bg-cyan-500/30 transition-colors">
+                <Phone className="h-4 w-4 text-cyan-400" />
+              </div>
               <span>(608) 535-6057</span>
             </a>
-            <Button
-              variant="accent"
-              size="lg"
-              className="font-bold text-sm xl:text-base px-4 xl:px-8 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-              asChild
+            <Link
+              href="/contact"
+              className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-teal-400 text-white font-bold text-sm xl:text-base px-5 xl:px-7 py-2.5 rounded-full shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/40 hover:scale-105 transition-all"
             >
-              <Link href="/contact">
-                Get a Free Quote
-                <ArrowRight className="h-4 w-4 ml-1" />
-              </Link>
-            </Button>
+              Get a Free Quote
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
 
           {/* ---- Mobile Menu Button ---- */}
           <div className="flex items-center gap-1 sm:gap-2 lg:hidden">
             <a
               href="tel:608-535-6057"
-              className="p-2.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-all tap-target flex items-center justify-center"
+              className="p-2.5 rounded-full bg-cyan-500/15 hover:bg-cyan-500/25 transition-all tap-target flex items-center justify-center"
             >
-              <Phone className="h-5 w-5 text-primary" />
+              <Phone className="h-5 w-5 text-cyan-400" />
             </a>
             <button
-              className="p-2.5 text-foreground hover:text-primary hover:bg-primary/10 transition-all rounded-lg tap-target flex items-center justify-center"
+              className="p-2.5 text-white hover:text-cyan-300 hover:bg-white/10 transition-all rounded-lg tap-target flex items-center justify-center"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <Menu className="h-6 w-6" />
