@@ -46,7 +46,121 @@ interface MegaMenuSidebar {
   badges: SidebarBadge[];
 }
 
+interface ServiceSidebarOverride {
+  heading: string;
+  description: string;
+  bullets: string[];
+}
+
 type MegaMenuVariant = 'residential' | 'commercial';
+
+// ---------------------------------------------------------------------------
+// Per-service sidebar content (shown when hovering a specific service)
+// ---------------------------------------------------------------------------
+const serviceSidebarData: Record<string, ServiceSidebarOverride> = {
+  // Residential
+  "/services/mowing": {
+    heading: "Lawn Mowing",
+    description: "Professional weekly mowing with precision edging, trimming, and blowing — your lawn looking its best every week.",
+    bullets: ["Consistent weekly schedule", "Precision edging & trimming", "Clippings blown clean", "Height adjusted per season"],
+  },
+  "/services/fertilization": {
+    heading: "Fertilization Programs",
+    description: "Custom nutrient programs designed for Wisconsin soil and climate to build thick, green, resilient turf.",
+    bullets: ["Soil-tested formulations", "Slow-release granular applications", "Seasonal timing for max results", "Safe for kids & pets"],
+  },
+  "/services/herbicide": {
+    heading: "Weed Control",
+    description: "Targeted pre- and post-emergent herbicide treatments to eliminate weeds without harming your lawn.",
+    bullets: ["Pre-emergent spring barrier", "Post-emergent spot treatment", "Broadleaf & grassy weed control", "Crabgrass prevention"],
+  },
+  "/services/aeration": {
+    heading: "Core Aeration",
+    description: "Core aeration breaks up compacted soil, allowing water, air, and nutrients to reach the root zone.",
+    bullets: ["Relieves soil compaction", "Improves water absorption", "Promotes deeper root growth", "Best paired with overseeding"],
+  },
+  "/services/garden-beds": {
+    heading: "Garden Bed Installation",
+    description: "Full-service garden bed design, installation, and planting to transform your yard's curb appeal.",
+    bullets: ["Custom bed design & layout", "Premium soil & amendments", "Perennial & annual planting", "Edging & border installation"],
+  },
+  "/services/mulching": {
+    heading: "Mulching Services",
+    description: "Premium mulch installation to retain moisture, suppress weeds, and give beds a polished look.",
+    bullets: ["Hardwood & colored mulch options", "Weed barrier underlayment", "Old mulch removal available", "Uniform 2-3\" depth coverage"],
+  },
+  "/services/pruning": {
+    heading: "Shrub & Hedge Pruning",
+    description: "Expert pruning to maintain shape, promote health, and keep your hedges and shrubs looking sharp.",
+    bullets: ["Hand-pruning for precision", "Shape & size maintenance", "Dead wood removal", "Seasonal timing for plant health"],
+  },
+  "/services/weeding": {
+    heading: "Weeding & Bed Care",
+    description: "Thorough hand-weeding and bed maintenance to keep your garden beds clean and healthy.",
+    bullets: ["Root-level weed removal", "Bed edge re-definition", "Debris & leaf cleanup", "Monthly maintenance plans"],
+  },
+  "/services/spring-cleanup": {
+    heading: "Spring Cleanup",
+    description: "Comprehensive spring yard cleanup to clear winter debris and prepare your property for the growing season.",
+    bullets: ["Debris & branch removal", "Leaf & thatch cleanup", "Bed edging & prep", "First mow of the season"],
+  },
+  "/services/fall-cleanup": {
+    heading: "Fall Cleanup",
+    description: "Complete fall yard preparation including leaf removal, bed cutbacks, and winterization.",
+    bullets: ["Full leaf removal", "Perennial cutbacks", "Final mow & trim", "Gutter debris clearing"],
+  },
+  "/services/leaf-removal": {
+    heading: "Leaf Removal",
+    description: "Full-property leaf removal using commercial-grade equipment for a clean, debris-free yard.",
+    bullets: ["Blower & vacuum equipment", "Haul-away included", "Lawn & bed coverage", "Multiple visits available"],
+  },
+  "/services/snow-removal": {
+    heading: "Snow Removal",
+    description: "Reliable residential snow plowing and shoveling to keep your driveway and walkways safe and clear.",
+    bullets: ["Per-event or seasonal contracts", "Driveways & walkways", "Salt & ice treatment", "Early morning priority service"],
+  },
+  "/services/gutter-cleaning": {
+    heading: "Gutter Cleaning",
+    description: "Professional gutter cleaning to remove debris, prevent clogs, and protect your home from water damage.",
+    bullets: ["Full debris removal", "Downspout flushing", "Roof line inspection", "Before & after photos"],
+  },
+  "/services/gutter-guards": {
+    heading: "Gutter Guards",
+    description: "Micro-mesh gutter guard installation to permanently prevent clogs and eliminate seasonal gutter cleaning.",
+    bullets: ["Micro-mesh technology", "Lifetime clog prevention", "Professional installation", "Reduces maintenance costs"],
+  },
+  // Commercial
+  "/commercial/lawn-care": {
+    heading: "Commercial Lawn Maintenance",
+    description: "Weekly property-wide turf management for commercial properties, office parks, and retail centers.",
+    bullets: ["Dedicated crew assignments", "Consistent weekly schedule", "Large-area mowing equipment", "Property manager reporting"],
+  },
+  "/commercial/fertilization-weed-control": {
+    heading: "Commercial Turf Programs",
+    description: "Custom fertilization and weed control programs scaled for commercial properties and HOA communities.",
+    bullets: ["Custom nutrient programs", "Pre & post-emergent weed control", "High-traffic turf recovery", "EPA-compliant applications"],
+  },
+  "/commercial/aeration": {
+    heading: "Commercial Aeration",
+    description: "Core aeration for high-traffic commercial turf areas to relieve compaction and restore healthy growth.",
+    bullets: ["Heavy-duty commercial aerators", "High-traffic zone focus", "Paired with overseeding", "Minimal disruption to tenants"],
+  },
+  "/commercial/property-enhancement": {
+    heading: "Property Enhancements",
+    description: "Complete landscape enhancement services to boost curb appeal and property value for commercial sites.",
+    bullets: ["Mulch & bed refresh", "Shrub & tree pruning", "Seasonal color rotations", "HOA board-ready documentation"],
+  },
+  "/commercial/snow-removal": {
+    heading: "Commercial Snow & Ice",
+    description: "Priority fleet-based snow removal with 24/7 monitoring for commercial lots, entries, and walkways.",
+    bullets: ["24/7 storm monitoring", "Priority fleet dispatch", "ADA-compliant walkways", "Detailed service logs"],
+  },
+  "/commercial/gutters": {
+    heading: "Commercial Gutter Services",
+    description: "Commercial-grade gutter maintenance and guard installation for multi-unit and commercial buildings.",
+    bullets: ["Multi-story capability", "Scheduled maintenance programs", "Guard installation available", "Downspout & drainage check"],
+  },
+};
 
 // ---------------------------------------------------------------------------
 // Residential Services Data
@@ -235,8 +349,22 @@ function MegaMenu({
   variant?: MegaMenuVariant;
 }) {
   const [hoveredColumn, setHoveredColumn] = useState<number | null>(null);
-  const SidebarIcon = sidebar.icon;
+  const [hoveredItem, setHoveredItem] = useState<MegaMenuItem | null>(null);
   const isCommercial = variant === 'commercial';
+
+  // Resolve sidebar content: hovered service overrides default
+  const serviceOverride = hoveredItem ? serviceSidebarData[hoveredItem.path] : null;
+  const activeSidebar = {
+    icon: hoveredItem?.icon ?? sidebar.icon,
+    heading: serviceOverride?.heading ?? sidebar.heading,
+    description: serviceOverride?.description ?? sidebar.description,
+    bullets: serviceOverride?.bullets ?? sidebar.bullets,
+    ctaLabel: hoveredItem ? `Get a ${serviceOverride?.heading ?? hoveredItem.name} Quote` : sidebar.ctaLabel,
+    ctaHref: hoveredItem ? hoveredItem.path : sidebar.ctaHref,
+    footnote: sidebar.footnote,
+    badges: sidebar.badges,
+  };
+  const ActiveSidebarIcon = activeSidebar.icon;
 
   // Accent color classes per variant
   const accent = {
@@ -311,6 +439,8 @@ function MegaMenu({
                       <Link
                         key={item.path + item.name}
                         href={item.path}
+                        onMouseEnter={() => setHoveredItem(item)}
+                        onMouseLeave={() => setHoveredItem(null)}
                         className={cn(
                           `group flex items-start gap-2.5 py-2 px-2 -mx-2 rounded-lg transition-all duration-200`,
                           active
@@ -354,24 +484,24 @@ function MegaMenu({
           })}
         </div>
 
-        {/* ---- Sidebar Panel ---- */}
+        {/* ---- Sidebar Panel (dynamic — updates on service hover) ---- */}
         <div className="w-[240px] bg-white/5 border-l border-white/10 p-5 flex flex-col">
           {/* Icon + heading */}
-          <div className="flex items-center gap-2 mb-3">
-            <div className={`p-2 ${accent.sidebarIconBg} rounded-lg`}>
-              <SidebarIcon className={`h-5 w-5 ${accent.sidebarIconColor}`} />
+          <div className="flex items-center gap-2 mb-3 transition-all duration-200">
+            <div className={`p-2 ${accent.sidebarIconBg} rounded-lg transition-colors duration-200`}>
+              <ActiveSidebarIcon className={`h-5 w-5 ${accent.sidebarIconColor} transition-colors duration-200`} />
             </div>
-            <h3 className="text-sm font-bold text-white leading-tight">{sidebar.heading}</h3>
+            <h3 className="text-sm font-bold text-white leading-tight">{activeSidebar.heading}</h3>
           </div>
 
           {/* Description */}
           <p className="text-[11px] text-white/50 leading-relaxed mb-3">
-            {sidebar.description}
+            {activeSidebar.description}
           </p>
 
           {/* Bullet list */}
           <ul className="space-y-1.5 mb-4">
-            {sidebar.bullets.map((bullet) => (
+            {activeSidebar.bullets.map((bullet) => (
               <li key={bullet} className="flex items-start gap-2 text-[11px] text-white/70">
                 <CheckCircle2 className={`h-3 w-3 ${accent.bulletColor} flex-shrink-0 mt-0.5`} />
                 <span>{bullet}</span>
@@ -381,21 +511,21 @@ function MegaMenu({
 
           {/* CTA button */}
           <Link
-            href={sidebar.ctaHref}
+            href={activeSidebar.ctaHref}
             className={`flex items-center justify-center gap-2 px-4 py-2.5 ${accent.ctaBg} ${accent.ctaText} text-sm font-bold rounded-xl hover:scale-105 transition-all shadow-lg mb-2`}
           >
-            {sidebar.ctaLabel}
+            {activeSidebar.ctaLabel}
             <ArrowRight className="h-4 w-4" />
           </Link>
 
           {/* Footnote */}
           <p className="text-[10px] text-white/30 text-center mb-4">
-            {sidebar.footnote}
+            {activeSidebar.footnote}
           </p>
 
           {/* Trust badges */}
           <div className="mt-auto space-y-2 pt-3 border-t border-white/10">
-            {sidebar.badges.map((badge) => {
+            {activeSidebar.badges.map((badge) => {
               const BadgeIcon = badge.icon;
               return (
                 <div key={badge.label} className="flex items-center gap-2 group/badge">
@@ -541,9 +671,17 @@ export default function Navigation() {
 
               {aboutOpen && (
                 <div className="absolute top-full left-0 pt-2 z-[100]">
-                  <div className="w-56 bg-gradient-to-br from-[#1a1a1a] via-[#222222] to-[#1a1a1a] rounded-xl shadow-2xl border border-primary/20 overflow-hidden animate-fade-in">
-                    <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary" />
-                    <div className="p-2">
+                  <div className="w-56 bg-gradient-to-br from-[#1a1a1a] via-[#222222] to-[#1a1a1a] rounded-xl shadow-2xl border border-primary/20 overflow-hidden animate-fade-in relative">
+                    {/* Edge-dimmed gradient bar */}
+                    <div className="h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
+
+                    {/* Radial glow overlays */}
+                    <div className="absolute inset-0 pointer-events-none">
+                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(59,130,246,0.06)_0%,transparent_50%)]" />
+                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(147,197,253,0.04)_0%,transparent_50%)]" />
+                    </div>
+
+                    <div className="p-2 relative">
                       {aboutPages.map((page) => (
                         <Link
                           key={page.path}
