@@ -1,10 +1,14 @@
 'use client';
 
 import Link from "next/link";
+import { motion } from 'framer-motion';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from "@/components/ui/button";
 import { Phone, Users, Shield, ArrowRight, CheckCircle2, Clock, MessageSquare } from "lucide-react";
 
 export function WhyMadisonTrust() {
+  const { ref: sectionRef, isInView } = useScrollReveal();
+
   const trustCards = [
     {
       icon: Phone,
@@ -34,7 +38,7 @@ export function WhyMadisonTrust() {
   ];
 
   return (
-    <section className="relative py-20 md:py-28 overflow-hidden">
+    <section ref={sectionRef} className="relative py-20 md:py-28 overflow-hidden">
       {/* Layered Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-blue-950/95 to-slate-900" />
 
@@ -64,7 +68,12 @@ export function WhyMadisonTrust() {
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header with Pattern Interrupt */}
-        <div className="text-center mb-12 md:mb-16">
+        <motion.div
+          className="text-center mb-12 md:mb-16"
+          initial={{ opacity: 0, filter: 'blur(10px)' }}
+          animate={isInView ? { opacity: 1, filter: 'blur(0px)' } : {}}
+          transition={{ duration: 0.8 }}
+        >
           <div className="inline-flex items-center gap-2 bg-amber-500/20 backdrop-blur-sm border border-amber-400/30 rounded-full px-4 py-2 mb-6">
             <MessageSquare className="h-4 w-4 text-amber-300" />
             <span className="text-amber-200 text-sm font-medium tracking-wide">Read our 60+ Google reviews</span>
@@ -79,7 +88,7 @@ export function WhyMadisonTrust() {
           <p className="text-blue-100/80 text-lg md:text-xl max-w-2xl mx-auto font-medium">
             The bar in this industry is embarrassingly low. We just do what we say we'll do.
           </p>
-        </div>
+        </motion.div>
 
         {/* Layered Card Container */}
         <div className="relative max-w-6xl mx-auto mb-12">
@@ -93,13 +102,18 @@ export function WhyMadisonTrust() {
               const isFeatured = card.featured;
 
               return (
-                <div
+                <motion.div
                   key={index}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: index * 0.15, duration: 0.6, ease: 'easeOut' }}
+                >
+                <div
                   className={`
                     group relative rounded-2xl transition-all duration-500
                     ${isFeatured
-                      ? 'bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 shadow-2xl shadow-amber-500/30 md:-mt-4 md:-mb-4 md:py-10 ring-2 ring-amber-400/40'
-                      : 'bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-blue-500/20 hover:border-blue-400/40 shadow-xl'
+                      ? 'bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 shadow-2xl shadow-amber-500/30 md:-mt-4 md:-mb-4 md:py-10 ring-2 ring-amber-400/40 hover:shadow-amber-500/40 hover:shadow-2xl'
+                      : 'bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-blue-500/20 hover:border-blue-400/40 shadow-xl hover:shadow-blue-400/20 hover:shadow-xl'
                     }
                     p-6 md:p-8
                     hover:scale-[1.02] hover:shadow-2xl
@@ -153,13 +167,19 @@ export function WhyMadisonTrust() {
                     </div>
                   )}
                 </div>
+                </motion.div>
               );
             })}
           </div>
         </div>
 
         {/* Comparison Strip */}
-        <div className="max-w-4xl mx-auto mb-10">
+        <motion.div
+          className="max-w-4xl mx-auto mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.5, duration: 0.6 }}
+        >
           <div className="grid md:grid-cols-2 gap-4">
             {/* Other Guys */}
             <div className="bg-red-950/30 border border-red-500/20 rounded-xl p-5">
@@ -187,7 +207,7 @@ export function WhyMadisonTrust() {
               </ul>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Trust Reinforcement Strip */}
         <div className="text-center mb-10">
