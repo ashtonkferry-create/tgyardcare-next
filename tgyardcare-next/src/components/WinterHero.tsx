@@ -15,25 +15,39 @@ export function WinterHero() {
 
   return (
     <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 overflow-hidden min-h-[600px] lg:min-h-[700px]">
-      {/* Animated Snow Particles - Premium Effect with smooth initial distribution */}
+      {/* Animated Snow Particles - Premium Effect with 3-tier variety */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none motion-reduce:hidden">
         {[...Array(40)].map((_, i) => {
-          const startY = Math.random() * 100; // Start distributed across viewport
-          const size = 2 + Math.random() * 4;
-          const duration = 8 + Math.random() * 6;
-          const delay = -(Math.random() * duration); // Negative delay = already in progress
+          const startY = Math.random() * 100;
+          const left = Math.random() * 100;
+          // 3-tier system: 60% small, 30% medium, 10% large
+          const tier = i < 24 ? 'small' : i < 36 ? 'medium' : 'large';
+          const size =
+            tier === 'small' ? 1 + Math.random() * 1 :
+            tier === 'medium' ? 3 + Math.random() * 1 :
+            5 + Math.random() * 2;
+          const duration =
+            tier === 'large' ? 10 + Math.random() * 5 :
+            8 + Math.random() * 6;
+          const delay = -(Math.random() * duration);
+          const opacity = tier === 'large' ? 0.45 : 0.3;
+          const filterStyle =
+            tier === 'large' ? 'blur(0.5px) drop-shadow(0 0 6px rgba(147, 197, 253, 0.6))' :
+            tier === 'medium' ? 'blur(0.5px) drop-shadow(0 0 3px rgba(147, 197, 253, 0.4))' :
+            'blur(0.5px)';
           return (
             <div
               key={i}
-              className="absolute bg-white/30 rounded-full animate-snow-fall"
+              className={`absolute rounded-full animate-snow-fall ${tier === 'large' ? 'bg-white/45' : 'bg-white/30'}`}
               style={{
                 width: `${size}px`,
                 height: `${size}px`,
-                left: `${Math.random() * 100}%`,
+                left: `${left}%`,
                 top: `${startY}%`,
                 animationDelay: `${delay}s`,
                 animationDuration: `${duration}s`,
-                filter: 'blur(0.5px)'
+                opacity,
+                filter: filterStyle,
               }}
             />
           );
@@ -69,9 +83,9 @@ export function WinterHero() {
             </div>
 
             {/* Main Headline - Problem-First */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-5 leading-[1.1] tracking-tight">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-5 leading-[1.1]">
               <span className="inline-block animate-fade-in" style={{ animationDelay: '0.1s' }}>Don't Get</span>{' '}
-              <span className="inline-block bg-gradient-to-r from-cyan-300 via-blue-300 to-cyan-300 bg-clip-text text-transparent animate-fade-in bg-[length:200%_auto]" style={{ animationDelay: '0.2s', animation: 'gradient-shift 3s ease infinite, fade-in 0.3s ease-out 0.2s both' }}>
+              <span className="inline-block bg-gradient-to-r from-cyan-300 via-blue-300 to-cyan-300 bg-clip-text text-transparent animate-fade-in animate-frost-text-glow bg-[length:200%_auto]" style={{ animationDelay: '0.2s', animation: 'gradient-shift 3s ease infinite, fade-in 0.3s ease-out 0.2s both' }}>
                 Snowed In.
               </span>
             </h1>
@@ -117,7 +131,7 @@ export function WinterHero() {
             <div className="flex flex-col sm:flex-row gap-3 mb-6 animate-fade-in" style={{ animationDelay: '0.8s' }}>
               <Button
                 size="lg"
-                className="group bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white text-base font-bold px-7 h-14 shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-[1.02] tap-target relative overflow-hidden"
+                className="group animate-shimmer-btn bg-gradient-to-r from-primary via-cyan-400 to-primary bg-[length:200%_auto] hover:from-blue-600 hover:to-cyan-600 text-white text-base font-bold px-7 h-14 shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-[1.02] tap-target relative overflow-hidden"
                 asChild
               >
                 <Link href="/contact?service=snow-premium">
@@ -132,7 +146,7 @@ export function WinterHero() {
               <Button
                 size="lg"
                 variant="outline"
-                className="group border-2 border-cyan-400/50 bg-cyan-500/10 text-white hover:bg-cyan-500/20 hover:border-cyan-400 text-base font-bold px-7 h-14 transition-all duration-300 tap-target backdrop-blur-md"
+                className="group border-2 border-white/30 hover:border-cyan-400/50 hover:shadow-cyan-400/20 hover:shadow-lg bg-cyan-500/10 text-white hover:bg-cyan-500/20 text-base font-bold px-7 h-14 transition-all duration-300 tap-target backdrop-blur-md"
                 asChild
               >
                 <a href="tel:608-535-6057">
@@ -218,6 +232,9 @@ export function WinterHero() {
           </div>
         </div>
       </div>
+
+      {/* Frost Edge Vignette */}
+      <div className="absolute inset-0 pointer-events-none" style={{ boxShadow: 'inset 0 0 100px rgba(0,0,0,0.2)' }} />
 
       {/* Custom Animations */}
       <style>{`
