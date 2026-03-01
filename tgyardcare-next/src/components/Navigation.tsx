@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -9,10 +9,17 @@ import {
   Shield, ArrowRight, Users, Award, Droplets, Building2,
   TreePine, CheckCircle2, Clock, FileText, type LucideIcon,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useSeasonalTheme } from "@/contexts/SeasonalThemeContext";
 import { MobileNavMenu } from "@/components/MobileNavMenu";
+
+// Shared dropdown animation variants
+const dropdownVariants = {
+  hidden: { opacity: 0, y: -8, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } },
+  exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.15, ease: [0.55, 0.06, 0.68, 0.19] } },
+};
 
 // ---------------------------------------------------------------------------
 // Types
@@ -432,7 +439,7 @@ function MegaMenu({
   };
 
   return (
-    <div className={`w-[920px] bg-gradient-to-br from-[#1a1a1a] via-[#222222] to-[#1a1a1a] rounded-xl shadow-2xl border ${accent.menuBorder} overflow-hidden animate-fade-in relative`}>
+    <div className={`w-[920px] bg-gradient-to-br from-[#1a1a1a] via-[#222222] to-[#1a1a1a] rounded-xl shadow-2xl border ${accent.menuBorder} overflow-hidden relative`}>
       {/* Gradient top bar with left/right dim effect */}
       <div className={`h-1 ${accent.barGradient}`} />
 
@@ -591,6 +598,11 @@ export default function Navigation() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const pathname = usePathname();
 
+  // Close sibling menus when opening one — prevents overlap jitter
+  const openResidential = useCallback(() => { setCommercialOpen(false); setAboutOpen(false); setResidentialOpen(true); }, []);
+  const openCommercial = useCallback(() => { setResidentialOpen(false); setAboutOpen(false); setCommercialOpen(true); }, []);
+  const openAbout = useCallback(() => { setResidentialOpen(false); setCommercialOpen(false); setAboutOpen(true); }, []);
+
   const { activeSeason } = useSeasonalTheme();
   const isWinter = activeSeason === 'winter';
 
@@ -639,7 +651,7 @@ export default function Navigation() {
             {/* Residential Services Mega Menu */}
             <div
               className="relative"
-              onMouseEnter={() => setResidentialOpen(true)}
+              onMouseEnter={openResidential}
               onMouseLeave={() => setResidentialOpen(false)}
             >
               <button className="flex items-center text-white/90 hover:text-cyan-300 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5">
@@ -647,22 +659,31 @@ export default function Navigation() {
                 <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${residentialOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {residentialOpen && (
-                <div className="absolute top-full left-0 pt-2 z-[100]">
-                  <MegaMenu
-                    columns={residentialColumns}
-                    sidebar={residentialSidebar}
-                    season={activeSeason}
-                    isActivePath={isActivePath}
-                  />
-                </div>
-              )}
+              <AnimatePresence>
+                {residentialOpen && (
+                  <motion.div
+                    key="residential-mega"
+                    variants={dropdownVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="absolute top-full left-0 pt-2 z-[100]"
+                  >
+                    <MegaMenu
+                      columns={residentialColumns}
+                      sidebar={residentialSidebar}
+                      season={activeSeason}
+                      isActivePath={isActivePath}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Commercial Services Mega Menu */}
             <div
               className="relative"
-              onMouseEnter={() => setCommercialOpen(true)}
+              onMouseEnter={openCommercial}
               onMouseLeave={() => setCommercialOpen(false)}
             >
               <button className="flex items-center text-white/90 hover:text-cyan-300 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5">
@@ -670,17 +691,26 @@ export default function Navigation() {
                 <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${commercialOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {commercialOpen && (
-                <div className="absolute top-full left-0 pt-2 z-[100]">
-                  <MegaMenu
-                    columns={commercialColumns}
-                    sidebar={commercialSidebar}
-                    season={activeSeason}
-                    isActivePath={isActivePath}
-                    variant="commercial"
-                  />
-                </div>
-              )}
+              <AnimatePresence>
+                {commercialOpen && (
+                  <motion.div
+                    key="commercial-mega"
+                    variants={dropdownVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="absolute top-full left-0 pt-2 z-[100]"
+                  >
+                    <MegaMenu
+                      columns={commercialColumns}
+                      sidebar={commercialSidebar}
+                      season={activeSeason}
+                      isActivePath={isActivePath}
+                      variant="commercial"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Portfolio link (no dropdown) */}
@@ -694,7 +724,7 @@ export default function Navigation() {
             {/* About Us Dropdown */}
             <div
               className="relative"
-              onMouseEnter={() => setAboutOpen(true)}
+              onMouseEnter={openAbout}
               onMouseLeave={() => setAboutOpen(false)}
             >
               <button className="flex items-center text-white/90 hover:text-cyan-300 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5">
@@ -702,36 +732,45 @@ export default function Navigation() {
                 <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${aboutOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {aboutOpen && (
-                <div className="absolute top-full left-0 pt-2 z-[100]">
-                  <div className="w-56 bg-gradient-to-br from-[#1a1a1a] via-[#222222] to-[#1a1a1a] rounded-xl shadow-2xl border border-primary/20 overflow-hidden animate-fade-in relative">
-                    {/* Edge-dimmed gradient bar */}
-                    <div className="h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
+              <AnimatePresence>
+                {aboutOpen && (
+                  <motion.div
+                    key="about-dropdown"
+                    variants={dropdownVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="absolute top-full left-0 pt-2 z-[100]"
+                  >
+                    <div className="w-56 bg-gradient-to-br from-[#1a1a1a] via-[#222222] to-[#1a1a1a] rounded-xl shadow-2xl border border-primary/20 overflow-hidden relative">
+                      {/* Edge-dimmed gradient bar */}
+                      <div className="h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
 
-                    {/* Radial glow overlays */}
-                    <div className="absolute inset-0 pointer-events-none">
-                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(59,130,246,0.06)_0%,transparent_50%)]" />
-                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(147,197,253,0.04)_0%,transparent_50%)]" />
-                    </div>
+                      {/* Radial glow overlays */}
+                      <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(59,130,246,0.06)_0%,transparent_50%)]" />
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(147,197,253,0.04)_0%,transparent_50%)]" />
+                      </div>
 
-                    <div className="p-2 relative">
-                      {aboutPages.map((page) => (
-                        <Link
-                          key={page.path}
-                          href={page.path}
-                          className={`block px-3 py-2.5 text-sm rounded-lg transition-all duration-200 ${
-                            isActivePath(page.path)
-                              ? 'bg-primary/20 text-primary font-semibold'
-                              : 'text-white/90 hover:bg-white/10 hover:translate-x-1'
-                          }`}
-                        >
-                          {page.name}
-                        </Link>
-                      ))}
+                      <div className="p-2 relative">
+                        {aboutPages.map((page) => (
+                          <Link
+                            key={page.path}
+                            href={page.path}
+                            className={`block px-3 py-2.5 text-sm rounded-lg transition-all duration-200 ${
+                              isActivePath(page.path)
+                                ? 'bg-primary/20 text-primary font-semibold'
+                                : 'text-white/90 hover:bg-white/10 hover:translate-x-1'
+                            }`}
+                          >
+                            {page.name}
+                          </Link>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
