@@ -302,7 +302,7 @@ const summerPackages: PackageProps[] = [
     name: "Weekly",
     badge: "FLEXIBLE",
     tagline: "Weekly Mowing",
-    price: "$45+",
+    price: "$55+",
     priceNote: "per visit \u2022 recurring service",
     features: [
       "Professional mowing every week",
@@ -321,7 +321,7 @@ const summerPackages: PackageProps[] = [
     name: "Premium",
     badge: "BEST VALUE",
     tagline: "Full Property Care",
-    price: "$149+",
+    price: "$197+",
     priceNote: "per month \u2022 complete maintenance",
     features: [
       "Weekly mowing included",
