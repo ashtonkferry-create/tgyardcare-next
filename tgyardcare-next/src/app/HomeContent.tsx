@@ -7,6 +7,7 @@ import { PromoBanner } from "@/components/PromoBanner";
 import Footer from "@/components/Footer";
 import ServiceCard from "@/components/ServiceCard";
 import { GoogleReviewsSection } from "@/components/GoogleReviewsSection";
+import { ComparisonTable } from "@/components/ComparisonTable";
 import CTASection from "@/components/CTASection";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { SectionDivider, SectionConnector } from "@/components/SectionTransition";
@@ -442,6 +443,9 @@ export default function HomeContent() {
 
       {/* SOCIAL PROOF: Google Reviews */}
       <GoogleReviewsSection />
+
+      {/* COMPARISON: TotalGuard vs Others */}
+      <ComparisonTable />
 
       {/* SERVICE STANDARD */}
       <section className="py-6 md:py-8 bg-white" ref={standardRef}>
