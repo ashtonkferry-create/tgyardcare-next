@@ -253,20 +253,18 @@ export default function HomeContent() {
                 <div className={`absolute -inset-1 rounded-2xl bg-gradient-to-br ${badge.accent} blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
 
                 <div className="relative flex items-center gap-4 bg-[#0d1f15]/80 backdrop-blur-md border border-emerald-500/10 rounded-2xl px-6 py-5 hover:border-emerald-400/25 hover:bg-[#0d1f15] transition-all duration-500">
-                  {/* Badge image — circular dark container, blend away white bg */}
+                  {/* Badge image — fills circle, clips white corners */}
                   <div className="relative flex-shrink-0">
-                    <div className="h-16 w-16 rounded-full bg-[#0a1a12] border border-emerald-500/15 flex items-center justify-center overflow-hidden group-hover:border-emerald-400/30 transition-colors duration-500">
+                    <div className="h-14 w-14 rounded-full border border-emerald-500/15 overflow-hidden group-hover:border-emerald-400/30 transition-colors duration-500">
                       <img
                         src={badge.src}
                         alt={badge.alt}
-                        className="h-12 w-12 object-contain rounded-full group-hover:scale-110 transition-transform duration-500"
+                        className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
                         loading="lazy"
-                        width={48}
-                        height={48}
+                        width={56}
+                        height={56}
                       />
                     </div>
-                    {/* Subtle ring pulse on hover */}
-                    <div className="absolute inset-0 rounded-full border border-emerald-400/0 group-hover:border-emerald-400/20 group-hover:scale-110 transition-all duration-700" />
                   </div>
 
                   <div>
