@@ -54,8 +54,8 @@ export default function MulchingContent() {
           role="img"
           aria-label="Professional mulching service showing fresh dark brown mulch being spread in garden beds"
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/70" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.3)_100%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a1f14]/90 via-[#0a1f14]/50 to-[#0a1f14]/85" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(10,31,20,0.4)_100%)]" />
         </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
@@ -81,10 +81,10 @@ export default function MulchingContent() {
       </section>
 
       {/* Who This Is For */}
-      <section className="py-12 bg-primary/5 border-y border-primary/10">
+      <section className="py-12 bg-gradient-to-r from-[#0f2a1a] via-[#1a3a2a] to-[#0f2a1a] border-y border-emerald-800/30">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <p className="text-lg text-foreground">
+            <p className="text-lg text-white/90">
               <strong>Ideal for:</strong> Homeowners with garden beds that need refreshing, faded or washed-out mulch, or landscaping that lacks the polished look. Also perfect for new plantings that need protection through their first Wisconsin winter.
             </p>
           </div>

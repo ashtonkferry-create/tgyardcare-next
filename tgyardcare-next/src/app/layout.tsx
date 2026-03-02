@@ -157,11 +157,31 @@ function GlobalJsonLd() {
     },
   };
 
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': 'https://tgyardcare.com/#website',
+    name: 'TG Yard Care',
+    url: 'https://tgyardcare.com',
+    publisher: { '@id': 'https://tgyardcare.com/#organization' },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://tgyardcare.com/services?q={search_term_string}',
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+    </>
   );
 }
 

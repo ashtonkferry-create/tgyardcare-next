@@ -118,8 +118,8 @@ export default function CommercialAerationContent() {
           role="img"
           aria-label="Professional commercial lawn aeration for property managers in Madison, Wisconsin"
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/70" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.3)_100%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a1f14]/90 via-[#0a1f14]/50 to-[#0a1f14]/85" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(10,31,20,0.4)_100%)]" />
         </div>
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
           <div className="max-w-3xl">

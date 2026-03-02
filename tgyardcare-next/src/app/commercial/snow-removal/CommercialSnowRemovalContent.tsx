@@ -139,8 +139,8 @@ export default function CommercialSnowRemovalContent() {
           role="img"
           aria-label="Professional commercial snow removal and plowing for property managers in Madison, Wisconsin"
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/70" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.3)_100%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a1f14]/90 via-[#0a1f14]/50 to-[#0a1f14]/85" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(10,31,20,0.4)_100%)]" />
         </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
@@ -339,15 +339,15 @@ export default function CommercialSnowRemovalContent() {
       </section>
 
       {/* Communication System */}
-      <section className="py-16 md:py-20 bg-primary/5">
+      <section className="py-16 md:py-20 bg-gradient-to-r from-[#0f2a1a] via-[#1a3a2a] to-[#0f2a1a] border-y border-emerald-800/30">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <MessageSquare className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white/90 mb-4">
                 Real-time storm communication
               </h2>
-              <p className="text-base md:text-lg text-muted-foreground">
+              <p className="text-base md:text-lg text-white/70">
                 You'll never wonder if service happened. Our communication system keeps you informed throughout every storm event.
               </p>
             </div>
