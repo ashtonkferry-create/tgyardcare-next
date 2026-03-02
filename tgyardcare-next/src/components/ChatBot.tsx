@@ -1,10 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect, ReactNode } from 'react';
-import { MessageCircle, X, Send, Loader2, Phone, Mail, Building2, Home, Users, MapPin, Shield, Star, ThumbsUp, RefreshCw, Sparkles, ExternalLink } from 'lucide-react';
+import {
+  X, Send, Loader2, Phone, Mail, Building2, Home, Users, MapPin,
+  Shield, Star, ThumbsUp, RefreshCw, Sparkles, ExternalLink,
+  Scissors, Droplets, Leaf, Snowflake, MessageSquare, PhoneCall,
+  CheckCircle2,
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { useChatContext } from '@/contexts/ChatContext';
@@ -43,27 +48,87 @@ type QuoteStep =
   | 'feedback'
   | 'feedback-submitted';
 
-// Check if it's winter (Nov-Mar) for seasonal snow removal
 const isWinterSeason = () => {
   const month = new Date().getMonth();
-  return month >= 10 || month <= 2; // November (10) through March (2)
+  return month >= 10 || month <= 2;
 };
+
+const getSeasonalGreeting = () => {
+  const month = new Date().getMonth();
+  if (month >= 2 && month <= 4) return "Spring cleanup season is here — let's get your yard looking fresh.";
+  if (month >= 5 && month <= 8) return "Keep your lawn pristine all summer. How can we help?";
+  if (month >= 9 && month <= 10) return "Fall is the perfect time to prep your yard for winter.";
+  return "We've got you covered this winter — from snow removal to gutter care.";
+};
+
+// Typing indicator with bouncing dots
+const TypingIndicator = () => (
+  <div className="flex items-start gap-2.5">
+    <div className="h-6 w-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+      <Shield className="h-3 w-3 text-emerald-400" />
+    </div>
+    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl rounded-tl-md px-4 py-3">
+      <div className="flex items-center gap-1.5">
+        <div className="flex gap-1">
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              className="h-1.5 w-1.5 rounded-full bg-emerald-400/60"
+              animate={{ y: [0, -4, 0] }}
+              transition={{
+                duration: 0.6,
+                repeat: Infinity,
+                delay: i * 0.15,
+                ease: 'easeInOut',
+              }}
+            />
+          ))}
+        </div>
+        <span className="text-[10px] text-white/30 ml-1">TotalGuard is typing...</span>
+      </div>
+    </div>
+  </div>
+);
+
+// Glass chip button component
+const GlassChip = ({
+  children,
+  onClick,
+  icon,
+  delay = 0,
+}: {
+  children: ReactNode;
+  onClick: () => void;
+  icon?: ReactNode;
+  delay?: number;
+}) => (
+  <motion.button
+    initial={{ opacity: 0, y: 8 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.3, delay, type: 'spring', stiffness: 300, damping: 25 }}
+    onClick={onClick}
+    className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl
+      bg-white/[0.05] border border-white/[0.08] text-white/80
+      hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-white
+      active:scale-[0.97] transition-all duration-200"
+  >
+    {icon}
+    <span>{children}</span>
+  </motion.button>
+);
 
 export const ChatBot = () => {
   const { isChatOpen: isOpen, setIsChatOpen: setIsOpen } = useChatContext();
 
-  // Function to render message content with clickable links
   const renderMessageWithLinks = (content: string, isUserMessage: boolean): ReactNode => {
     if (isUserMessage) return content;
 
-    // Match [CLICK HERE](/path) or [VIEW PAGE](/path) or [text](/path) patterns
     const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
     const parts: ReactNode[] = [];
     let lastIndex = 0;
     let match;
 
     while ((match = linkRegex.exec(content)) !== null) {
-      // Add text before the link
       if (match.index > lastIndex) {
         parts.push(content.slice(lastIndex, match.index));
       }
@@ -71,13 +136,12 @@ export const ChatBot = () => {
       const linkText = match[1];
       const linkPath = match[2];
 
-      // Create clickable link
       parts.push(
         <a
           key={match.index}
           href={linkPath}
           onClick={() => setIsOpen(false)}
-          className="inline-flex items-center gap-1 text-primary font-semibold hover:underline hover:text-primary/80 transition-colors"
+          className="inline-flex items-center gap-1 text-emerald-400 font-semibold hover:text-emerald-300 hover:underline transition-colors"
         >
           {linkText}
           <ExternalLink className="h-2.5 w-2.5" />
@@ -87,18 +151,17 @@ export const ChatBot = () => {
       lastIndex = match.index + match[0].length;
     }
 
-    // Add remaining text after last link
     if (lastIndex < content.length) {
       parts.push(content.slice(lastIndex));
     }
 
     return parts.length > 0 ? parts : content;
   };
+
+  const openingMessage = `Welcome to TotalGuard. ${getSeasonalGreeting()} What can I help you with today?`;
+
   const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content: "Get a fast quote in under 60 seconds. What do you need help with?"
-    }
+    { role: 'assistant', content: openingMessage }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -114,9 +177,9 @@ export const ChatBot = () => {
   const [feedbackHover, setFeedbackHover] = useState<number>(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const CHAT_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/chat`;
 
-  // Initialize fresh session on every page load
   useEffect(() => {
     const initSession = () => {
       const sid = crypto.randomUUID();
@@ -133,10 +196,7 @@ export const ChatBot = () => {
       setSessionSecret(secret);
 
       setMessages([
-        {
-          role: 'assistant',
-          content: "Get a fast quote in under 60 seconds. What do you need help with?"
-        }
+        { role: 'assistant', content: openingMessage }
       ]);
       setShowQuickReplies(true);
       setCustomerInfo({});
@@ -144,9 +204,9 @@ export const ChatBot = () => {
       setSelectedService('');
     };
     initSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-scroll to bottom when messages change or loading state changes
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -158,10 +218,17 @@ export const ChatBot = () => {
   }, [messages]);
 
   useEffect(() => {
-    if (isLoading) {
-      scrollToBottom();
-    }
+    if (isLoading) scrollToBottom();
   }, [isLoading]);
+
+  // Focus input when chat opens
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      setTimeout(() => inputRef.current?.focus(), 400);
+    }
+  }, [isOpen]);
+
+  // ============ BUSINESS LOGIC (UNCHANGED) ============
 
   const calculateLeadScore = (info: CustomerInfo, msgs: Message[]) => {
     let score: LeadScore = { total: 0, serviceInterest: 0, urgency: 0, contactInfo: 0, budget: 0 };
@@ -233,7 +300,6 @@ export const ChatBot = () => {
       console.error('Failed to save chat conversation:', error);
     }
 
-    // Send email alert for high-value leads (score > 50 or complete quote flow)
     if ((score.total > 50 || quoteStep === 'complete') && (info.name || info.email || info.phone)) {
       try {
         await supabase.functions.invoke('lead-alert', {
@@ -264,7 +330,6 @@ export const ChatBot = () => {
     setMessages(prev => [...prev, { role: 'user', content }]);
   };
 
-  // Quote Fast Track Flow handlers
   const startQuoteFlow = (service: string) => {
     setSelectedService(service);
     setCustomerInfo(prev => ({ ...prev, serviceInterest: service }));
@@ -272,7 +337,7 @@ export const ChatBot = () => {
     setShowQuickReplies(false);
     setQuoteStep('property-type');
     setTimeout(() => {
-      addAssistantMessage("Is this for a residential property, commercial property, or HOA/multi-property?");
+      addAssistantMessage("Great choice. Is this for a residential property, commercial property, or HOA/multi-property?");
     }, 300);
   };
 
@@ -282,7 +347,7 @@ export const ChatBot = () => {
     setCustomerInfo(prev => ({ ...prev, propertyType: type }));
     setQuoteStep('location');
     setTimeout(() => {
-      addAssistantMessage("What's your address or nearest cross streets? (Include ZIP code or neighborhood)");
+      addAssistantMessage("What's your address or nearest cross streets? Include your ZIP or neighborhood if you can.");
     }, 300);
   };
 
@@ -295,18 +360,18 @@ export const ChatBot = () => {
     setQuoteStep('service-details');
 
     setTimeout(() => {
-      // Service-specific questions
       const serviceQuestions: Record<string, string> = {
-        'Lawn mowing': "How often would you like mowing service? Weekly, bi-weekly, or one-time?",
-        'Gutter cleaning': "How many stories is your home? And do you have gutter guards installed?",
+        'Lawn care': "How often would you like mowing service? Weekly, bi-weekly, or one-time?",
+        'Gutter services': "How many stories is your home? And do you have gutter guards installed?",
         'Fertilization/weed control': "Are you looking for a seasonal fertilization plan or a one-time treatment?",
         'Cleanups (spring/fall)': "Is this for spring cleanup, fall cleanup, or both seasons?",
-        'Mulch/landscaping': "What areas need mulching? (garden beds, trees, full property)",
+        'Mulch/landscaping': "What areas need mulching? Garden beds, trees, or the full property?",
         'Commercial/HOA': "How many properties or units need service? What's the primary service needed?",
-        'Snow removal': "What areas need clearing? (driveway, sidewalks, parking lot, full property)",
-        'Get a quote': "What service are you most interested in? (mowing, gutters, cleanups, fertilization, mulching)"
+        'Snow removal': "What areas need clearing? Driveway, sidewalks, parking lot, or the full property?",
+        'Get a quote': "What service are you most interested in? Mowing, gutters, cleanups, fertilization, or mulching?",
+        'Seasonal cleanup': "Is this for spring cleanup, fall cleanup, or both seasons?"
       };
-      addAssistantMessage(serviceQuestions[selectedService] || "Tell us more about what you need.");
+      addAssistantMessage(serviceQuestions[selectedService] || "Tell me more about what you need.");
     }, 300);
   };
 
@@ -331,7 +396,7 @@ export const ChatBot = () => {
     setCustomerInfo(prev => ({ ...prev, timeline }));
     setQuoteStep('contact-method');
     setTimeout(() => {
-      addAssistantMessage("How would you prefer we contact you with your quote?");
+      addAssistantMessage("How would you prefer we reach out with your quote?");
     }, 300);
   };
 
@@ -346,8 +411,8 @@ export const ChatBot = () => {
     setQuoteStep('contact-info');
     setTimeout(() => {
       const placeholder = method === 'email'
-        ? "Please provide your name and email address."
-        : "Please provide your name and phone number.";
+        ? "Please share your name and email address."
+        : "Please share your name and phone number.";
       addAssistantMessage(placeholder);
     }, 300);
   };
@@ -357,63 +422,53 @@ export const ChatBot = () => {
     const contactInput = input.trim();
     addUserMessage(contactInput);
 
-    // Parse contact info - PRESERVE existing customerInfo values
     const updatedInfo = { ...customerInfo };
 
-    // Parse email from current input
     const emailMatch = contactInput.match(/[\w.-]+@[\w.-]+\.\w+/);
     if (emailMatch) updatedInfo.email = emailMatch[0];
 
-    // Parse phone from current input
     const phoneMatch = contactInput.match(/\d{3}[-.\s]?\d{3}[-.\s]?\d{4}/);
     if (phoneMatch) updatedInfo.phone = phoneMatch[0].replace(/[-.\s]/g, '-');
 
-    // Try to extract name (text that's not an email or phone number)
     const nameText = contactInput
       .replace(/[\w.-]+@[\w.-]+\.\w+/g, '')
       .replace(/\d{3}[-.\s]?\d{3}[-.\s]?\d{4}/g, '')
       .trim();
 
-    // Only update name if we found a new one in this message
     if (nameText && nameText.length > 1) {
       updatedInfo.name = nameText.split(/[,\n]/)[0].trim();
     }
 
-    // Update customerInfo state immediately so it persists for next submission
     setCustomerInfo(updatedInfo);
     setInput('');
 
-    // Validate: name is required - ask again but keep stored data
     if (!updatedInfo.name || updatedInfo.name.length < 2) {
       setTimeout(() => {
         if (updatedInfo.email || updatedInfo.phone) {
-          addAssistantMessage("Got it! Just need your name to complete the quote request.");
+          addAssistantMessage("Got it! I just need your name to complete the quote request.");
         } else {
-          addAssistantMessage("I didn't catch your name. Could you please provide your name along with your contact info?");
+          addAssistantMessage("I didn't catch your name. Could you share your name along with your contact info?");
         }
       }, 300);
       return;
     }
 
-    // Validate: at least phone or email is required - ask again but keep stored data
     if (!updatedInfo.email && !updatedInfo.phone) {
       setTimeout(() => {
-        addAssistantMessage(`Thanks ${updatedInfo.name}! I just need your phone number or email to send your quote.`);
+        addAssistantMessage(`Thanks, ${updatedInfo.name}! I just need your phone number or email to send your quote.`);
       }, 300);
       return;
     }
 
-    // All info collected - complete the flow
     setQuoteStep('complete');
 
     const finalMessages = [...messages, { role: 'user' as const, content: contactInput }];
 
     setTimeout(() => {
-      addAssistantMessage(`Perfect, ${updatedInfo.name}! We'll follow up within 24 hours with your quote.`);
-      // After a short delay, prompt for feedback
+      addAssistantMessage(`Perfect, ${updatedInfo.name}! Our team will follow up within 24 hours with your personalized quote. We look forward to working with you.`);
       setTimeout(() => {
         setQuoteStep('feedback');
-        addAssistantMessage("Before you go, how would you rate your experience with our chatbot?");
+        addAssistantMessage("Before you go — how was your experience?");
       }, 2000);
     }, 300);
 
@@ -513,7 +568,7 @@ export const ChatBot = () => {
       console.error('Chat error:', e);
       const errorMsg = {
         role: 'assistant' as const,
-        content: "I'm having trouble connecting. Please call us at 920-629-6934 or email totalguardllc@gmail.com."
+        content: "I'm having trouble connecting right now. Please call us at 608-535-6057 or email totalguardllc@gmail.com — we're happy to help."
       };
       const finalMessages = [...updatedMessages, errorMsg];
       setMessages(finalMessages);
@@ -525,7 +580,6 @@ export const ChatBot = () => {
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
 
-    // Handle quote flow steps
     if (quoteStep === 'location') {
       handleLocationSubmit();
     } else if (quoteStep === 'service-details') {
@@ -544,15 +598,16 @@ export const ChatBot = () => {
     }
   };
 
-  // Service quick replies - curated luxury selection
   const serviceQuickReplies = [
-    { text: "Get a quote", icon: "✨" },
-    { text: "Lawn care", icon: "🌿" },
-    { text: "Gutter services", icon: "🏠" },
-    ...(isWinterSeason() ? [{ text: "Snow removal", icon: "❄️" }] : [{ text: "Seasonal cleanup", icon: "🍂" }])
+    { text: "Get a quote", icon: <Sparkles className="h-4 w-4" /> },
+    { text: "Lawn care", icon: <Scissors className="h-4 w-4" /> },
+    { text: "Gutter services", icon: <Droplets className="h-4 w-4" /> },
+    ...(isWinterSeason()
+      ? [{ text: "Snow removal", icon: <Snowflake className="h-4 w-4" /> }]
+      : [{ text: "Seasonal cleanup", icon: <Leaf className="h-4 w-4" /> }]
+    ),
   ];
 
-  // Commercial FAQ shortcuts
   const commercialFAQs = [
     { text: "Documentation & invoicing", query: "How do you handle documentation and invoicing for commercial properties?" },
     { text: "Multi-property service", query: "Can you service multiple properties or locations?" },
@@ -562,425 +617,441 @@ export const ChatBot = () => {
 
   const isCommercialFlow = customerInfo.propertyType === 'commercial' || customerInfo.propertyType === 'hoa' || selectedService === 'Commercial/HOA';
 
+  // Quote step tracking
+  const STEP_ORDER = ['property-type', 'location', 'service-details', 'timeline', 'contact-method', 'contact-info'] as const;
+  const STEP_LABELS = ['Property', 'Location', 'Details', 'Timeline', 'Contact', 'Info'];
+  const currentStepIdx = STEP_ORDER.indexOf(quoteStep as typeof STEP_ORDER[number]);
+  const showProgress = quoteStep !== 'idle' && quoteStep !== 'complete' && quoteStep !== 'feedback' && quoteStep !== 'feedback-submitted';
+
   return (
     <>
-      {/* Floating Chat Button */}
-      {!isOpen && (
-        <Button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl bg-gradient-to-br from-primary via-primary to-primary/90 hover:scale-110 text-white z-50 animate-in fade-in slide-in-from-bottom-4 duration-300 transition-transform hover:shadow-[0_0_30px_rgba(34,197,94,0.5)]"
-          aria-label="Open chat"
-        >
-          <MessageCircle className="h-7 w-7 animate-pulse" />
-          <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full animate-ping" />
-          <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full" />
-        </Button>
-      )}
+      {/* ========== FLOATING CHAT BUTTON ========== */}
+      <AnimatePresence>
+        {!isOpen && (
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+            className="fixed bottom-6 right-6 z-50"
+          >
+            {/* Breathing glow ring */}
+            <div className="absolute inset-0 rounded-full animate-[pulse_3s_ease-in-out_infinite] bg-emerald-500/20 blur-md scale-125" />
+            <button
+              onClick={() => setIsOpen(true)}
+              className="relative h-[72px] w-[72px] rounded-full
+                bg-gradient-to-br from-gray-900 to-emerald-900
+                border border-emerald-500/30
+                shadow-[0_0_40px_rgba(34,197,94,0.2)]
+                hover:shadow-[0_0_50px_rgba(34,197,94,0.4)]
+                hover:scale-110 active:scale-95
+                transition-all duration-300
+                flex items-center justify-center"
+              aria-label="Open chat"
+            >
+              {isWinterSeason() ? (
+                <Snowflake className="h-7 w-7 text-emerald-400" />
+              ) : (
+                <Leaf className="h-7 w-7 text-emerald-400" />
+              )}
+              {/* Emerald pulse ring instead of red ping */}
+              <span className="absolute -top-0.5 -right-0.5 h-3 w-3 bg-emerald-400 rounded-full animate-ping opacity-75" />
+              <span className="absolute -top-0.5 -right-0.5 h-3 w-3 bg-emerald-400 rounded-full" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Chat Window */}
-      {isOpen && (
-        <div
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[85vw] sm:w-[360px] h-[60vh] sm:h-[500px] max-h-[500px] bg-background border border-border/50 rounded-2xl shadow-2xl z-50 flex flex-col animate-in fade-in slide-in-from-bottom-8 duration-300 overscroll-contain"
-          onTouchMove={(e) => e.stopPropagation()}
-        >
-          {/* Premium Header */}
-          <div className="relative overflow-hidden rounded-t-2xl">
-            {/* Gradient Background with subtle pattern */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-emerald-600" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1)_0%,transparent_50%)]" />
+      {/* ========== CHAT WINDOW ========== */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6
+              w-[92vw] sm:w-[420px] h-[70vh] sm:h-[620px] max-h-[620px]
+              bg-gray-950/95 backdrop-blur-2xl
+              border border-white/[0.06]
+              rounded-3xl
+              shadow-[0_0_60px_rgba(0,0,0,0.5),0_0_15px_rgba(34,197,94,0.08)]
+              z-50 flex flex-col
+              overscroll-contain"
+            onTouchMove={(e) => e.stopPropagation()}
+          >
+            {/* ===== HEADER ===== */}
+            <div className="relative overflow-hidden rounded-t-3xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-900/95 via-gray-900/95 to-emerald-950/95" />
+              {/* Subtle radial glow */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(34,197,94,0.08)_0%,transparent_60%)]" />
 
-            <div className="relative p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="relative">
-                    <div className="h-9 w-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
-                      <Shield className="h-4 w-4 text-white" />
-                    </div>
-                    <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 bg-green-400 rounded-full ring-2 ring-primary" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-bold text-sm text-white tracking-tight">TotalGuard</h3>
-                      <div className="flex items-center gap-0.5 bg-white/20 rounded-full px-1.5 py-0.5">
-                        <Star className="h-2.5 w-2.5 text-yellow-300 fill-yellow-300" />
-                        <span className="text-[9px] font-semibold text-white">5.0</span>
+              <div className="relative px-4 py-3.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {/* Shield logo with emerald glow */}
+                    <div className="relative">
+                      <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-md" />
+                      <div className="relative h-10 w-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                        <Shield className="h-5 w-5 text-emerald-400" />
                       </div>
+                      <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 bg-emerald-400 rounded-full ring-2 ring-gray-900" />
                     </div>
-                    <p className="text-[10px] text-white/80 font-medium">
-                      Madison's Trusted Yard Care Experts
-                    </p>
+                    <div>
+                      <h3 className="font-bold text-base text-white tracking-tight">TotalGuard</h3>
+                      <p className="text-xs text-emerald-400/80 font-medium">Your Yard Care Concierge</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-white/40">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Online
+                    </span>
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="h-8 w-8 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all duration-200"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
+              </div>
+              {/* Bottom accent line */}
+              <div className="h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+            </div>
+
+            {/* ===== CONTACT BAR ===== */}
+            <div className="bg-white/[0.02] px-4 py-2 border-b border-white/[0.04]">
+              <div className="flex items-center justify-between text-[11px] gap-2">
+                <a href="tel:608-535-6057" className="flex items-center gap-1.5 text-white/50 hover:text-emerald-400 font-medium transition-colors whitespace-nowrap">
+                  <Phone className="h-3.5 w-3.5" />
+                  <span>608-535-6057</span>
+                </a>
+                <a href="mailto:totalguardllc@gmail.com" className="flex items-center gap-1.5 text-white/50 hover:text-emerald-400 font-medium transition-colors min-w-0">
+                  <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                  <span className="truncate">totalguardllc@gmail.com</span>
+                </a>
+                <a
+                  href="/service-areas"
                   onClick={() => setIsOpen(false)}
-                  className="text-white/80 hover:text-white hover:bg-white/10 h-7 w-7 rounded-full"
+                  className="flex items-center gap-1 text-white/50 hover:text-emerald-400 font-medium transition-colors whitespace-nowrap"
                 >
-                  <X className="h-4 w-4" />
-                </Button>
+                  <MapPin className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Areas</span>
+                </a>
               </div>
             </div>
-          </div>
 
-          {/* Contact Info Bar */}
-          <div className="bg-gradient-to-r from-secondary/50 to-secondary/30 px-2 py-1.5 border-b border-border/20">
-            <div className="flex items-center justify-between text-[9px] sm:text-[11px] gap-1">
-              <a href="tel:920-629-6934" className="flex items-center gap-1 text-primary hover:text-primary/80 font-semibold transition-colors whitespace-nowrap">
-                <Phone className="h-2.5 w-2.5 sm:h-3 sm:w-3 flex-shrink-0" />
-                <span>920-629-6934</span>
-              </a>
-              <a href="mailto:totalguardllc@gmail.com" className="flex items-center gap-1 text-muted-foreground hover:text-primary font-medium transition-colors min-w-0">
-                <Mail className="h-2.5 w-2.5 sm:h-3 sm:w-3 flex-shrink-0" />
-                <span className="truncate">totalguardllc@gmail.com</span>
-              </a>
-              <a
-                href="/service-areas"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-0.5 text-primary hover:text-primary/80 font-semibold transition-colors whitespace-nowrap"
-              >
-                <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 flex-shrink-0" />
-                <span className="sm:hidden">Areas</span>
-                <span className="hidden sm:inline">Service Areas</span>
-              </a>
-            </div>
-          </div>
-
-          {/* Quote Progress Indicator */}
-          {quoteStep !== 'idle' && quoteStep !== 'complete' && quoteStep !== 'feedback' && quoteStep !== 'feedback-submitted' && (
-            <div className="bg-secondary/20 px-3 py-2 border-b border-border/10">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[10px] font-medium text-muted-foreground">Quote Progress</span>
-                <span className="text-[10px] font-semibold text-primary">
-                  Step {
-                    quoteStep === 'property-type' ? '1' :
-                    quoteStep === 'location' ? '2' :
-                    quoteStep === 'service-details' ? '3' :
-                    quoteStep === 'timeline' ? '4' :
-                    quoteStep === 'contact-method' ? '5' :
-                    quoteStep === 'contact-info' ? '6' : '1'
-                  } of 6
-                </span>
+            {/* ===== QUOTE PROGRESS ===== */}
+            {showProgress && (
+              <div className="px-4 py-2.5 border-b border-white/[0.04] bg-white/[0.02]">
+                <div className="flex items-center gap-1">
+                  {STEP_ORDER.map((step, idx) => {
+                    const isCompleted = idx < currentStepIdx;
+                    const isCurrent = step === quoteStep;
+                    return (
+                      <div key={step} className="flex items-center gap-1 flex-1">
+                        <div className="flex flex-col items-center flex-1">
+                          <div
+                            className={`h-1 w-full rounded-full transition-all duration-500 ${
+                              isCompleted ? 'bg-emerald-500' :
+                              isCurrent ? 'bg-emerald-500/50' :
+                              'bg-white/[0.06]'
+                            }`}
+                          />
+                          <span className={`text-[8px] mt-1 transition-colors ${
+                            isCurrent ? 'text-emerald-400 font-medium' :
+                            isCompleted ? 'text-white/40' :
+                            'text-white/20'
+                          }`}>
+                            {STEP_LABELS[idx]}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="flex gap-1">
-                {['property-type', 'location', 'service-details', 'timeline', 'contact-method', 'contact-info'].map((step, idx) => {
-                  const stepOrder = ['property-type', 'location', 'service-details', 'timeline', 'contact-method', 'contact-info'];
-                  const currentIdx = stepOrder.indexOf(quoteStep);
-                  const isCompleted = idx < currentIdx;
-                  const isCurrent = step === quoteStep;
+            )}
 
-                  return (
-                    <div
-                      key={step}
-                      className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                        isCompleted ? 'bg-primary' :
-                        isCurrent ? 'bg-primary/60 animate-pulse' :
-                        'bg-muted/50'
-                      }`}
-                    />
-                  );
-                })}
-              </div>
-              <div className="flex justify-between mt-1">
-                <span className="text-[8px] text-muted-foreground/70">
-                  {quoteStep === 'property-type' ? 'Property Type' :
-                   quoteStep === 'location' ? 'Location' :
-                   quoteStep === 'service-details' ? 'Service Details' :
-                   quoteStep === 'timeline' ? 'Timeline' :
-                   quoteStep === 'contact-method' ? 'Contact Method' :
-                   quoteStep === 'contact-info' ? 'Your Info' : ''}
-                </span>
-                <span className="text-[8px] text-primary/70 font-medium">Almost done!</span>
-              </div>
-            </div>
-          )}
-
-          {/* Messages */}
-          <ScrollArea className="flex-1 p-3 overscroll-contain" ref={scrollRef}>
-            <div className="space-y-3">
-              {messages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[80%] rounded-xl px-3 py-2 ${
-                      msg.role === 'user'
-                        ? 'bg-primary text-white'
-                        : 'bg-secondary/40 text-foreground'
-                    }`}
+            {/* ===== MESSAGES ===== */}
+            <ScrollArea className="flex-1 px-4 py-3 overscroll-contain" ref={scrollRef}>
+              <div className="space-y-4">
+                {messages.map((msg, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, x: msg.role === 'user' ? 16 : -16, y: 4 }}
+                    animate={{ opacity: 1, x: 0, y: 0 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 30, duration: 0.3 }}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'items-start gap-2.5'}`}
                   >
-                    <p className="text-xs whitespace-pre-wrap leading-relaxed">
-                      {renderMessageWithLinks(msg.content, msg.role === 'user')}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-secondary/50 rounded-2xl px-4 py-2.5">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  </div>
-                </div>
-              )}
-
-              {/* Initial Service Quick Replies */}
-              {showQuickReplies && !isLoading && messages.length <= 1 && quoteStep === 'idle' && (
-                <div className="pt-3">
-                  <div className="flex flex-wrap gap-1.5">
-                    {serviceQuickReplies.map((reply, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => startQuoteFlow(reply.text)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-primary/30 bg-primary/5 text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
-                      >
-                        <span className="text-xs">{reply.icon}</span>
-                        <span>{reply.text}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Property Type Selection */}
-              {quoteStep === 'property-type' && !isLoading && (
-                <div className="pt-3">
-                  <div className="flex flex-wrap gap-1.5">
-                    <button
-                      onClick={() => handlePropertyType('residential')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-primary/30 bg-primary/5 text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
+                    {/* Assistant avatar */}
+                    {msg.role === 'assistant' && (
+                      <div className="h-6 w-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Shield className="h-3 w-3 text-emerald-400" />
+                      </div>
+                    )}
+                    <div
+                      className={`max-w-[80%] px-3.5 py-2.5 ${
+                        msg.role === 'user'
+                          ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-2xl rounded-tr-md shadow-lg shadow-emerald-500/20'
+                          : 'bg-white/[0.04] border border-white/[0.06] text-white/90 rounded-2xl rounded-tl-md border-l-2 border-l-emerald-500/30'
+                      }`}
                     >
-                      <Home className="h-3 w-3" />
-                      <span>Residential</span>
-                    </button>
-                    <button
-                      onClick={() => handlePropertyType('commercial')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-primary/30 bg-primary/5 text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
-                    >
-                      <Building2 className="h-3 w-3" />
-                      <span>Commercial</span>
-                    </button>
-                    <button
-                      onClick={() => handlePropertyType('hoa')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-primary/30 bg-primary/5 text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
-                    >
-                      <Users className="h-3 w-3" />
-                      <span>HOA/Multi</span>
-                    </button>
+                      <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                        {renderMessageWithLinks(msg.content, msg.role === 'user')}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+
+                {/* Typing indicator */}
+                {isLoading && <TypingIndicator />}
+
+                {/* ===== QUICK REPLIES ===== */}
+                {showQuickReplies && !isLoading && messages.length <= 1 && quoteStep === 'idle' && (
+                  <div className="pt-2">
+                    <div className="flex flex-wrap gap-2">
+                      {serviceQuickReplies.map((reply, idx) => (
+                        <GlassChip
+                          key={idx}
+                          onClick={() => startQuoteFlow(reply.text)}
+                          icon={reply.icon}
+                          delay={idx * 0.08}
+                        >
+                          {reply.text}
+                        </GlassChip>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-
-              {/* Timeline Selection */}
-              {quoteStep === 'timeline' && !isLoading && (
-                <div className="pt-3">
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      { value: 'asap', label: 'ASAP' },
-                      { value: 'this-week', label: 'This week' },
-                      { value: 'this-month', label: 'This month' },
-                      { value: 'just-pricing', label: 'Just pricing' }
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => handleTimeline(option.value)}
-                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full border border-primary/30 bg-primary/5 text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Contact Method Selection */}
-              {quoteStep === 'contact-method' && !isLoading && (
-                <div className="pt-3">
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      { value: 'text', label: 'Text', icon: '💬' },
-                      { value: 'call', label: 'Call', icon: '📞' },
-                      { value: 'email', label: 'Email', icon: '✉️' }
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => handleContactMethod(option.value)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-full border border-primary/30 bg-primary/5 text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
-                      >
-                        <span className="text-xs">{option.icon}</span>
-                        <span>{option.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-
-              {/* Commercial FAQ Shortcuts */}
-              {isCommercialFlow && quoteStep === 'complete' && !isLoading && (
-                <div className="pt-3">
-                  <div className="flex flex-wrap gap-1.5">
-                    {commercialFAQs.map((faq, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => streamChat(faq.query)}
-                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full border border-muted-foreground/30 bg-muted/30 text-muted-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
-                      >
-                        {faq.text}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {/* Scroll anchor */}
-              <div ref={messagesEndRef} />
-            </div>
-          </ScrollArea>
-
-          {/* Promo Banner - only show when not in quote flow */}
-          {quoteStep === 'idle' && (
-            <div className="px-3 py-2 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-t border-primary/20">
-              <p className="text-xs text-center text-foreground font-medium">
-                🎉 <span className="font-bold text-primary">Limited Time:</span> Save 10% on gutter cleaning
-              </p>
-            </div>
-          )}
-
-          {/* Feedback UI */}
-          {quoteStep === 'feedback' && (
-            <div className="px-3 py-4 border-t border-border bg-muted/30">
-              <div className="text-center space-y-3">
-                <div className="flex justify-center gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      onClick={() => setFeedbackRating(star)}
-                      onMouseEnter={() => setFeedbackHover(star)}
-                      onMouseLeave={() => setFeedbackHover(0)}
-                      className="p-1 transition-transform hover:scale-110"
-                    >
-                      <Star
-                        className={`h-6 w-6 transition-colors ${
-                          star <= (feedbackHover || feedbackRating)
-                            ? 'fill-yellow-400 text-yellow-400'
-                            : 'text-muted-foreground/40'
-                        }`}
-                      />
-                    </button>
-                  ))}
-                </div>
-                {feedbackRating > 0 && (
-                  <>
-                    <textarea
-                      value={feedbackText}
-                      onChange={(e) => setFeedbackText(e.target.value)}
-                      placeholder="Tell us more about your experience (optional)"
-                      className="w-full p-2 text-xs border border-border rounded-md bg-background resize-none"
-                      rows={2}
-                    />
-                    <Button
-                      onClick={async () => {
-                        try {
-                          await supabase.from('chatbot_feedback').insert({
-                            session_id: sessionId,
-                            rating: feedbackRating,
-                            feedback_text: feedbackText.trim() || null,
-                          });
-                          setQuoteStep('feedback-submitted');
-                          addAssistantMessage("Thank you for your feedback! We appreciate you helping us improve. 🙏");
-                        } catch (err) {
-                          console.error('Failed to submit feedback:', err);
-                        }
-                      }}
-                      size="sm"
-                      className="bg-primary hover:bg-primary/90"
-                    >
-                      <ThumbsUp className="h-3.5 w-3.5 mr-1.5" />
-                      Submit Feedback
-                    </Button>
-                  </>
                 )}
-                <button
-                  onClick={() => setQuoteStep('feedback-submitted')}
-                  className="text-xs text-muted-foreground hover:text-foreground underline"
-                >
-                  Skip
-                </button>
-              </div>
-            </div>
-          )}
 
-          {/* Reset Chat Button - After Feedback Submitted */}
-          {quoteStep === 'feedback-submitted' && (
-            <div className="px-3 py-4 border-t border-border bg-gradient-to-r from-primary/5 via-transparent to-primary/5">
-              <div className="text-center space-y-3">
-                <p className="text-xs text-muted-foreground">
-                  Need another quote or have more questions?
-                </p>
-                <button
-                  onClick={() => {
-                    // Reset all state for a fresh conversation
-                    setMessages([
-                      {
-                        role: 'assistant',
-                        content: "Get a fast quote in under 60 seconds. What do you need help with?"
-                      }
-                    ]);
-                    setQuoteStep('idle');
-                    setShowQuickReplies(true);
-                    setCustomerInfo({});
-                    setSelectedService('');
-                    setFeedbackRating(0);
-                    setFeedbackText('');
-                    setInput('');
-                  }}
-                  className="group relative inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-full bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-105 transition-all duration-300"
-                >
-                  <Sparkles className="h-4 w-4 group-hover:animate-pulse" />
-                  <span>Start a New Quote</span>
-                  <RefreshCw className="h-3.5 w-3.5 group-hover:rotate-180 transition-transform duration-500" />
-                </button>
-                <p className="text-[10px] text-muted-foreground/70">
-                  ⚡ Get another quote in under 60 seconds
+                {/* ===== PROPERTY TYPE ===== */}
+                {quoteStep === 'property-type' && !isLoading && (
+                  <div className="pt-2">
+                    <div className="flex flex-wrap gap-2">
+                      <GlassChip onClick={() => handlePropertyType('residential')} icon={<Home className="h-4 w-4" />} delay={0}>
+                        Residential
+                      </GlassChip>
+                      <GlassChip onClick={() => handlePropertyType('commercial')} icon={<Building2 className="h-4 w-4" />} delay={0.08}>
+                        Commercial
+                      </GlassChip>
+                      <GlassChip onClick={() => handlePropertyType('hoa')} icon={<Users className="h-4 w-4" />} delay={0.16}>
+                        HOA / Multi
+                      </GlassChip>
+                    </div>
+                  </div>
+                )}
+
+                {/* ===== TIMELINE ===== */}
+                {quoteStep === 'timeline' && !isLoading && (
+                  <div className="pt-2">
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { value: 'asap', label: 'ASAP' },
+                        { value: 'this-week', label: 'This week' },
+                        { value: 'this-month', label: 'This month' },
+                        { value: 'just-pricing', label: 'Just pricing' }
+                      ].map((option, idx) => (
+                        <GlassChip key={option.value} onClick={() => handleTimeline(option.value)} delay={idx * 0.08}>
+                          {option.label}
+                        </GlassChip>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ===== CONTACT METHOD ===== */}
+                {quoteStep === 'contact-method' && !isLoading && (
+                  <div className="pt-2">
+                    <div className="flex flex-wrap gap-2">
+                      <GlassChip onClick={() => handleContactMethod('text')} icon={<MessageSquare className="h-4 w-4" />} delay={0}>
+                        Text
+                      </GlassChip>
+                      <GlassChip onClick={() => handleContactMethod('call')} icon={<PhoneCall className="h-4 w-4" />} delay={0.08}>
+                        Call
+                      </GlassChip>
+                      <GlassChip onClick={() => handleContactMethod('email')} icon={<Mail className="h-4 w-4" />} delay={0.16}>
+                        Email
+                      </GlassChip>
+                    </div>
+                  </div>
+                )}
+
+                {/* ===== COMMERCIAL FAQs ===== */}
+                {isCommercialFlow && quoteStep === 'complete' && !isLoading && (
+                  <div className="pt-2">
+                    <div className="flex flex-wrap gap-2">
+                      {commercialFAQs.map((faq, idx) => (
+                        <GlassChip key={idx} onClick={() => streamChat(faq.query)} delay={idx * 0.08}>
+                          {faq.text}
+                        </GlassChip>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+            </ScrollArea>
+
+            {/* ===== PROMO BANNER ===== */}
+            {quoteStep === 'idle' && (
+              <div className="px-4 py-2 bg-emerald-500/[0.06] border-t border-emerald-500/10">
+                <p className="text-xs text-center text-white/60 font-medium">
+                  <span className="font-bold text-emerald-400">Limited Time:</span> Save 10% on gutter cleaning
                 </p>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Input - hide during feedback step */}
-          {quoteStep !== 'feedback' && quoteStep !== 'feedback-submitted' && (
-            <div className="p-2.5 border-t border-border">
-              <div className="flex gap-1.5">
-                <Input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder={
-                    quoteStep === 'location' ? "Enter address or cross streets..." :
-                    quoteStep === 'service-details' ? "Describe your needs..." :
-                    quoteStep === 'contact-info' ? "Name and phone/email..." :
-                    "Ask a question..."
-                  }
-                  className="flex-1 h-9 text-[16px] sm:text-xs"
-                  disabled={isLoading}
-                />
-                <Button
-                  onClick={handleSend}
-                  disabled={isLoading || !input.trim()}
-                  size="icon"
-                  className="bg-primary hover:bg-primary/90 h-9 w-9"
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Send className="h-3.5 w-3.5" />
+            {/* ===== FEEDBACK ===== */}
+            {quoteStep === 'feedback' && (
+              <div className="px-4 py-4 border-t border-white/[0.06] bg-white/[0.02]">
+                <div className="text-center space-y-3">
+                  <div className="flex justify-center gap-1.5">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => setFeedbackRating(star)}
+                        onMouseEnter={() => setFeedbackHover(star)}
+                        onMouseLeave={() => setFeedbackHover(0)}
+                        className="p-1 transition-transform hover:scale-125 active:scale-95"
+                      >
+                        <Star
+                          className={`h-7 w-7 transition-colors duration-200 ${
+                            star <= (feedbackHover || feedbackRating)
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-white/15'
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  {feedbackRating > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="space-y-3"
+                    >
+                      <textarea
+                        value={feedbackText}
+                        onChange={(e) => setFeedbackText(e.target.value)}
+                        placeholder="Tell us more (optional)"
+                        className="w-full p-3 text-sm border border-white/[0.08] rounded-xl bg-white/[0.04] text-white/90 placeholder:text-white/25 resize-none focus:outline-none focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500/20"
+                        rows={2}
+                      />
+                      <Button
+                        onClick={async () => {
+                          try {
+                            await supabase.from('chatbot_feedback').insert({
+                              session_id: sessionId,
+                              rating: feedbackRating,
+                              feedback_text: feedbackText.trim() || null,
+                            });
+                            setQuoteStep('feedback-submitted');
+                            addAssistantMessage("Thank you for your feedback — it truly helps us improve.");
+                          } catch (err) {
+                            console.error('Failed to submit feedback:', err);
+                          }
+                        }}
+                        size="sm"
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl px-5"
+                      >
+                        <ThumbsUp className="h-3.5 w-3.5 mr-1.5" />
+                        Submit
+                      </Button>
+                    </motion.div>
                   )}
-                </Button>
+                  <button
+                    onClick={() => setQuoteStep('feedback-submitted')}
+                    className="text-xs text-white/30 hover:text-white/50 transition-colors"
+                  >
+                    Skip
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+
+            {/* ===== RESET / NEW QUOTE ===== */}
+            {quoteStep === 'feedback-submitted' && (
+              <div className="px-4 py-4 border-t border-white/[0.06] bg-white/[0.02]">
+                <div className="text-center space-y-3">
+                  <p className="text-xs text-white/40">
+                    Need another quote or have more questions?
+                  </p>
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => {
+                      setMessages([
+                        { role: 'assistant', content: openingMessage }
+                      ]);
+                      setQuoteStep('idle');
+                      setShowQuickReplies(true);
+                      setCustomerInfo({});
+                      setSelectedService('');
+                      setFeedbackRating(0);
+                      setFeedbackText('');
+                      setInput('');
+                    }}
+                    className="group relative inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl
+                      bg-gradient-to-r from-emerald-600 to-emerald-500 text-white
+                      shadow-lg shadow-emerald-500/20
+                      hover:shadow-xl hover:shadow-emerald-500/30
+                      transition-all duration-300"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    <span>Start a New Quote</span>
+                    <RefreshCw className="h-3.5 w-3.5 group-hover:rotate-180 transition-transform duration-500" />
+                  </motion.button>
+                </div>
+              </div>
+            )}
+
+            {/* ===== INPUT AREA ===== */}
+            {quoteStep !== 'feedback' && quoteStep !== 'feedback-submitted' && (
+              <div className="p-3 border-t border-white/[0.06]">
+                <div className="flex gap-2">
+                  <input
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder={
+                      quoteStep === 'location' ? "Enter address or cross streets..." :
+                      quoteStep === 'service-details' ? "Describe your needs..." :
+                      quoteStep === 'contact-info' ? "Name and phone/email..." :
+                      "Ask a question..."
+                    }
+                    className="flex-1 h-12 px-4 text-sm text-white/90 placeholder:text-white/25
+                      bg-white/[0.04] border border-white/[0.08] rounded-xl
+                      focus:outline-none focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500/20
+                      disabled:opacity-40 transition-all duration-200"
+                    disabled={isLoading}
+                  />
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.92 }}
+                    onClick={handleSend}
+                    disabled={isLoading || !input.trim()}
+                    className="h-12 w-12 rounded-xl flex items-center justify-center
+                      bg-emerald-600 hover:bg-emerald-500
+                      disabled:opacity-30 disabled:hover:bg-emerald-600
+                      shadow-lg shadow-emerald-500/20
+                      transition-all duration-200"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-white" />
+                    ) : (
+                      <Send className="h-4 w-4 text-white" />
+                    )}
+                  </motion.button>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
