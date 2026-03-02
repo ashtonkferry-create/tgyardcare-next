@@ -116,7 +116,7 @@ export function WinterHero() {
 
             {/* Trust Chips with Hover */}
             <div className="flex flex-wrap gap-2 mb-6 animate-fade-in" style={{ animationDelay: '0.7s' }}>
-              {['60+ Reviews', '4.9★ Rating', 'Fully Insured'].map((chip) => (
+              {['80+ Reviews', '4.9★ Rating', 'Fully Insured'].map((chip) => (
                 <span
                   key={chip}
                   className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-white px-3.5 py-2 rounded-full text-sm font-medium border border-white/20 hover:bg-white/15 hover:border-cyan-400/40 transition-all duration-300 cursor-default"

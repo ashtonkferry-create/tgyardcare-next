@@ -259,7 +259,7 @@ export default function ResidentialContent() {
             {/* Trust badge */}
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold mb-6 border border-white/20">
               <Star className="h-4 w-4 fill-accent text-accent" />
-              <span>4.9&#9733; from 60+ Google Reviews</span>
+              <span>4.9&#9733; from 80+ Google Reviews</span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 md:mb-6 leading-tight">

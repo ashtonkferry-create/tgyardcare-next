@@ -97,7 +97,7 @@ const reviews = [
 
 const stats = [
   { number: "4.9", label: "Average Rating", icon: Star },
-  { number: "60+", label: "Verified Reviews", icon: ThumbsUp },
+  { number: "80+", label: "Verified Reviews", icon: ThumbsUp },
   { number: "24hr", label: "Response Commitment", icon: CheckCircle }
 ];
 
@@ -109,7 +109,7 @@ export default function ReviewsContent() {
 
       <section className="sr-only">
         <h2>TG Yard Care Customer Reviews</h2>
-        <p>TG Yard Care has earned a 4.9-star rating from 60+ verified Google reviews. Customers consistently praise our reliability, attention to detail, and same-crew-every-visit commitment. Read real testimonials from Madison-area homeowners and property managers who trust TotalGuard for their lawn care and landscaping needs.</p>
+        <p>TG Yard Care has earned a 4.9-star rating from 80+ verified Google reviews. Customers consistently praise our reliability, attention to detail, and same-crew-every-visit commitment. Read real testimonials from Madison-area homeowners and property managers who trust TotalGuard for their lawn care and landscaping needs.</p>
       </section>
 
       {/* Hero Section */}
@@ -131,7 +131,7 @@ export default function ReviewsContent() {
               What <span className="text-primary">Madison Homeowners</span> Say
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              60+ verified Google reviews. 4.9&#9733; average rating. Read what clients say about our response time, crew consistency, and service execution.
+              80+ verified Google reviews. 4.9&#9733; average rating. Read what clients say about our response time, crew consistency, and service execution.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="text-lg font-bold" asChild>

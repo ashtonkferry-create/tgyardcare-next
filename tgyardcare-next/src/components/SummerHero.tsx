@@ -155,7 +155,7 @@ export function SummerHero() {
 
               {/* Trust Chips - Hidden on mobile (shown in value chips above) */}
               <div className="hidden lg:flex flex-wrap gap-2 mb-6">
-                {['60+ Google Reviews', '4.9★ Rating', 'Fully Insured'].map((chip) => (
+                {['80+ Google Reviews', '4.9★ Rating', 'Fully Insured'].map((chip) => (
                   <span
                     key={chip}
                     className="inline-flex items-center gap-1.5 bg-green-800/40 backdrop-blur-md text-green-100 px-3.5 py-2 rounded-full text-sm font-medium border border-green-500/40 hover:bg-green-700/50 hover:border-green-400/50 transition-all duration-300 cursor-default"
@@ -228,7 +228,7 @@ export function SummerHero() {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-white font-bold text-xs lg:text-sm leading-tight">{SITE_STATS.googleRating}/5</span>
-                    <span className="text-green-400/60 text-[10px] lg:text-xs">60+ Reviews</span>
+                    <span className="text-green-400/60 text-[10px] lg:text-xs">80+ Reviews</span>
                   </div>
                 </div>
               </div>

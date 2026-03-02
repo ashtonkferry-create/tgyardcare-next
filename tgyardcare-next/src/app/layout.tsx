@@ -126,7 +126,7 @@ function GlobalJsonLd() {
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: '4.9',
-      reviewCount: '60',
+      reviewCount: '80',
       bestRating: '5',
       worstRating: '1',
     },

@@ -48,7 +48,7 @@ export function GoogleReviewsSection() {
             "aggregateRating": {
               "@type": "AggregateRating",
               "ratingValue": "4.9",
-              "reviewCount": "60",
+              "reviewCount": "80",
               "bestRating": "5",
               "worstRating": "1"
             },
@@ -113,7 +113,7 @@ export function GoogleReviewsSection() {
                 ))}
               </div>
               <span className="text-sm text-gray-500">
-                Based on 60+ reviews
+                Based on 80+ reviews
               </span>
             </div>
           </div>

@@ -76,7 +76,7 @@ export function WhyMadisonTrust() {
         >
           <div className="inline-flex items-center gap-2 bg-amber-500/20 backdrop-blur-sm border border-amber-400/30 rounded-full px-4 py-2 mb-6">
             <MessageSquare className="h-4 w-4 text-amber-300" />
-            <span className="text-amber-200 text-sm font-medium tracking-wide">Read our 60+ Google reviews</span>
+            <span className="text-amber-200 text-sm font-medium tracking-wide">Read our 80+ Google reviews</span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
             Why Homeowners{" "}
@@ -222,7 +222,7 @@ export function WhyMadisonTrust() {
             </div>
             <div className="flex items-center gap-2 text-blue-200/70 text-sm">
               <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-              <span>60+ Verified Reviews</span>
+              <span>80+ Verified Reviews</span>
             </div>
             <div className="flex items-center gap-2 text-blue-200/70 text-sm">
               <div className="w-1.5 h-1.5 rounded-full bg-green-400" />

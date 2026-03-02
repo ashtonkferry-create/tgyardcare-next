@@ -14,7 +14,7 @@ import type { Season } from '@/contexts/SeasonalThemeContext';
 export const SITE_STATS = {
   totalClients: 500,
   googleRating: 4.9,
-  reviewCount: 60,
+  reviewCount: 80,
   yearsInBusiness: 8,
 } as const;
 

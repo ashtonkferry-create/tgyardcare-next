@@ -110,7 +110,7 @@ export function FallHero() {
 
             {/* Trust Chips - Gold Accent */}
             <div className="flex flex-wrap gap-2 mb-6 animate-fade-in" style={{ animationDelay: '0.7s' }}>
-              {['60+ Google Reviews', '4.9★ Rating', 'Fully Insured'].map((chip) => (
+              {['80+ Google Reviews', '4.9★ Rating', 'Fully Insured'].map((chip) => (
                 <span
                   key={chip}
                   className="inline-flex items-center gap-1.5 bg-amber-900/30 backdrop-blur-md text-amber-100 px-3.5 py-2 rounded-full text-sm font-medium border border-amber-600/30 hover:bg-amber-800/40 hover:border-amber-500/40 transition-all duration-300 cursor-default"
