@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
 
 import Footer from "@/components/Footer";
+import CTASection from "@/components/CTASection";
 import ServiceCard from "@/components/ServiceCard";
 import { GoogleReviewsSection } from "@/components/GoogleReviewsSection";
 import { ComparisonTable } from "@/components/ComparisonTable";
@@ -522,7 +523,10 @@ export default function HomeContent() {
         </div>
       </section>
 
-      <Footer />
+      {/* FINAL CTA */}
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }
