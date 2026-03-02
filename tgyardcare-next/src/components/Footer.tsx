@@ -447,27 +447,27 @@ export default function Footer({
 
       {/* ═══════════ ZONE 3 — SIGNATURE ═══════════ */}
       <section className={`${t.footerBg} border-t ${t.sigBorder}`}>
-        <div className="container mx-auto px-4 py-6 md:py-8">
-          <div className="flex flex-col items-center gap-5 max-w-6xl mx-auto">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 max-w-6xl mx-auto">
 
-            {/* Logo — prominent */}
-            <Link href="/" className="hover:opacity-80 transition-opacity">
-              <img
-                alt="TotalGuard Yard Care"
-                src="/images/totalguard-banner-logo.png"
-                className="h-14 md:h-16 w-auto"
-                loading="lazy"
-              />
-            </Link>
+            {/* Left — Logo + tagline */}
+            <div className="flex items-center gap-3">
+              <Link href="/" className="hover:opacity-80 transition-opacity shrink-0">
+                <img
+                  alt="TotalGuard Yard Care"
+                  src="/images/totalguard-logo-full.png"
+                  className="h-8 w-auto"
+                  loading="lazy"
+                />
+              </Link>
+              <span className={`text-xs ${t.dimText} tracking-wide hidden sm:inline`}>
+                Madison&apos;s reliability-first lawn care &mdash; serving all of Dane County
+              </span>
+            </div>
 
-            {/* Tagline */}
-            <p className={`text-xs ${t.dimText} text-center tracking-wide`}>
-              Madison&apos;s reliability-first lawn care company &mdash; serving all of Dane County
-            </p>
-
-            {/* Copyright */}
-            <p className={`text-[11px] ${t.dimText} text-center`}>
-              &copy; {currentYear} TotalGuard Yard Care LLC. All rights reserved.
+            {/* Right — Copyright */}
+            <p className={`text-[11px] ${t.dimText} shrink-0`}>
+              &copy; {currentYear} TotalGuard Yard Care LLC
             </p>
 
           </div>
