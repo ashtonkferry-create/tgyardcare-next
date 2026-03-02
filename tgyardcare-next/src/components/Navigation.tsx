@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -638,21 +638,6 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
   const pathname = usePathname();
   const isCondensed = useScrollCondense();
 
-  // Track banner height for spacer
-  const bannerWrapperRef = useRef<HTMLDivElement>(null);
-  const [bannerHeight, setBannerHeight] = useState(0);
-
-  useEffect(() => {
-    const el = bannerWrapperRef.current;
-    if (!el) { setBannerHeight(0); return; }
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setBannerHeight(entry.contentRect.height);
-      }
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [showPromoBanner]);
 
   // Close sibling menus when opening one — prevents overlap jitter
   const openResidential = useCallback(() => { setCommercialOpen(false); setAboutOpen(false); setResidentialOpen(true); }, []);
@@ -718,12 +703,10 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
 
   return (
     <>
+    {showPromoBanner && (
+      <PromoBanner />
+    )}
     <div className="fixed top-0 left-0 right-0 z-50">
-      {showPromoBanner && (
-        <div ref={bannerWrapperRef}>
-          <PromoBanner />
-        </div>
-      )}
     <nav className={cn("border-b shadow-lg nav-seasonal relative", t.bg, t.border)}>
       {/* Cinematic effects container — overflow-hidden so glow doesn't bleed, but nav itself can show dropdowns */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -736,7 +719,7 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
         <div className={`absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent ${t.glowLine} to-transparent`} />
       </div>
       <div className="container mx-auto px-3 sm:px-4 relative z-10">
-        <div className="flex items-center justify-between h-16 md:h-18 lg:h-20">
+        <div className={cn("flex items-center justify-between transition-all duration-300", isCondensed ? "h-14 md:h-15 lg:h-16" : "h-16 md:h-18 lg:h-20")}>
           {/* ---- Logo ---- */}
           <Link href="/" className="flex items-center group flex-shrink-0 -my-4">
             <img
@@ -744,7 +727,7 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
               src="/images/totalguard-logo-summer.png"
               className={cn(
                 "w-auto hover:scale-105 transition-all duration-300",
-                isCondensed ? "h-20 md:h-24 lg:h-28" : "h-32 md:h-36 lg:h-40"
+                isCondensed ? "h-[6.5rem] md:h-[7.5rem] lg:h-[8.5rem]" : "h-32 md:h-36 lg:h-40"
               )}
               loading="eager"
               fetchPriority="high"
@@ -922,8 +905,7 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
       </div>
     </nav>
     </div>
-    {/* Spacers to offset fixed header */}
-    <div className="transition-all duration-300" style={{ height: bannerHeight }} />
+    {/* Spacer to offset fixed header */}
     <div className="h-16 md:h-18 lg:h-20" />
     </>
   );

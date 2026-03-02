@@ -107,7 +107,7 @@ export const PromoBanner = () => {
   );
 
   return (
-    <div className={cn("text-white py-2.5 px-4 border-b relative overflow-hidden", bt.bg, bt.border)}>
+    <div className={cn("text-white py-1.5 px-4 border-b relative overflow-hidden", bt.bg, bt.border)}>
       {/* Cinematic: Ambient center glow */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-16 rounded-full blur-3xl pointer-events-none"
