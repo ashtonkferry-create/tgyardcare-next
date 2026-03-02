@@ -9,6 +9,9 @@ import { useMemo } from 'react';
  * Renders CSS-only animated dots/orbs that drift organically.
  * Summer: green luminous pollen. Fall: amber fireflies. Winter: soft white flurries.
  *
+ * Each particle gets a unique randomized animation path via per-particle
+ * CSS custom properties, so movement feels scattered and natural.
+ *
  * Props:
  *  - density: 'sparse' | 'normal' | 'dense' — particle count (default: normal)
  *  - className: extra wrapper classes
@@ -27,32 +30,34 @@ interface Props {
 // Season-specific color palettes
 const SEASON_COLORS = {
   summer: {
-    orbs: ['bg-emerald-500/[0.04]', 'bg-green-500/[0.03]'],
-    dots: ['bg-green-400', 'bg-emerald-400', 'bg-lime-400', 'bg-green-300'],
+    orbs: ['bg-emerald-500/[0.04]', 'bg-green-500/[0.03]', 'bg-lime-500/[0.03]'],
+    dots: ['bg-green-400', 'bg-emerald-400', 'bg-lime-400', 'bg-green-300', 'bg-emerald-300'],
     sparkles: 'bg-white',
     glow: 'drop-shadow(0 0 6px rgba(34,197,94,0.5))',
     sparkleGlow: 'drop-shadow(0 0 3px rgba(255,255,255,0.6))',
   },
   fall: {
-    orbs: ['bg-amber-500/[0.04]', 'bg-orange-500/[0.03]'],
-    dots: ['bg-amber-400', 'bg-orange-400', 'bg-yellow-400', 'bg-amber-300'],
+    orbs: ['bg-amber-500/[0.04]', 'bg-orange-500/[0.03]', 'bg-yellow-500/[0.03]'],
+    dots: ['bg-amber-400', 'bg-orange-400', 'bg-yellow-400', 'bg-amber-300', 'bg-orange-300'],
     sparkles: 'bg-amber-200',
     glow: 'drop-shadow(0 0 6px rgba(251,191,36,0.5))',
     sparkleGlow: 'drop-shadow(0 0 3px rgba(251,191,36,0.5))',
   },
   winter: {
-    orbs: ['bg-sky-400/[0.03]', 'bg-blue-400/[0.03]'],
-    dots: ['bg-sky-300', 'bg-blue-300', 'bg-white', 'bg-sky-200'],
+    orbs: ['bg-sky-400/[0.03]', 'bg-blue-400/[0.03]', 'bg-white/[0.02]'],
+    dots: ['bg-sky-300', 'bg-blue-300', 'bg-white', 'bg-sky-200', 'bg-blue-200'],
     sparkles: 'bg-white',
     glow: 'drop-shadow(0 0 6px rgba(186,230,253,0.4))',
     sparkleGlow: 'drop-shadow(0 0 3px rgba(255,255,255,0.5))',
   },
 } as const;
 
-// Deterministic pseudo-random positions (seeded by index)
+// Deterministic pseudo-random (seeded by index) — varied distribution
 function seeded(i: number, offset: number) {
-  const x = ((i * 127 + offset * 311) % 97) / 97;
-  return x;
+  return ((i * 127 + offset * 311) % 97) / 97;
+}
+function seeded2(i: number, offset: number) {
+  return ((i * 253 + offset * 179) % 89) / 89;
 }
 
 const DENSITY_COUNTS: Record<Density, { orbs: number; dots: number; sparkles: number }> = {
@@ -66,34 +71,52 @@ export function AmbientParticles({ density = 'normal', className = '' }: Props) 
   const palette = SEASON_COLORS[activeSeason];
   const counts = DENSITY_COUNTS[density];
 
-  // Memoize particle configs so they don't recalculate on every render
+  // Memoize particle configs — each gets unique motion parameters
   const { orbs, dots, sparkles } = useMemo(() => {
     const orbConfigs = Array.from({ length: counts.orbs }, (_, i) => ({
-      top: `${10 + seeded(i, 1) * 60}%`,
-      left: `${15 + seeded(i, 2) * 60}%`,
-      size: 160 + seeded(i, 3) * 180,
+      top: `${5 + seeded(i, 1) * 70}%`,
+      left: `${10 + seeded(i, 2) * 70}%`,
+      size: 140 + seeded(i, 3) * 200,
       color: palette.orbs[i % palette.orbs.length],
-      duration: `${18 + seeded(i, 4) * 12}s`,
-      delay: `${-seeded(i, 5) * 15}s`,
+      duration: `${16 + seeded(i, 4) * 14}s`,
+      delay: `${-seeded(i, 5) * 20}s`,
+      // Per-particle random drift distances
+      dx1: -40 + seeded(i, 6) * 80,
+      dy1: -30 + seeded2(i, 7) * 60,
+      dx2: -35 + seeded2(i, 8) * 70,
+      dy2: -25 + seeded(i, 9) * 50,
+      dx3: -45 + seeded(i, 10) * 90,
+      dy3: -35 + seeded2(i, 11) * 70,
     }));
 
     const dotConfigs = Array.from({ length: counts.dots }, (_, i) => ({
-      top: `${5 + seeded(i, 10) * 85}%`,
-      left: `${5 + seeded(i, 11) * 85}%`,
-      size: 2 + seeded(i, 12) * 2,
-      opacity: 0.12 + seeded(i, 13) * 0.15,
+      top: `${3 + seeded(i, 10) * 90}%`,
+      left: `${3 + seeded(i, 11) * 90}%`,
+      size: 1.5 + seeded(i, 12) * 2.5,
+      opacity: 0.1 + seeded(i, 13) * 0.2,
       color: palette.dots[i % palette.dots.length],
-      duration: `${6 + seeded(i, 14) * 6}s`,
-      delay: `${-seeded(i, 15) * 10}s`,
+      duration: `${5 + seeded(i, 14) * 8}s`,
+      delay: `${-seeded2(i, 15) * 12}s`,
+      // Per-particle unique float path
+      dx1: -15 + seeded2(i, 16) * 30,
+      dy1: -30 + seeded(i, 17) * 15,
+      dx2: -10 + seeded(i, 18) * 20,
+      dy2: -20 + seeded2(i, 19) * 10,
+      dx3: -12 + seeded2(i, 20) * 24,
+      dy3: -35 + seeded(i, 21) * 18,
     }));
 
     const sparkleConfigs = Array.from({ length: counts.sparkles }, (_, i) => ({
-      top: `${8 + seeded(i, 20) * 80}%`,
-      left: `${10 + seeded(i, 21) * 75}%`,
-      size: 1 + seeded(i, 22) * 1,
-      opacity: 0.2 + seeded(i, 23) * 0.2,
-      duration: `${4 + seeded(i, 24) * 3}s`,
-      delay: `${-seeded(i, 25) * 8}s`,
+      top: `${5 + seeded(i, 20) * 85}%`,
+      left: `${5 + seeded(i, 21) * 85}%`,
+      size: 1 + seeded(i, 22) * 1.5,
+      opacity: 0.15 + seeded(i, 23) * 0.25,
+      duration: `${3 + seeded(i, 24) * 4}s`,
+      delay: `${-seeded2(i, 25) * 10}s`,
+      dx1: -8 + seeded(i, 26) * 16,
+      dy1: -20 + seeded2(i, 27) * 10,
+      dx2: -6 + seeded2(i, 28) * 12,
+      dy2: -12 + seeded(i, 29) * 6,
     }));
 
     return { orbs: orbConfigs, dots: dotConfigs, sparkles: sparkleConfigs };
@@ -113,11 +136,14 @@ export function AmbientParticles({ density = 'normal', className = '' }: Props) 
             height: orb.size,
             animationDuration: orb.duration,
             animationDelay: orb.delay,
-          }}
+            '--dx1': `${orb.dx1}px`, '--dy1': `${orb.dy1}px`,
+            '--dx2': `${orb.dx2}px`, '--dy2': `${orb.dy2}px`,
+            '--dx3': `${orb.dx3}px`, '--dy3': `${orb.dy3}px`,
+          } as React.CSSProperties}
         />
       ))}
 
-      {/* TIER 2: Mid-layer dots — medium, moderate speed (tablet+) */}
+      {/* TIER 2: Mid-layer dots — medium, scattered movement (tablet+) */}
       <div className="hidden sm:block">
         {dots.map((dot, i) => (
           <div
@@ -132,12 +158,15 @@ export function AmbientParticles({ density = 'normal', className = '' }: Props) 
               animationDuration: dot.duration,
               animationDelay: dot.delay,
               filter: `blur(0.5px) ${palette.glow}`,
-            }}
+              '--dx1': `${dot.dx1}px`, '--dy1': `${dot.dy1}px`,
+              '--dx2': `${dot.dx2}px`, '--dy2': `${dot.dy2}px`,
+              '--dx3': `${dot.dx3}px`, '--dy3': `${dot.dy3}px`,
+            } as React.CSSProperties}
           />
         ))}
       </div>
 
-      {/* TIER 3: Foreground sparkles — tiny, bright, quick drift */}
+      {/* TIER 3: Foreground sparkles — tiny, bright, quick scattered drift */}
       {sparkles.map((s, i) => (
         <div
           key={`sparkle-${i}`}
@@ -151,25 +180,29 @@ export function AmbientParticles({ density = 'normal', className = '' }: Props) 
             animationDuration: s.duration,
             animationDelay: s.delay,
             filter: palette.sparkleGlow,
-          }}
+            '--dx1': `${s.dx1}px`, '--dy1': `${s.dy1}px`,
+            '--dx2': `${s.dx2}px`, '--dy2': `${s.dy2}px`,
+            '--dx3': `0px`, '--dy3': `0px`,
+          } as React.CSSProperties}
         />
       ))}
 
-      {/* Inline keyframes — scoped to this component */}
+      {/* Per-particle randomized keyframes via CSS custom properties */}
       <style>{`
         @keyframes _ap-drift {
           0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(30px, -20px) scale(1.05); }
-          50% { transform: translate(-15px, 15px) scale(0.95); }
-          75% { transform: translate(20px, 25px) scale(1.02); }
+          25% { transform: translate(var(--dx1), var(--dy1)) scale(1.05); }
+          50% { transform: translate(var(--dx2), var(--dy2)) scale(0.95); }
+          75% { transform: translate(var(--dx3), var(--dy3)) scale(1.02); }
         }
         ._ap-drift { animation: _ap-drift ease-in-out infinite; }
 
         @keyframes _ap-float {
-          0%, 100% { transform: translateY(0) translateX(0); opacity: var(--tw-opacity, 0.2); }
-          25% { transform: translateY(-18px) translateX(8px); opacity: calc(var(--tw-opacity, 0.2) * 1.6); }
-          50% { transform: translateY(-8px) translateX(-4px); opacity: calc(var(--tw-opacity, 0.2) * 1.3); }
-          75% { transform: translateY(-25px) translateX(4px); opacity: calc(var(--tw-opacity, 0.2) * 1.5); }
+          0%, 100% { transform: translate(0, 0); }
+          20% { transform: translate(var(--dx1), var(--dy1)); }
+          45% { transform: translate(var(--dx2), var(--dy2)); }
+          70% { transform: translate(var(--dx3), var(--dy3)); }
+          90% { transform: translate(calc(var(--dx1) * -0.5), calc(var(--dy2) * -0.7)); }
         }
         ._ap-float { animation: _ap-float ease-in-out infinite; }
       `}</style>

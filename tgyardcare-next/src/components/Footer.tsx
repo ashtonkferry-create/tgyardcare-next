@@ -239,7 +239,7 @@ export default function Footer({
 
       {/* ═══════════ ZONE 2 — LINK GRID ═══════════ */}
       <section className={`relative py-12 md:py-16 overflow-hidden ${t.footerBg}`}>
-        <AmbientParticles density="sparse" />
+        <AmbientParticles density="dense" />
 
         <div ref={gridRef} className="container mx-auto px-4 relative z-10 max-w-6xl">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-6">

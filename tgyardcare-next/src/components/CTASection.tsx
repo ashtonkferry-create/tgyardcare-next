@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Phone, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
+import { AmbientParticles } from '@/components/AmbientParticles';
 
 const ctaTheme = {
   winter: {
@@ -102,23 +103,7 @@ export default function CTASection({
         >
           <div className={`relative overflow-hidden bg-gradient-to-br ${ct.bg} border-2 ${ct.border} rounded-2xl p-8 md:p-12 text-center shadow-2xl max-w-4xl mx-auto`}>
             {/* Floating particles */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl">
-              {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`absolute ${ct.particleColors[i % ct.particleColors.length]} rounded-full ${ct.particleAnim}`}
-                  style={{
-                    width: `${2 + Math.random() * 3}px`,
-                    height: `${2 + Math.random() * 3}px`,
-                    left: `${10 + Math.random() * 80}%`,
-                    top: `${Math.random() * 100}%`,
-                    animationDelay: `${-(Math.random() * 10)}s`,
-                    animationDuration: `${5 + Math.random() * 5}s`,
-                    filter: ct.particleFilter,
-                  }}
-                />
-              ))}
-            </div>
+            <AmbientParticles density="dense" />
             {/* Center glow */}
             <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 ${ct.glow} rounded-full blur-3xl pointer-events-none`} />
 

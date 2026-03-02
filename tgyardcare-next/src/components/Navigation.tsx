@@ -330,17 +330,21 @@ function SeasonalParticles({ season }: { season: string }) {
   return (
     <>
       {/* Layer 1: Ambient orbs — large, blurred, slow drift */}
-      <div className={`absolute top-[5%] left-[15%] w-32 h-32 ${orbColor} rounded-full blur-3xl animate-drift-1`} style={{ animationDuration: '14s' }} />
-      <div className={`absolute bottom-[10%] right-[10%] w-24 h-24 ${orbColor} rounded-full blur-3xl animate-drift-2`} style={{ animationDuration: '16s' }} />
+      <div className={`absolute top-[5%] left-[15%] w-36 h-36 ${orbColor} rounded-full blur-3xl animate-drift-1`} style={{ animationDuration: '14s' }} />
+      <div className={`absolute bottom-[10%] right-[10%] w-28 h-28 ${orbColor} rounded-full blur-3xl animate-drift-2`} style={{ animationDuration: '16s' }} />
+      <div className={`absolute top-[40%] left-[55%] w-24 h-24 ${orbColor} rounded-full blur-3xl animate-drift-3`} style={{ animationDuration: '19s', animationDelay: '-5s' }} />
 
-      {/* Layer 2: Icon anchors — branded shapes at strategic positions */}
+      {/* Layer 2: Icon anchors — branded shapes scattered across */}
       <Icon className={`absolute top-[12%] left-[8%] w-4 h-4 ${iconColor}/35 animate-drift-1`} />
       <Icon className={`absolute top-[18%] right-[12%] w-3 h-3 ${iconColor}/25 animate-drift-2`} style={{ animationDelay: '-4s' }} />
       <Icon className={`absolute bottom-[20%] left-[25%] w-3.5 h-3.5 ${iconColor}/30 animate-drift-3`} style={{ animationDelay: '-7s' }} />
       <Icon className={`absolute top-[45%] left-[60%] w-2.5 h-2.5 ${iconColor}/20 animate-drift-1`} style={{ animationDelay: '-2s' }} />
       <Icon className={`absolute bottom-[30%] right-[20%] w-3 h-3 ${iconColor}/25 animate-drift-2`} style={{ animationDelay: '-6s' }} />
+      <Icon className={`absolute top-[8%] left-[42%] w-3 h-3 ${iconColor}/20 animate-drift-3`} style={{ animationDelay: '-9s' }} />
+      <Icon className={`absolute bottom-[15%] right-[42%] w-2.5 h-2.5 ${iconColor}/22 animate-drift-1`} style={{ animationDelay: '-11s' }} />
+      <Icon className={`absolute top-[65%] left-[75%] w-3.5 h-3.5 ${iconColor}/18 animate-drift-2`} style={{ animationDelay: '-3s' }} />
 
-      {/* Layer 3: Glowing micro-dots — strategic fill, varied timing */}
+      {/* Layer 3: Glowing micro-dots — scattered fill, varied timing */}
       {[
         { top: '8%', left: '22%', s: 2, o: 0.25, d: '7s', dl: '-1s' },
         { top: '35%', left: '5%', s: 2.5, o: 0.2, d: '9s', dl: '-3s' },
@@ -352,6 +356,14 @@ function SeasonalParticles({ season }: { season: string }) {
         { top: '25%', right: '45%', s: 2.5, o: 0.15, d: '11s', dl: '-8s' },
         { bottom: '10%', right: '55%', s: 1.5, o: 0.2, d: '6s', dl: '-3s' },
         { top: '70%', left: '15%', s: 2, o: 0.2, d: '9s', dl: '-7s' },
+        { top: '5%', left: '68%', s: 2, o: 0.22, d: '8s', dl: '-9s' },
+        { top: '42%', right: '5%', s: 1.5, o: 0.28, d: '6.5s', dl: '-2s' },
+        { bottom: '25%', left: '8%', s: 2.5, o: 0.18, d: '10s', dl: '-5s' },
+        { top: '20%', left: '82%', s: 2, o: 0.2, d: '7.5s', dl: '-4s' },
+        { bottom: '5%', left: '38%', s: 1.5, o: 0.24, d: '9s', dl: '-8s' },
+        { top: '48%', left: '18%', s: 2, o: 0.2, d: '8.5s', dl: '-6s' },
+        { top: '75%', right: '18%', s: 2.5, o: 0.16, d: '11s', dl: '-10s' },
+        { top: '30%', left: '92%', s: 1.5, o: 0.22, d: '7s', dl: '-1s' },
       ].map((dot, i) => {
         const { s, o, d, dl, ...pos } = dot;
         return (
