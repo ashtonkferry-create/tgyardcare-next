@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { useChatContext } from '@/contexts/ChatContext';
+import { usePromoSettings } from '@/hooks/usePromoSettings';
 
 type Message = { role: 'user' | 'assistant'; content: string };
 
@@ -119,6 +120,8 @@ const GlassChip = ({
 
 export const ChatBot = () => {
   const { isChatOpen: isOpen, setIsChatOpen: setIsOpen } = useChatContext();
+  const { promotions, getPromoIndex } = usePromoSettings();
+  const currentPromo = promotions.length > 0 ? promotions[getPromoIndex()] : null;
 
   const renderMessageWithLinks = (content: string, isUserMessage: boolean): ReactNode => {
     if (isUserMessage) return content;
@@ -880,10 +883,10 @@ export const ChatBot = () => {
             </ScrollArea>
 
             {/* ===== PROMO BANNER ===== */}
-            {quoteStep === 'idle' && (
+            {quoteStep === 'idle' && currentPromo && (
               <div className="px-4 py-2 bg-emerald-500/[0.06] border-t border-emerald-500/10">
                 <p className="text-xs text-center text-white/60 font-medium">
-                  <span className="font-bold text-emerald-400">Limited Time:</span> Save 10% on gutter cleaning
+                  <span className="font-bold text-emerald-400">Limited Time:</span> Save {currentPromo.discount} on {currentPromo.service}
                 </p>
               </div>
             )}
