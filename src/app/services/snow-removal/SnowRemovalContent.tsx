@@ -21,6 +21,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
 import { TrustStrip } from "@/components/TrustStrip";
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
+import { MobilePricingPreview } from '@/components/mobile/MobilePricingPreview';
 import { cn } from '@/lib/utils';
 
 function imgSrc(img: string | { src: string }): string {
@@ -119,6 +120,13 @@ export default function SnowRemovalContent() {
             TRUST STRIP — Immediate credibility
         ════════════════════════════════════════════════════════════════════ */}
         <div className={MOBILE_ORDER.TRUST_STRIP}><TrustStrip variant="dark" /></div>
+
+        <MobilePricingPreview
+          priceFrom="Contact for pricing"
+          unit="seasonal or per-storm"
+          ctaHref="/contact?service=snow-removal"
+          ctaLabel="Get Free Quote"
+        />
 
         {/* Who This Is For */}
         <section className={cn("py-14 md:py-20", MOBILE_ORDER.WHO_ITS_FOR)} style={{ background: '#060f1a' }}>
