@@ -17,7 +17,7 @@ export const MOBILE_ORDER = {
   PROBLEM:        'order-10 md:order-none',
   SOLUTION:       'order-11 md:order-none',
   SEASONAL:       'order-12 md:order-none',
-  FAQ:            'order-13 md:order-none',
-  RELATED:        'order-14 md:order-none',
-  BOTTOM_CTA:     'order-15 md:order-none',
+  FAQ:            'order-[13] md:order-none',
+  RELATED:        'order-[14] md:order-none',
+  BOTTOM_CTA:     'order-[15] md:order-none',
 } as const;

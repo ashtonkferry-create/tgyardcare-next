@@ -121,12 +121,14 @@ export default function SnowRemovalContent() {
         ════════════════════════════════════════════════════════════════════ */}
         <div className={MOBILE_ORDER.TRUST_STRIP}><TrustStrip variant="dark" /></div>
 
-        <MobilePricingPreview
-          priceFrom="Contact for pricing"
-          unit="seasonal or per-storm"
-          ctaHref="/contact?service=snow-removal"
-          ctaLabel="Get Free Quote"
-        />
+        <div className={MOBILE_ORDER.PRICING}>
+          <MobilePricingPreview
+            priceFrom="Contact for pricing"
+            unit="seasonal or per-storm"
+            ctaHref="/contact?service=snow-removal"
+            ctaLabel="Get Free Quote"
+          />
+        </div>
 
         {/* Who This Is For */}
         <section className={cn("py-14 md:py-20", MOBILE_ORDER.WHO_ITS_FOR)} style={{ background: '#060f1a' }}>
@@ -168,26 +170,30 @@ export default function SnowRemovalContent() {
         {/* ═══════════════════════════════════════════════════════════════════
             PROBLEM / SOLUTION — Build understanding
         ════════════════════════════════════════════════════════════════════ */}
-        <ResidentialProblemSection
-          serviceName="Snow Removal"
-          problemPoints={[
-            "Heavy snowfall making driveways and walkways impassable",
-            "Safety hazards preventing you from getting to work or running errands",
-            "Exhausting, time-consuming shoveling that can lead to injuries",
-            "Icy surfaces creating slip-and-fall risks for your family and visitors",
-            "Equipment breakdowns and back pain from DIY snow removal"
-          ]}
-        />
-        <ResidentialSolutionSection
-          serviceName="Snow Removal"
-          solutionPoints={[
-            "Fast, professional snow removal that clears your entire property quickly",
-            "Commercial equipment for thorough clearing and ice management",
-            "Prompt response during storms to keep you accessible and safe",
-            "Complete ice treatment with de-icing materials for walkways and driveways",
-            "Flexible options from per-storm pricing to seasonal contracts"
-          ]}
-        />
+        <div className={MOBILE_ORDER.PROBLEM}>
+          <ResidentialProblemSection
+            serviceName="Snow Removal"
+            problemPoints={[
+              "Heavy snowfall making driveways and walkways impassable",
+              "Safety hazards preventing you from getting to work or running errands",
+              "Exhausting, time-consuming shoveling that can lead to injuries",
+              "Icy surfaces creating slip-and-fall risks for your family and visitors",
+              "Equipment breakdowns and back pain from DIY snow removal"
+            ]}
+          />
+        </div>
+        <div className={MOBILE_ORDER.SOLUTION}>
+          <ResidentialSolutionSection
+            serviceName="Snow Removal"
+            solutionPoints={[
+              "Fast, professional snow removal that clears your entire property quickly",
+              "Commercial equipment for thorough clearing and ice management",
+              "Prompt response during storms to keep you accessible and safe",
+              "Complete ice treatment with de-icing materials for walkways and driveways",
+              "Flexible options from per-storm pricing to seasonal contracts"
+            ]}
+          />
+        </div>
 
         {/* ═══════════════════════════════════════════════════════════════════
             WHAT'S INCLUDED — Visual checklist
@@ -281,17 +287,23 @@ export default function SnowRemovalContent() {
         </section>
 
         {/* Before/After Gallery */}
-        <BeforeAfterGallery items={beforeAfterItems} />
+        <div className={MOBILE_ORDER.GALLERY}>
+          <BeforeAfterGallery items={beforeAfterItems} />
+        </div>
 
         {/* Mid-page CTA */}
-        <CTASection
-          title="Ready for reliable snow removal?"
-          description="Get a free, no-obligation quote. We'll have pricing to you within 24 hours."
-          variant="compact"
-        />
+        <div className={MOBILE_ORDER.MID_CTA}>
+          <CTASection
+            title="Ready for reliable snow removal?"
+            description="Get a free, no-obligation quote. We'll have pricing to you within 24 hours."
+            variant="compact"
+          />
+        </div>
 
         {/* Snow Removal Bundles */}
-        <WinterPriorityServices />
+        <div className={MOBILE_ORDER.MID_CTA}>
+          <WinterPriorityServices />
+        </div>
 
         {/* ═══════════════════════════════════════════════════════════════════
             WHEN & HOW OFTEN — Seasonal knowledge
@@ -456,7 +468,9 @@ export default function SnowRemovalContent() {
         </section>
 
         {/* Trust Strip — Repeated for reinforcement */}
-        <TrustStrip variant="light" />
+        <div className="order-[12] md:order-none">
+          <TrustStrip variant="light" />
+        </div>
 
         {/* ═══════════════════════════════════════════════════════════════════
             RELATED SERVICES — Cross-sell
@@ -493,14 +507,22 @@ export default function SnowRemovalContent() {
           </div>
         </section>
 
-        <ResidentialHomeownerTypesSection serviceName="snow removal" />
-        <ResidentialExpectationsSection serviceName="snow removal" />
+        <div className={MOBILE_ORDER.RELATED}>
+          <ResidentialHomeownerTypesSection serviceName="snow removal" />
+          <ResidentialExpectationsSection serviceName="snow removal" />
+        </div>
 
-        <ServiceFAQ faqs={snowRemovalFAQs} />
+        <div className={MOBILE_ORDER.FAQ}>
+          <ServiceFAQ faqs={snowRemovalFAQs} />
+        </div>
 
-        <CTASection />
+        <div className={MOBILE_ORDER.BOTTOM_CTA}>
+          <CTASection />
+        </div>
 
-        <Footer showCloser={false} />
+        <div className="order-[16] md:order-none">
+          <Footer showCloser={false} />
+        </div>
       </div>
     </>
   );
