@@ -67,27 +67,27 @@ export function CommercialProblemSection({
   problemPoints = defaultProblemPoints
 }: CommercialSectionsProps) {
   return (
-    <section className="py-12 md:py-16 bg-muted/30">
+    <section className="py-12 md:py-16 bg-white/[0.04]">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-start sm:items-center gap-3 mb-4 md:mb-6">
             <div className="bg-destructive/10 rounded-full p-2.5 md:p-3 flex-shrink-0">
               <AlertTriangle className="h-5 w-5 md:h-6 md:w-6 text-destructive" />
             </div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground leading-tight">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight">
               The Commercial {serviceName} Problem
             </h2>
           </div>
-          <p className="text-muted-foreground mb-6 md:mb-8 text-base md:text-lg leading-relaxed">
+          <p className="text-white/60 mb-6 md:mb-8 text-base md:text-lg leading-relaxed">
             Property managers and facilities directors know the frustration: vendors who treat commercial accounts as afterthoughts, leaving you to manage complaints and chase accountability.
           </p>
           <div className="space-y-3 md:space-y-4">
             {problemPoints.map((point, index) => (
-              <div key={index} className="flex items-start gap-3 bg-background p-3 md:p-4 rounded-lg border border-border">
+              <div key={index} className="flex items-start gap-3 bg-white/[0.06] p-3 md:p-4 rounded-lg border border-white/10">
                 <div className="bg-destructive/10 rounded-full p-1 mt-0.5 flex-shrink-0">
                   <AlertTriangle className="h-3.5 w-3.5 md:h-4 md:w-4 text-destructive" />
                 </div>
-                <span className="text-sm md:text-base text-foreground leading-relaxed">{point}</span>
+                <span className="text-sm md:text-base text-white leading-relaxed">{point}</span>
               </div>
             ))}
           </div>
@@ -109,18 +109,18 @@ export function CommercialSolutionSection({
             <div className="bg-primary/10 rounded-full p-2.5 md:p-3 flex-shrink-0">
               <Shield className="h-5 w-5 md:h-6 md:w-6 text-primary" />
             </div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground leading-tight">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight">
               Our Commercial Solution
             </h2>
           </div>
-          <p className="text-muted-foreground mb-6 md:mb-8 text-base md:text-lg leading-relaxed">
+          <p className="text-white/60 mb-6 md:mb-8 text-base md:text-lg leading-relaxed">
             We operate like an extension of your property management team—disciplined, communicative, and accountable to the same standards you're held to.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
             {solutionPoints.map((point, index) => (
-              <div key={index} className="flex items-start gap-3 bg-secondary/30 p-3 md:p-4 rounded-lg">
+              <div key={index} className="flex items-start gap-3 bg-white/[0.06] p-3 md:p-4 rounded-lg">
                 <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-sm md:text-base text-foreground leading-relaxed">{point}</span>
+                <span className="text-sm md:text-base text-white leading-relaxed">{point}</span>
               </div>
             ))}
           </div>
@@ -135,28 +135,28 @@ export function CommercialPropertyTypesSection({
   propertyTypes = defaultPropertyTypes
 }: CommercialPropertyTypesSectionProps) {
   return (
-    <section className="py-12 md:py-16 bg-secondary/30">
+    <section className="py-12 md:py-16 bg-white/[0.04]">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-4 md:mb-6 sm:justify-center">
             <div className="bg-primary/10 rounded-full p-2.5 md:p-3 flex-shrink-0">
               <Building2 className="h-5 w-5 md:h-6 md:w-6 text-primary" />
             </div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground leading-tight">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight">
               Who This Service Is Built For
             </h2>
           </div>
-          <p className="text-muted-foreground mb-6 md:mb-10 text-base md:text-lg text-left sm:text-center max-w-3xl mx-auto leading-relaxed">
+          <p className="text-white/60 mb-6 md:mb-10 text-base md:text-lg text-left sm:text-center max-w-3xl mx-auto leading-relaxed">
             We understand the unique pressures of managing commercial properties—from board meetings to tenant complaints to budget constraints.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {propertyTypes.map((type, index) => (
-              <div key={index} className="bg-background p-4 md:p-5 rounded-lg border border-border">
+              <div key={index} className="bg-white/[0.06] p-4 md:p-5 rounded-lg border border-white/10">
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="h-4 w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
-                  <h3 className="font-bold text-foreground text-sm md:text-base">{type.name}</h3>
+                  <h3 className="font-bold text-white text-sm md:text-base">{type.name}</h3>
                 </div>
-                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{type.description}</p>
+                <p className="text-xs md:text-sm text-white/60 leading-relaxed">{type.description}</p>
               </div>
             ))}
           </div>
@@ -177,10 +177,10 @@ export function CommercialExpectationsSection({
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-left sm:text-center mb-6 md:mb-10">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 md:mb-4 leading-tight">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 md:mb-4 leading-tight">
               What Commercial Clients Can Expect
             </h2>
-            <p className="text-muted-foreground text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
+            <p className="text-white/60 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
               Clear standards, not vague promises. Here's how we operate for every commercial account.
             </p>
           </div>
@@ -188,14 +188,14 @@ export function CommercialExpectationsSection({
             {expectations.map((item, index) => {
               const Icon = icons[index % icons.length];
               return (
-                <div key={index} className="bg-card p-4 md:p-5 rounded-lg border border-border">
+                <div key={index} className="bg-white/[0.06] p-4 md:p-5 rounded-lg border border-white/10">
                   <div className="flex items-start gap-3">
                     <div className="bg-primary/10 rounded-full p-1.5 md:p-2 flex-shrink-0">
                       <Icon className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-foreground mb-1 text-sm md:text-base">{item.title}</h3>
-                      <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+                      <h3 className="font-bold text-white mb-1 text-sm md:text-base">{item.title}</h3>
+                      <p className="text-xs md:text-sm text-white/60 leading-relaxed">{item.description}</p>
                     </div>
                   </div>
                 </div>

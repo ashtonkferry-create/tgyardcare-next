@@ -19,28 +19,28 @@ const tierConfig = {
     name: 'Good',
     icon: Check,
     description: 'Essential service',
-    color: 'bg-slate-100 border-slate-200',
+    color: 'bg-white/[0.05] border-white/[0.08]',
     badge: null,
   },
   better: {
     name: 'Better',
     icon: Star,
     description: 'Most popular',
-    color: 'bg-primary/5 border-primary/20',
+    color: 'bg-primary/10 border-primary/30',
     badge: 'Popular',
   },
   best: {
     name: 'Best',
     icon: Sparkles,
     description: 'Premium experience',
-    color: 'bg-amber-50 border-amber-200',
+    color: 'bg-amber-500/10 border-amber-500/25',
     badge: 'Premium',
   },
   standard: {
     name: 'Standard',
     icon: Check,
     description: 'Project-based',
-    color: 'bg-slate-100 border-slate-200',
+    color: 'bg-white/[0.05] border-white/[0.08]',
     badge: null,
   },
 };
@@ -56,13 +56,13 @@ export function PricingTiers({ serviceSlug, locationId, showCTA = true }: Pricin
         {[1, 2, 3].map((i) => (
           <Card key={i} className="animate-pulse">
             <CardHeader className="space-y-2">
-              <div className="h-6 bg-muted rounded w-20" />
-              <div className="h-8 bg-muted rounded w-32" />
+              <div className="h-6 bg-white/[0.1] rounded w-20" />
+              <div className="h-8 bg-white/[0.1] rounded w-32" />
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <div className="h-4 bg-muted rounded" />
-                <div className="h-4 bg-muted rounded w-3/4" />
+                <div className="h-4 bg-white/[0.1] rounded" />
+                <div className="h-4 bg-white/[0.1] rounded w-3/4" />
               </div>
             </CardContent>
           </Card>
@@ -101,7 +101,7 @@ export function PricingTiers({ serviceSlug, locationId, showCTA = true }: Pricin
               )}
 
               <CardHeader className="text-center pb-2">
-                <div className="mx-auto mb-2 p-2 rounded-full bg-background">
+                <div className="mx-auto mb-2 p-2 rounded-full bg-white/[0.08]">
                   <Icon className="h-6 w-6" />
                 </div>
                 <CardTitle className="text-xl">{config.name}</CardTitle>
@@ -115,7 +115,7 @@ export function PricingTiers({ serviceSlug, locationId, showCTA = true }: Pricin
                       ? formatPrice(range.min)
                       : `${formatPrice(range.min)}–${formatPrice(range.max)}`}
                   </span>
-                  <span className="text-muted-foreground">{formatUnit(range.unit)}</span>
+                  <span className="text-white/60">{formatUnit(range.unit)}</span>
                 </div>
 
                 {range.includes.length > 0 && (

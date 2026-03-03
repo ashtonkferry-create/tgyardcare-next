@@ -27,19 +27,19 @@ export function ComparisonSection({
   points
 }: ComparisonSectionProps) {
   return (
-    <section className="py-16 bg-muted/30">
+    <section className="py-16 bg-white/[0.04]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{title}</h2>
-          <p className="text-lg text-muted-foreground">{subtitle}</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{title}</h2>
+          <p className="text-lg text-white/60">{subtitle}</p>
         </div>
 
         <div className="max-w-4xl mx-auto">
           {/* Header Row */}
           <div className="grid grid-cols-3 gap-4 mb-4 px-4">
-            <div className="font-semibold text-foreground"></div>
+            <div className="font-semibold text-white/40"></div>
             <div className="font-bold text-primary text-center">TotalGuard</div>
-            <div className="font-semibold text-muted-foreground text-center">Others</div>
+            <div className="font-semibold text-white/40 text-center">Others</div>
           </div>
 
           {/* Comparison Rows */}
@@ -47,16 +47,16 @@ export function ComparisonSection({
             {points.map((point, index) => (
               <div
                 key={index}
-                className="grid grid-cols-3 gap-4 bg-card border border-border rounded-lg p-4 items-center"
+                className="grid grid-cols-3 gap-4 bg-white/[0.06] border border-white/10 rounded-lg p-4 items-center"
               >
-                <div className="font-medium text-foreground text-sm md:text-base">{point.label}</div>
+                <div className="font-medium text-white text-sm md:text-base">{point.label}</div>
                 <div className="flex items-center justify-center gap-2 text-sm">
                   <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                  <span className="text-foreground">{point.us}</span>
+                  <span className="text-white">{point.us}</span>
                 </div>
                 <div className="flex items-center justify-center gap-2 text-sm">
-                  <XCircle className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
-                  <span className="text-muted-foreground">{point.them}</span>
+                  <XCircle className="h-4 w-4 text-white/25 flex-shrink-0" />
+                  <span className="text-white/50">{point.them}</span>
                 </div>
               </div>
             ))}
@@ -83,7 +83,7 @@ export function PricingGuideSection({
   note
 }: PricingGuideProps) {
   return (
-    <section className="py-16 bg-secondary/20">
+    <section className="py-16 bg-white/[0.03]">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-bold mb-6">
@@ -91,31 +91,31 @@ export function PricingGuideSection({
             Pricing Transparency
           </div>
 
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             {serviceName} Pricing in Madison Area
           </h2>
 
-          <div className="bg-card border-2 border-primary/20 rounded-xl p-8 mb-8">
+          <div className="bg-white/[0.06] border-2 border-primary/20 rounded-xl p-8 mb-8">
             <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
               {lowRange} – {highRange}
             </div>
-            <p className="text-muted-foreground">Typical range for most properties</p>
+            <p className="text-white/60">Typical range for most properties</p>
           </div>
 
-          <div className="text-left bg-muted/50 rounded-lg p-6 mb-8">
-            <h3 className="font-semibold text-foreground mb-4">What affects your price:</h3>
+          <div className="text-left bg-white/[0.06] rounded-lg p-6 mb-8">
+            <h3 className="font-semibold text-white mb-4">What affects your price:</h3>
             <div className="grid md:grid-cols-2 gap-3">
               {factors.map((factor, index) => (
                 <div key={index} className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
-                  <span className="text-sm text-muted-foreground">{factor}</span>
+                  <span className="text-sm text-white/60">{factor}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {note && (
-            <p className="text-sm text-muted-foreground mb-6">{note}</p>
+            <p className="text-sm text-white/60 mb-6">{note}</p>
           )}
 
           <Button size="lg" asChild>
@@ -144,29 +144,29 @@ export function ObjectionHandlerSection({
   objections
 }: ObjectionHandlerProps) {
   return (
-    <section className="py-16 bg-background">
+    <section className="py-16 bg-transparent">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-accent/10 text-accent-foreground px-4 py-1.5 rounded-full text-sm font-bold mb-4">
             <HelpCircle className="h-4 w-4" />
             Addressing Your Concerns
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">{title}</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-white">{title}</h2>
         </div>
 
         <div className="max-w-4xl mx-auto space-y-4">
           {objections.map((item, index) => (
             <div
               key={index}
-              className="bg-card border border-border rounded-xl p-6"
+              className="bg-white/[0.06] border border-white/10 rounded-xl p-6"
             >
               <div className="flex items-start gap-4">
-                <div className="bg-muted rounded-full p-2 flex-shrink-0">
-                  <AlertTriangle className="h-5 w-5 text-muted-foreground" />
+                <div className="bg-white/[0.08] rounded-full p-2 flex-shrink-0">
+                  <AlertTriangle className="h-5 w-5 text-white/40" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-2">&ldquo;{item.objection}&rdquo;</h3>
-                  <p className="text-muted-foreground leading-relaxed">{item.response}</p>
+                  <h3 className="font-semibold text-white mb-2">&ldquo;{item.objection}&rdquo;</h3>
+                  <p className="text-white/60 leading-relaxed">{item.response}</p>
                 </div>
               </div>
             </div>
@@ -196,14 +196,14 @@ export function WhatHappensNextSection({
   ]
 }: WhatHappensNextProps) {
   return (
-    <section className="py-16 bg-muted/30">
+    <section className="py-16 bg-white/[0.04]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-bold mb-4">
             <Clock className="h-4 w-4" />
             What Happens Next
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+          <h2 className="text-3xl md:text-4xl font-bold text-white">
             From First Contact to Completed Work
           </h2>
         </div>
@@ -215,8 +215,8 @@ export function WhatHappensNextSection({
                 <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                   {index + 1}
                 </div>
-                <h3 className="font-semibold text-foreground mb-2">{item.step}</h3>
-                <p className="text-sm text-muted-foreground mb-2">{item.description}</p>
+                <h3 className="font-semibold text-white mb-2">{item.step}</h3>
+                <p className="text-sm text-white/60 mb-2">{item.description}</p>
                 <span className="text-xs text-primary font-medium">{item.timing}</span>
               </div>
             ))}
@@ -267,13 +267,13 @@ export function LocalFAQSection({
   const displayFaqs = faqs || defaultFaqs;
 
   return (
-    <section className="py-16 bg-background">
+    <section className="py-16 bg-transparent">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             {cityName} Lawn Care: Common Questions
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-white/60">
             Answers to what {cityName} homeowners ask most
           </p>
         </div>
@@ -282,10 +282,10 @@ export function LocalFAQSection({
           {displayFaqs.map((faq, index) => (
             <div
               key={index}
-              className="bg-card border border-border rounded-xl p-6"
+              className="bg-white/[0.06] border border-white/10 rounded-xl p-6"
             >
-              <h3 className="font-semibold text-foreground mb-3">{faq.question}</h3>
-              <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
+              <h3 className="font-semibold text-white mb-3">{faq.question}</h3>
+              <p className="text-white/60 leading-relaxed">{faq.answer}</p>
             </div>
           ))}
         </div>

@@ -18,32 +18,32 @@ export function TrustBar({ className = '' }: TrustBarProps) {
   const propertiesServed = config?.properties_served ?? '500+';
 
   return (
-    <div className={`bg-muted/50 py-4 ${className}`}>
+    <div className={`bg-white/[0.04] py-4 ${className}`}>
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap justify-center gap-6 md:gap-12 text-sm">
           {/* Rating */}
           <div className="flex items-center gap-2">
             <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
             <span className="font-semibold">{rating}</span>
-            <span className="text-muted-foreground">({reviewCount} reviews)</span>
+            <span className="text-white/60">({reviewCount} reviews)</span>
           </div>
 
           {/* Years Active */}
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-primary" />
-            <span><span className="font-semibold">{yearsActive}</span> years serving Madison</span>
+            <span className="text-white"><span className="font-semibold">{yearsActive}</span> years serving Madison</span>
           </div>
 
           {/* Properties Served */}
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />
-            <span><span className="font-semibold">{propertiesServed}</span> properties served</span>
+            <span className="text-white"><span className="font-semibold">{propertiesServed}</span> properties served</span>
           </div>
 
           {/* Licensed & Insured */}
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            <span className="font-semibold">Licensed & Insured</span>
+            <span className="font-semibold text-white">Licensed & Insured</span>
           </div>
         </div>
       </div>

@@ -20,11 +20,11 @@ export function FeaturedReviews({ limit = 3, className = '' }: FeaturedReviewsPr
             <CardContent className="pt-6 space-y-4">
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <div key={s} className="h-4 w-4 bg-muted rounded" />
+                  <div key={s} className="h-4 w-4 bg-white/[0.1] rounded" />
                 ))}
               </div>
-              <div className="h-20 bg-muted rounded" />
-              <div className="h-4 bg-muted rounded w-24" />
+              <div className="h-20 bg-white/[0.1] rounded" />
+              <div className="h-4 bg-white/[0.1] rounded w-24" />
             </CardContent>
           </Card>
         ))}
@@ -39,7 +39,7 @@ export function FeaturedReviews({ limit = 3, className = '' }: FeaturedReviewsPr
   return (
     <div className={`grid gap-6 md:grid-cols-${Math.min(reviews.length, 3)} ${className}`}>
       {reviews.map((review) => (
-        <Card key={review.id} className="bg-white">
+        <Card key={review.id} className="bg-white/[0.06] border border-white/10">
           <CardContent className="pt-6 space-y-4">
             {/* Stars */}
             <div className="flex gap-1">
@@ -56,12 +56,12 @@ export function FeaturedReviews({ limit = 3, className = '' }: FeaturedReviewsPr
             </div>
 
             {/* Review text */}
-            <p className="text-muted-foreground italic">&ldquo;{review.text}&rdquo;</p>
+            <p className="text-white/70 italic">&ldquo;{review.text}&rdquo;</p>
 
             {/* Author */}
             <div className="flex items-center justify-between text-sm">
               <span className="font-medium">{review.author_name}</span>
-              <span className="text-muted-foreground">
+              <span className="text-white/40">
                 {getSourceLabel(review.source)}
                 {review.review_date && ` • ${formatReviewDate(review.review_date)}`}
               </span>

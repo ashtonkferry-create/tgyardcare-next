@@ -51,7 +51,7 @@ export function TrustPullQuote({
 
 function QuoteContent({ quote, source }: { quote: string; source: string }) {
   return (
-    <div className="bg-card border border-border rounded-xl px-6 py-4 shadow-lg text-center max-w-md">
+    <div className="bg-white/[0.06] border border-white/10 rounded-xl px-6 py-4 shadow-lg text-center max-w-md">
       {/* Stars */}
       <div className="flex justify-center gap-0.5 mb-2">
         {[...Array(5)].map((_, i) => (
@@ -60,12 +60,12 @@ function QuoteContent({ quote, source }: { quote: string; source: string }) {
       </div>
 
       {/* Quote text */}
-      <p className="text-foreground text-sm md:text-base font-medium mb-2">
+      <p className="text-white text-sm md:text-base font-medium mb-2">
         "{quote}"
       </p>
 
       {/* Source */}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-white/60">
         — {source}
       </p>
     </div>

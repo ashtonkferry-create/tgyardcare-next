@@ -68,7 +68,7 @@ export function ServiceGuarantees({ variant = "full", className }: ServiceGuaran
         {guarantees.slice(0, 4).map((g, idx) => {
           const Icon = g.icon;
           return (
-            <div key={idx} className="flex items-center gap-2 text-muted-foreground">
+            <div key={idx} className="flex items-center gap-2 text-white/60">
               <Icon className="h-4 w-4 text-primary" />
               <span>{g.title}</span>
             </div>
@@ -90,8 +90,8 @@ export function ServiceGuarantees({ variant = "full", className }: ServiceGuaran
                   <Icon className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-foreground">{g.title}</h4>
-                  <p className="text-xs text-muted-foreground">{g.metric}</p>
+                  <h4 className="text-sm font-semibold text-white">{g.title}</h4>
+                  <p className="text-xs text-white/60">{g.metric}</p>
                 </div>
               </div>
             );
@@ -107,10 +107,10 @@ export function ServiceGuarantees({ variant = "full", className }: ServiceGuaran
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
               How We Enforce Our Standards
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            <p className="text-white/60 max-w-xl mx-auto">
               Promises are easy. Here&apos;s exactly how we hold ourselves accountable on every job.
             </p>
           </div>
@@ -121,7 +121,7 @@ export function ServiceGuarantees({ variant = "full", className }: ServiceGuaran
               return (
                 <div
                   key={idx}
-                  className="group p-5 rounded-xl border border-border bg-card hover:border-primary/30 transition-colors"
+                  className="group p-5 rounded-xl border border-white/10 bg-white/[0.06] hover:border-primary/30 transition-colors"
                 >
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -129,12 +129,12 @@ export function ServiceGuarantees({ variant = "full", className }: ServiceGuaran
                     </div>
                     <div className="flex-1">
                       <div className="flex items-baseline justify-between gap-2 mb-1">
-                        <h3 className="text-base font-bold text-foreground">{g.title}</h3>
+                        <h3 className="text-base font-bold text-white">{g.title}</h3>
                         <span className="text-xs text-primary font-medium">{g.metric}</span>
                       </div>
-                      <p className="text-sm text-foreground mb-2">{g.standard}</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        <span className="font-medium text-muted-foreground">How it&apos;s enforced: </span>
+                      <p className="text-sm text-white/80 mb-2">{g.standard}</p>
+                      <p className="text-xs text-white/50 leading-relaxed">
+                        <span className="font-medium text-white/50">How it&apos;s enforced: </span>
                         {g.enforcement}
                       </p>
                     </div>
