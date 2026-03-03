@@ -56,10 +56,19 @@ const seasonalCheck = {
   winter: 'text-cyan-400',
 } as const;
 
-const seasonalSectionBg = {
-  summer: 'from-[#0a1f14] via-[#0f2818] to-[#0a1f14]',
-  fall: 'from-stone-950 via-amber-950/20 to-stone-950',
-  winter: 'from-slate-950 via-blue-950/20 to-slate-950',
+const seasonalBg = {
+  summer: {
+    page:    '#050d07',
+    section: '#0a1a0e',
+  },
+  fall: {
+    page:    '#0d0900',
+    section: '#1a1000',
+  },
+  winter: {
+    page:    '#020810',
+    section: '#060f1a',
+  },
 } as const;
 
 const seasonalLocationHover = {
@@ -205,9 +214,10 @@ const locations = [
 
 export default function CommercialContent() {
   const { activeSeason } = useSeasonalTheme();
+  const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen text-white" style={{ background: bg.page }}>
       <BreadcrumbSchema items={[
         { name: 'Home', url: 'https://tgyardcare.com' },
         { name: 'Commercial Services', url: 'https://tgyardcare.com/commercial' }
@@ -293,11 +303,7 @@ export default function CommercialContent() {
       </section>
 
       {/* Quick Stats Bar — animated counters */}
-      <section className={cn(
-        'py-6 bg-gradient-to-r text-white border-y',
-        seasonalSectionBg[activeSeason],
-        'border-white/5'
-      )}>
+      <section className="py-6 text-white border-y border-white/5" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <div className="flex flex-wrap justify-center gap-8 md:gap-16">
@@ -331,14 +337,14 @@ export default function CommercialContent() {
       </section>
 
       {/* Commercial Properties We Serve */}
-      <section className="py-20 bg-background">
+      <section className="py-20" style={{ background: bg.page }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                 Properties We Serve
               </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              <p className="text-xl text-white/60 max-w-3xl mx-auto">
                 From small retail locations to large corporate campuses, we have the experience and equipment to maintain any commercial property.
               </p>
             </div>
@@ -350,8 +356,8 @@ export default function CommercialContent() {
                   <div className={cn('bg-white/5 rounded-full w-16 h-16 flex items-center justify-center mb-6')}>
                     <service.icon className={cn('h-8 w-8', seasonalAccent[activeSeason])} />
                   </div>
-                  <h3 className="text-2xl font-bold text-foreground mb-4">{service.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{service.description}</p>
+                  <h3 className="text-2xl font-bold text-white mb-4">{service.title}</h3>
+                  <p className="text-white/60 leading-relaxed">{service.description}</p>
                 </GlassCard>
               </ScrollReveal>
             ))}
@@ -360,7 +366,7 @@ export default function CommercialContent() {
       </section>
 
       {/* Services Overview */}
-      <section className={cn('py-20 bg-gradient-to-b', seasonalSectionBg[activeSeason])}>
+      <section className="py-20" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <div className="text-center mb-16">
@@ -404,14 +410,14 @@ export default function CommercialContent() {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-20 bg-background">
+      <section className="py-20" style={{ background: bg.page }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                 Why Commercial Clients Choose TotalGuard
               </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              <p className="text-xl text-white/60 max-w-3xl mx-auto">
                 We understand the unique needs of commercial properties and deliver service that exceeds expectations.
               </p>
             </div>
@@ -423,8 +429,8 @@ export default function CommercialContent() {
                   <div className={cn('bg-white/5 rounded-full w-20 h-20 flex items-center justify-center mb-6 mx-auto')}>
                     <item.icon className={cn('h-10 w-10', seasonalAccent[activeSeason])} />
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{item.description}</p>
+                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-white/60 leading-relaxed">{item.description}</p>
                 </GlassCard>
               </ScrollReveal>
             ))}
@@ -435,7 +441,7 @@ export default function CommercialContent() {
       <TrustStrip variant="dark" />
 
       {/* Service Areas - Location Links for SEO */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-16 md:py-24" style={{ background: bg.page }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <div className="text-center mb-12">
@@ -443,10 +449,10 @@ export default function CommercialContent() {
                 <MapPin className="h-4 w-4" />
                 Commercial Service Areas
               </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
                 Serving <span className={seasonalAccent[activeSeason]}>Greater Madison</span>
               </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-lg text-white/60 max-w-2xl mx-auto">
                 Professional commercial lawn care throughout Dane County.
               </p>
             </div>
@@ -458,13 +464,13 @@ export default function CommercialContent() {
                 <Link
                   href={location.path}
                   className={cn(
-                    'bg-card/80 backdrop-blur-sm border border-white/[0.08] rounded-lg px-4 py-3 text-center transition-all group block',
+                    'bg-white/5 backdrop-blur-sm border border-white/[0.08] rounded-lg px-4 py-3 text-center transition-all group block',
                     seasonalLocationHover[activeSeason]
                   )}
                 >
                   <div className="flex items-center justify-center gap-2">
                     <MapPin className={cn('h-4 w-4 opacity-70 group-hover:opacity-100', seasonalAccent[activeSeason])} />
-                    <span className="font-medium text-foreground text-sm">{location.name}</span>
+                    <span className="font-medium text-white text-sm">{location.name}</span>
                   </div>
                 </Link>
               </ScrollReveal>
@@ -517,7 +523,7 @@ export default function CommercialContent() {
       <TrustStrip variant="light" />
 
       {/* Custom Maintenance Plans */}
-      <section className={cn('py-20 bg-gradient-to-b', seasonalSectionBg[activeSeason])}>
+      <section className="py-20" style={{ background: bg.section }}>
         <div className="container mx-auto px-4 text-center">
           <ScrollReveal>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
