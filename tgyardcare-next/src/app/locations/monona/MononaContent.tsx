@@ -35,7 +35,7 @@ export default function MononaContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: '#050d07' }}>
       {/* Scroll Progress - Engagement signal */}
       <ScrollProgress variant="minimal" />
 
@@ -69,22 +69,22 @@ export default function MononaContent() {
               <MapPin className="h-4 w-4 mr-2" />
               {cityName}, Wisconsin
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-background mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               {cityName}&apos;s Trusted <span className="text-primary">Lawn Care Experts</span>
             </h1>
-            <p className="text-xl md:text-2xl text-background/90 mb-8 font-medium">
+            <p className="text-xl md:text-2xl text-white/90 mb-8 font-medium">
               {cityDescription}
             </p>
             <div className="flex items-center gap-6 mb-10 flex-wrap">
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <Star className="h-5 w-5 text-accent fill-accent" />
                 <span className="font-bold">4.9 Star Rating</span>
               </div>
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <span className="font-bold">Local Family Business</span>
               </div>
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <span className="font-bold">100% Guaranteed</span>
               </div>
@@ -95,7 +95,7 @@ export default function MononaContent() {
                   Get Free Quote <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-background text-background hover:bg-background hover:text-foreground text-lg font-bold" asChild>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-black text-lg font-bold" asChild>
                 <a href="tel:608-535-6057">
                   <Phone className="mr-2 h-5 w-5" />
                   (608) 535-6057
@@ -107,15 +107,15 @@ export default function MononaContent() {
       </section>
 
       {/* Services Section */}
-      <section className="py-12 md:py-16 bg-background">
+      <section className="py-12 md:py-16" style={{ background: '#050d07' }}>
         <div className="container mx-auto px-4">
           <SectionConnector className="mb-8" />
 
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Full-Service Lawn Care in {cityName}
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-xl text-white/60 max-w-3xl mx-auto">
               We provide comprehensive lawn care and landscaping solutions tailored to {cityName}&apos;s unique climate and landscape.
             </p>
           </div>
@@ -124,18 +124,18 @@ export default function MononaContent() {
             {services.map((service, index) => (
               <div
                 key={index}
-                className="bg-card border border-border rounded-xl p-6 hover:shadow-lg hover:border-primary transition-all"
+                className="bg-white/[0.06] border border-white/10 rounded-xl p-6 hover:shadow-lg hover:border-primary transition-all"
               >
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                  <h3 className="text-lg font-bold text-foreground">{service}</h3>
+                  <h3 className="text-lg font-bold text-white">{service}</h3>
                 </div>
               </div>
             ))}
           </div>
 
           <div className="text-center mt-12">
-            <p className="text-muted-foreground mb-6 text-lg">
+            <p className="text-white/60 mb-6 text-lg">
               Explore our complete range of <Link href="/" className="text-primary hover:underline font-semibold">residential services</Link> and <Link href="/commercial" className="text-primary hover:underline font-semibold">commercial lawn care</Link> options.
             </p>
           </div>
@@ -143,55 +143,55 @@ export default function MononaContent() {
       </section>
 
       {/* Why Choose Us - Operational Proof */}
-      <section className="py-12 md:py-16 bg-muted/30">
+      <section className="py-12 md:py-16" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Why {cityName} Residents Choose TotalGuard
               </h2>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-xl text-white/60">
                 Systems that ensure consistent results, not just promises
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-12">
-              <div className="bg-card border-2 border-border rounded-xl p-8">
+              <div className="bg-white/[0.06] border border-white/10 rounded-xl p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <Users className="h-6 w-6 text-primary" />
-                  <h3 className="text-xl font-bold text-foreground">Same Crew Every Visit</h3>
+                  <h3 className="text-xl font-bold text-white">Same Crew Every Visit</h3>
                 </div>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-white/60 leading-relaxed">
                   Your assigned 2-person team knows your property, your preferences, and your standards. No random strangers showing up. Consistency you can count on.
                 </p>
               </div>
 
-              <div className="bg-card border-2 border-border rounded-xl p-8">
+              <div className="bg-white/[0.06] border border-white/10 rounded-xl p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <Clock className="h-6 w-6 text-primary" />
-                  <h3 className="text-xl font-bold text-foreground">24-Hour Quote Response</h3>
+                  <h3 className="text-xl font-bold text-white">24-Hour Quote Response</h3>
                 </div>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-white/60 leading-relaxed">
                   Submit a request today, receive a written quote by tomorrow. Weather delays? You&apos;re notified by 8am with the reschedule date. No guessing.
                 </p>
               </div>
 
-              <div className="bg-card border-2 border-border rounded-xl p-8">
+              <div className="bg-white/[0.06] border border-white/10 rounded-xl p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <DollarSign className="h-6 w-6 text-primary" />
-                  <h3 className="text-xl font-bold text-foreground">Flat Pricing, Written Scope</h3>
+                  <h3 className="text-xl font-bold text-white">Flat Pricing, Written Scope</h3>
                 </div>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-white/60 leading-relaxed">
                   Your quote lists exactly what&apos;s included. No surprise charges, no scope creep. The price you&apos;re quoted is the price you pay.
                 </p>
               </div>
 
-              <div className="bg-card border-2 border-border rounded-xl p-8">
+              <div className="bg-white/[0.06] border border-white/10 rounded-xl p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <Shield className="h-6 w-6 text-primary" />
-                  <h3 className="text-xl font-bold text-foreground">48-Hour Issue Resolution</h3>
+                  <h3 className="text-xl font-bold text-white">48-Hour Issue Resolution</h3>
                 </div>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-white/60 leading-relaxed">
                   Something not right? Text a photo. We acknowledge within 4 hours, resolve within 48 hours, and send confirmation when complete.
                 </p>
               </div>
@@ -215,10 +215,10 @@ export default function MononaContent() {
       ]} />
 
       {/* Service Areas Link */}
-      <section className="py-10 md:py-12 bg-background">
+      <section className="py-10 md:py-12" style={{ background: '#050d07' }}>
         <div className="container mx-auto px-4 text-center">
           <SectionDivider className="mb-6" />
-          <p className="text-lg text-muted-foreground mb-4">
+          <p className="text-lg text-white/60 mb-4">
             Also proudly serving <Link href="/service-areas" className="text-primary hover:underline font-semibold">Madison metro area and surrounding communities</Link>
           </p>
           <Link href="/service-areas">

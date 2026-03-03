@@ -25,7 +25,7 @@ export default function WaunakeeContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: '#050d07' }}>
       <LocalBusinessSchema cityName="Waunakee" />
       <Navigation showPromoBanner />
 
@@ -51,22 +51,22 @@ export default function WaunakeeContent() {
               <MapPin className="h-4 w-4 mr-2" />
               Waunakee, Wisconsin
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-background mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               Waunakee&apos;s <span className="text-primary">Premier Lawn Care</span> Service
             </h1>
-            <p className="text-xl md:text-2xl text-background/90 mb-8 font-medium">
+            <p className="text-xl md:text-2xl text-white/90 mb-8 font-medium">
               Professional lawn care and landscaping for Waunakee homes and businesses. Quality you can count on, service you can trust.
             </p>
             <div className="flex items-center gap-6 mb-10 flex-wrap">
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <Star className="h-5 w-5 text-accent fill-accent" />
                 <span className="font-bold">Top Rated in Waunakee</span>
               </div>
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <span className="font-bold">Fast Response</span>
               </div>
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <span className="font-bold">Satisfaction Guaranteed</span>
               </div>
@@ -77,7 +77,7 @@ export default function WaunakeeContent() {
                   Get Free Quote <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-background text-background hover:bg-background hover:text-foreground text-lg font-bold" asChild>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-black text-lg font-bold" asChild>
                 <a href="tel:608-535-6057">
                   <Phone className="mr-2 h-5 w-5" />
                   (608) 535-6057
@@ -89,13 +89,13 @@ export default function WaunakeeContent() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-20 bg-background">
+      <section className="py-20" style={{ background: '#050d07' }}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Complete Lawn Care for Waunakee Properties
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-xl text-white/60 max-w-3xl mx-auto">
               From weekly mowing to seasonal cleanups, we keep your Waunakee property looking its absolute best.
             </p>
           </div>
@@ -104,18 +104,18 @@ export default function WaunakeeContent() {
             {services.map((service, index) => (
               <div
                 key={index}
-                className="group bg-card border-2 border-border rounded-xl p-6 hover:shadow-xl hover:border-primary transition-all hover:-translate-y-1"
+                className="group bg-white/[0.06] border border-white/10 rounded-xl p-6 hover:shadow-xl hover:border-primary transition-all hover:-translate-y-1"
               >
                 <div className="bg-primary/10 rounded-full w-14 h-14 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-all">
                   <service.icon className="h-7 w-7 text-primary" />
                 </div>
-                <h3 className="text-lg font-bold text-foreground">{service.name}</h3>
+                <h3 className="text-lg font-bold text-white">{service.name}</h3>
               </div>
             ))}
           </div>
 
           <div className="text-center">
-            <p className="text-muted-foreground mb-6 text-lg">
+            <p className="text-white/60 mb-6 text-lg">
               Need something specific? We offer <Link href="/" className="text-primary hover:underline font-semibold">12+ specialized services</Link> for residential and <Link href="/commercial" className="text-primary hover:underline font-semibold">commercial properties</Link>.
             </p>
             <Link href="/contact">
@@ -128,54 +128,54 @@ export default function WaunakeeContent() {
       </section>
 
       {/* Value Props */}
-      <section className="py-20 bg-gradient-to-b from-muted/30 to-background">
+      <section className="py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Why Waunakee Chooses TotalGuard
               </h2>
             </div>
 
             <div className="space-y-6 mb-12">
-              <div className="bg-card border-2 border-primary/20 rounded-xl p-6 flex items-start gap-4">
+              <div className="bg-white/[0.06] border-2 border-primary/20 rounded-xl p-6 flex items-start gap-4">
                 <div className="bg-primary text-primary-foreground rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl flex-shrink-0">
                   1
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-foreground mb-2">Your Neighbors in Waunakee</h3>
-                  <p className="text-muted-foreground">
+                  <h3 className="text-xl font-bold text-white mb-2">Your Neighbors in Waunakee</h3>
+                  <p className="text-white/60">
                     We&apos;re not a faceless corporation - we&apos;re Alex and Vance, local business owners who live and work in this community. Your lawn&apos;s success is our success.
                   </p>
                 </div>
               </div>
 
-              <div className="bg-card border-2 border-primary/20 rounded-xl p-6 flex items-start gap-4">
+              <div className="bg-white/[0.06] border-2 border-primary/20 rounded-xl p-6 flex items-start gap-4">
                 <div className="bg-primary text-primary-foreground rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl flex-shrink-0">
                   2
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-foreground mb-2">Proven Track Record</h3>
-                  <p className="text-muted-foreground">
+                  <h3 className="text-xl font-bold text-white mb-2">Proven Track Record</h3>
+                  <p className="text-white/60">
                     4.9-star rating with hundreds of satisfied customers across Waunakee and surrounding areas. Check out our <Link href="/reviews" className="text-primary hover:underline font-semibold">customer reviews</Link> and <Link href="/gallery" className="text-primary hover:underline font-semibold">before/after gallery</Link>.
                   </p>
                 </div>
               </div>
 
-              <div className="bg-card border-2 border-primary/20 rounded-xl p-6 flex items-start gap-4">
+              <div className="bg-white/[0.06] border-2 border-primary/20 rounded-xl p-6 flex items-start gap-4">
                 <div className="bg-primary text-primary-foreground rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl flex-shrink-0">
                   3
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-foreground mb-2">No-Risk Guarantee</h3>
-                  <p className="text-muted-foreground">
+                  <h3 className="text-xl font-bold text-white mb-2">No-Risk Guarantee</h3>
+                  <p className="text-white/60">
                     Every job comes with our 100% satisfaction guarantee. If you&apos;re not completely happy with our work, we&apos;ll make it right - it&apos;s that simple.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-foreground to-foreground/90 text-background rounded-2xl p-8 md:p-12">
+            <div className="rounded-2xl p-8 md:p-12 text-white" style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #0f1f12 100%)' }}>
               <div className="text-center mb-8">
                 <h3 className="text-2xl md:text-3xl font-bold mb-3">Get Started in 3 Easy Steps</h3>
                 <p className="text-lg opacity-90">Transform your Waunakee lawn today</p>
@@ -212,7 +212,7 @@ export default function WaunakeeContent() {
                   </Button>
                 </Link>
                 <a href="tel:608-535-6057">
-                  <Button size="lg" variant="outline" className="border-background text-background hover:bg-background hover:text-foreground font-bold">
+                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-black font-bold">
                     <Phone className="mr-2 h-5 w-5" />
                     Call (608) 535-6057
                   </Button>
@@ -224,10 +224,10 @@ export default function WaunakeeContent() {
       </section>
 
       {/* Service Area Links */}
-      <section className="py-16 bg-muted/20">
+      <section className="py-16" style={{ background: '#050d07' }}>
         <div className="container mx-auto px-4 text-center">
-          <h3 className="text-2xl font-bold text-foreground mb-4">Serving Greater Madison Area</h3>
-          <p className="text-lg text-muted-foreground mb-6">
+          <h3 className="text-2xl font-bold text-white mb-4">Serving Greater Madison Area</h3>
+          <p className="text-lg text-white/60 mb-6">
             Also proudly serving <Link href="/locations/madison" className="text-primary hover:underline font-semibold">Madison</Link>, <Link href="/locations/middleton" className="text-primary hover:underline font-semibold">Middleton</Link>, and surrounding communities
           </p>
           <Link href="/service-areas">
