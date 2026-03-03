@@ -4,9 +4,11 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import BeforeAfterGallery from "@/components/BeforeAfterGallery";
 import { ServiceSchema } from "@/components/ServiceSchema";
+import { ScrollProgress } from "@/components/ScrollProgress";
+import { ProblemResolution } from "@/components/ProblemResolution";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { CheckCircle2, Flower2, Phone, Users, Calendar, Shield, Clock, Home } from "lucide-react";
+import { CheckCircle2, Flower2, Phone, Users, Calendar, Shield, Clock, Home, ArrowRight } from "lucide-react";
 import heroImage from "@/assets/service-mulching.jpg";
 import gardenBedsImage from "@/assets/before-after/mulching-combined-2.png";
 import CTASection from '@/components/CTASection';
@@ -15,6 +17,9 @@ import { gardenBedsFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AmbientParticles } from "@/components/AmbientParticles";
+import { ScrollReveal } from "@/components/ScrollReveal";
+import { GlassCard } from "@/components/GlassCard";
+import { TrustStrip } from "@/components/TrustStrip";
 
 function imgSrc(img: string | { src: string }): string {
   return typeof img === 'string' ? img : img.src;
@@ -34,6 +39,7 @@ export default function GardenBedsContent() {
         { name: 'Services', url: 'https://tgyardcare.com/services' },
         { name: 'Garden Beds', url: 'https://tgyardcare.com/services/garden-beds' }
       ]} />
+      <ScrollProgress variant="minimal" />
       <ServiceSchema
         serviceName="Garden Bed Services in Madison & Dane County"
         description="Professional garden bed transformation across Madison, Middleton, Waunakee, Sun Prairie, and all Dane County communities. Complete makeovers from cleanup to planting."
@@ -47,8 +53,10 @@ export default function GardenBedsContent() {
         <p>TotalGuard Yard Care provides professional garden bed services in Madison, Middleton, Waunakee, and Dane County, Wisconsin. We offer design, edging, weeding, planting, and mulching for complete bed transformations. Maintenance plans available. Call (608) 535-6057 for a free consultation.</p>
       </section>
 
-      {/* Hero */}
-      <section className="relative min-h-[50vh] md:min-h-[60vh] flex items-center py-20 md:py-28">
+      {/* ═══════════════════════════════════════════════════════════════════
+          HERO — Cinematic dark with particles
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="relative min-h-[55vh] md:min-h-[60vh] flex items-center py-16 md:py-24">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${imgSrc(heroImage)})` }}
@@ -61,69 +69,83 @@ export default function GardenBedsContent() {
         <AmbientParticles density="sparse" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 md:mb-6">
-              Garden Bed Makeovers in <span className="text-accent">Madison & Dane County</span>
-            </h1>
-            <p className="text-lg md:text-xl text-white/90 mb-6 md:mb-8">
-              Transform tired, overgrown beds into stunning focal points that boost your home's curb appeal. Professional garden bed services across Madison, Middleton, Waunakee, and Sun Prairie.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-              <Button size="lg" variant="accent" className="text-base md:text-lg font-bold" asChild>
-                <Link href="/contact?service=garden-beds">Get My Free Quote →</Link>
-              </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900 text-base md:text-lg" asChild>
-                <a href="tel:608-535-6057">
-                  <Phone className="mr-2 h-5 w-5" />
-                  (608) 535-6057
-                </a>
-              </Button>
-            </div>
+            <ScrollReveal>
+              <div className="inline-flex items-center bg-white/10 backdrop-blur-sm border border-white/10 text-white/80 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+                Starting at $100/visit
+              </div>
+            </ScrollReveal>
+            <ScrollReveal delay={0.1}>
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 md:mb-6">
+                Garden Bed Makeovers in <span className="text-accent">Madison & Dane County</span>
+              </h1>
+            </ScrollReveal>
+            <ScrollReveal delay={0.2}>
+              <p className="text-lg md:text-xl text-white/90 mb-6 md:mb-8 leading-relaxed">
+                Transform tired, overgrown beds into stunning focal points that boost your home&apos;s curb appeal. Professional garden bed services across Madison, Middleton, Waunakee, and Sun Prairie.
+              </p>
+            </ScrollReveal>
+            <ScrollReveal delay={0.3}>
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+                <Button size="lg" className="text-base md:text-lg font-bold animate-shimmer-btn bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] text-black" asChild>
+                  <Link href="/contact?service=garden-beds">Get My Free Quote <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                </Button>
+                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 text-base md:text-lg" asChild>
+                  <a href="tel:608-535-6057">
+                    <Phone className="mr-2 h-5 w-5" />
+                    (608) 535-6057
+                  </a>
+                </Button>
+              </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          TRUST STRIP — Immediate credibility
+      ════════════════════════════════════════════════════════════════════ */}
+      <TrustStrip variant="dark" />
 
       {/* Who This Is For */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-14 md:py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Who Garden Bed Services Are For</h2>
-            <p className="text-lg text-muted-foreground text-center mb-12">
-              This service is designed for Dane County homeowners who want maximum curb appeal with minimal ongoing effort.
-            </p>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="flex items-start gap-4 p-4 bg-background rounded-lg border border-border">
-                <Home className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Homeowners Selling Their Property</h3>
-                  <p className="text-sm text-muted-foreground">Fresh beds dramatically improve first impressions and listing photos</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 p-4 bg-background rounded-lg border border-border">
-                <Flower2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Those With Neglected Landscaping</h3>
-                  <p className="text-sm text-muted-foreground">Overgrown, weedy beds dragging down an otherwise nice property</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 p-4 bg-background rounded-lg border border-border">
-                <Users className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">New Homeowners</h3>
-                  <p className="text-sm text-muted-foreground">Inherited someone else's garden design and want a fresh start</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 p-4 bg-background rounded-lg border border-border">
-                <Shield className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Low-Maintenance Seekers</h3>
-                  <p className="text-sm text-muted-foreground">Want beautiful beds without constant weeding and upkeep</p>
-                </div>
-              </div>
+            <ScrollReveal>
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Who Garden Bed Services Are For</h2>
+              <p className="text-lg text-muted-foreground text-center mb-12">
+                This service is designed for Dane County homeowners who want maximum curb appeal with minimal ongoing effort.
+              </p>
+            </ScrollReveal>
+            <div className="grid md:grid-cols-2 gap-5">
+              {[
+                { icon: Home, title: "Homeowners Selling Their Property", desc: "Fresh beds dramatically improve first impressions and listing photos" },
+                { icon: Flower2, title: "Those With Neglected Landscaping", desc: "Overgrown, weedy beds dragging down an otherwise nice property" },
+                { icon: Users, title: "New Homeowners", desc: "Inherited someone else's garden design and want a fresh start" },
+                { icon: Shield, title: "Low-Maintenance Seekers", desc: "Want beautiful beds without constant weeding and upkeep" },
+              ].map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <ScrollReveal key={i} delay={i * 0.08}>
+                    <GlassCard hover="lift" className="h-full">
+                      <div className="flex items-start gap-4">
+                        <Icon className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                        <div>
+                          <h3 className="font-semibold mb-1">{item.title}</h3>
+                          <p className="text-sm text-muted-foreground">{item.desc}</p>
+                        </div>
+                      </div>
+                    </GlassCard>
+                  </ScrollReveal>
+                );
+              })}
             </div>
           </div>
         </div>
       </section>
 
+      {/* ═══════════════════════════════════════════════════════════════════
+          PROBLEM / SOLUTION — Build understanding
+      ════════════════════════════════════════════════════════════════════ */}
       <ResidentialProblemSection
         serviceName="Garden Bed Makeovers"
         problemPoints={[
@@ -131,7 +153,7 @@ export default function GardenBedsContent() {
           "Weedy, sparse beds with faded mulch making your home look shabby",
           "Dead plants and unclear borders ruining even a well-maintained lawn",
           "Overgrown shrubs obscuring your home's foundation",
-          "Overwhelming DIY garden makeovers—where do you even start?"
+          "Overwhelming DIY garden makeovers\u2014where do you even start?"
         ]}
       />
       <ResidentialSolutionSection
@@ -145,288 +167,339 @@ export default function GardenBedsContent() {
         ]}
       />
 
-      {/* What's Included */}
-      <section className="py-16 bg-muted/50">
+      {/* ═══════════════════════════════════════════════════════════════════
+          WHAT'S INCLUDED — Visual checklist
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
-            What's Included in Garden Bed Makeovers
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Complete Weed Removal</h3>
-                <p className="text-sm text-muted-foreground">Clear all weeds and unwanted vegetation down to the roots</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Bed Edging</h3>
-                <p className="text-sm text-muted-foreground">Create or restore clean, defined bed lines that last</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Soil Preparation</h3>
-                <p className="text-sm text-muted-foreground">Amend Dane County's clay soil for healthy plant growth</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Premium Mulch</h3>
-                <p className="text-sm text-muted-foreground">Fresh mulch layer in your choice of color (brown, black, natural)</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Plant Trimming</h3>
-                <p className="text-sm text-muted-foreground">Prune existing shrubs and perennials for healthy regrowth</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">New Plantings (Optional)</h3>
-                <p className="text-sm text-muted-foreground">Add flowers, shrubs, or decorative elements as needed</p>
-              </div>
-            </div>
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+              What&apos;s Included in Garden Bed Makeovers
+            </h2>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 max-w-4xl mx-auto">
+            {[
+              { title: "Complete Weed Removal", desc: "Clear all weeds and unwanted vegetation down to the roots" },
+              { title: "Bed Edging", desc: "Create or restore clean, defined bed lines that last" },
+              { title: "Soil Preparation", desc: "Amend Dane County's clay soil for healthy plant growth" },
+              { title: "Premium Mulch", desc: "Fresh mulch layer in your choice of color (brown, black, natural)" },
+              { title: "Plant Trimming", desc: "Prune existing shrubs and perennials for healthy regrowth" },
+              { title: "New Plantings (Optional)", desc: "Add flowers, shrubs, or decorative elements as needed" },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.08}>
+                <GlassCard hover="lift" className="h-full">
+                  <div className="flex items-start space-x-3">
+                    <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                </GlassCard>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-16">
+      {/* ═══════════════════════════════════════════════════════════════════
+          HOW IT WORKS — Animated process timeline
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">How Garden Bed Makeovers Work</h2>
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-8">
-              <div className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">1</div>
-                <h3 className="font-semibold mb-2">Free Consultation</h3>
-                <p className="text-sm text-muted-foreground">We walk your property, assess bed conditions, and discuss your goals and budget.</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">2</div>
-                <h3 className="font-semibold mb-2">Custom Plan</h3>
-                <p className="text-sm text-muted-foreground">We recommend the right approach—basic refresh, complete makeover, or full redesign.</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">3</div>
-                <h3 className="font-semibold mb-2">Transformation</h3>
-                <p className="text-sm text-muted-foreground">Our crew executes the plan—clearing, edging, amending soil, mulching, and planting.</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">4</div>
-                <h3 className="font-semibold mb-2">Instant Impact</h3>
-                <p className="text-sm text-muted-foreground">Walk out to beds that look professionally designed and boost your home's curb appeal.</p>
-              </div>
-            </div>
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">How Garden Bed Makeovers Work</h2>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto relative">
+            {/* Connecting line (desktop) */}
+            <div className="hidden md:block absolute top-8 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20" />
+
+            {[
+              { step: "1", title: "Free Consultation", desc: "We walk your property, assess bed conditions, and discuss your goals and budget." },
+              { step: "2", title: "Custom Plan", desc: "We recommend the right approach\u2014basic refresh, complete makeover, or full redesign." },
+              { step: "3", title: "Transformation", desc: "Our crew executes the plan\u2014clearing, edging, amending soil, mulching, and planting." },
+              { step: "4", title: "Instant Impact", desc: "Walk out to beds that look professionally designed and boost your home's curb appeal." },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.12}>
+                <div className="text-center relative">
+                  <div className="relative z-10 bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg hover:border-primary/50 hover:shadow-primary/10 hover:shadow-xl transition-all duration-300">
+                    <span className="text-2xl font-bold text-primary">{item.step}</span>
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Service Options */}
-      <section className="py-16 bg-muted/30">
+      {/* ═══════════════════════════════════════════════════════════════════
+          SERVICE OPTIONS — Choose your level
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
-            Choose Your Makeover Level
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="border border-border rounded-lg p-6 hover:shadow-lg transition-shadow bg-background">
-              <h3 className="text-2xl font-bold text-foreground mb-3">Basic Refresh</h3>
-              <p className="text-muted-foreground mb-6">
-                Perfect for beds that just need cleaning up and fresh mulch.
-              </p>
-              <ul className="space-y-2 text-muted-foreground mb-6">
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Weed removal</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Edge refreshing</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Fresh mulch</span>
-                </li>
-              </ul>
-              <p className="text-sm text-muted-foreground">Starting at $200/bed</p>
-            </div>
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+              Choose Your Makeover Level
+            </h2>
+          </ScrollReveal>
 
-            <div className="border-2 border-primary rounded-lg p-6 shadow-md relative bg-background">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
-                Most Popular
-              </div>
-              <h3 className="text-2xl font-bold text-foreground mb-3">Complete Makeover</h3>
-              <p className="text-muted-foreground mb-6">
-                Full renovation including soil prep and design improvements.
-              </p>
-              <ul className="space-y-2 text-muted-foreground mb-6">
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Everything in Basic</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Soil amendment</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Redesign consultation</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Plant trimming/removal</span>
-                </li>
-              </ul>
-              <p className="text-sm text-muted-foreground">$400-$800/bed typical</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+            <ScrollReveal delay={0.0}>
+              <GlassCard hover="lift" className="h-full">
+                <h3 className="text-2xl font-bold text-foreground mb-3">Basic Refresh</h3>
+                <p className="text-muted-foreground mb-6">
+                  Perfect for beds that just need cleaning up and fresh mulch.
+                </p>
+                <ul className="space-y-2 text-muted-foreground mb-6">
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Weed removal</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Edge refreshing</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Fresh mulch</span>
+                  </li>
+                </ul>
+                <p className="text-sm text-muted-foreground">Starting at $200/bed</p>
+              </GlassCard>
+            </ScrollReveal>
 
-            <div className="border border-border rounded-lg p-6 hover:shadow-lg transition-shadow bg-background">
-              <h3 className="text-2xl font-bold text-foreground mb-3">Full Redesign</h3>
-              <p className="text-muted-foreground mb-6">
-                Complete transformation with new plants and features.
-              </p>
-              <ul className="space-y-2 text-muted-foreground mb-6">
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Everything in Complete</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">New plant installation</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Decorative elements</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">Custom design</span>
-                </li>
-              </ul>
-              <p className="text-sm text-muted-foreground">$800-$2,000+ depending on scope</p>
-            </div>
+            <ScrollReveal delay={0.1}>
+              <GlassCard variant="accent" hover="glow" className="h-full relative">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
+                  Most Popular
+                </div>
+                <h3 className="text-2xl font-bold text-foreground mb-3 mt-2">Complete Makeover</h3>
+                <p className="text-muted-foreground mb-6">
+                  Full renovation including soil prep and design improvements.
+                </p>
+                <ul className="space-y-2 text-muted-foreground mb-6">
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Everything in Basic</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Soil amendment</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Redesign consultation</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Plant trimming/removal</span>
+                  </li>
+                </ul>
+                <p className="text-sm text-muted-foreground">$400-$800/bed typical</p>
+              </GlassCard>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.2}>
+              <GlassCard hover="lift" className="h-full">
+                <h3 className="text-2xl font-bold text-foreground mb-3">Full Redesign</h3>
+                <p className="text-muted-foreground mb-6">
+                  Complete transformation with new plants and features.
+                </p>
+                <ul className="space-y-2 text-muted-foreground mb-6">
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Everything in Complete</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">New plant installation</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Decorative elements</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Custom design</span>
+                  </li>
+                </ul>
+                <p className="text-sm text-muted-foreground">$800-$2,000+ depending on scope</p>
+              </GlassCard>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
+      {/* ═══════════════════════════════════════════════════════════════════
+          BEFORE & AFTER — Dark cinematic gallery
+      ════════════════════════════════════════════════════════════════════ */}
       <BeforeAfterGallery items={beforeAfterItems} />
 
-      {/* Wisconsin Context */}
-      <section className="py-16">
+      {/* Mid-page CTA */}
+      <CTASection
+        title="Ready for a garden bed transformation?"
+        description="Get a free, no-obligation quote. We'll have pricing to you within 24 hours."
+        variant="compact"
+      />
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          WISCONSIN CONTEXT — Local expertise
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
-            Garden Beds Built for Wisconsin
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="text-center p-6 bg-muted/30 rounded-lg">
-              <h3 className="text-xl font-semibold text-foreground mb-3">Zone 5a Plant Selection</h3>
-              <p className="text-muted-foreground">
-                We recommend perennials and shrubs proven to survive Dane County's harsh winters—hostas, daylilies, hydrangeas, and ornamental grasses that thrive here.
-              </p>
-            </div>
-            <div className="text-center p-6 bg-muted/30 rounded-lg">
-              <h3 className="text-xl font-semibold text-foreground mb-3">Clay Soil Solutions</h3>
-              <p className="text-muted-foreground">
-                Madison's heavy clay drains poorly and compacts easily. We amend beds with organic matter to improve drainage and root development.
-              </p>
-            </div>
-            <div className="text-center p-6 bg-muted/30 rounded-lg">
-              <h3 className="text-xl font-semibold text-foreground mb-3">4-Season Interest</h3>
-              <p className="text-muted-foreground">
-                With only 150 growing days, we design beds for maximum seasonal impact—spring bulbs, summer blooms, fall color, and winter structure.
-              </p>
-            </div>
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+              Garden Beds Built for Wisconsin
+            </h2>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+            {[
+              {
+                title: "Zone 5a Plant Selection",
+                desc: "We recommend perennials and shrubs proven to survive Dane County's harsh winters\u2014hostas, daylilies, hydrangeas, and ornamental grasses that thrive here."
+              },
+              {
+                title: "Clay Soil Solutions",
+                desc: "Madison's heavy clay drains poorly and compacts easily. We amend beds with organic matter to improve drainage and root development."
+              },
+              {
+                title: "4-Season Interest",
+                desc: "With only 150 growing days, we design beds for maximum seasonal impact\u2014spring bulbs, summer blooms, fall color, and winter structure."
+              },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.1}>
+                <GlassCard hover="lift" accentBorder className="text-center h-full">
+                  <h3 className="text-xl font-semibold text-foreground mb-3">{item.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                </GlassCard>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* When & How Often */}
-      <section className="py-16 bg-muted/50">
+      {/* ═══════════════════════════════════════════════════════════════════
+          TIMING — When & How Often
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">When & How Often</h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-background p-6 rounded-lg border border-border">
-                <Calendar className="h-8 w-8 text-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-3">Best Timing</h3>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>• <strong>Spring (April-May):</strong> Ideal for major makeovers and planting</li>
-                  <li>• <strong>Early Summer (June):</strong> Good for refreshes before July heat</li>
-                  <li>• <strong>Fall (Sept-Oct):</strong> Perfect for planting perennials and prep for winter</li>
-                  <li>• <strong>Avoid:</strong> Mid-summer heat stress on new plants</li>
-                </ul>
-              </div>
-              <div className="bg-background p-6 rounded-lg border border-border">
-                <Clock className="h-8 w-8 text-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-3">Maintenance Frequency</h3>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>• <strong>Mulch refresh:</strong> Every 1-2 years</li>
-                  <li>• <strong>Edge maintenance:</strong> Annually in spring</li>
-                  <li>• <strong>Weed control:</strong> Monthly during growing season (or hire us!)</li>
-                  <li>• <strong>Full makeover:</strong> Every 5-7 years as plants mature</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            <ScrollReveal>
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">When & How Often</h2>
+            </ScrollReveal>
 
-      {/* What Makes Us Different */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">What Makes TotalGuard Different</h2>
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="border border-border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-3">We Focus on Low Maintenance</h3>
-                <p className="text-muted-foreground">Beautiful beds that don't require constant attention. We recommend plants that thrive with minimal care in Wisconsin conditions.</p>
-              </div>
-              <div className="border border-border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-3">Honest Recommendations</h3>
-                <p className="text-muted-foreground">We won't oversell. If your beds just need a refresh, we'll say so. If they need a complete overhaul, we'll explain why.</p>
-              </div>
-              <div className="border border-border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-3">Complete Property Thinking</h3>
-                <p className="text-muted-foreground">We consider how beds fit with your lawn, hardscapes, and home style. Not just isolated bed work—cohesive property design.</p>
-              </div>
-              <div className="border border-border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-3">Ongoing Care Available</h3>
-                <p className="text-muted-foreground">Don't want to maintain your new beds? We offer weeding, mulch refreshes, and seasonal care to keep them looking great.</p>
-              </div>
+              <ScrollReveal delay={0.1}>
+                <GlassCard hover="glow" className="h-full">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-primary/10 rounded-full p-2">
+                      <Calendar className="h-5 w-5 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-semibold">Best Timing</h3>
+                  </div>
+                  <ul className="space-y-2.5 text-muted-foreground">
+                    <li>&bull; <strong className="text-foreground">Spring (April-May):</strong> Ideal for major makeovers and planting</li>
+                    <li>&bull; <strong className="text-foreground">Early Summer (June):</strong> Good for refreshes before July heat</li>
+                    <li>&bull; <strong className="text-foreground">Fall (Sept-Oct):</strong> Perfect for planting perennials and prep for winter</li>
+                    <li>&bull; <strong className="text-foreground">Avoid:</strong> Mid-summer heat stress on new plants</li>
+                  </ul>
+                </GlassCard>
+              </ScrollReveal>
+
+              <ScrollReveal delay={0.2}>
+                <GlassCard hover="glow" className="h-full">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="bg-primary/10 rounded-full p-2">
+                      <Clock className="h-5 w-5 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-semibold">Maintenance Frequency</h3>
+                  </div>
+                  <ul className="space-y-2.5 text-muted-foreground">
+                    <li>&bull; <strong className="text-foreground">Mulch refresh:</strong> Every 1-2 years</li>
+                    <li>&bull; <strong className="text-foreground">Edge maintenance:</strong> Annually in spring</li>
+                    <li>&bull; <strong className="text-foreground">Weed control:</strong> Monthly during growing season (or hire us!)</li>
+                    <li>&bull; <strong className="text-foreground">Full makeover:</strong> Every 5-7 years as plants mature</li>
+                  </ul>
+                </GlassCard>
+              </ScrollReveal>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Related Services */}
-      <section className="py-16 bg-muted/30">
+      {/* ═══════════════════════════════════════════════════════════════════
+          WHAT MAKES US DIFFERENT — Final trust
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-6">Pair With These Services</h2>
-            <p className="text-muted-foreground mb-8">
-              Complete your property transformation with these related services:
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button variant="outline" asChild>
-                <Link href="/services/mulching">Mulching</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/services/weeding">Regular Weeding</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/services/pruning">Shrub Pruning</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/services/mowing">Lawn Mowing</Link>
-              </Button>
+          <div className="max-w-4xl mx-auto">
+            <ScrollReveal>
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">What Makes TotalGuard Different</h2>
+            </ScrollReveal>
+
+            <div className="grid md:grid-cols-2 gap-5">
+              {[
+                { title: "We Focus on Low Maintenance", desc: "Beautiful beds that don't require constant attention. We recommend plants that thrive with minimal care in Wisconsin conditions." },
+                { title: "Honest Recommendations", desc: "We won't oversell. If your beds just need a refresh, we'll say so. If they need a complete overhaul, we'll explain why." },
+                { title: "Complete Property Thinking", desc: "We consider how beds fit with your lawn, hardscapes, and home style. Not just isolated bed work\u2014cohesive property design." },
+                { title: "Ongoing Care Available", desc: "Don't want to maintain your new beds? We offer weeding, mulch refreshes, and seasonal care to keep them looking great." },
+              ].map((item, i) => (
+                <ScrollReveal key={i} delay={i * 0.08}>
+                  <GlassCard hover="lift" accentBorder className="h-full">
+                    <h3 className="font-semibold text-lg mb-3">{item.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </GlassCard>
+                </ScrollReveal>
+              ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Problem Resolution */}
+      <ProblemResolution variant="full" />
+
+      {/* Trust Strip — Repeated for reinforcement */}
+      <TrustStrip variant="light" />
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          RELATED SERVICES — Cross-sell
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
+        <div className="container mx-auto px-4">
+          <ScrollReveal>
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-3xl font-bold mb-4">Pair With These Services</h2>
+              <p className="text-muted-foreground mb-10">
+                Complete your property transformation with these related services:
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-5 max-w-5xl mx-auto">
+            {[
+              { href: "/services/mulching", title: "Mulching", desc: "Complete the polished look" },
+              { href: "/services/weeding", title: "Regular Weeding", desc: "Keep beds weed-free all season" },
+              { href: "/services/pruning", title: "Shrub Pruning", desc: "Shape and maintain plants" },
+              { href: "/services/mowing", title: "Lawn Mowing", desc: "Full property care" },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.08}>
+                <Link href={item.href} className="block group">
+                  <GlassCard hover="lift" className="text-center h-full">
+                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground">{item.desc}</p>
+                    <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                    </span>
+                  </GlassCard>
+                </Link>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
