@@ -4,9 +4,11 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import BeforeAfterGallery from "@/components/BeforeAfterGallery";
 import { ServiceSchema } from "@/components/ServiceSchema";
+import { ScrollProgress } from "@/components/ScrollProgress";
+import { ProblemResolution } from "@/components/ProblemResolution";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { CheckCircle2, Phone, Users, Calendar, Shield, Clock, Leaf, TreeDeciduous } from "lucide-react";
+import { CheckCircle2, Phone, Users, Calendar, Shield, Clock, Leaf, TreeDeciduous, ArrowRight } from "lucide-react";
 import heroImage from "@/assets/service-leaf-removal.jpg";
 import leafImage1 from "@/assets/before-after/leaf-removal-combined-1.png";
 import leafImage2 from "@/assets/before-after/leaf-removal-combined-2.png";
@@ -16,6 +18,9 @@ import { leafRemovalFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AmbientParticles } from "@/components/AmbientParticles";
+import { ScrollReveal } from "@/components/ScrollReveal";
+import { GlassCard } from "@/components/GlassCard";
+import { TrustStrip } from "@/components/TrustStrip";
 
 function imgSrc(img: string | { src: string }): string {
   return typeof img === 'string' ? img : img.src;
@@ -38,6 +43,7 @@ export default function LeafRemovalContent() {
         { name: 'Services', url: 'https://tgyardcare.com/services' },
         { name: 'Leaf Removal', url: 'https://tgyardcare.com/services/leaf-removal' }
       ]} />
+      <ScrollProgress variant="minimal" />
       <ServiceSchema
         serviceName="Professional Leaf Removal in Madison & Dane County"
         description="Efficient fall leaf removal service across Madison, Middleton, Waunakee, Sun Prairie, and all Dane County communities. Keep your lawn healthy through Wisconsin winters."
@@ -51,8 +57,10 @@ export default function LeafRemovalContent() {
         <p>TotalGuard Yard Care provides professional leaf removal services in Madison, Middleton, Waunakee, and Dane County, Wisconsin. Full property leaf clearing with hauling included. Zero leaves left behind. Protect your lawn from smothering. Call (608) 535-6057 for a free estimate.</p>
       </section>
 
-      {/* Hero */}
-      <section className="relative min-h-[50vh] md:min-h-[60vh] flex items-center py-20 md:py-28">
+      {/* ═══════════════════════════════════════════════════════════════════
+          HERO — Cinematic dark with particles
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="relative min-h-[55vh] md:min-h-[60vh] flex items-center py-16 md:py-24">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${imgSrc(heroImage)})` }}
@@ -65,69 +73,85 @@ export default function LeafRemovalContent() {
         <AmbientParticles density="sparse" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 md:mb-6">
-              Leaf Removal in <span className="text-accent">Madison & Dane County</span>
-            </h1>
-            <p className="text-lg md:text-xl text-white/90 mb-6 md:mb-8">
-              Wisconsin's oak and maple trees drop heavy leaf loads every fall. Keep your Madison, Middleton, Waunakee, or Sun Prairie property clear and your lawn protected with efficient removal and hauling.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-              <Button size="lg" variant="accent" className="text-base md:text-lg font-bold" asChild>
-                <Link href="/contact?service=leaf-removal">Get My Free Quote →</Link>
-              </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900 text-base md:text-lg" asChild>
-                <a href="tel:608-535-6057">
-                  <Phone className="mr-2 h-5 w-5" />
-                  (608) 535-6057
-                </a>
-              </Button>
-            </div>
+            <ScrollReveal>
+              <div className="inline-flex items-center bg-white/10 backdrop-blur-sm border border-white/10 text-white/80 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+                Starting at $75/visit
+              </div>
+            </ScrollReveal>
+            <ScrollReveal delay={0.1}>
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 md:mb-6">
+                Leaf Removal in <span className="text-accent">Madison & Dane County</span>
+              </h1>
+            </ScrollReveal>
+            <ScrollReveal delay={0.2}>
+              <p className="text-lg md:text-xl text-white/90 mb-6 md:mb-8 leading-relaxed">
+                Wisconsin&apos;s oak and maple trees drop heavy leaf loads every fall. Keep your Madison, Middleton, Waunakee, or Sun Prairie property clear and your lawn protected with efficient removal and hauling.
+              </p>
+            </ScrollReveal>
+            <ScrollReveal delay={0.3}>
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+                <Button size="lg" className="text-base md:text-lg font-bold animate-shimmer-btn bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] text-black" asChild>
+                  <Link href="/contact?service=leaf-removal">Get My Free Quote <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                </Button>
+                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 text-base md:text-lg" asChild>
+                  <a href="tel:608-535-6057">
+                    <Phone className="mr-2 h-5 w-5" />
+                    (608) 535-6057
+                  </a>
+                </Button>
+              </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          TRUST STRIP — Immediate credibility
+      ════════════════════════════════════════════════════════════════════ */}
+      <TrustStrip variant="dark" />
 
       {/* Who This Is For */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Who Leaf Removal Is For</h2>
-            <p className="text-lg text-muted-foreground text-center mb-12">
-              This service is designed for Dane County homeowners with heavy leaf loads who want to protect their lawn investment.
-            </p>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="flex items-start gap-4 p-4 bg-background rounded-lg border border-border">
-                <TreeDeciduous className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Properties With Mature Trees</h3>
-                  <p className="text-sm text-muted-foreground">Oak, maple, and walnut trees that dump thousands of leaves every fall</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 p-4 bg-background rounded-lg border border-border">
-                <Users className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Busy Homeowners</h3>
-                  <p className="text-sm text-muted-foreground">No time for endless weekend raking before Wisconsin's first snow</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 p-4 bg-background rounded-lg border border-border">
-                <Shield className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Lawn Investors</h3>
-                  <p className="text-sm text-muted-foreground">Those who understand leaving leaves = dead grass in spring</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 p-4 bg-background rounded-lg border border-border">
-                <Clock className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Seniors & Physical Limitations</h3>
-                  <p className="text-sm text-muted-foreground">Anyone who shouldn't be hauling heavy, wet leaves</p>
-                </div>
+      <ScrollReveal>
+        <section className="py-14 md:py-20 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <ScrollReveal>
+                <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Who Leaf Removal Is For</h2>
+                <p className="text-lg text-muted-foreground text-center mb-12">
+                  This service is designed for Dane County homeowners with heavy leaf loads who want to protect their lawn investment.
+                </p>
+              </ScrollReveal>
+              <div className="grid md:grid-cols-2 gap-5">
+                {[
+                  { icon: TreeDeciduous, title: "Properties With Mature Trees", desc: "Oak, maple, and walnut trees that dump thousands of leaves every fall" },
+                  { icon: Users, title: "Busy Homeowners", desc: "No time for endless weekend raking before Wisconsin's first snow" },
+                  { icon: Shield, title: "Lawn Investors", desc: "Those who understand leaving leaves = dead grass in spring" },
+                  { icon: Clock, title: "Seniors & Physical Limitations", desc: "Anyone who shouldn't be hauling heavy, wet leaves" },
+                ].map((item, i) => {
+                  const Icon = item.icon;
+                  return (
+                    <ScrollReveal key={i} delay={i * 0.08}>
+                      <GlassCard hover="lift" className="h-full">
+                        <div className="flex items-start gap-4">
+                          <Icon className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="font-semibold mb-1">{item.title}</h3>
+                            <p className="text-sm text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      </GlassCard>
+                    </ScrollReveal>
+                  );
+                })}
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
+      {/* ═══════════════════════════════════════════════════════════════════
+          PROBLEM / SOLUTION — Build understanding
+      ════════════════════════════════════════════════════════════════════ */}
       <ResidentialProblemSection
         serviceName="Leaf Removal"
         problemPoints={[
@@ -142,243 +166,314 @@ export default function LeafRemovalContent() {
         serviceName="Leaf Removal"
         solutionPoints={[
           "Professional equipment including powerful blowers and vacuums for fast clearing",
-          "Complete property coverage—lawn, beds, patios, and driveways",
+          "Complete property coverage\u2014lawn, beds, patios, and driveways",
           "Bagging or mulching options depending on your preference",
           "All leaves hauled away leaving you with a clean property",
           "Lawn primed for healthy spring growth after thorough fall clearing"
         ]}
       />
 
-      {/* What's Included */}
-      <section className="py-16 bg-secondary/30">
+      {/* ═══════════════════════════════════════════════════════════════════
+          WHAT'S INCLUDED — Visual checklist
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
-            What's Included in Leaf Removal
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Full Property Clearing</h3>
-                <p className="text-sm text-muted-foreground">Remove leaves from lawn, beds, hardscapes, and gutters</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Professional Equipment</h3>
-                <p className="text-sm text-muted-foreground">Commercial blowers and vacuums for efficient removal</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Mulching Option</h3>
-                <p className="text-sm text-muted-foreground">Shred and mulch leaves back into lawn if desired</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Bagging & Removal</h3>
-                <p className="text-sm text-muted-foreground">All leaves bagged and hauled to disposal site</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Repeat Service Available</h3>
-                <p className="text-sm text-muted-foreground">Multiple visits during fall season as needed</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Gutter Check</h3>
-                <p className="text-sm text-muted-foreground">Basic gutter clearing included with service</p>
-              </div>
-            </div>
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
+              What&apos;s Included in Leaf Removal
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Every service includes the complete package&mdash;no hidden fees or &ldquo;extras&rdquo; to add on.
+            </p>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 max-w-5xl mx-auto">
+            {[
+              { title: "Full Property Clearing", desc: "Remove leaves from lawn, beds, hardscapes, and gutters" },
+              { title: "Professional Equipment", desc: "Commercial blowers and vacuums for efficient removal" },
+              { title: "Mulching Option", desc: "Shred and mulch leaves back into lawn if desired" },
+              { title: "Bagging & Removal", desc: "All leaves bagged and hauled to disposal site" },
+              { title: "Repeat Service Available", desc: "Multiple visits during fall season as needed" },
+              { title: "Gutter Check", desc: "Basic gutter clearing included with service" },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.08}>
+                <GlassCard hover="lift" className="h-full">
+                  <div className="flex items-start space-x-3">
+                    <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                </GlassCard>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-16">
+      {/* ═══════════════════════════════════════════════════════════════════
+          HOW IT WORKS — Animated process timeline
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">How Leaf Removal Works</h2>
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-8">
-              <div className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">1</div>
-                <h3 className="font-semibold mb-2">Schedule</h3>
-                <p className="text-sm text-muted-foreground">Book single visits or recurring fall service. We'll confirm timing based on leaf drop in your area.</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">2</div>
-                <h3 className="font-semibold mb-2">Clear</h3>
-                <p className="text-sm text-muted-foreground">Our crew arrives with commercial equipment—blowers, vacuums, and tarps for efficient clearing.</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">3</div>
-                <h3 className="font-semibold mb-2">Haul</h3>
-                <p className="text-sm text-muted-foreground">All leaves are removed from your property—no piles at the curb waiting for city pickup.</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">4</div>
-                <h3 className="font-semibold mb-2">Repeat</h3>
-                <p className="text-sm text-muted-foreground">For heavy leaf properties, we return as needed until trees are bare and your lawn is clear.</p>
-              </div>
-            </div>
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+              How Leaf Removal Works
+            </h2>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto relative">
+            {/* Connecting line (desktop) */}
+            <div className="hidden md:block absolute top-8 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20" />
+
+            {[
+              { step: "1", title: "Schedule", desc: "Book single visits or recurring fall service. We'll confirm timing based on leaf drop in your area." },
+              { step: "2", title: "Clear", desc: "Our crew arrives with commercial equipment\u2014blowers, vacuums, and tarps for efficient clearing." },
+              { step: "3", title: "Haul", desc: "All leaves are removed from your property\u2014no piles at the curb waiting for city pickup." },
+              { step: "4", title: "Repeat", desc: "For heavy leaf properties, we return as needed until trees are bare and your lawn is clear." },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.12}>
+                <div className="text-center relative">
+                  <div className="relative z-10 bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg hover:border-primary/50 hover:shadow-primary/10 hover:shadow-xl transition-all duration-300">
+                    <span className="text-2xl font-bold text-primary">{item.step}</span>
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
+      {/* ═══════════════════════════════════════════════════════════════════
+          BEFORE & AFTER — Dark cinematic gallery
+      ════════════════════════════════════════════════════════════════════ */}
       <BeforeAfterGallery items={beforeAfterItems} />
 
-      {/* Benefits - Wisconsin Context */}
-      <section className="py-16 bg-muted/30">
+      {/* Mid-page CTA */}
+      <CTASection
+        title="Ready for leaf-free results?"
+        description="Get a free, no-obligation quote. We'll have pricing to you within 24 hours."
+        variant="compact"
+      />
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          BENEFITS — Why remove leaves before winter
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
-            Why Remove Leaves Before Winter
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="text-center p-6 bg-background rounded-lg border border-border">
-              <Leaf className="h-10 w-10 text-primary mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-foreground mb-3">Protect Your Lawn</h3>
-              <p className="text-muted-foreground">
-                Leaves left on grass block sunlight and trap moisture, causing fungal diseases like snow mold. This creates dead patches that take all spring to recover—if they recover at all.
-              </p>
-            </div>
-            <div className="text-center p-6 bg-background rounded-lg border border-border">
-              <Shield className="h-10 w-10 text-primary mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-foreground mb-3">Save Your Back</h3>
-              <p className="text-muted-foreground">
-                Skip the hours of bending, raking, and bagging. We have the commercial equipment and crew to handle even the heaviest leaf fall in a fraction of the time.
-              </p>
-            </div>
-            <div className="text-center p-6 bg-background rounded-lg border border-border">
-              <Clock className="h-10 w-10 text-primary mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-foreground mb-3">Pest Prevention</h3>
-              <p className="text-muted-foreground">
-                Leaf piles attract rodents, insects, and create breeding grounds for pests that can damage your lawn and home. Prompt removal keeps your property clean and pest-free.
-              </p>
-            </div>
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+              Why Remove Leaves Before Winter
+            </h2>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+            {[
+              { icon: Leaf, title: "Protect Your Lawn", desc: "Leaves left on grass block sunlight and trap moisture, causing fungal diseases like snow mold. This creates dead patches that take all spring to recover\u2014if they recover at all." },
+              { icon: Shield, title: "Save Your Back", desc: "Skip the hours of bending, raking, and bagging. We have the commercial equipment and crew to handle even the heaviest leaf fall in a fraction of the time." },
+              { icon: Clock, title: "Pest Prevention", desc: "Leaf piles attract rodents, insects, and create breeding grounds for pests that can damage your lawn and home. Prompt removal keeps your property clean and pest-free." },
+            ].map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <ScrollReveal key={i} delay={i * 0.12}>
+                  <GlassCard hover="lift" className="text-center h-full">
+                    <div className="bg-primary/10 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4">
+                      <Icon className="h-7 w-7 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-foreground mb-3">{item.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </GlassCard>
+                </ScrollReveal>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* When & How Often */}
-      <section className="py-16">
+      {/* ═══════════════════════════════════════════════════════════════════
+          TIMING & FREQUENCY — Seasonal knowledge
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">When & How Often</h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-muted/30 p-6 rounded-lg">
-                <Calendar className="h-8 w-8 text-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-3">Timing</h3>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>&#8226; <strong>Peak season:</strong> Mid-October through late November</li>
-                  <li>&#8226; <strong>First visit:</strong> After initial heavy leaf drop (usually late October)</li>
-                  <li>&#8226; <strong>Final visit:</strong> After oaks finish dropping (mid-late November)</li>
-                  <li>&#8226; <strong>Before:</strong> First snow covers the ground</li>
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+              When & How Often
+            </h2>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <ScrollReveal delay={0.1}>
+              <GlassCard hover="glow" className="h-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-primary/10 rounded-full p-2">
+                    <Calendar className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">Timing</h3>
+                </div>
+                <ul className="space-y-2.5 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Peak season:</strong> Mid-October through late November</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">First visit:</strong> After initial heavy leaf drop (usually late October)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Final visit:</strong> After oaks finish dropping (mid-late November)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Before:</strong> First snow covers the ground</span>
+                  </li>
                 </ul>
-              </div>
-              <div className="bg-muted/30 p-6 rounded-lg">
-                <Clock className="h-8 w-8 text-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-3">Frequency</h3>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>&#8226; <strong>Light coverage:</strong> 1-2 visits typically sufficient</li>
-                  <li>&#8226; <strong>Heavy oak/maple:</strong> 2-4 visits as trees drop continuously</li>
-                  <li>&#8226; <strong>Neighbor's trees:</strong> May need extra visits if leaves blow in</li>
-                  <li>&#8226; <strong>Wet conditions:</strong> More difficult—schedule before rain if possible</li>
+              </GlassCard>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.2}>
+              <GlassCard hover="glow" className="h-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-primary/10 rounded-full p-2">
+                    <Clock className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">Frequency</h3>
+                </div>
+                <ul className="space-y-2.5 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Light coverage:</strong> 1-2 visits typically sufficient</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Heavy oak/maple:</strong> 2-4 visits as trees drop continuously</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Neighbor&apos;s trees:</strong> May need extra visits if leaves blow in</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Wet conditions:</strong> More difficult&mdash;schedule before rain if possible</span>
+                  </li>
                 </ul>
-              </div>
-            </div>
+              </GlassCard>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section className="py-16 bg-muted/50">
+      {/* ═══════════════════════════════════════════════════════════════════
+          WHAT MAKES US DIFFERENT — Final trust
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-foreground mb-6">Madison-Area Leaf Removal Pricing</h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Most Madison, Middleton, Waunakee, and Sun Prairie homes require 2-4 visits during fall season. Single visits typically range from <strong>$150-$400</strong> depending on property size and leaf volume.
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
+              What Makes TotalGuard Different
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              We know you&apos;ve been burned by lawn guys who don&apos;t show up or deliver inconsistent results. Here&apos;s how we&apos;re different:
             </p>
-            <div className="bg-background border border-border rounded-lg p-6 mb-8">
-              <h3 className="font-semibold mb-4">What Affects Price:</h3>
-              <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                <div>
-                  <strong className="text-foreground">Property Size</strong>
-                  <p>Larger lots = more ground to cover</p>
-                </div>
-                <div>
-                  <strong className="text-foreground">Leaf Volume</strong>
-                  <p>Heavy oak/maple vs. light coverage</p>
-                </div>
-                <div>
-                  <strong className="text-foreground">Visit Frequency</strong>
-                  <p>Single visit vs. recurring service</p>
-                </div>
-              </div>
-            </div>
-            <Button size="lg" asChild>
-              <Link href="/contact?service=leaf-removal">Get a Free Quote</Link>
-            </Button>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+            {[
+              { title: "We Haul Everything Away", desc: "No leaf mountains at the curb waiting for city pickup that may not come before snow. We remove all leaves from your property." },
+              { title: "Complete Property Coverage", desc: "We don't just blow leaves to one corner. Lawn, beds, driveways, patios, and gutters\u2014we clear everything." },
+              { title: "Commercial Equipment", desc: "Professional backpack blowers and vacuums clear in hours what takes homeowners entire weekends with consumer equipment." },
+              { title: "Flexible Scheduling", desc: "We return as needed during fall season. Oak-heavy properties get extra visits automatically as trees continue dropping." },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.1}>
+                <GlassCard hover="lift" accentBorder className="h-full">
+                  <h3 className="text-lg font-semibold text-foreground mb-3">{item.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                </GlassCard>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* What Makes Us Different */}
-      <section className="py-16">
+      {/* Problem Resolution */}
+      <ProblemResolution variant="full" />
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          PRICING — Clear, cinematic pricing card
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">What Makes TotalGuard Different</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="border border-border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-3">We Haul Everything Away</h3>
-                <p className="text-muted-foreground">No leaf mountains at the curb waiting for city pickup that may not come before snow. We remove all leaves from your property.</p>
-              </div>
-              <div className="border border-border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-3">Complete Property Coverage</h3>
-                <p className="text-muted-foreground">We don't just blow leaves to one corner. Lawn, beds, driveways, patios, and gutters—we clear everything.</p>
-              </div>
-              <div className="border border-border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-3">Commercial Equipment</h3>
-                <p className="text-muted-foreground">Professional backpack blowers and vacuums clear in hours what takes homeowners entire weekends with consumer equipment.</p>
-              </div>
-              <div className="border border-border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-3">Flexible Scheduling</h3>
-                <p className="text-muted-foreground">We return as needed during fall season. Oak-heavy properties get extra visits automatically as trees continue dropping.</p>
-              </div>
+          <ScrollReveal>
+            <div className="max-w-2xl mx-auto">
+              <GlassCard variant="accent" hover="glow" className="text-center p-8 md:p-10">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Madison-Area Leaf Removal Pricing</h2>
+                <div className="flex items-baseline justify-center gap-1 mb-4">
+                  <span className="text-5xl md:text-6xl font-bold text-primary">$150</span>
+                  <span className="text-2xl text-muted-foreground">&ndash;</span>
+                  <span className="text-5xl md:text-6xl font-bold text-primary">$400</span>
+                  <span className="text-muted-foreground text-lg ml-1">/visit</span>
+                </div>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Most Madison, Middleton, Waunakee, and Sun Prairie homes require 2-4 visits during fall season. Pricing depends on property size and leaf volume&mdash;no surprises, no hidden fees.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="h-4 w-4 text-primary" />
+                    October through November
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    2-4 visits typical
+                  </span>
+                </div>
+                <Button size="lg" className="font-bold text-lg" asChild>
+                  <Link href="/contact?service=leaf-removal">Get Your Free Quote <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                </Button>
+              </GlassCard>
             </div>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
-      {/* Related Services */}
-      <section className="py-16 bg-muted/30">
+      {/* Trust Strip — Repeated for reinforcement */}
+      <TrustStrip variant="light" />
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          RELATED SERVICES — Cross-sell
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-6">Pair With These Services</h2>
-            <p className="text-muted-foreground mb-8">
+          <ScrollReveal>
+            <h2 className="text-3xl font-bold text-foreground mb-4 text-center">
+              Pair With These Services
+            </h2>
+            <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
               Many Madison homeowners combine leaf removal with these related fall services:
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button variant="outline" asChild>
-                <Link href="/services/fall-cleanup">Full Fall Cleanup</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/services/gutter-cleaning">Gutter Cleaning</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/services/aeration">Fall Aeration</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/services/fertilization">Winterizer Fertilizer</Link>
-              </Button>
-            </div>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-5 max-w-5xl mx-auto">
+            {[
+              { href: "/services/fall-cleanup", title: "Full Fall Cleanup", desc: "Complete property winterization" },
+              { href: "/services/gutter-cleaning", title: "Gutter Cleaning", desc: "Prevent ice dams and water damage" },
+              { href: "/services/aeration", title: "Fall Aeration", desc: "Break up compacted soil for deeper roots" },
+              { href: "/services/fertilization", title: "Winterizer Fertilizer", desc: "Feed your lawn for spring green-up" },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.08}>
+                <Link href={item.href} className="block group">
+                  <GlassCard hover="lift" className="text-center h-full">
+                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground">{item.desc}</p>
+                    <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                    </span>
+                  </GlassCard>
+                </Link>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>

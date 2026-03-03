@@ -4,9 +4,11 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import BeforeAfterGallery from "@/components/BeforeAfterGallery";
 import { ServiceSchema } from "@/components/ServiceSchema";
+import { ScrollProgress } from "@/components/ScrollProgress";
+import { ProblemResolution } from "@/components/ProblemResolution";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { CheckCircle2, Sparkles, Phone, Users, Calendar, Shield, Clock, Sprout } from "lucide-react";
+import { CheckCircle2, Sparkles, Phone, Users, Calendar, Shield, Clock, Sprout, ArrowRight } from "lucide-react";
 import heroImage from "@/assets/service-spring-cleanup.jpg";
 import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
@@ -14,6 +16,9 @@ import { springCleanupFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AmbientParticles } from "@/components/AmbientParticles";
+import { ScrollReveal } from "@/components/ScrollReveal";
+import { GlassCard } from "@/components/GlassCard";
+import { TrustStrip } from "@/components/TrustStrip";
 
 function imgSrc(img: string | { src: string }): string {
   return typeof img === 'string' ? img : img.src;
@@ -29,6 +34,7 @@ export default function SpringCleanupContent() {
         { name: 'Services', url: 'https://tgyardcare.com/services' },
         { name: 'Spring Cleanup', url: 'https://tgyardcare.com/services/spring-cleanup' }
       ]} />
+      <ScrollProgress variant="minimal" />
       <ServiceSchema
         serviceName="Spring Cleanup Services in Madison & Dane County"
         description="Comprehensive spring cleanup to prepare your yard for Wisconsin's growing season. Serving Madison, Middleton, Waunakee, Sun Prairie, and all Dane County communities."
@@ -42,8 +48,10 @@ export default function SpringCleanupContent() {
         <p>TotalGuard Yard Care provides professional spring cleanup services in Madison, Middleton, Waunakee, and Dane County, Wisconsin. We remove winter debris, prep garden beds, and perform first mow of the season in one 2-4 hour visit. Call (608) 535-6057 for a free quote.</p>
       </section>
 
-      {/* Hero */}
-      <section className="relative min-h-[50vh] md:min-h-[60vh] flex items-center py-20 md:py-28">
+      {/* ═══════════════════════════════════════════════════════════════════
+          HERO — Cinematic dark with particles
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="relative min-h-[55vh] md:min-h-[60vh] flex items-center py-16 md:py-24">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${imgSrc(heroImage)})` }}
@@ -56,69 +64,85 @@ export default function SpringCleanupContent() {
         <AmbientParticles density="sparse" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 md:mb-6">
-              Spring Cleanup in <span className="text-accent">Madison & Dane County</span>
-            </h1>
-            <p className="text-lg md:text-xl text-white/90 mb-6 md:mb-8">
-              Wisconsin winters leave behind a mess—but you don't have to deal with it. Complete spring cleanup across Madison, Middleton, Waunakee, and Sun Prairie to jumpstart your growing season.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-              <Button size="lg" variant="accent" className="text-base md:text-lg font-bold" asChild>
-                <Link href="/contact?service=spring-cleanup">Get My Free Quote →</Link>
-              </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900 text-base md:text-lg" asChild>
-                <a href="tel:608-535-6057">
-                  <Phone className="mr-2 h-5 w-5" />
-                  (608) 535-6057
-                </a>
-              </Button>
-            </div>
+            <ScrollReveal>
+              <div className="inline-flex items-center bg-white/10 backdrop-blur-sm border border-white/10 text-white/80 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+                Starting at $125/visit
+              </div>
+            </ScrollReveal>
+            <ScrollReveal delay={0.1}>
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 md:mb-6">
+                Spring Cleanup in <span className="text-accent">Madison & Dane County</span>
+              </h1>
+            </ScrollReveal>
+            <ScrollReveal delay={0.2}>
+              <p className="text-lg md:text-xl text-white/90 mb-6 md:mb-8 leading-relaxed">
+                Wisconsin winters leave behind a mess&mdash;but you don&apos;t have to deal with it. Complete spring cleanup across Madison, Middleton, Waunakee, and Sun Prairie to jumpstart your growing season.
+              </p>
+            </ScrollReveal>
+            <ScrollReveal delay={0.3}>
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+                <Button size="lg" className="text-base md:text-lg font-bold animate-shimmer-btn bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] text-black" asChild>
+                  <Link href="/contact?service=spring-cleanup">Get My Free Quote <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                </Button>
+                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 text-base md:text-lg" asChild>
+                  <a href="tel:608-535-6057">
+                    <Phone className="mr-2 h-5 w-5" />
+                    (608) 535-6057
+                  </a>
+                </Button>
+              </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          TRUST STRIP — Immediate credibility
+      ════════════════════════════════════════════════════════════════════ */}
+      <TrustStrip variant="dark" />
 
       {/* Who This Is For */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Who Spring Cleanup Is For</h2>
-            <p className="text-lg text-muted-foreground text-center mb-12">
-              This service is designed for Dane County homeowners who want to maximize their short Wisconsin growing season.
-            </p>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="flex items-start gap-4 p-4 bg-background rounded-lg border border-border">
-                <Users className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Busy Professionals</h3>
-                  <p className="text-sm text-muted-foreground">No time for weekend yard work when the snow finally melts</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 p-4 bg-background rounded-lg border border-border">
-                <Sprout className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Lawn Enthusiasts</h3>
-                  <p className="text-sm text-muted-foreground">Those who want the best possible start to the growing season</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 p-4 bg-background rounded-lg border border-border">
-                <Shield className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Homeowners Who Skipped Fall Cleanup</h3>
-                  <p className="text-sm text-muted-foreground">Need to catch up before the damage becomes permanent</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 p-4 bg-background rounded-lg border border-border">
-                <Clock className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Those Preparing to Sell</h3>
-                  <p className="text-sm text-muted-foreground">First impressions matter—curb appeal starts with a clean yard</p>
-                </div>
+      <ScrollReveal>
+        <section className="py-14 md:py-20 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <ScrollReveal>
+                <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Who Spring Cleanup Is For</h2>
+                <p className="text-lg text-muted-foreground text-center mb-12">
+                  This service is designed for Dane County homeowners who want to maximize their short Wisconsin growing season.
+                </p>
+              </ScrollReveal>
+              <div className="grid md:grid-cols-2 gap-5">
+                {[
+                  { icon: Users, title: "Busy Professionals", desc: "No time for weekend yard work when the snow finally melts" },
+                  { icon: Sprout, title: "Lawn Enthusiasts", desc: "Those who want the best possible start to the growing season" },
+                  { icon: Shield, title: "Homeowners Who Skipped Fall Cleanup", desc: "Need to catch up before the damage becomes permanent" },
+                  { icon: Clock, title: "Those Preparing to Sell", desc: "First impressions matter\u2014curb appeal starts with a clean yard" },
+                ].map((item, i) => {
+                  const Icon = item.icon;
+                  return (
+                    <ScrollReveal key={i} delay={i * 0.08}>
+                      <GlassCard hover="lift" className="h-full">
+                        <div className="flex items-start gap-4">
+                          <Icon className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                          <div>
+                            <h3 className="font-semibold mb-1">{item.title}</h3>
+                            <p className="text-sm text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      </GlassCard>
+                    </ScrollReveal>
+                  );
+                })}
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
+      {/* ═══════════════════════════════════════════════════════════════════
+          PROBLEM / SOLUTION — Build understanding
+      ════════════════════════════════════════════════════════════════════ */}
       <ResidentialProblemSection
         serviceName="Spring Cleanup"
         problemPoints={[
@@ -140,242 +164,307 @@ export default function SpringCleanupContent() {
         ]}
       />
 
-      {/* What's Included */}
-      <section className="py-16 bg-muted/50">
+      {/* ═══════════════════════════════════════════════════════════════════
+          WHAT'S INCLUDED — Visual checklist
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
-            What's Included in Spring Cleanup
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Debris Removal</h3>
-                <p className="text-sm text-muted-foreground">Clear all winter leaves, sticks, and branches from lawn, beds, and hardscapes</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Lawn Dethatching</h3>
-                <p className="text-sm text-muted-foreground">Remove dead grass layer for better air, water, and nutrient penetration</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Bed Renovation</h3>
-                <p className="text-sm text-muted-foreground">Cut back perennials and refresh mulch for a polished look</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Edging & Borders</h3>
-                <p className="text-sm text-muted-foreground">Redefine bed edges and borders for clean, crisp lines</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Initial Mowing</h3>
-                <p className="text-sm text-muted-foreground">First cut of season at proper height to encourage dense growth</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Complete Haul-Away</h3>
-                <p className="text-sm text-muted-foreground">All debris bagged and removed—nothing left behind</p>
-              </div>
-            </div>
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
+              What&apos;s Included in Spring Cleanup
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Every service includes the complete package&mdash;no hidden fees or &ldquo;extras&rdquo; to add on.
+            </p>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 max-w-5xl mx-auto">
+            {[
+              { title: "Debris Removal", desc: "Clear all winter leaves, sticks, and branches from lawn, beds, and hardscapes" },
+              { title: "Lawn Dethatching", desc: "Remove dead grass layer for better air, water, and nutrient penetration" },
+              { title: "Bed Renovation", desc: "Cut back perennials and refresh mulch for a polished look" },
+              { title: "Edging & Borders", desc: "Redefine bed edges and borders for clean, crisp lines" },
+              { title: "Initial Mowing", desc: "First cut of season at proper height to encourage dense growth" },
+              { title: "Complete Haul-Away", desc: "All debris bagged and removed\u2014nothing left behind" },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.08}>
+                <GlassCard hover="lift" className="h-full">
+                  <div className="flex items-start space-x-3">
+                    <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                </GlassCard>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-16">
+      {/* ═══════════════════════════════════════════════════════════════════
+          HOW IT WORKS — Animated process timeline
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">How Spring Cleanup Works</h2>
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-8">
-              <div className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">1</div>
-                <h3 className="font-semibold mb-2">Book Early</h3>
-                <p className="text-sm text-muted-foreground">Schedule in February-March before the spring rush. We'll lock in your spot on our rotation.</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">2</div>
-                <h3 className="font-semibold mb-2">Weather Watch</h3>
-                <p className="text-sm text-muted-foreground">We monitor conditions and schedule your cleanup once ground thaws and dries—typically mid-April in Dane County.</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">3</div>
-                <h3 className="font-semibold mb-2">Deep Clean</h3>
-                <p className="text-sm text-muted-foreground">We clear debris, dethatch, cut back perennials, edge beds, and complete first mow—all in one visit.</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">4</div>
-                <h3 className="font-semibold mb-2">Ready to Grow</h3>
-                <p className="text-sm text-muted-foreground">Your property is primed for Wisconsin's short but productive growing season.</p>
-              </div>
-            </div>
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+              How Spring Cleanup Works
+            </h2>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto relative">
+            {/* Connecting line (desktop) */}
+            <div className="hidden md:block absolute top-8 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20" />
+
+            {[
+              { step: "1", title: "Book Early", desc: "Schedule in February-March before the spring rush. We'll lock in your spot on our rotation." },
+              { step: "2", title: "Weather Watch", desc: "We monitor conditions and schedule your cleanup once ground thaws and dries\u2014typically mid-April in Dane County." },
+              { step: "3", title: "Deep Clean", desc: "We clear debris, dethatch, cut back perennials, edge beds, and complete first mow\u2014all in one visit." },
+              { step: "4", title: "Ready to Grow", desc: "Your property is primed for Wisconsin's short but productive growing season." },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.12}>
+                <div className="text-center relative">
+                  <div className="relative z-10 bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg hover:border-primary/50 hover:shadow-primary/10 hover:shadow-xl transition-all duration-300">
+                    <span className="text-2xl font-bold text-primary">{item.step}</span>
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
+      {/* ═══════════════════════════════════════════════════════════════════
+          BEFORE & AFTER — Dark cinematic gallery
+      ════════════════════════════════════════════════════════════════════ */}
       <BeforeAfterGallery items={beforeAfterItems} />
 
-      {/* Why It Matters - Wisconsin Context */}
-      <section className="py-16 bg-secondary/30">
+      {/* Mid-page CTA */}
+      <CTASection
+        title="Ready for a fresh start this spring?"
+        description="Get a free, no-obligation quote. We'll have pricing to you within 24 hours."
+        variant="compact"
+      />
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          WHY IT MATTERS — Wisconsin context
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
-            Why Spring Cleanup Matters in Wisconsin
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="text-center p-6 bg-background rounded-lg border border-border">
-              <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Beat the Weeds</h3>
-              <p className="text-muted-foreground">
-                Wisconsin weeds like crabgrass and dandelions germinate early. A March-April cleanup lets you apply pre-emergent treatment before weed seeds sprout—giving your lawn a head start.
-              </p>
-            </div>
-            <div className="text-center p-6 bg-background rounded-lg border border-border">
-              <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Thaw Damage Recovery</h3>
-              <p className="text-muted-foreground">
-                Dane County's freeze-thaw cycles push debris into lawns and compact soil. Dethatching and debris removal helps your grass recover from 5 months of Wisconsin winter.
-              </p>
-            </div>
-            <div className="text-center p-6 bg-background rounded-lg border border-border">
-              <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Maximize Short Summers</h3>
-              <p className="text-muted-foreground">
-                Madison's growing season is only about 150 days. Early spring cleanup means your lawn is actively growing by May—not still recovering while neighbors' lawns thrive.
-              </p>
-            </div>
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+              Why Spring Cleanup Matters in Wisconsin
+            </h2>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+            {[
+              { icon: Sparkles, title: "Beat the Weeds", desc: "Wisconsin weeds like crabgrass and dandelions germinate early. A March-April cleanup lets you apply pre-emergent treatment before weed seeds sprout\u2014giving your lawn a head start." },
+              { icon: Sparkles, title: "Thaw Damage Recovery", desc: "Dane County's freeze-thaw cycles push debris into lawns and compact soil. Dethatching and debris removal helps your grass recover from 5 months of Wisconsin winter." },
+              { icon: Sparkles, title: "Maximize Short Summers", desc: "Madison's growing season is only about 150 days. Early spring cleanup means your lawn is actively growing by May\u2014not still recovering while neighbors' lawns thrive." },
+            ].map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <ScrollReveal key={i} delay={i * 0.12}>
+                  <GlassCard hover="lift" className="text-center h-full">
+                    <div className="bg-primary/10 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4">
+                      <Icon className="h-7 w-7 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-foreground mb-3">{item.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </GlassCard>
+                </ScrollReveal>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* When & How Often */}
-      <section className="py-16">
+      {/* ═══════════════════════════════════════════════════════════════════
+          TIMING & FREQUENCY — Seasonal knowledge
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">When & How Often</h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-muted/30 p-6 rounded-lg">
-                <Calendar className="h-8 w-8 text-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-3">Timing</h3>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>• <strong>Book:</strong> February-March for priority scheduling</li>
-                  <li>• <strong>Service window:</strong> Mid-April through early May</li>
-                  <li>• <strong>Ideal conditions:</strong> After ground thaws and dries</li>
-                  <li>• <strong>Before:</strong> First mowing cycle of the season</li>
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+              When & How Often
+            </h2>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <ScrollReveal delay={0.1}>
+              <GlassCard hover="glow" className="h-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-primary/10 rounded-full p-2">
+                    <Calendar className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">Timing</h3>
+                </div>
+                <ul className="space-y-2.5 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Book:</strong> February-March for priority scheduling</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Service window:</strong> Mid-April through early May</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Ideal conditions:</strong> After ground thaws and dries</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Before:</strong> First mowing cycle of the season</span>
+                  </li>
                 </ul>
-              </div>
-              <div className="bg-muted/30 p-6 rounded-lg">
-                <Clock className="h-8 w-8 text-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-3">Frequency</h3>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>• <strong>Standard:</strong> One comprehensive visit</li>
-                  <li>• <strong>Heavy cleanup:</strong> May require two visits for neglected properties</li>
-                  <li>• <strong>Annual service:</strong> Every spring for best lawn health</li>
-                  <li>• <strong>Pairs with:</strong> First fertilizer application, pre-emergent</li>
+              </GlassCard>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.2}>
+              <GlassCard hover="glow" className="h-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-primary/10 rounded-full p-2">
+                    <Clock className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">Frequency</h3>
+                </div>
+                <ul className="space-y-2.5 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Standard:</strong> One comprehensive visit</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Heavy cleanup:</strong> May require two visits for neglected properties</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Annual service:</strong> Every spring for best lawn health</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span><strong className="text-foreground">Pairs with:</strong> First fertilizer application, pre-emergent</span>
+                  </li>
                 </ul>
-              </div>
-            </div>
+              </GlassCard>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section className="py-16 bg-muted/50">
+      {/* ═══════════════════════════════════════════════════════════════════
+          WHAT MAKES US DIFFERENT — Final trust
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-foreground mb-6">Madison-Area Spring Cleanup Pricing</h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Most Madison, Middleton, Waunakee, and Sun Prairie properties range from <strong>$200-$500</strong> for complete spring cleanup. Wisconsin's spring window is short—schedule early to ensure your property is ready when growing season hits.
+          <ScrollReveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
+              What Makes TotalGuard Different
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              We know you&apos;ve been burned by lawn guys who don&apos;t show up or deliver inconsistent results. Here&apos;s how we&apos;re different:
             </p>
-            <div className="bg-background border border-border rounded-lg p-6 mb-8">
-              <h3 className="font-semibold mb-4">What Affects Price:</h3>
-              <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                <div>
-                  <strong className="text-foreground">Property Size</strong>
-                  <p>Larger lots require more time</p>
-                </div>
-                <div>
-                  <strong className="text-foreground">Winter Damage</strong>
-                  <p>Heavy debris = more labor</p>
-                </div>
-                <div>
-                  <strong className="text-foreground">Add-Ons</strong>
-                  <p>Mulch refresh, aeration, fertilization</p>
-                </div>
-              </div>
-            </div>
-            <Button size="lg" asChild>
-              <Link href="/contact?service=spring-cleanup">Reserve Your Spring Cleanup</Link>
-            </Button>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+            {[
+              { title: "We Beat the Rush", desc: "While other companies are still booking, we're already working. Early scheduling means your lawn starts recovering weeks ahead of neighbors." },
+              { title: "Complete Property Coverage", desc: "We don't just rake and leave. Beds, borders, hardscapes, lawn\u2014everything gets attention. Your whole property looks refreshed." },
+              { title: "Weather-Smart Scheduling", desc: "We monitor soil conditions and schedule when the ground is dry enough to work without compaction damage. No rushed jobs on soggy lawns." },
+              { title: "Season-Long Relationship", desc: "Spring cleanup is just the start. We'll recommend what your lawn needs next\u2014aeration, fertilization, or regular mowing\u2014to keep momentum going." },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.1}>
+                <GlassCard hover="lift" accentBorder className="h-full">
+                  <h3 className="text-lg font-semibold text-foreground mb-3">{item.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                </GlassCard>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* What Makes Us Different */}
-      <section className="py-16">
+      {/* Problem Resolution */}
+      <ProblemResolution variant="full" />
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          PRICING — Clear, cinematic pricing card
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">What Makes TotalGuard Different</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="border border-border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-3">We Beat the Rush</h3>
-                <p className="text-muted-foreground">While other companies are still booking, we're already working. Early scheduling means your lawn starts recovering weeks ahead of neighbors.</p>
-              </div>
-              <div className="border border-border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-3">Complete Property Coverage</h3>
-                <p className="text-muted-foreground">We don't just rake and leave. Beds, borders, hardscapes, lawn—everything gets attention. Your whole property looks refreshed.</p>
-              </div>
-              <div className="border border-border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-3">Weather-Smart Scheduling</h3>
-                <p className="text-muted-foreground">We monitor soil conditions and schedule when the ground is dry enough to work without compaction damage. No rushed jobs on soggy lawns.</p>
-              </div>
-              <div className="border border-border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-3">Season-Long Relationship</h3>
-                <p className="text-muted-foreground">Spring cleanup is just the start. We'll recommend what your lawn needs next—aeration, fertilization, or regular mowing—to keep momentum going.</p>
-              </div>
+          <ScrollReveal>
+            <div className="max-w-2xl mx-auto">
+              <GlassCard variant="accent" hover="glow" className="text-center p-8 md:p-10">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Madison-Area Spring Cleanup Pricing</h2>
+                <div className="flex items-baseline justify-center gap-1 mb-4">
+                  <span className="text-5xl md:text-6xl font-bold text-primary">$200</span>
+                  <span className="text-2xl text-muted-foreground">&ndash;</span>
+                  <span className="text-5xl md:text-6xl font-bold text-primary">$500</span>
+                  <span className="text-muted-foreground text-lg ml-1">/visit</span>
+                </div>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Most Madison, Middleton, Waunakee, and Sun Prairie properties get complete spring cleanup. Wisconsin&apos;s spring window is short&mdash;schedule early to ensure your property is ready when growing season hits.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="h-4 w-4 text-primary" />
+                    Mid-April through early May
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    2-4 hour visit
+                  </span>
+                </div>
+                <Button size="lg" className="font-bold text-lg" asChild>
+                  <Link href="/contact?service=spring-cleanup">Reserve Your Spring Cleanup <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                </Button>
+              </GlassCard>
             </div>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
-      {/* Related Services */}
-      <section className="py-16 bg-muted/30">
+      {/* Trust Strip — Repeated for reinforcement */}
+      <TrustStrip variant="light" />
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          RELATED SERVICES — Cross-sell
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-6">Pair With These Services</h2>
-            <p className="text-muted-foreground mb-8">
+          <ScrollReveal>
+            <h2 className="text-3xl font-bold text-foreground mb-4 text-center">
+              Pair With These Services
+            </h2>
+            <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
               Many Madison homeowners combine spring cleanup with these related services for maximum growing season impact:
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button variant="outline" asChild>
-                <Link href="/services/mulching">Mulch Refresh</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/services/aeration">Spring Aeration</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/services/fertilization">First Fertilizer</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/services/herbicide">Pre-Emergent</Link>
-              </Button>
-            </div>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-5 max-w-5xl mx-auto">
+            {[
+              { href: "/services/mulching", title: "Mulch Refresh", desc: "Complete the polished look" },
+              { href: "/services/aeration", title: "Spring Aeration", desc: "Break up compacted soil for deeper roots" },
+              { href: "/services/fertilization", title: "First Fertilizer", desc: "Feed your lawn for rapid green-up" },
+              { href: "/services/herbicide", title: "Pre-Emergent", desc: "Stop weeds before they start" },
+            ].map((item, i) => (
+              <ScrollReveal key={i} delay={i * 0.08}>
+                <Link href={item.href} className="block group">
+                  <GlassCard hover="lift" className="text-center h-full">
+                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground">{item.desc}</p>
+                    <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                    </span>
+                  </GlassCard>
+                </Link>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
