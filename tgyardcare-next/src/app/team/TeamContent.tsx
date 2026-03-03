@@ -22,16 +22,22 @@ const seasonalAccent = {
   winter: { text: 'text-cyan-400',    bg: 'bg-cyan-500/10',    border: 'border-cyan-500/30',    solid: '#06b6d4', glow: 'shadow-cyan-500/25'    },
 } as const;
 
-const seasonalHeroBg = {
-  summer: 'from-[#050d07] via-[#0a1a0e] to-[#050d07]',
-  fall:   'from-[#0d0900] via-[#1a1000] to-[#0d0900]',
-  winter: 'from-[#020810] via-[#060f1a] to-[#020810]',
-} as const;
-
-const seasonalRadial = {
-  summer: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(16,185,129,0.12) 0%, transparent 70%)',
-  fall:   'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245,158,11,0.12) 0%, transparent 70%)',
-  winter: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(6,182,212,0.12) 0%, transparent 70%)',
+const seasonalBg = {
+  summer: {
+    hero:    'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 70%), linear-gradient(to bottom, #050d07, #0a1a0e, #050d07)',
+    page:    '#050d07',
+    section: '#0a1a0e',
+  },
+  fall: {
+    hero:    'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245,158,11,0.15) 0%, transparent 70%), linear-gradient(to bottom, #0d0900, #1a1000, #0d0900)',
+    page:    '#0d0900',
+    section: '#1a1000',
+  },
+  winter: {
+    hero:    'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(6,182,212,0.15) 0%, transparent 70%), linear-gradient(to bottom, #020810, #060f1a, #020810)',
+    page:    '#020810',
+    section: '#060f1a',
+  },
 } as const;
 
 const teamMembers = [
@@ -72,9 +78,10 @@ const whyYoungEntrepreneurs = [
 export default function TeamContent() {
   const { activeSeason } = useSeasonalTheme();
   const acc = seasonalAccent[activeSeason];
+  const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-white" style={{ background: bg.page }}>
       <Navigation />
 
       {/* SEO hidden text */}
@@ -85,8 +92,8 @@ export default function TeamContent() {
 
       {/* ── HERO ── */}
       <section
-        className={`relative overflow-hidden py-28 md:py-40 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}
-        style={{ backgroundImage: seasonalRadial[activeSeason] }}
+        className="relative overflow-hidden py-28 md:py-40"
+        style={{ background: bg.hero }}
       >
         <AmbientParticles density="sparse" className="absolute inset-0" />
         <div className={`absolute top-1/4 right-1/3 w-96 h-96 rounded-full blur-3xl opacity-10 ${acc.bg}`} />
@@ -128,12 +135,12 @@ export default function TeamContent() {
       <TrustStrip variant="dark" />
 
       {/* ── FOUNDER CARDS ── */}
-      <section className="py-20 md:py-28 bg-background">
+      <section className="py-20 md:py-28" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-16">
             <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-4 ${acc.text}`}>Leadership</span>
-            <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">The Founders</h2>
-            <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">The Founders</h2>
+            <p className="text-white/60 text-xl max-w-2xl mx-auto">
               TotalGuard was founded by two driven entrepreneurs who saw an opportunity to do lawn care the right way.
             </p>
           </ScrollReveal>
@@ -190,7 +197,7 @@ export default function TeamContent() {
       </section>
 
       {/* ── OUR STORY ── */}
-      <section className={`py-20 md:py-28 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}>
+      <section className="py-20 md:py-28" style={{ background: bg.hero }}>
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <ScrollReveal>
@@ -225,12 +232,12 @@ export default function TeamContent() {
       </section>
 
       {/* ── VALUES ── */}
-      <section className="py-20 md:py-28 bg-background">
+      <section className="py-20 md:py-28" style={{ background: bg.page }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-14">
             <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-4 ${acc.text}`}>Core Values</span>
-            <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">What Drives Us</h2>
-            <p className="text-muted-foreground text-xl max-w-2xl mx-auto">Our values guide everything we do, from client interactions to job-site execution.</p>
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">What Drives Us</h2>
+            <p className="text-white/60 text-xl max-w-2xl mx-auto">Our values guide everything we do, from client interactions to job-site execution.</p>
           </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -253,7 +260,7 @@ export default function TeamContent() {
       </section>
 
       {/* ── WHY YOUNG ENTREPRENEURS ── */}
-      <section className={`py-20 md:py-28 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}>
+      <section className="py-20 md:py-28" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-14">
             <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-4 ${acc.text}`}>The Advantage</span>
@@ -282,7 +289,7 @@ export default function TeamContent() {
       </section>
 
       {/* ── CREW CALLOUT ── */}
-      <section className="py-16 bg-background">
+      <section className="py-16" style={{ background: bg.hero }}>
         <div className="container mx-auto px-4 max-w-4xl">
           <ScrollReveal>
             <GlassCard variant="dark" hover="none" className="text-center py-12">

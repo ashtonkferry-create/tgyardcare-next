@@ -23,16 +23,22 @@ const seasonalAccent = {
   winter: { text: 'text-cyan-400',    bg: 'bg-cyan-500/10',    border: 'border-cyan-500/30',    glow: 'shadow-cyan-500/20'    },
 } as const;
 
-const seasonalHeroBg = {
-  summer: 'from-[#050d07] via-[#0a1a0e] to-[#050d07]',
-  fall:   'from-[#0d0900] via-[#1a1000] to-[#0d0900]',
-  winter: 'from-[#020810] via-[#060f1a] to-[#020810]',
-} as const;
-
-const seasonalRadial = {
-  summer: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(16,185,129,0.12) 0%, transparent 70%)',
-  fall:   'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245,158,11,0.12) 0%, transparent 70%)',
-  winter: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(6,182,212,0.12) 0%, transparent 70%)',
+const seasonalBg = {
+  summer: {
+    hero:    'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 70%), linear-gradient(to bottom, #050d07, #0a1a0e, #050d07)',
+    page:    '#050d07',
+    section: '#0a1a0e',
+  },
+  fall: {
+    hero:    'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245,158,11,0.15) 0%, transparent 70%), linear-gradient(to bottom, #0d0900, #1a1000, #0d0900)',
+    page:    '#0d0900',
+    section: '#1a1000',
+  },
+  winter: {
+    hero:    'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(6,182,212,0.15) 0%, transparent 70%), linear-gradient(to bottom, #020810, #060f1a, #020810)',
+    page:    '#020810',
+    section: '#060f1a',
+  },
 } as const;
 
 // Company metrics
@@ -98,9 +104,10 @@ const clientTypes = [
 export default function AboutContent() {
   const { activeSeason } = useSeasonalTheme();
   const acc = seasonalAccent[activeSeason];
+  const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-white" style={{ background: bg.page }}>
       <Navigation showPromoBanner />
 
       {/* SEO hidden text */}
@@ -111,8 +118,8 @@ export default function AboutContent() {
 
       {/* ── HERO ── */}
       <section
-        className={`relative overflow-hidden py-28 md:py-40 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}
-        style={{ backgroundImage: `${seasonalRadial[activeSeason]}` }}
+        className="relative overflow-hidden py-28 md:py-40"
+        style={{ background: bg.hero }}
       >
         <AmbientParticles density="sparse" className="absolute inset-0" />
 
@@ -166,13 +173,13 @@ export default function AboutContent() {
       <TrustStrip variant="dark" />
 
       {/* ── METRICS ── */}
-      <section className="py-20 md:py-28 bg-background">
+      <section className="py-20 md:py-28" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-black text-foreground mb-3">
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-3">
               By the Numbers
             </h2>
-            <p className="text-muted-foreground text-lg">Six years of showing up, doing the work, and earning the rating.</p>
+            <p className="text-white/60 text-lg">Six years of showing up, doing the work, and earning the rating.</p>
           </ScrollReveal>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -200,7 +207,7 @@ export default function AboutContent() {
       </section>
 
       {/* ── WHY TOTALGUARD EXISTS ── */}
-      <section className={`py-20 md:py-28 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}>
+      <section className="py-20 md:py-28" style={{ background: bg.hero }}>
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
             <ScrollReveal direction="left">
@@ -254,16 +261,16 @@ export default function AboutContent() {
       </section>
 
       {/* ── THE TOTALGUARD STANDARD ── */}
-      <section className="py-20 md:py-28 bg-background">
+      <section className="py-20 md:py-28" style={{ background: bg.page }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-14">
             <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-4 ${acc.text}`}>
               Our Operating Philosophy
             </span>
-            <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
               The TotalGuard Standard
             </h2>
-            <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
+            <p className="text-white/60 text-xl max-w-2xl mx-auto">
               Not a marketing phrase—a documented set of commitments that govern every interaction.
             </p>
           </ScrollReveal>
@@ -288,7 +295,7 @@ export default function AboutContent() {
       </section>
 
       {/* ── TIMELINE ── */}
-      <section className={`py-20 md:py-28 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}>
+      <section className="py-20 md:py-28" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-16">
             <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-4 ${acc.text}`}>
@@ -328,13 +335,13 @@ export default function AboutContent() {
       </section>
 
       {/* ── WHO WE SERVE ── */}
-      <section className="py-20 md:py-28 bg-background">
+      <section className="py-20 md:py-28" style={{ background: bg.hero }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-14">
             <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-4 ${acc.text}`}>
               Our Clients
             </span>
-            <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
               Who We Serve
             </h2>
           </ScrollReveal>
@@ -365,7 +372,7 @@ export default function AboutContent() {
       </section>
 
       {/* ── HOW WE OPERATE ── */}
-      <section className={`py-20 md:py-28 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}>
+      <section className="py-20 md:py-28" style={{ background: bg.page }}>
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <ScrollReveal>

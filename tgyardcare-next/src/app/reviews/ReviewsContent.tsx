@@ -18,16 +18,22 @@ const seasonalAccent = {
   winter: { text: 'text-cyan-400',    bg: 'bg-cyan-500/10',    border: 'border-cyan-500/30',    solid: '#06b6d4' },
 } as const;
 
-const seasonalHeroBg = {
-  summer: 'from-[#050d07] via-[#0a1a0e] to-[#060e08]',
-  fall:   'from-[#0d0900] via-[#1a1000] to-[#0d0900]',
-  winter: 'from-[#020810] via-[#060f1a] to-[#020810]',
-} as const;
-
-const seasonalRadial = {
-  summer: 'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 70%)',
-  fall:   'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(245,158,11,0.15) 0%, transparent 70%)',
-  winter: 'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(6,182,212,0.15) 0%, transparent 70%)',
+const seasonalBg = {
+  summer: {
+    hero:    'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 70%), linear-gradient(to bottom, #050d07, #0a1a0e, #060e08)',
+    page:    '#050d07',
+    section: '#0a1a0e',
+  },
+  fall: {
+    hero:    'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(245,158,11,0.15) 0%, transparent 70%), linear-gradient(to bottom, #0d0900, #1a1000, #0d0900)',
+    page:    '#0d0900',
+    section: '#1a1000',
+  },
+  winter: {
+    hero:    'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(6,182,212,0.15) 0%, transparent 70%), linear-gradient(to bottom, #020810, #060f1a, #020810)',
+    page:    '#020810',
+    section: '#060f1a',
+  },
 } as const;
 
 const reviews = [
@@ -55,9 +61,10 @@ const highlights = [
 export default function ReviewsContent() {
   const { activeSeason } = useSeasonalTheme();
   const acc = seasonalAccent[activeSeason];
+  const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-white" style={{ background: bg.page }}>
       <ReviewSchema reviews={reviews} />
       <Navigation />
 
@@ -69,8 +76,8 @@ export default function ReviewsContent() {
 
       {/* ── HERO ── */}
       <section
-        className={`relative overflow-hidden py-28 md:py-40 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}
-        style={{ backgroundImage: seasonalRadial[activeSeason] }}
+        className="relative overflow-hidden py-28 md:py-40"
+        style={{ background: bg.hero }}
       >
         <AmbientParticles density="sparse" className="absolute inset-0" />
         <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-10 ${acc.bg}`} />
@@ -131,7 +138,7 @@ export default function ReviewsContent() {
       </section>
 
       {/* ── STATS BAR ── */}
-      <section className={`py-6 border-y border-white/5 bg-gradient-to-r ${seasonalHeroBg[activeSeason]}`}>
+      <section className="py-6 border-y border-white/5" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-10 md:gap-20">
             {[
@@ -159,10 +166,10 @@ export default function ReviewsContent() {
       </section>
 
       {/* ── HIGHLIGHT QUOTES ── */}
-      <section className="py-16 md:py-20 bg-background">
+      <section className="py-16 md:py-20" style={{ background: bg.page }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-10">
-            <h2 className="text-2xl font-black text-foreground">Top-Rated by Homeowners</h2>
+            <h2 className="text-2xl font-black text-white">Top-Rated by Homeowners</h2>
           </ScrollReveal>
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {highlights.map((h, i) => (
@@ -186,7 +193,7 @@ export default function ReviewsContent() {
       </section>
 
       {/* ── ALL REVIEWS GRID ── */}
-      <section className={`py-16 md:py-24 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}>
+      <section className="py-16 md:py-24" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black text-white mb-3">
@@ -249,7 +256,7 @@ export default function ReviewsContent() {
       </section>
 
       {/* ── LEAVE A REVIEW CTA ── */}
-      <section className="py-16 bg-background">
+      <section className="py-16" style={{ background: bg.hero }}>
         <div className="container mx-auto px-4 text-center">
           <ScrollReveal>
             <GlassCard variant="dark" hover="none" className="max-w-2xl mx-auto py-12">

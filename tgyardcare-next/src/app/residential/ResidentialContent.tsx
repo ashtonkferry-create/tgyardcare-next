@@ -44,16 +44,22 @@ const seasonalAccent = {
   winter: { text: 'text-cyan-400',    bg: 'bg-cyan-500/10',    border: 'border-cyan-500/30',    solid: '#06b6d4' },
 } as const;
 
-const seasonalHeroBg = {
-  summer: 'from-[#050d07] via-[#0a1a0e] to-[#060e08]',
-  fall:   'from-[#0d0900] via-[#1a1000] to-[#0d0900]',
-  winter: 'from-[#020810] via-[#060f1a] to-[#020810]',
-} as const;
-
-const seasonalRadial = {
-  summer: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(16,185,129,0.14) 0%, transparent 70%)',
-  fall:   'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,158,11,0.14) 0%, transparent 70%)',
-  winter: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6,182,212,0.14) 0%, transparent 70%)',
+const seasonalBg = {
+  summer: {
+    hero:    'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 70%), linear-gradient(to bottom, #050d07, #0a1a0e, #060e08)',
+    page:    '#050d07',
+    section: '#0a1a0e',
+  },
+  fall: {
+    hero:    'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,158,11,0.15) 0%, transparent 70%), linear-gradient(to bottom, #0d0900, #1a1000, #0d0900)',
+    page:    '#0d0900',
+    section: '#1a1000',
+  },
+  winter: {
+    hero:    'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6,182,212,0.15) 0%, transparent 70%), linear-gradient(to bottom, #020810, #060f1a, #020810)',
+    page:    '#020810',
+    section: '#060f1a',
+  },
 } as const;
 
 const allServices = [
@@ -107,9 +113,10 @@ const processSteps = [
 export default function ResidentialContent() {
   const { activeSeason } = useSeasonalTheme();
   const acc = seasonalAccent[activeSeason];
+  const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-white" style={{ background: bg.page }}>
       <ScrollProgress variant="minimal" />
 
       <ServiceSchema
@@ -127,8 +134,8 @@ export default function ResidentialContent() {
 
       {/* ── HERO ── */}
       <section
-        className={`relative min-h-[80vh] flex items-center py-28 md:py-36 bg-gradient-to-b ${seasonalHeroBg[activeSeason]} overflow-hidden`}
-        style={{ backgroundImage: seasonalRadial[activeSeason] }}
+        className="relative min-h-[80vh] flex items-center py-28 md:py-36 overflow-hidden"
+        style={{ background: bg.hero }}
       >
         {/* Background image overlay */}
         <div
@@ -198,18 +205,18 @@ export default function ResidentialContent() {
       <TrustStrip variant="dark" />
 
       {/* ── SERVICES GRID ── */}
-      <section className="py-20 md:py-28 bg-background">
+      <section className="py-20 md:py-28" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-14">
             <span className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest mb-4 ${acc.text}`}>
               <Sparkles className="h-3 w-3" />
               One Team Handles Everything
             </span>
-            <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
               14+ Services.{' '}
               <span className={acc.text}>Zero Headaches.</span>
             </h2>
-            <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
+            <p className="text-white/60 text-xl max-w-2xl mx-auto">
               Stop juggling contractors. We handle lawn, beds, gutters, and seasonal work—all with the same reliable crew.
             </p>
           </ScrollReveal>
@@ -252,7 +259,7 @@ export default function ResidentialContent() {
       </section>
 
       {/* ── WHY CHOOSE US ── */}
-      <section className={`py-20 md:py-28 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}>
+      <section className="py-20 md:py-28" style={{ background: bg.hero }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-14">
             <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-4 ${acc.text}`}>Why Homeowners Switch</span>
@@ -299,14 +306,14 @@ export default function ResidentialContent() {
       </section>
 
       {/* ── PROCESS ── */}
-      <section className="py-20 md:py-28 bg-background">
+      <section className="py-20 md:py-28" style={{ background: bg.page }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-14">
             <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-4 ${acc.text}`}>Getting Started</span>
-            <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
               Easy as{' '}<span className={acc.text}>1-2-3</span>
             </h2>
-            <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
+            <p className="text-white/60 text-xl max-w-2xl mx-auto">
               Three simple steps to a beautiful, stress-free yard.
             </p>
           </ScrollReveal>
@@ -326,7 +333,7 @@ export default function ResidentialContent() {
       </section>
 
       {/* ── SERVICE AREAS ── */}
-      <section className={`py-20 md:py-28 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}>
+      <section className="py-20 md:py-28" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-12">
             <span className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest mb-4 ${acc.text}`}>
@@ -367,7 +374,7 @@ export default function ResidentialContent() {
       </section>
 
       {/* ── METRICS STRIP ── */}
-      <section className="py-12 bg-background border-t border-white/5">
+      <section className="py-12 border-t border-white/5" style={{ background: bg.page }}>
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-10 md:gap-20">
             {[
@@ -381,7 +388,7 @@ export default function ResidentialContent() {
                   <div className={`text-3xl font-black ${acc.text}`}>
                     <AnimatedCounter end={s.value} suffix={s.suffix} decimals={s.decimals ?? 0} />
                   </div>
-                  <div className="text-muted-foreground text-sm mt-1">{s.label}</div>
+                  <div className="text-white/50 text-sm mt-1">{s.label}</div>
                 </div>
               </ScrollReveal>
             ))}

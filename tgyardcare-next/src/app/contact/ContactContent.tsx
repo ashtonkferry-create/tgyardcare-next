@@ -29,16 +29,22 @@ const seasonalAccent = {
   winter: { text: 'text-cyan-400',    bg: 'bg-cyan-500/10',    border: 'border-cyan-500/30',    solid: '#06b6d4', focus: 'focus:border-cyan-500'    },
 } as const;
 
-const seasonalHeroBg = {
-  summer: 'from-[#050d07] via-[#0a1a0e] to-[#050d07]',
-  fall:   'from-[#0d0900] via-[#1a1000] to-[#0d0900]',
-  winter: 'from-[#020810] via-[#060f1a] to-[#020810]',
-} as const;
-
-const seasonalRadial = {
-  summer: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(16,185,129,0.13) 0%, transparent 70%)',
-  fall:   'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,158,11,0.13) 0%, transparent 70%)',
-  winter: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6,182,212,0.13) 0%, transparent 70%)',
+const seasonalBg = {
+  summer: {
+    hero:    'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 70%), linear-gradient(to bottom, #050d07, #0a1a0e, #050d07)',
+    page:    '#050d07',
+    section: '#0a1a0e',
+  },
+  fall: {
+    hero:    'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,158,11,0.15) 0%, transparent 70%), linear-gradient(to bottom, #0d0900, #1a1000, #0d0900)',
+    page:    '#0d0900',
+    section: '#1a1000',
+  },
+  winter: {
+    hero:    'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6,182,212,0.15) 0%, transparent 70%), linear-gradient(to bottom, #020810, #060f1a, #020810)',
+    page:    '#020810',
+    section: '#060f1a',
+  },
 } as const;
 
 const processSteps = [
@@ -59,6 +65,7 @@ export default function ContactContent() {
   const { toast } = useToast();
   const { activeSeason } = useSeasonalTheme();
   const acc = seasonalAccent[activeSeason];
+  const bg = seasonalBg[activeSeason];
   const searchParams = useSearchParams();
 
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", address: "", message: "" });
@@ -114,7 +121,7 @@ export default function ContactContent() {
     } rounded-lg`;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-white" style={{ background: bg.page }}>
       <LocalBusinessSchema cityName="Madison" />
       <Navigation />
 
@@ -125,8 +132,8 @@ export default function ContactContent() {
 
       {/* ── HERO ── */}
       <section
-        className={`relative overflow-hidden py-24 md:py-36 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}
-        style={{ backgroundImage: seasonalRadial[activeSeason] }}
+        className="relative overflow-hidden py-24 md:py-36"
+        style={{ background: bg.hero }}
       >
         <AmbientParticles density="sparse" className="absolute inset-0" />
         <div className={`absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-10 ${acc.bg}`} />
@@ -167,7 +174,7 @@ export default function ContactContent() {
       </section>
 
       {/* ── PROCESS STRIP ── */}
-      <section className={`py-6 border-y border-white/5 bg-gradient-to-r ${seasonalHeroBg[activeSeason]}`}>
+      <section className="py-6 border-y border-white/5" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-3">
             {processSteps.map((step, i) => (
@@ -196,7 +203,7 @@ export default function ContactContent() {
       <TrustStrip variant="dark" />
 
       {/* ── FORM + INFO ── */}
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-24" style={{ background: bg.page }}>
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
 
@@ -431,7 +438,7 @@ export default function ContactContent() {
       </section>
 
       {/* ── COMMITMENTS ── */}
-      <section className={`py-16 border-t border-white/5 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}>
+      <section className="py-16 border-t border-white/5" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-10">
             <h3 className="text-2xl font-black text-white">Our Commitments to You</h3>
@@ -456,11 +463,11 @@ export default function ContactContent() {
       </section>
 
       {/* ── FINAL CALL ── */}
-      <section className="py-12 bg-background border-t border-white/5">
+      <section className="py-12 border-t border-white/5" style={{ background: bg.hero }}>
         <div className="container mx-auto px-4 text-center">
           <ScrollReveal>
-            <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">Ready to Get Started?</h2>
-            <p className="text-muted-foreground mb-6">Call us now for immediate service or submit the form above for a quote within 24 hours.</p>
+            <h2 className="text-2xl md:text-3xl font-black text-white mb-3">Ready to Get Started?</h2>
+            <p className="text-white/60 mb-6">Call us now for immediate service or submit the form above for a quote within 24 hours.</p>
             <a
               href="tel:608-535-6057"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-black transition-all duration-300 hover:scale-105 shadow-lg"

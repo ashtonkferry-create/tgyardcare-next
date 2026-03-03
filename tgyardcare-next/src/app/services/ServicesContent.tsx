@@ -41,16 +41,22 @@ const seasonalAccent = {
   winter: { text: 'text-cyan-400',    bg: 'bg-cyan-500/10',    border: 'border-cyan-500/30',    solid: '#06b6d4' },
 } as const;
 
-const seasonalHeroBg = {
-  summer: 'from-[#050d07] via-[#0a1a0e] to-[#050d07]',
-  fall:   'from-[#0d0900] via-[#1a1000] to-[#0d0900]',
-  winter: 'from-[#020810] via-[#060f1a] to-[#020810]',
-} as const;
-
-const seasonalRadial = {
-  summer: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(16,185,129,0.13) 0%, transparent 70%)',
-  fall:   'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,158,11,0.13) 0%, transparent 70%)',
-  winter: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6,182,212,0.13) 0%, transparent 70%)',
+const seasonalBg = {
+  summer: {
+    hero:    'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 70%), linear-gradient(to bottom, #050d07, #0a1a0e, #050d07)',
+    page:    '#050d07',
+    section: '#0a1a0e',
+  },
+  fall: {
+    hero:    'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,158,11,0.15) 0%, transparent 70%), linear-gradient(to bottom, #0d0900, #1a1000, #0d0900)',
+    page:    '#0d0900',
+    section: '#1a1000',
+  },
+  winter: {
+    hero:    'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6,182,212,0.15) 0%, transparent 70%), linear-gradient(to bottom, #020810, #060f1a, #020810)',
+    page:    '#020810',
+    section: '#060f1a',
+  },
 } as const;
 
 const serviceCategories = [
@@ -123,9 +129,10 @@ const standards = [
 export default function ServicesContent() {
   const { activeSeason } = useSeasonalTheme();
   const acc = seasonalAccent[activeSeason];
+  const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-white" style={{ background: bg.page }}>
       <ScrollProgress variant="minimal" />
 
       <BreadcrumbSchema items={[
@@ -141,8 +148,8 @@ export default function ServicesContent() {
 
       {/* ── HERO ── */}
       <section
-        className={`relative py-28 md:py-36 bg-gradient-to-b ${seasonalHeroBg[activeSeason]} overflow-hidden`}
-        style={{ backgroundImage: seasonalRadial[activeSeason] }}
+        className="relative py-28 md:py-36 overflow-hidden"
+        style={{ background: bg.hero }}
       >
         <AmbientParticles density="sparse" className="absolute inset-0" />
         <div className={`absolute top-0 left-1/4 w-[600px] h-[400px] rounded-full blur-3xl opacity-10 ${acc.bg}`} />
@@ -205,13 +212,13 @@ export default function ServicesContent() {
         </div>
 
         {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-24" style={{ background: `linear-gradient(to top, ${bg.section}, transparent)` }} />
       </section>
 
       <TrustStrip variant="dark" />
 
       {/* ── RESIDENTIAL / COMMERCIAL SPLIT ── */}
-      <section className="py-16 bg-background">
+      <section className="py-16" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <ScrollReveal direction="left">
@@ -262,14 +269,15 @@ export default function ServicesContent() {
           <section
             key={category.id}
             id={category.id}
-            className={isDark ? `py-20 md:py-28 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}` : 'py-20 md:py-28 bg-background'}
+            className="py-20 md:py-28"
+            style={{ background: isDark ? bg.section : bg.page }}
           >
             <div className="container mx-auto px-4">
               <ScrollReveal className="text-center mb-12">
-                <h2 className={`text-4xl md:text-5xl font-black mb-4 ${isDark ? 'text-white' : 'text-foreground'}`}>
+                <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
                   {category.title}
                 </h2>
-                <p className={`text-xl max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-muted-foreground'}`}>
+                <p className="text-xl max-w-2xl mx-auto text-white/60">
                   {category.description}
                 </p>
               </ScrollReveal>
@@ -312,7 +320,7 @@ export default function ServicesContent() {
       })}
 
       {/* ── TOTALGUARD STANDARD ── */}
-      <section className={`py-20 md:py-28 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}>
+      <section className="py-20 md:py-28" style={{ background: bg.hero }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-12">
             <span className={`inline-block text-xs font-bold uppercase tracking-widest mb-4 ${acc.text}`}>Every Service. No Exceptions.</span>
@@ -336,15 +344,15 @@ export default function ServicesContent() {
       </section>
 
       {/* ── SERVICE AREAS ── */}
-      <section className="py-20 md:py-28 bg-background">
+      <section className="py-20 md:py-28" style={{ background: bg.section }}>
         <div className="container mx-auto px-4">
           <ScrollReveal className="text-center mb-12">
             <span className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest mb-4 ${acc.text}`}>
               <MapPin className="h-3 w-3" />
               Service Areas
             </span>
-            <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">Serving All of Dane County</h2>
-            <p className="text-muted-foreground text-xl max-w-2xl mx-auto">Professional lawn care throughout the Madison metro area and surrounding communities.</p>
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Serving All of Dane County</h2>
+            <p className="text-white/60 text-xl max-w-2xl mx-auto">Professional lawn care throughout the Madison metro area and surrounding communities.</p>
           </ScrollReveal>
 
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 max-w-4xl mx-auto mb-8">
@@ -363,7 +371,7 @@ export default function ServicesContent() {
           <ScrollReveal className="text-center">
             <Link
               href="/service-areas"
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-semibold transition-colors"
+              className="inline-flex items-center gap-2 text-white/50 hover:text-white font-semibold transition-colors"
             >
               View All Service Areas <ChevronRight className="h-5 w-5" />
             </Link>
