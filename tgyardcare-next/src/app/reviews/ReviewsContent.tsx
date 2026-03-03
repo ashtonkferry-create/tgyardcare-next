@@ -72,7 +72,7 @@ export default function ReviewsContent() {
         className={`relative overflow-hidden py-28 md:py-40 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}
         style={{ backgroundImage: seasonalRadial[activeSeason] }}
       >
-        <AmbientParticles density="low" className="absolute inset-0" />
+        <AmbientParticles density="sparse" className="absolute inset-0" />
         <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-10 ${acc.bg}`} />
 
         <div className="container mx-auto px-4 relative z-10 text-center">

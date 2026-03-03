@@ -144,7 +144,7 @@ export default function ServicesContent() {
         className={`relative py-28 md:py-36 bg-gradient-to-b ${seasonalHeroBg[activeSeason]} overflow-hidden`}
         style={{ backgroundImage: seasonalRadial[activeSeason] }}
       >
-        <AmbientParticles density="low" className="absolute inset-0" />
+        <AmbientParticles density="sparse" className="absolute inset-0" />
         <div className={`absolute top-0 left-1/4 w-[600px] h-[400px] rounded-full blur-3xl opacity-10 ${acc.bg}`} />
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] rounded-full blur-3xl opacity-8 bg-white/5" />
 

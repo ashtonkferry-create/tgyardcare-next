@@ -135,7 +135,7 @@ export default function ResidentialContent() {
           className="absolute inset-0 bg-cover bg-center opacity-10"
           style={{ backgroundImage: `url(${imgSrc(heroImage)})` }}
         />
-        <AmbientParticles density="low" className="absolute inset-0" />
+        <AmbientParticles density="sparse" className="absolute inset-0" />
         <div className={`absolute top-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-10 ${acc.bg}`} />
 
         <div className="container mx-auto px-4 relative z-10">

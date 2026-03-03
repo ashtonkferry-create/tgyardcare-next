@@ -114,7 +114,7 @@ export default function AboutContent() {
         className={`relative overflow-hidden py-28 md:py-40 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}
         style={{ backgroundImage: `${seasonalRadial[activeSeason]}` }}
       >
-        <AmbientParticles density="low" className="absolute inset-0" />
+        <AmbientParticles density="sparse" className="absolute inset-0" />
 
         {/* Glow orbs */}
         <div className={`absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-10 ${acc.bg}`} />

@@ -128,7 +128,7 @@ export default function ContactContent() {
         className={`relative overflow-hidden py-24 md:py-36 bg-gradient-to-b ${seasonalHeroBg[activeSeason]}`}
         style={{ backgroundImage: seasonalRadial[activeSeason] }}
       >
-        <AmbientParticles density="low" className="absolute inset-0" />
+        <AmbientParticles density="sparse" className="absolute inset-0" />
         <div className={`absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-10 ${acc.bg}`} />
 
         <div className="container mx-auto px-4 relative z-10 text-center">
