@@ -41,7 +41,7 @@ export default function MadisonContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: '#050d07' }}>
       <LocalBusinessSchema cityName="Madison" />
       <Navigation showPromoBanner />
 
@@ -67,22 +67,22 @@ export default function MadisonContent() {
               <MapPin className="h-4 w-4 mr-2" />
               Madison, Wisconsin
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-background mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               Madison&apos;s Premier <span className="text-primary">Lawn Care Service</span>
             </h1>
-            <p className="text-xl md:text-2xl text-background/90 mb-8 font-medium">
+            <p className="text-xl md:text-2xl text-white/90 mb-8 font-medium">
               Professional lawn care and landscaping services for Madison homeowners and businesses. Serving all Madison neighborhoods with excellence since 2019.
             </p>
             <div className="flex items-center gap-6 mb-10 flex-wrap">
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <Star className="h-5 w-5 text-accent fill-accent" />
                 <span className="font-bold">4.9 Stars</span>
               </div>
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <span className="font-bold">500+ Happy Customers</span>
               </div>
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <span className="font-bold">Same-Day Quotes</span>
               </div>
@@ -93,7 +93,7 @@ export default function MadisonContent() {
                   Get Free Quote <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-background text-background hover:bg-background hover:text-foreground text-lg font-bold" asChild>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-foreground text-lg font-bold" asChild>
                 <a href="tel:608-535-6057">
                   <Phone className="mr-2 h-5 w-5" />
                   (608) 535-6057
@@ -105,13 +105,13 @@ export default function MadisonContent() {
       </section>
 
       {/* Services Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20" style={{ background: '#050d07' }}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Complete Lawn Care Services in Madison
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-xl text-white/60 max-w-3xl mx-auto">
               From routine mowing to seasonal cleanups, we provide everything your Madison property needs to look its best year-round.
             </p>
           </div>
@@ -120,12 +120,12 @@ export default function MadisonContent() {
             {services.map((service, index) => (
               <div
                 key={index}
-                className="bg-card border border-border rounded-xl p-6 hover:shadow-lg hover:border-primary transition-all"
+                className="bg-white/[0.06] border border-white/10 rounded-xl p-6 hover:shadow-lg hover:border-primary transition-all"
               >
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="text-lg font-bold text-foreground mb-2">{service}</h3>
+                    <h3 className="text-lg font-bold text-white mb-2">{service}</h3>
                     <Link
                       href={`/services/${service.toLowerCase().split(' ')[0]}`}
                       className="text-primary hover:underline text-sm font-medium"
@@ -149,13 +149,13 @@ export default function MadisonContent() {
       </section>
 
       {/* Neighborhoods Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Serving All Madison Neighborhoods
             </h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl text-white/60">
               Reliable lawn care service throughout the Madison area
             </p>
           </div>
@@ -164,15 +164,15 @@ export default function MadisonContent() {
             {neighborhoods.map((neighborhood, index) => (
               <div
                 key={index}
-                className="bg-card border border-border rounded-lg p-4 text-center hover:border-primary hover:shadow-md transition-all"
+                className="bg-white/[0.06] border border-white/10 rounded-lg p-4 text-center hover:border-primary hover:shadow-md transition-all"
               >
-                <p className="font-semibold text-foreground">{neighborhood}</p>
+                <p className="font-semibold text-white">{neighborhood}</p>
               </div>
             ))}
           </div>
 
           <div className="text-center mt-12 max-w-3xl mx-auto">
-            <p className="text-muted-foreground mb-6">
+            <p className="text-white/60 mb-6">
               Don&apos;t see your neighborhood listed? We service all of Madison and surrounding areas.
               <Link href="/service-areas" className="text-primary hover:underline ml-1">
                 View our complete service area
@@ -183,15 +183,15 @@ export default function MadisonContent() {
       </section>
 
       {/* Why Madison Chooses TotalGuard */}
-      <section className="py-20 bg-gradient-to-b from-green-50/50 to-background">
+      <section className="py-20" style={{ background: '#050d07' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             {/* Header */}
             <div className="text-center mb-14">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Why Madison Relies on TotalGuard
               </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-lg text-white/60 max-w-2xl mx-auto">
                 Consistent service. Clear communication. No surprises.
               </p>
             </div>
@@ -199,41 +199,41 @@ export default function MadisonContent() {
             {/* Trust Cards */}
             <div className="grid md:grid-cols-3 gap-6 mb-10">
               {/* Card 1 - Responsiveness */}
-              <div className="bg-white border border-green-100 rounded-2xl p-6 shadow-md hover:shadow-lg hover:border-green-200 transition-all">
+              <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-6 shadow-md hover:shadow-lg hover:border-primary/40 transition-all">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-4 shadow-sm">
                   <Phone className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="font-bold text-foreground text-lg mb-2">We Answer. We Show Up.</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <h3 className="font-bold text-white text-lg mb-2">We Answer. We Show Up.</h3>
+                <p className="text-white/60 text-sm leading-relaxed">
                   Same-day callbacks. No chasing. No ghosting. Your time is respected from the first call.
                 </p>
               </div>
 
               {/* Card 2 - Reliability */}
-              <div className="bg-white border border-green-100 rounded-2xl p-6 shadow-md hover:shadow-lg hover:border-green-200 transition-all">
+              <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-6 shadow-md hover:shadow-lg hover:border-primary/40 transition-all">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-4 shadow-sm">
                   <CheckCircle2 className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="font-bold text-foreground text-lg mb-2">Same Crew. Same Standards.</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <h3 className="font-bold text-white text-lg mb-2">Same Crew. Same Standards.</h3>
+                <p className="text-white/60 text-sm leading-relaxed">
                   We show up when promised with the same team every time. No strangers, no inconsistency.
                 </p>
               </div>
 
               {/* Card 3 - Pricing */}
-              <div className="bg-white border border-green-100 rounded-2xl p-6 shadow-md hover:shadow-lg hover:border-green-200 transition-all">
+              <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-6 shadow-md hover:shadow-lg hover:border-primary/40 transition-all">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-4 shadow-sm">
                   <Star className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="font-bold text-foreground text-lg mb-2">No Surprises. No Upsells.</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <h3 className="font-bold text-white text-lg mb-2">No Surprises. No Upsells.</h3>
+                <p className="text-white/60 text-sm leading-relaxed">
                   Clear pricing upfront. What we quote is what you pay. You stay in control.
                 </p>
               </div>
             </div>
 
             {/* Micro-Trust Line */}
-            <p className="text-center text-muted-foreground text-sm mb-10">
+            <p className="text-center text-white/60 text-sm mb-10">
               Built on consistency, communication, and follow-through — every visit.
             </p>
 

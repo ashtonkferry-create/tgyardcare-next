@@ -27,7 +27,7 @@ export default function MiddletonContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: '#050d07' }}>
       <LocalBusinessSchema cityName="Middleton" />
       <Navigation showPromoBanner />
 
@@ -53,22 +53,22 @@ export default function MiddletonContent() {
               <MapPin className="h-4 w-4 mr-2" />
               Middleton, Wisconsin
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-background mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               Middleton&apos;s Trusted <span className="text-primary">Lawn Care Experts</span>
             </h1>
-            <p className="text-xl md:text-2xl text-background/90 mb-8 font-medium">
+            <p className="text-xl md:text-2xl text-white/90 mb-8 font-medium">
               Professional lawn care and landscaping services for Middleton homes and businesses. Quality service with a personal touch.
             </p>
             <div className="flex items-center gap-6 mb-10 flex-wrap">
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <Star className="h-5 w-5 text-accent fill-accent" />
                 <span className="font-bold">4.9 Star Rating</span>
               </div>
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <span className="font-bold">Local Family Business</span>
               </div>
-              <div className="flex items-center gap-2 text-background">
+              <div className="flex items-center gap-2 text-white">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <span className="font-bold">100% Guaranteed</span>
               </div>
@@ -79,7 +79,7 @@ export default function MiddletonContent() {
                   Get Free Quote <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-background text-background hover:bg-background hover:text-foreground text-lg font-bold" asChild>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-foreground text-lg font-bold" asChild>
                 <a href="tel:608-535-6057">
                   <Phone className="mr-2 h-5 w-5" />
                   (608) 535-6057
@@ -91,13 +91,13 @@ export default function MiddletonContent() {
       </section>
 
       {/* Services Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20" style={{ background: '#050d07' }}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Full-Service Lawn Care in Middleton
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-xl text-white/60 max-w-3xl mx-auto">
               We provide comprehensive lawn care and landscaping solutions tailored to Middleton&apos;s unique climate and landscape.
             </p>
           </div>
@@ -106,18 +106,18 @@ export default function MiddletonContent() {
             {services.map((service, index) => (
               <div
                 key={index}
-                className="bg-card border border-border rounded-xl p-6 hover:shadow-lg hover:border-primary transition-all"
+                className="bg-white/[0.06] border border-white/10 rounded-xl p-6 hover:shadow-lg hover:border-primary transition-all"
               >
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                  <h3 className="text-lg font-bold text-foreground">{service}</h3>
+                  <h3 className="text-lg font-bold text-white">{service}</h3>
                 </div>
               </div>
             ))}
           </div>
 
           <div className="text-center mt-12">
-            <p className="text-muted-foreground mb-6 text-lg">
+            <p className="text-white/60 mb-6 text-lg">
               Explore our complete range of <Link href="/" className="text-primary hover:underline font-semibold">residential services</Link> and <Link href="/commercial" className="text-primary hover:underline font-semibold">commercial lawn care</Link> options.
             </p>
           </div>
@@ -125,43 +125,43 @@ export default function MiddletonContent() {
       </section>
 
       {/* Why Middleton Chooses Us */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Why Middleton Residents Choose TotalGuard
               </h2>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-xl text-white/60">
                 Exceptional service, local expertise, and guaranteed results
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-12">
-              <div className="bg-card border-2 border-border rounded-xl p-8">
-                <h3 className="text-2xl font-bold text-foreground mb-4">Local Knowledge</h3>
-                <p className="text-muted-foreground leading-relaxed">
+              <div className="bg-white/[0.06] border-2 border-white/10 rounded-xl p-8">
+                <h3 className="text-2xl font-bold text-white mb-4">Local Knowledge</h3>
+                <p className="text-white/60 leading-relaxed">
                   As Middleton neighbors, we understand the specific lawn care challenges in our area - from soil conditions to seasonal weather patterns. We tailor our services to help your property thrive.
                 </p>
               </div>
 
-              <div className="bg-card border-2 border-border rounded-xl p-8">
-                <h3 className="text-2xl font-bold text-foreground mb-4">Fast &amp; Reliable</h3>
-                <p className="text-muted-foreground leading-relaxed">
+              <div className="bg-white/[0.06] border-2 border-white/10 rounded-xl p-8">
+                <h3 className="text-2xl font-bold text-white mb-4">Fast &amp; Reliable</h3>
+                <p className="text-white/60 leading-relaxed">
                   Same-day quotes and flexible scheduling designed around your busy life. We show up on time, every time, and complete the work to your complete satisfaction.
                 </p>
               </div>
 
-              <div className="bg-card border-2 border-border rounded-xl p-8">
-                <h3 className="text-2xl font-bold text-foreground mb-4">Fair Pricing</h3>
-                <p className="text-muted-foreground leading-relaxed">
+              <div className="bg-white/[0.06] border-2 border-white/10 rounded-xl p-8">
+                <h3 className="text-2xl font-bold text-white mb-4">Fair Pricing</h3>
+                <p className="text-white/60 leading-relaxed">
                   Competitive rates with no hidden fees. We provide upfront quotes and deliver exceptional value - professional quality without the corporate premium.
                 </p>
               </div>
 
-              <div className="bg-card border-2 border-border rounded-xl p-8">
-                <h3 className="text-2xl font-bold text-foreground mb-4">Satisfaction Guaranteed</h3>
-                <p className="text-muted-foreground leading-relaxed">
+              <div className="bg-white/[0.06] border-2 border-white/10 rounded-xl p-8">
+                <h3 className="text-2xl font-bold text-white mb-4">Satisfaction Guaranteed</h3>
+                <p className="text-white/60 leading-relaxed">
                   We stand behind every job with our 100% satisfaction guarantee. If you&apos;re not completely happy, we&apos;ll make it right - no questions asked.
                 </p>
               </div>
@@ -172,12 +172,12 @@ export default function MiddletonContent() {
               <p className="text-lg mb-8 opacity-95">Join your neighbors who trust TotalGuard for beautiful, healthy lawns</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/contact">
-                  <Button size="lg" className="bg-background text-primary hover:bg-background/90 font-bold">
+                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-bold">
                     Get a Free Quote
                   </Button>
                 </Link>
                 <a href="tel:608-535-6057">
-                  <Button size="lg" variant="outline" className="border-background text-background hover:bg-background hover:text-primary font-bold">
+                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary font-bold">
                     <Phone className="mr-2 h-5 w-5" />
                     Call Now
                   </Button>
@@ -189,9 +189,9 @@ export default function MiddletonContent() {
       </section>
 
       {/* Service Areas Link */}
-      <section className="py-16 bg-background">
+      <section className="py-16" style={{ background: '#050d07' }}>
         <div className="container mx-auto px-4 text-center">
-          <p className="text-lg text-muted-foreground mb-4">
+          <p className="text-lg text-white/60 mb-4">
             Also proudly serving <Link href="/locations/madison" className="text-primary hover:underline font-semibold">Madison</Link>, <Link href="/locations/waunakee" className="text-primary hover:underline font-semibold">Waunakee</Link>, and surrounding communities
           </p>
           <Link href="/service-areas">
