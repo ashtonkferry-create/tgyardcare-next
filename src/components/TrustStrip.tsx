@@ -79,7 +79,7 @@ export function TrustStrip({ variant = 'dark', className }: TrustStripProps) {
     )}>
       <div className="container mx-auto px-4">
         <ScrollReveal>
-          <div className="flex flex-wrap justify-center gap-6 md:gap-14">
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 md:gap-14">
             {stats.map((stat, i) => {
               const Icon = stat.icon;
               return (
@@ -92,7 +92,7 @@ export function TrustStrip({ variant = 'dark', className }: TrustStripProps) {
                       decimals={stat.decimals}
                     />
                   </span>
-                  <span className="text-white/50 text-sm hidden sm:inline">{stat.label}</span>
+                  <span className="text-white/50 text-xs sm:text-sm">{stat.label}</span>
                 </div>
               );
             })}
