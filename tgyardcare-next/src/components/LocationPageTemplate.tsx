@@ -12,6 +12,7 @@ import { FAQSchema } from "@/components/FAQSchema";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { SectionDivider, SectionConnector } from "@/components/SectionTransition";
 import { LocalFAQSection, WhatHappensNextSection } from "@/components/SearchIntentSections";
+import CTASection from '@/components/CTASection';
 import heroImage from "@/assets/hero-lawn.jpg";
 import { AmbientParticles } from "@/components/AmbientParticles";
 
@@ -241,10 +242,9 @@ export default function LocationPageTemplate({
         </div>
       </section>
 
-      <Footer
-        closerTitle={`Experience the TotalGuard Difference in ${cityName}`}
-        closerDescription="Same crew every visit. Written quotes. 48-hour issue resolution. Get your free quote today."
-      />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

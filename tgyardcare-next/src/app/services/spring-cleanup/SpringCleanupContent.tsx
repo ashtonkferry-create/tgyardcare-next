@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CheckCircle2, Sparkles, Phone, Users, Calendar, Shield, Clock, Sprout } from "lucide-react";
 import heroImage from "@/assets/service-spring-cleanup.jpg";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { springCleanupFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
@@ -384,7 +385,9 @@ export default function SpringCleanupContent() {
 
       <ServiceFAQ faqs={springCleanupFAQs} />
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

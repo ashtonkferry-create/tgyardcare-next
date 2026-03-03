@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CheckCircle2, Sprout, Phone, Wind, Droplets, TreeDeciduous, Calendar, Shield, Clock } from "lucide-react";
 import heroImage from "@/assets/hero-aeration.jpg";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { aerationFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
@@ -391,7 +392,9 @@ export default function AerationContent() {
 
       <ServiceFAQ faqs={aerationFAQs} />
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

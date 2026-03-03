@@ -9,6 +9,7 @@ import Link from "next/link";
 import { CheckCircle2, Phone, ArrowRight, Shield, Leaf, Target, Calendar, Clock, AlertTriangle } from "lucide-react";
 import heroImage from "@/assets/service-herbicide.jpg";
 import herbicideCombined from "@/assets/before-after/herbicide-combined.png";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { herbicideFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
@@ -394,7 +395,9 @@ export default function HerbicideContent() {
 
       <ServiceFAQ faqs={herbicideFAQs} />
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

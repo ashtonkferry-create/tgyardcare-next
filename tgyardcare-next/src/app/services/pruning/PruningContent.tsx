@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CheckCircle2, Scissors, Phone, Calendar, Shield, Clock } from "lucide-react";
 import { ServiceSchema } from "@/components/ServiceSchema";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { pruningFAQs } from "@/data/serviceFAQs";
 import BeforeAfterGallery from "@/components/BeforeAfterGallery";
@@ -339,10 +340,9 @@ export default function PruningContent() {
         <ResidentialExpectationsSection serviceName="bush trimming and pruning" />
 
         <ServiceFAQ faqs={pruningFAQs} />
-        <Footer
-          closerTitle="Ready for Beautifully Trimmed Landscaping?"
-          closerDescription="Transform overgrown bushes into polished, healthy shrubs. Professional pruning services across Madison, Middleton, Waunakee, and all of Dane County."
-        />
+        <CTASection />
+
+        <Footer showCloser={false} />
       </div>
     </>
   );

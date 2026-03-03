@@ -7,6 +7,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { LocalBusinessSchema } from "@/components/LocalBusinessSchema";
 import { CommercialServicesCTA, GetStartedCTA } from "@/components/LocationCTASections";
+import CTASection from '@/components/CTASection';
 import heroImage from "@/assets/hero-lawn.jpg";
 
 function imgSrc(img: string | { src: string }): string {
@@ -254,10 +255,9 @@ export default function MadisonContent() {
 
       <CommercialServicesCTA />
 
-      <Footer
-        closerTitle="Transform Your Madison Lawn Today"
-        closerDescription="Join hundreds of satisfied Madison homeowners who trust TotalGuard for their lawn care needs."
-      />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

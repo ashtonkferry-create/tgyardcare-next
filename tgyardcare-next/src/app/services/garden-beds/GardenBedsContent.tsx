@@ -9,6 +9,7 @@ import Link from "next/link";
 import { CheckCircle2, Flower2, Phone, Users, Calendar, Shield, Clock, Home } from "lucide-react";
 import heroImage from "@/assets/service-mulching.jpg";
 import gardenBedsImage from "@/assets/before-after/mulching-combined-2.png";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { gardenBedsFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
@@ -435,7 +436,9 @@ export default function GardenBedsContent() {
 
       <ServiceFAQ faqs={gardenBedsFAQs} />
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

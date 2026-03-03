@@ -6,6 +6,7 @@ import { Phone, ArrowRight, MapPin, CheckCircle2, Star } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { LocalBusinessSchema } from "@/components/LocalBusinessSchema";
+import CTASection from '@/components/CTASection';
 import heroImage from "@/assets/hero-lawn.jpg";
 
 function imgSrc(img: string | { src: string }): string {
@@ -201,10 +202,9 @@ export default function MiddletonContent() {
         </div>
       </section>
 
-      <Footer
-        closerTitle="Experience the TotalGuard Difference in Middleton"
-        closerDescription="Professional lawn care backed by a satisfaction guarantee. Get your free quote today."
-      />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

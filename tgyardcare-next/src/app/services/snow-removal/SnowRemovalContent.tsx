@@ -11,6 +11,7 @@ import { WinterPriorityServices } from "@/components/WinterPriorityServices";
 
 import heroImage from "@/assets/hero-snow-plow.png";
 import combinedImage from "@/assets/before-after/snow-removal-combined.webp";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { snowRemovalFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
@@ -370,7 +371,9 @@ export default function SnowRemovalContent() {
 
         <ServiceFAQ faqs={snowRemovalFAQs} />
 
-        <Footer />
+        <CTASection />
+
+        <Footer showCloser={false} />
       </div>
     </>
   );

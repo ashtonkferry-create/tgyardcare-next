@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CheckCircle2, CloudRain, Phone, Users, Calendar, Shield, Clock, Leaf } from "lucide-react";
 import heroImage from "@/assets/service-fall-cleanup.jpg";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { fallCleanupFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
@@ -386,7 +387,9 @@ export default function FallCleanupContent() {
 
       <ServiceFAQ faqs={fallCleanupFAQs} />
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { CheckCircle2, Home, Phone, Calendar, Shield, Clock, AlertTriangle } fro
 import heroImage from "@/assets/service-gutter.jpg";
 import gutterCombined from "@/assets/before-after/gutter-cleaning-combined.png";
 import gutterCombined1 from "@/assets/before-after/gutter-cleaning-combined-1.png";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { gutterCleaningFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
@@ -349,7 +350,9 @@ export default function GutterCleaningContent() {
 
       <ServiceFAQ faqs={gutterCleaningFAQs} />
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

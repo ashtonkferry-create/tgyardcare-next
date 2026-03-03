@@ -13,6 +13,7 @@ import { CheckCircle2, Clock, Phone, Calendar, Shield, Users, Zap } from "lucide
 import heroImage from "@/assets/service-mowing.jpg";
 import mowingImage1 from "@/assets/before-after/mowing-combined.png";
 import fertilizationImage from "@/assets/before-after/fertilization-combined.png";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { mowingFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
@@ -462,7 +463,9 @@ export default function MowingContent() {
 
       <ServiceFAQ faqs={mowingFAQs} />
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

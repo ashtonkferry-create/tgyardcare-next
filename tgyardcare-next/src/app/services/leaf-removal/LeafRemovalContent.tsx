@@ -10,6 +10,7 @@ import { CheckCircle2, Phone, Users, Calendar, Shield, Clock, Leaf, TreeDeciduou
 import heroImage from "@/assets/service-leaf-removal.jpg";
 import leafImage1 from "@/assets/before-after/leaf-removal-combined-1.png";
 import leafImage2 from "@/assets/before-after/leaf-removal-combined-2.png";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { leafRemovalFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
@@ -387,7 +388,9 @@ export default function LeafRemovalContent() {
 
       <ServiceFAQ faqs={leafRemovalFAQs} />
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

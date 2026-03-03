@@ -14,6 +14,7 @@ import { ScrollProgress } from '@/components/ScrollProgress';
 import { SectionDivider, SectionConnector } from '@/components/SectionTransition';
 import { TrustBar } from '@/components/TrustBar';
 import { FeaturedReviews } from '@/components/FeaturedReviews';
+import CTASection from '@/components/CTASection';
 import { PricingTiers } from '@/components/PricingTiers';
 import { ServiceFAQFromDB } from '@/components/ServiceFAQFromDB';
 import { useLocationBySlug, useLocationServices } from '@/hooks/useLocations';
@@ -314,10 +315,9 @@ export function LocationPageFromDB({ slug: propSlug }: LocationPageFromDBProps) 
         </div>
       </section>
 
-      <Footer
-        closerTitle={`Experience the TotalGuard Difference in ${cityName}`}
-        closerDescription="Same crew every visit. Written quotes. 48-hour issue resolution. Get your free quote today."
-      />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

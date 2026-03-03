@@ -10,6 +10,7 @@ import { CheckCircle2, Leaf, Phone, Calendar, Shield, Clock } from "lucide-react
 import heroImage from "@/assets/service-weeding.jpg";
 import weedingImage1 from "@/assets/before-after/weeding-combined.png";
 import weedingImage2 from "@/assets/before-after/weeding-combined-2.png";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { weedingFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
@@ -387,7 +388,9 @@ export default function WeedingContent() {
 
       <ServiceFAQ faqs={weedingFAQs} />
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

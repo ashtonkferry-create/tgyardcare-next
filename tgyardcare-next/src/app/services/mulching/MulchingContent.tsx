@@ -10,6 +10,7 @@ import { CheckCircle2, Trees, Phone, Calendar, Shield, Droplets } from "lucide-r
 import heroImage from "@/assets/service-mulching.jpg";
 import mulchingImage1 from "@/assets/before-after/mulching-combined.png";
 import mulchingImage3 from "@/assets/before-after/mulching-combined-3.png";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { mulchingFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
@@ -398,7 +399,9 @@ export default function MulchingContent() {
 
       <ServiceFAQ faqs={mulchingFAQs} />
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

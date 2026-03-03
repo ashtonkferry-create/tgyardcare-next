@@ -9,6 +9,7 @@ import Link from "next/link";
 import { CheckCircle2, Shield, Phone, Calendar, DollarSign, Clock } from "lucide-react";
 import heroImage from "@/assets/service-gutter-guards.jpg";
 import gutterGuardsImage from "@/assets/before-after/gutter-guards-combined.png";
+import CTASection from '@/components/CTASection';
 import ServiceFAQ from "@/components/ServiceFAQ";
 import { gutterGuardsFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
@@ -380,7 +381,9 @@ export default function GutterGuardsContent() {
 
       <ServiceFAQ faqs={gutterGuardsFAQs} />
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }
