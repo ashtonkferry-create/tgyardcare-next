@@ -25,7 +25,7 @@ function imgSrc(img: string | { src: string }): string {
 
 export default function FertilizationContent() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: '#050d07' }}>
       <BreadcrumbSchema items={[
         { name: 'Home', url: 'https://tgyardcare.com' },
         { name: 'Services', url: 'https://tgyardcare.com/services' },
@@ -100,11 +100,11 @@ export default function FertilizationContent() {
 
       {/* Who This Is For — Quick qualifier */}
       <ScrollReveal>
-        <section className="py-6 bg-muted/30 border-b border-border">
+        <section className="py-6 border-b border-white/10" style={{ background: '#0a1a0e' }}>
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <p className="text-base md:text-lg text-muted-foreground">
-                <strong className="text-foreground">Ideal for:</strong> Homeowners with thin, pale, or struggling lawns. Perfect for those who want deep green color, thick turf that crowds out weeds, and a lawn that impresses the neighbors.
+              <p className="text-base md:text-lg text-white/60">
+                <strong className="text-white">Ideal for:</strong> Homeowners with thin, pale, or struggling lawns. Perfect for those who want deep green color, thick turf that crowds out weeds, and a lawn that impresses the neighbors.
               </p>
             </div>
           </div>
@@ -138,13 +138,13 @@ export default function FertilizationContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           WHAT'S INCLUDED — Visual checklist
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-muted/30">
+      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
               What&apos;s Included in Our Fertilization Program
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            <p className="text-center text-white/60 mb-12 max-w-2xl mx-auto">
               A complete nutrition program timed to Wisconsin&apos;s growing season&mdash;not a generic schedule.
             </p>
           </ScrollReveal>
@@ -163,8 +163,8 @@ export default function FertilizationContent() {
                   <div className="flex items-start space-x-3">
                     <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                      <h3 className="font-semibold text-white mb-1">{item.title}</h3>
+                      <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 </GlassCard>
@@ -180,7 +180,7 @@ export default function FertilizationContent() {
       <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
               When to Fertilize in Wisconsin
             </h2>
           </ScrollReveal>
@@ -193,9 +193,9 @@ export default function FertilizationContent() {
                     <div className="bg-primary/10 rounded-full p-2">
                       <Calendar className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground">Spring (April-May)</h3>
+                    <h3 className="text-lg font-semibold text-white">Spring (April-May)</h3>
                   </div>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
+                  <p className="text-white/60 text-sm leading-relaxed">
                     First application when grass starts growing. High-nitrogen formula promotes rapid green-up and early-season growth.
                   </p>
                 </GlassCard>
@@ -207,9 +207,9 @@ export default function FertilizationContent() {
                     <div className="bg-primary/10 rounded-full p-2">
                       <Calendar className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground">Summer (June-July)</h3>
+                    <h3 className="text-lg font-semibold text-white">Summer (June-July)</h3>
                   </div>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
+                  <p className="text-white/60 text-sm leading-relaxed">
                     Light feeding maintains color through heat stress. Lower nitrogen to avoid forcing growth during hot, dry periods.
                   </p>
                 </GlassCard>
@@ -224,9 +224,9 @@ export default function FertilizationContent() {
                     <div className="bg-primary/10 rounded-full p-2">
                       <Calendar className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground">Fall (Sept-Oct)</h3>
+                    <h3 className="text-lg font-semibold text-white">Fall (Sept-Oct)</h3>
                   </div>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
+                  <p className="text-white/60 text-sm leading-relaxed">
                     Root-building formula is the most important application. Builds root mass for winter survival and drives strong spring green-up.
                   </p>
                 </GlassCard>
@@ -234,8 +234,8 @@ export default function FertilizationContent() {
             </div>
 
             <ScrollReveal delay={0.3}>
-              <p className="text-center text-muted-foreground max-w-2xl mx-auto">
-                <strong className="text-foreground">Why fall matters most:</strong> Cool-season grasses like Kentucky bluegrass and fescue grow roots aggressively in fall. Proper nutrition now builds the foundation for a thick, healthy lawn next spring.
+              <p className="text-center text-white/60 max-w-2xl mx-auto">
+                <strong className="text-white">Why fall matters most:</strong> Cool-season grasses like Kentucky bluegrass and fescue grow roots aggressively in fall. Proper nutrition now builds the foundation for a thick, healthy lawn next spring.
               </p>
             </ScrollReveal>
           </div>
@@ -252,13 +252,13 @@ export default function FertilizationContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           PROGRAM OPTIONS — Choose your plan
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-muted/30">
+      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
               Choose Your Fertilization Program
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            <p className="text-center text-white/60 mb-12 max-w-2xl mx-auto">
               Pick the program that matches your lawn&apos;s needs and your goals:
             </p>
           </ScrollReveal>
@@ -266,11 +266,11 @@ export default function FertilizationContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
             <ScrollReveal delay={0.0}>
               <GlassCard hover="lift" className="h-full">
-                <h3 className="text-2xl font-bold text-foreground mb-4">Fertilization Only</h3>
-                <p className="text-muted-foreground mb-6">
+                <h3 className="text-2xl font-bold text-white mb-4">Fertilization Only</h3>
+                <p className="text-white/60 mb-6">
                   3-4 applications per year to maintain healthy, green grass. Best for established lawns that just need consistent nutrition.
                 </p>
-                <ul className="space-y-3 text-muted-foreground mb-6">
+                <ul className="space-y-3 text-white/60 mb-6">
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
                     <span>Early spring high-nitrogen feeding</span>
@@ -284,7 +284,7 @@ export default function FertilizationContent() {
                     <span>Fall root-building fertilization</span>
                   </li>
                 </ul>
-                <p className="text-sm text-muted-foreground italic">Best for: Established, healthy lawns that need to stay that way</p>
+                <p className="text-sm text-white/60 italic">Best for: Established, healthy lawns that need to stay that way</p>
               </GlassCard>
             </ScrollReveal>
 
@@ -293,11 +293,11 @@ export default function FertilizationContent() {
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
                   Recommended
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-4 mt-2">Full Program</h3>
-                <p className="text-muted-foreground mb-6">
+                <h3 className="text-2xl font-bold text-white mb-4 mt-2">Full Program</h3>
+                <p className="text-white/60 mb-6">
                   Complete fertilization plus fall overseeding for maximum thickness, color, and weed resistance.
                 </p>
-                <ul className="space-y-3 text-muted-foreground mb-6">
+                <ul className="space-y-3 text-white/60 mb-6">
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
                     <span>All fertilization applications</span>
@@ -311,7 +311,7 @@ export default function FertilizationContent() {
                     <span>Premium grass seed blend</span>
                   </li>
                 </ul>
-                <p className="text-sm text-muted-foreground italic">Best for: Thin or patchy lawns that need thickening</p>
+                <p className="text-sm text-white/60 italic">Best for: Thin or patchy lawns that need thickening</p>
               </GlassCard>
             </ScrollReveal>
           </div>
@@ -324,7 +324,7 @@ export default function FertilizationContent() {
       <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
               The Benefits of Professional Fertilization
             </h2>
           </ScrollReveal>
@@ -354,8 +354,8 @@ export default function FertilizationContent() {
                     <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                       <Icon className="h-8 w-8 text-primary" />
                     </div>
-                    <h3 className="text-xl font-semibold text-foreground mb-3">{item.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                    <h3 className="text-xl font-semibold text-white mb-3">{item.title}</h3>
+                    <p className="text-white/60 leading-relaxed">{item.desc}</p>
                   </GlassCard>
                 </ScrollReveal>
               );
@@ -367,13 +367,13 @@ export default function FertilizationContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           WHY CHOOSE US — Final trust
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-muted/30">
+      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
               Why Choose TotalGuard for Fertilization
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            <p className="text-center text-white/60 mb-12 max-w-2xl mx-auto">
               Professional products and local timing knowledge make all the difference:
             </p>
           </ScrollReveal>
@@ -391,8 +391,8 @@ export default function FertilizationContent() {
                     <div className="bg-primary/10 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4">
                       <Icon className="h-7 w-7 text-primary" />
                     </div>
-                    <h3 className="text-xl font-semibold text-foreground mb-3">{item.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                    <h3 className="text-xl font-semibold text-white mb-3">{item.title}</h3>
+                    <p className="text-white/60 leading-relaxed">{item.desc}</p>
                   </GlassCard>
                 </ScrollReveal>
               );
@@ -412,17 +412,17 @@ export default function FertilizationContent() {
           <ScrollReveal>
             <div className="max-w-2xl mx-auto">
               <GlassCard variant="accent" hover="glow" className="text-center p-8 md:p-10">
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Fertilization Program Pricing</h2>
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Fertilization Program Pricing</h2>
                 <div className="flex items-baseline justify-center gap-1 mb-4">
                   <span className="text-5xl md:text-6xl font-bold text-primary">$300</span>
-                  <span className="text-2xl text-muted-foreground">&ndash;</span>
+                  <span className="text-2xl text-white/60">&ndash;</span>
                   <span className="text-5xl md:text-6xl font-bold text-primary">$600</span>
-                  <span className="text-muted-foreground text-lg ml-1">/season</span>
+                  <span className="text-white/60 text-lg ml-1">/season</span>
                 </div>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
+                <p className="text-white/60 mb-6 leading-relaxed">
                   Programs are priced based on lawn size. Most Madison residential lawns (5,000-10,000 sq ft) include 3-4 applications. Add overseeding for $150-$300 depending on lawn condition. We measure and provide exact pricing before any work begins.
                 </p>
-                <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm text-muted-foreground">
+                <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm text-white/60">
                   <span className="flex items-center gap-1.5">
                     <Calendar className="h-4 w-4 text-primary" />
                     3-4 applications per season
@@ -450,10 +450,10 @@ export default function FertilizationContent() {
       <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl font-bold text-foreground mb-4 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4 text-center">
               Complete Your Lawn Health Program
             </h2>
-            <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
+            <p className="text-center text-white/60 mb-10 max-w-2xl mx-auto">
               Fertilization works best with these complementary services:
             </p>
           </ScrollReveal>
@@ -467,8 +467,8 @@ export default function FertilizationContent() {
               <ScrollReveal key={i} delay={i * 0.08}>
                 <Link href={item.href} className="block group">
                   <GlassCard hover="lift" className="text-center h-full">
-                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.desc}</p>
+                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
+                    <p className="text-sm text-white/60">{item.desc}</p>
                     <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
                     </span>

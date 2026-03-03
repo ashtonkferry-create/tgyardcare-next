@@ -25,7 +25,7 @@ function imgSrc(img: string | { src: string }): string {
 
 export default function AerationContent() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: '#050d07' }}>
       <BreadcrumbSchema items={[
         { name: 'Home', url: 'https://tgyardcare.com' },
         { name: 'Services', url: 'https://tgyardcare.com/services' },
@@ -100,11 +100,11 @@ export default function AerationContent() {
 
       {/* Who This Is For — Quick qualifier */}
       <ScrollReveal>
-        <section className="py-6 bg-muted/30 border-b border-border">
+        <section className="py-6 border-b border-white/10" style={{ background: '#0a1a0e' }}>
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <p className="text-base md:text-lg text-muted-foreground">
-                <strong className="text-foreground">Ideal for:</strong> Homeowners with compacted soil, high-traffic lawns, heavy clay, or thin grass that won&apos;t thicken despite fertilizing. Essential for established lawns that haven&apos;t been aerated in 2+ years.
+              <p className="text-base md:text-lg text-white/60">
+                <strong className="text-white">Ideal for:</strong> Homeowners with compacted soil, high-traffic lawns, heavy clay, or thin grass that won&apos;t thicken despite fertilizing. Essential for established lawns that haven&apos;t been aerated in 2+ years.
               </p>
             </div>
           </div>
@@ -138,13 +138,13 @@ export default function AerationContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           WHAT'S INCLUDED — Visual checklist
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-muted/30">
+      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
               What&apos;s Included in Our Aeration Service
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            <p className="text-center text-white/60 mb-12 max-w-2xl mx-auto">
               Complete professional service from start to finish&mdash;no hidden steps or extra charges.
             </p>
           </ScrollReveal>
@@ -163,8 +163,8 @@ export default function AerationContent() {
                   <div className="flex items-start space-x-3">
                     <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                      <h3 className="font-semibold text-white mb-1">{item.title}</h3>
+                      <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 </GlassCard>
@@ -180,7 +180,7 @@ export default function AerationContent() {
       <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
               How Core Aeration Works
             </h2>
           </ScrollReveal>
@@ -197,11 +197,11 @@ export default function AerationContent() {
             ].map((item, i) => (
               <ScrollReveal key={i} delay={i * 0.12}>
                 <div className="text-center relative">
-                  <div className="relative z-10 bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg hover:border-primary/50 hover:shadow-primary/10 hover:shadow-xl transition-all duration-300">
+                  <div className="relative z-10 bg-white/[0.06] backdrop-blur-sm border-2 border-primary/20 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg hover:border-primary/50 hover:shadow-primary/10 hover:shadow-xl transition-all duration-300">
                     <span className="text-2xl font-bold text-primary">{item.step}</span>
                   </div>
-                  <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <h3 className="font-semibold text-white mb-2">{item.title}</h3>
+                  <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
                 </div>
               </ScrollReveal>
             ))}
@@ -219,10 +219,10 @@ export default function AerationContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           WHEN TO AERATE — Seasonal timing
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-muted/30">
+      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
               When to Aerate Your Lawn in Wisconsin
             </h2>
           </ScrollReveal>
@@ -233,15 +233,15 @@ export default function AerationContent() {
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
                   Best Time
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2 mt-2">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2 mt-2">
                   <TreeDeciduous className="h-6 w-6 text-primary" />
                   Fall Aeration
                 </h3>
-                <p className="text-muted-foreground mb-6">
-                  <strong className="text-foreground">September through mid-October</strong> is the ideal window in Wisconsin. Cool temperatures and
+                <p className="text-white/60 mb-6">
+                  <strong className="text-white">September through mid-October</strong> is the ideal window in Wisconsin. Cool temperatures and
                   fall rains help grass recover quickly and fill in before winter dormancy.
                 </p>
-                <ul className="space-y-3 text-muted-foreground">
+                <ul className="space-y-3 text-white/60">
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
                     <span>Perfect for overseeding&mdash;seeds germinate in ideal conditions</span>
@@ -260,15 +260,15 @@ export default function AerationContent() {
 
             <ScrollReveal delay={0.2}>
               <GlassCard hover="glow" className="h-full">
-                <h3 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
                   <Sprout className="h-6 w-6 text-primary" />
                   Spring Aeration
                 </h3>
-                <p className="text-muted-foreground mb-6">
-                  <strong className="text-foreground">Late April through May</strong> works if fall wasn&apos;t possible. Spring aeration helps
+                <p className="text-white/60 mb-6">
+                  <strong className="text-white">Late April through May</strong> works if fall wasn&apos;t possible. Spring aeration helps
                   lawns recover from winter compaction and prepares for summer stress.
                 </p>
-                <ul className="space-y-3 text-muted-foreground">
+                <ul className="space-y-3 text-white/60">
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
                     <span>Wait until ground fully thaws and dries</span>
@@ -287,8 +287,8 @@ export default function AerationContent() {
           </div>
 
           <ScrollReveal delay={0.3}>
-            <p className="text-center text-muted-foreground mt-8 max-w-2xl mx-auto">
-              <strong className="text-foreground">How often?</strong> Most Dane County lawns benefit from annual aeration. High-traffic areas or clay-heavy soils may need it twice yearly.
+            <p className="text-center text-white/60 mt-8 max-w-2xl mx-auto">
+              <strong className="text-white">How often?</strong> Most Dane County lawns benefit from annual aeration. High-traffic areas or clay-heavy soils may need it twice yearly.
             </p>
           </ScrollReveal>
         </div>
@@ -300,7 +300,7 @@ export default function AerationContent() {
       <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
               The Benefits of Core Aeration
             </h2>
           </ScrollReveal>
@@ -318,8 +318,8 @@ export default function AerationContent() {
                     <div className="bg-primary/10 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4">
                       <Icon className="h-7 w-7 text-primary" />
                     </div>
-                    <h3 className="text-xl font-semibold text-foreground mb-3">{item.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                    <h3 className="text-xl font-semibold text-white mb-3">{item.title}</h3>
+                    <p className="text-white/60 leading-relaxed">{item.desc}</p>
                   </GlassCard>
                 </ScrollReveal>
               );
@@ -331,13 +331,13 @@ export default function AerationContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           WHAT MAKES US DIFFERENT — Final trust
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-muted/30">
+      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
               Why Choose TotalGuard for Aeration
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            <p className="text-center text-white/60 mb-12 max-w-2xl mx-auto">
               Commercial equipment and local expertise make the difference:
             </p>
           </ScrollReveal>
@@ -355,8 +355,8 @@ export default function AerationContent() {
                     <div className="bg-primary/10 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4">
                       <Icon className="h-7 w-7 text-primary" />
                     </div>
-                    <h3 className="text-xl font-semibold text-foreground mb-3">{item.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                    <h3 className="text-xl font-semibold text-white mb-3">{item.title}</h3>
+                    <p className="text-white/60 leading-relaxed">{item.desc}</p>
                   </GlassCard>
                 </ScrollReveal>
               );
@@ -376,17 +376,17 @@ export default function AerationContent() {
           <ScrollReveal>
             <div className="max-w-2xl mx-auto">
               <GlassCard variant="accent" hover="glow" className="text-center p-8 md:p-10">
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Madison-Area Aeration Pricing</h2>
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Madison-Area Aeration Pricing</h2>
                 <div className="flex items-baseline justify-center gap-1 mb-4">
                   <span className="text-5xl md:text-6xl font-bold text-primary">$125</span>
-                  <span className="text-2xl text-muted-foreground">&ndash;</span>
+                  <span className="text-2xl text-white/60">&ndash;</span>
                   <span className="text-5xl md:text-6xl font-bold text-primary">$225</span>
-                  <span className="text-muted-foreground text-lg ml-1">/visit</span>
+                  <span className="text-white/60 text-lg ml-1">/visit</span>
                 </div>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
+                <p className="text-white/60 mb-6 leading-relaxed">
                   Most Madison residential lawns (5,000-10,000 sq ft) fall in this range for professional core aeration. Add overseeding for $75-$150 more. We&apos;ll measure and provide exact pricing before any work begins.
                 </p>
-                <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm text-muted-foreground">
+                <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm text-white/60">
                   <span className="flex items-center gap-1.5">
                     <Clock className="h-4 w-4 text-primary" />
                     Best in Sept-Oct or Apr-May
@@ -419,10 +419,10 @@ export default function AerationContent() {
       <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl font-bold text-foreground mb-4 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4 text-center">
               Pair Aeration With These Services
             </h2>
-            <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
+            <p className="text-center text-white/60 mb-10 max-w-2xl mx-auto">
               Maximize your aeration investment with complementary services:
             </p>
           </ScrollReveal>
@@ -436,8 +436,8 @@ export default function AerationContent() {
               <ScrollReveal key={i} delay={i * 0.08}>
                 <Link href={item.href} className="block group">
                   <GlassCard hover="lift" className="text-center h-full">
-                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.desc}</p>
+                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
+                    <p className="text-sm text-white/60">{item.desc}</p>
                     <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
                     </span>

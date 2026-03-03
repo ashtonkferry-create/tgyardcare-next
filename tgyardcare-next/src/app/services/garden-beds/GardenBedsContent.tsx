@@ -33,7 +33,7 @@ export default function GardenBedsContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: '#050d07' }}>
       <BreadcrumbSchema items={[
         { name: 'Home', url: 'https://tgyardcare.com' },
         { name: 'Services', url: 'https://tgyardcare.com/services' },
@@ -107,12 +107,12 @@ export default function GardenBedsContent() {
       <TrustStrip variant="dark" />
 
       {/* Who This Is For */}
-      <section className="py-14 md:py-20 bg-muted/30">
+      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <ScrollReveal>
-              <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Who Garden Bed Services Are For</h2>
-              <p className="text-lg text-muted-foreground text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-white">Who Garden Bed Services Are For</h2>
+              <p className="text-lg text-white/60 text-center mb-12">
                 This service is designed for Dane County homeowners who want maximum curb appeal with minimal ongoing effort.
               </p>
             </ScrollReveal>
@@ -130,8 +130,8 @@ export default function GardenBedsContent() {
                       <div className="flex items-start gap-4">
                         <Icon className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
                         <div>
-                          <h3 className="font-semibold mb-1">{item.title}</h3>
-                          <p className="text-sm text-muted-foreground">{item.desc}</p>
+                          <h3 className="font-semibold mb-1 text-white">{item.title}</h3>
+                          <p className="text-sm text-white/60">{item.desc}</p>
                         </div>
                       </div>
                     </GlassCard>
@@ -170,10 +170,10 @@ export default function GardenBedsContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           WHAT'S INCLUDED — Visual checklist
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-muted/30">
+      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
               What&apos;s Included in Garden Bed Makeovers
             </h2>
           </ScrollReveal>
@@ -192,8 +192,8 @@ export default function GardenBedsContent() {
                   <div className="flex items-start space-x-3">
                     <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                      <h3 className="font-semibold text-white mb-1">{item.title}</h3>
+                      <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 </GlassCard>
@@ -209,7 +209,7 @@ export default function GardenBedsContent() {
       <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">How Garden Bed Makeovers Work</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">How Garden Bed Makeovers Work</h2>
           </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto relative">
@@ -224,11 +224,11 @@ export default function GardenBedsContent() {
             ].map((item, i) => (
               <ScrollReveal key={i} delay={i * 0.12}>
                 <div className="text-center relative">
-                  <div className="relative z-10 bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg hover:border-primary/50 hover:shadow-primary/10 hover:shadow-xl transition-all duration-300">
+                  <div className="relative z-10 bg-white/[0.06] backdrop-blur-sm border-2 border-primary/20 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg hover:border-primary/50 hover:shadow-primary/10 hover:shadow-xl transition-all duration-300">
                     <span className="text-2xl font-bold text-primary">{item.step}</span>
                   </div>
-                  <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <h3 className="font-semibold text-white mb-2">{item.title}</h3>
+                  <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
                 </div>
               </ScrollReveal>
             ))}
@@ -239,10 +239,10 @@ export default function GardenBedsContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           SERVICE OPTIONS — Choose your level
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-muted/30">
+      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
               Choose Your Makeover Level
             </h2>
           </ScrollReveal>
@@ -250,11 +250,11 @@ export default function GardenBedsContent() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
             <ScrollReveal delay={0.0}>
               <GlassCard hover="lift" className="h-full">
-                <h3 className="text-2xl font-bold text-foreground mb-3">Basic Refresh</h3>
-                <p className="text-muted-foreground mb-6">
+                <h3 className="text-2xl font-bold text-white mb-3">Basic Refresh</h3>
+                <p className="text-white/60 mb-6">
                   Perfect for beds that just need cleaning up and fresh mulch.
                 </p>
-                <ul className="space-y-2 text-muted-foreground mb-6">
+                <ul className="space-y-2 text-white/60 mb-6">
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
                     <span className="text-sm">Weed removal</span>
@@ -268,7 +268,7 @@ export default function GardenBedsContent() {
                     <span className="text-sm">Fresh mulch</span>
                   </li>
                 </ul>
-                <p className="text-sm text-muted-foreground">Starting at $200/bed</p>
+                <p className="text-sm text-white/60">Starting at $200/bed</p>
               </GlassCard>
             </ScrollReveal>
 
@@ -277,11 +277,11 @@ export default function GardenBedsContent() {
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
                   Most Popular
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-3 mt-2">Complete Makeover</h3>
-                <p className="text-muted-foreground mb-6">
+                <h3 className="text-2xl font-bold text-white mb-3 mt-2">Complete Makeover</h3>
+                <p className="text-white/60 mb-6">
                   Full renovation including soil prep and design improvements.
                 </p>
-                <ul className="space-y-2 text-muted-foreground mb-6">
+                <ul className="space-y-2 text-white/60 mb-6">
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
                     <span className="text-sm">Everything in Basic</span>
@@ -299,17 +299,17 @@ export default function GardenBedsContent() {
                     <span className="text-sm">Plant trimming/removal</span>
                   </li>
                 </ul>
-                <p className="text-sm text-muted-foreground">$400-$800/bed typical</p>
+                <p className="text-sm text-white/60">$400-$800/bed typical</p>
               </GlassCard>
             </ScrollReveal>
 
             <ScrollReveal delay={0.2}>
               <GlassCard hover="lift" className="h-full">
-                <h3 className="text-2xl font-bold text-foreground mb-3">Full Redesign</h3>
-                <p className="text-muted-foreground mb-6">
+                <h3 className="text-2xl font-bold text-white mb-3">Full Redesign</h3>
+                <p className="text-white/60 mb-6">
                   Complete transformation with new plants and features.
                 </p>
-                <ul className="space-y-2 text-muted-foreground mb-6">
+                <ul className="space-y-2 text-white/60 mb-6">
                   <li className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
                     <span className="text-sm">Everything in Complete</span>
@@ -327,7 +327,7 @@ export default function GardenBedsContent() {
                     <span className="text-sm">Custom design</span>
                   </li>
                 </ul>
-                <p className="text-sm text-muted-foreground">$800-$2,000+ depending on scope</p>
+                <p className="text-sm text-white/60">$800-$2,000+ depending on scope</p>
               </GlassCard>
             </ScrollReveal>
           </div>
@@ -349,10 +349,10 @@ export default function GardenBedsContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           WISCONSIN CONTEXT — Local expertise
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-muted/30">
+      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
               Garden Beds Built for Wisconsin
             </h2>
           </ScrollReveal>
@@ -374,8 +374,8 @@ export default function GardenBedsContent() {
             ].map((item, i) => (
               <ScrollReveal key={i} delay={i * 0.1}>
                 <GlassCard hover="lift" accentBorder className="text-center h-full">
-                  <h3 className="text-xl font-semibold text-foreground mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <h3 className="text-xl font-semibold text-white mb-3">{item.title}</h3>
+                  <p className="text-white/60 leading-relaxed">{item.desc}</p>
                 </GlassCard>
               </ScrollReveal>
             ))}
@@ -390,7 +390,7 @@ export default function GardenBedsContent() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <ScrollReveal>
-              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">When & How Often</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">When & How Often</h2>
             </ScrollReveal>
 
             <div className="grid md:grid-cols-2 gap-6">
@@ -400,13 +400,13 @@ export default function GardenBedsContent() {
                     <div className="bg-primary/10 rounded-full p-2">
                       <Calendar className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="text-xl font-semibold">Best Timing</h3>
+                    <h3 className="text-xl font-semibold text-white">Best Timing</h3>
                   </div>
-                  <ul className="space-y-2.5 text-muted-foreground">
-                    <li>&bull; <strong className="text-foreground">Spring (April-May):</strong> Ideal for major makeovers and planting</li>
-                    <li>&bull; <strong className="text-foreground">Early Summer (June):</strong> Good for refreshes before July heat</li>
-                    <li>&bull; <strong className="text-foreground">Fall (Sept-Oct):</strong> Perfect for planting perennials and prep for winter</li>
-                    <li>&bull; <strong className="text-foreground">Avoid:</strong> Mid-summer heat stress on new plants</li>
+                  <ul className="space-y-2.5 text-white/60">
+                    <li>&bull; <strong className="text-white">Spring (April-May):</strong> Ideal for major makeovers and planting</li>
+                    <li>&bull; <strong className="text-white">Early Summer (June):</strong> Good for refreshes before July heat</li>
+                    <li>&bull; <strong className="text-white">Fall (Sept-Oct):</strong> Perfect for planting perennials and prep for winter</li>
+                    <li>&bull; <strong className="text-white">Avoid:</strong> Mid-summer heat stress on new plants</li>
                   </ul>
                 </GlassCard>
               </ScrollReveal>
@@ -417,13 +417,13 @@ export default function GardenBedsContent() {
                     <div className="bg-primary/10 rounded-full p-2">
                       <Clock className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="text-xl font-semibold">Maintenance Frequency</h3>
+                    <h3 className="text-xl font-semibold text-white">Maintenance Frequency</h3>
                   </div>
-                  <ul className="space-y-2.5 text-muted-foreground">
-                    <li>&bull; <strong className="text-foreground">Mulch refresh:</strong> Every 1-2 years</li>
-                    <li>&bull; <strong className="text-foreground">Edge maintenance:</strong> Annually in spring</li>
-                    <li>&bull; <strong className="text-foreground">Weed control:</strong> Monthly during growing season (or hire us!)</li>
-                    <li>&bull; <strong className="text-foreground">Full makeover:</strong> Every 5-7 years as plants mature</li>
+                  <ul className="space-y-2.5 text-white/60">
+                    <li>&bull; <strong className="text-white">Mulch refresh:</strong> Every 1-2 years</li>
+                    <li>&bull; <strong className="text-white">Edge maintenance:</strong> Annually in spring</li>
+                    <li>&bull; <strong className="text-white">Weed control:</strong> Monthly during growing season (or hire us!)</li>
+                    <li>&bull; <strong className="text-white">Full makeover:</strong> Every 5-7 years as plants mature</li>
                   </ul>
                 </GlassCard>
               </ScrollReveal>
@@ -439,7 +439,7 @@ export default function GardenBedsContent() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <ScrollReveal>
-              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">What Makes TotalGuard Different</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">What Makes TotalGuard Different</h2>
             </ScrollReveal>
 
             <div className="grid md:grid-cols-2 gap-5">
@@ -451,8 +451,8 @@ export default function GardenBedsContent() {
               ].map((item, i) => (
                 <ScrollReveal key={i} delay={i * 0.08}>
                   <GlassCard hover="lift" accentBorder className="h-full">
-                    <h3 className="font-semibold text-lg mb-3">{item.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                    <h3 className="font-semibold text-lg mb-3 text-white">{item.title}</h3>
+                    <p className="text-white/60 leading-relaxed">{item.desc}</p>
                   </GlassCard>
                 </ScrollReveal>
               ))}
@@ -474,8 +474,8 @@ export default function GardenBedsContent() {
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold mb-4">Pair With These Services</h2>
-              <p className="text-muted-foreground mb-10">
+              <h2 className="text-3xl font-bold mb-4 text-white">Pair With These Services</h2>
+              <p className="text-white/60 mb-10">
                 Complete your property transformation with these related services:
               </p>
             </div>
@@ -491,8 +491,8 @@ export default function GardenBedsContent() {
               <ScrollReveal key={i} delay={i * 0.08}>
                 <Link href={item.href} className="block group">
                   <GlassCard hover="lift" className="text-center h-full">
-                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.desc}</p>
+                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
+                    <p className="text-sm text-white/60">{item.desc}</p>
                     <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
                     </span>

@@ -33,7 +33,7 @@ export default function MulchingContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: '#050d07' }}>
       <BreadcrumbSchema items={[
         { name: 'Home', url: 'https://tgyardcare.com' },
         { name: 'Services', url: 'https://tgyardcare.com/services' },
@@ -108,11 +108,11 @@ export default function MulchingContent() {
 
       {/* Who This Is For — Quick qualifier */}
       <ScrollReveal>
-        <section className="py-6 bg-muted/30 border-b border-border">
+        <section className="py-6 border-b border-white/10" style={{ background: '#0a1a0e' }}>
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <p className="text-base md:text-lg text-muted-foreground">
-                <strong className="text-foreground">Ideal for:</strong> Homeowners with garden beds that need refreshing, faded or washed-out mulch, or landscaping that lacks the polished look. Also perfect for new plantings that need protection through their first Wisconsin winter.
+              <p className="text-base md:text-lg text-white/60">
+                <strong className="text-white">Ideal for:</strong> Homeowners with garden beds that need refreshing, faded or washed-out mulch, or landscaping that lacks the polished look. Also perfect for new plantings that need protection through their first Wisconsin winter.
               </p>
             </div>
           </div>
@@ -146,13 +146,13 @@ export default function MulchingContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           WHAT'S INCLUDED — Visual checklist
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-muted/30">
+      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
               What&apos;s Included in Our Mulching Service
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            <p className="text-center text-white/60 mb-12 max-w-2xl mx-auto">
               Complete service from delivery to cleanup&mdash;no extra charges or surprises.
             </p>
           </ScrollReveal>
@@ -171,8 +171,8 @@ export default function MulchingContent() {
                   <div className="flex items-start space-x-3">
                     <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
                     <div>
-                      <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                      <h3 className="font-semibold text-white mb-1">{item.title}</h3>
+                      <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 </GlassCard>
@@ -188,7 +188,7 @@ export default function MulchingContent() {
       <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
               How Our Mulching Service Works
             </h2>
           </ScrollReveal>
@@ -205,11 +205,11 @@ export default function MulchingContent() {
             ].map((item, i) => (
               <ScrollReveal key={i} delay={i * 0.12}>
                 <div className="text-center relative">
-                  <div className="relative z-10 bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg hover:border-primary/50 hover:shadow-primary/10 hover:shadow-xl transition-all duration-300">
+                  <div className="relative z-10 bg-white/[0.06] backdrop-blur-sm border-2 border-primary/20 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg hover:border-primary/50 hover:shadow-primary/10 hover:shadow-xl transition-all duration-300">
                     <span className="text-2xl font-bold text-primary">{item.step}</span>
                   </div>
-                  <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <h3 className="font-semibold text-white mb-2">{item.title}</h3>
+                  <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
                 </div>
               </ScrollReveal>
             ))}
@@ -235,7 +235,7 @@ export default function MulchingContent() {
       <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
               When to Mulch in Wisconsin
             </h2>
           </ScrollReveal>
@@ -250,12 +250,12 @@ export default function MulchingContent() {
                   <div className="bg-primary/10 rounded-full p-2">
                     <Calendar className="h-5 w-5 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground">Spring (April-May)</h3>
+                  <h3 className="text-xl font-semibold text-white">Spring (April-May)</h3>
                 </div>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-white/60 mb-4">
                   After spring cleanup and before summer heat arrives is the ideal window. Fresh mulch protects roots from temperature swings and locks in spring moisture.
                 </p>
-                <ul className="space-y-2.5 text-sm text-muted-foreground">
+                <ul className="space-y-2.5 text-sm text-white/60">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                     Refresh faded winter-worn beds
@@ -278,12 +278,12 @@ export default function MulchingContent() {
                   <div className="bg-primary/10 rounded-full p-2">
                     <Calendar className="h-5 w-5 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground">Fall (September-October)</h3>
+                  <h3 className="text-xl font-semibold text-white">Fall (September-October)</h3>
                 </div>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-white/60 mb-4">
                   A fall refresh before Wisconsin&apos;s harsh winter provides crucial root insulation and sets your beds up for a head start in spring.
                 </p>
-                <ul className="space-y-2.5 text-sm text-muted-foreground">
+                <ul className="space-y-2.5 text-sm text-white/60">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                     Insulate roots from freeze-thaw cycles
@@ -301,8 +301,8 @@ export default function MulchingContent() {
             </ScrollReveal>
           </div>
           <ScrollReveal delay={0.3}>
-            <p className="text-center text-muted-foreground mt-8 max-w-2xl mx-auto">
-              <strong className="text-foreground">How often?</strong> Most Madison-area beds benefit from annual mulching. Heavily sun-exposed or steep beds may need topping off twice yearly.
+            <p className="text-center text-white/60 mt-8 max-w-2xl mx-auto">
+              <strong className="text-white">How often?</strong> Most Madison-area beds benefit from annual mulching. Heavily sun-exposed or steep beds may need topping off twice yearly.
             </p>
           </ScrollReveal>
         </div>
@@ -311,10 +311,10 @@ export default function MulchingContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           BENEFITS — Why mulching matters in Wisconsin
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20 bg-muted/30">
+      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
               Why Mulching Matters in Wisconsin
             </h2>
           </ScrollReveal>
@@ -348,9 +348,9 @@ export default function MulchingContent() {
                   <GlassCard hover="lift" accentBorder className="h-full">
                     <div className="flex items-center gap-3 mb-3">
                       <Icon className="h-6 w-6 text-primary" />
-                      <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
+                      <h3 className="text-xl font-semibold text-white">{item.title}</h3>
                     </div>
-                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                    <p className="text-white/60 leading-relaxed">{item.desc}</p>
                   </GlassCard>
                 </ScrollReveal>
               );
@@ -365,10 +365,10 @@ export default function MulchingContent() {
       <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
               Mulch Options
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            <p className="text-center text-white/60 mb-12 max-w-2xl mx-auto">
               We use premium double-shredded hardwood mulch in your choice of color:
             </p>
           </ScrollReveal>
@@ -382,8 +382,8 @@ export default function MulchingContent() {
               <ScrollReveal key={i} delay={i * 0.1}>
                 <GlassCard hover="lift" className="text-center h-full">
                   <div className={`w-16 h-16 rounded-full ${item.color} mx-auto mb-4`}></div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">{item.title}</h3>
-                  <p className="text-muted-foreground text-sm">{item.desc}</p>
+                  <h3 className="text-xl font-semibold text-white mb-2">{item.title}</h3>
+                  <p className="text-white/60 text-sm">{item.desc}</p>
                 </GlassCard>
               </ScrollReveal>
             ))}
@@ -402,16 +402,16 @@ export default function MulchingContent() {
           <ScrollReveal>
             <div className="max-w-2xl mx-auto">
               <GlassCard variant="accent" hover="glow" className="text-center p-8 md:p-10">
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Madison-Area Mulching Prices</h2>
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Madison-Area Mulching Prices</h2>
                 <div className="flex items-baseline justify-center gap-1 mb-4">
                   <span className="text-5xl md:text-6xl font-bold text-primary">$250</span>
-                  <span className="text-2xl text-muted-foreground">&ndash;</span>
+                  <span className="text-2xl text-white/60">&ndash;</span>
                   <span className="text-5xl md:text-6xl font-bold text-primary">$600</span>
                 </div>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
+                <p className="text-white/60 mb-6 leading-relaxed">
                   Mulching is priced per cubic yard, with most Madison, Middleton, Waunakee, and Sun Prairie residential properties requiring 3-8 cubic yards. Free delivery included for all Dane County properties.
                 </p>
-                <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm text-muted-foreground">
+                <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm text-white/60">
                   <span className="flex items-center gap-1.5">
                     <Calendar className="h-4 w-4 text-primary" />
                     Best timing: April-May
@@ -439,10 +439,10 @@ export default function MulchingContent() {
       <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
           <ScrollReveal>
-            <h2 className="text-3xl font-bold text-foreground mb-4 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4 text-center">
               Complete Your Bed Renovation
             </h2>
-            <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
+            <p className="text-center text-white/60 mb-10 max-w-2xl mx-auto">
               Mulching pairs well with these services for maximum impact:
             </p>
           </ScrollReveal>
@@ -456,8 +456,8 @@ export default function MulchingContent() {
               <ScrollReveal key={i} delay={i * 0.08}>
                 <Link href={item.href} className="block group">
                   <GlassCard hover="lift" className="text-center h-full">
-                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.desc}</p>
+                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
+                    <p className="text-sm text-white/60">{item.desc}</p>
                     <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
                     </span>
