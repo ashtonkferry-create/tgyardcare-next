@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Home, Phone, Mail } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import CTASection from '@/components/CTASection';
 import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
@@ -75,7 +76,9 @@ export default function NotFound() {
         </div>
       </main>
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { Star, Quote, ThumbsUp, CheckCircle } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import CTASection from '@/components/CTASection';
 import { ReviewSchema } from "@/components/ReviewSchema";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -216,36 +217,9 @@ export default function ReviewsContent() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 md:py-20 bg-gradient-to-br from-primary via-primary/90 to-primary text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Experience 5-Star Service?
-          </h2>
-          <p className="text-xl mb-8 text-primary-foreground/90 max-w-2xl mx-auto">
-            Join hundreds of satisfied homeowners in Madison. Get your free quote today!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="text-lg font-bold" asChild>
-              <Link href="/contact">
-                Request Free Quote
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-lg font-bold border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
-              asChild
-            >
-              <a href="tel:608-535-6057">
-                Call (608) 535-6057
-              </a>
-            </Button>
-          </div>
-        </div>
-      </section>
+      <CTASection />
 
-      <Footer />
+      <Footer showCloser={false} />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import CTASection from '@/components/CTASection';
 import { ServiceSchema } from "@/components/ServiceSchema";
 import { MapPin, CheckCircle2, Phone, Star, ArrowRight, Sparkles, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -370,7 +371,9 @@ export default function ServiceAreasContent() {
         </div>
       </section>
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

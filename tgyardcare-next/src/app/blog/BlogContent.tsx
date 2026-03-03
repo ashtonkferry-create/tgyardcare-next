@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import CTASection from '@/components/CTASection';
 import Link from "next/link";
 import { Calendar, ArrowRight, Clock, Leaf, Droplets, TreePine, Snowflake, Scissors } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -185,7 +186,9 @@ export default function BlogContent() {
         </div>
       </section>
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

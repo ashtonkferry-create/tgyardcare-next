@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import DOMPurify from "dompurify";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import CTASection from '@/components/CTASection';
 import Link from "next/link";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -71,7 +72,8 @@ export default function BlogPostContent({ slug }: { slug: string }) {
           <Skeleton className="h-40 w-full mb-6" />
           <Skeleton className="h-40 w-full" />
         </div>
-        <Footer />
+        <CTASection />
+        <Footer showCloser={false} />
       </div>
     );
   }
@@ -89,7 +91,8 @@ export default function BlogPostContent({ slug }: { slug: string }) {
             </Link>
           </Button>
         </div>
-        <Footer />
+        <CTASection />
+        <Footer showCloser={false} />
       </div>
     );
   }
@@ -232,7 +235,9 @@ export default function BlogPostContent({ slug }: { slug: string }) {
         </div>
       </section>
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
 
       <style>{`
         .blog-content {

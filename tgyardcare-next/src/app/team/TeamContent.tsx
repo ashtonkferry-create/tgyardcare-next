@@ -2,6 +2,7 @@
 
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import CTASection from '@/components/CTASection';
 import { Users, Award, Target, Heart, Sparkles, Phone } from "lucide-react";
 import alexPortrait from "@/assets/alex-portrait.png";
 import vancePortrait from "@/assets/vance-portrait.png";
@@ -219,7 +220,9 @@ export default function TeamContent() {
         </div>
       </section>
 
-      <Footer />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }

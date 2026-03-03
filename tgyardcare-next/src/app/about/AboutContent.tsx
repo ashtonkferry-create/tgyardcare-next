@@ -2,6 +2,7 @@
 
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import CTASection from '@/components/CTASection';
 import { Clock, CheckCircle2, Shield, Users, ArrowRight } from "lucide-react";
 
 export default function AboutContent() {
@@ -182,10 +183,9 @@ export default function AboutContent() {
         </div>
       </section>
 
-      <Footer
-        closerTitle="See How We Operate"
-        closerDescription="Request a quote and experience the difference that systems and accountability make. Same-day response, transparent pricing, no obligations."
-      />
+      <CTASection />
+
+      <Footer showCloser={false} />
     </div>
   );
 }
