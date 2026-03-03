@@ -35,10 +35,19 @@ const seasonalCheck = {
   winter: 'text-cyan-400',
 } as const;
 
-const seasonalSectionBg = {
-  summer: 'from-[#0a1f14] via-[#0f2818] to-[#0a1f14]',
-  fall: 'from-stone-950 via-amber-950/20 to-stone-950',
-  winter: 'from-slate-950 via-blue-950/20 to-slate-950',
+const seasonalBg = {
+  summer: {
+    page:    '#050d07',
+    section: '#0a1a0e',
+  },
+  fall: {
+    page:    '#0d0900',
+    section: '#1a1000',
+  },
+  winter: {
+    page:    '#020810',
+    section: '#060f1a',
+  },
 } as const;
 
 const serviceScope = [
@@ -118,9 +127,10 @@ const processSteps = [
 
 export default function CommercialLawnCareContent() {
   const { activeSeason } = useSeasonalTheme();
+  const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen text-white" style={{ background: bg.page }}>
       <BreadcrumbSchema items={[
         { name: 'Home', url: 'https://tgyardcare.com' },
         { name: 'Commercial', url: 'https://tgyardcare.com/commercial' },
@@ -182,7 +192,7 @@ export default function CommercialLawnCareContent() {
       <TrustStrip variant="dark" />
 
       {/* Who This Is For */}
-      <section className={cn('py-16 md:py-20 bg-gradient-to-b', seasonalSectionBg[activeSeason])}>
+      <section className="py-16 md:py-20" style={{ background: bg.section }}>
         <div className="container mx-auto px-4 sm:px-6">
           <ScrollReveal>
             <div className="max-w-4xl mx-auto text-center mb-12">
@@ -209,14 +219,14 @@ export default function CommercialLawnCareContent() {
       </section>
 
       {/* What's Included at Scale */}
-      <section className="py-16 md:py-20">
+      <section className="py-16 md:py-20" style={{ background: bg.page }}>
         <div className="container mx-auto px-4 sm:px-6">
           <ScrollReveal>
             <div className="max-w-4xl mx-auto text-center mb-12">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
                 Commercial-scale service scope
               </h2>
-              <p className="text-base md:text-lg text-muted-foreground">
+              <p className="text-base md:text-lg text-white/60">
                 Every element of grounds maintenance documented, scheduled, and executed with commercial-grade consistency.
               </p>
             </div>
@@ -229,8 +239,8 @@ export default function CommercialLawnCareContent() {
                     <item.icon className={cn('h-6 w-6', seasonalAccent[activeSeason])} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-foreground mb-2">{item.title}</h3>
-                    <p className="text-muted-foreground">{item.description}</p>
+                    <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
+                    <p className="text-white/60">{item.description}</p>
                   </div>
                 </div>
               </ScrollReveal>
@@ -240,7 +250,7 @@ export default function CommercialLawnCareContent() {
       </section>
 
       {/* Quality Standards */}
-      <section className={cn('py-16 md:py-20 bg-gradient-to-b', seasonalSectionBg[activeSeason])}>
+      <section className="py-16 md:py-20" style={{ background: bg.section }}>
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-4xl mx-auto">
             <ScrollReveal>
@@ -270,15 +280,15 @@ export default function CommercialLawnCareContent() {
       <CTASection variant="compact" />
 
       {/* Pricing Structure */}
-      <section className="py-16 md:py-20">
+      <section className="py-16 md:py-20" style={{ background: bg.page }}>
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-4xl mx-auto">
             <ScrollReveal>
               <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
                   Commercial pricing structure
                 </h2>
-                <p className="text-base md:text-lg text-muted-foreground">
+                <p className="text-base md:text-lg text-white/60">
                   Transparent contract options designed for commercial budgeting and property management accounting.
                 </p>
               </div>
@@ -287,16 +297,16 @@ export default function CommercialLawnCareContent() {
               {pricingStructure.map((option, index) => (
                 <ScrollReveal key={index} delay={index * 0.1}>
                   <GlassCard variant="dark" hover="glow">
-                    <h3 className="text-xl font-bold text-foreground mb-3">{option.title}</h3>
-                    <p className="text-muted-foreground">{option.description}</p>
+                    <h3 className="text-xl font-bold text-white mb-3">{option.title}</h3>
+                    <p className="text-white/60">{option.description}</p>
                   </GlassCard>
                 </ScrollReveal>
               ))}
             </div>
             <ScrollReveal delay={0.3}>
               <div className="mt-8 text-center">
-                <p className="text-muted-foreground mb-4">
-                  Commercial quotes are based on property size, service frequency, and contract term. Most HOAs and apartment complexes see monthly rates between <strong className="text-foreground">$400–$1,500</strong> depending on scope.
+                <p className="text-white/60 mb-4">
+                  Commercial quotes are based on property size, service frequency, and contract term. Most HOAs and apartment complexes see monthly rates between <strong className="text-white">$400–$1,500</strong> depending on scope.
                 </p>
               </div>
             </ScrollReveal>
@@ -305,7 +315,7 @@ export default function CommercialLawnCareContent() {
       </section>
 
       {/* Why We're Different */}
-      <section className="py-16 md:py-20 bg-gradient-to-r from-[#0f2a1a] via-[#1a3a2a] to-[#0f2a1a] border-y border-emerald-800/30">
+      <section className="py-16 md:py-20 border-y border-white/10" style={{ background: bg.section }}>
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-4xl mx-auto">
             <ScrollReveal>
@@ -358,12 +368,12 @@ export default function CommercialLawnCareContent() {
       </section>
 
       {/* Process */}
-      <section className="py-16 md:py-20">
+      <section className="py-16 md:py-20" style={{ background: bg.page }}>
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-4xl mx-auto">
             <ScrollReveal>
               <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
                   How commercial contracts work
                 </h2>
               </div>
@@ -394,7 +404,7 @@ export default function CommercialLawnCareContent() {
       <TrustStrip variant="light" />
 
       {/* Related Commercial Services */}
-      <section className={cn('py-16 md:py-20 bg-gradient-to-b', seasonalSectionBg[activeSeason])}>
+      <section className="py-16 md:py-20" style={{ background: bg.section }}>
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-4xl mx-auto text-center">
             <ScrollReveal>
