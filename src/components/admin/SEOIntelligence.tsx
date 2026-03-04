@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { RefreshCw, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
@@ -165,9 +165,8 @@ export default function SEOIntelligence() {
                   const isExpanded = expandedPath === row.path;
 
                   return (
-                    <>
+                    <Fragment key={row.path}>
                       <tr
-                        key={row.path}
                         className="cursor-pointer hover:bg-white/[0.03] transition-colors"
                         style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
                         onClick={() => setExpandedPath(isExpanded ? null : row.path)}
@@ -250,7 +249,7 @@ export default function SEOIntelligence() {
                           </td>
                         </tr>
                       )}
-                    </>
+                    </Fragment>
                   );
                 })}
               </tbody>
