@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useSeasonalTheme } from "@/contexts/SeasonalThemeContext";
+import { useSeasonalTheme, type Season } from "@/contexts/SeasonalThemeContext";
 import { MobileNavMenu } from "@/components/MobileNavMenu";
 import { PromoBanner } from "@/components/PromoBanner";
 import { useScrollCondense } from "@/hooks/useScrollCondense";
@@ -732,12 +732,12 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
   } as const;
   const t = navTheme[activeSeason] ?? navTheme.summer;
 
-  const hiringDotColor: Record<string, string> = {
+  const hiringDotColor: Record<Season, string> = {
     summer: '#22c55e',
     fall:   '#f59e0b',
     winter: '#22d3ee',
-  };
-  const dotColor = hiringDotColor[activeSeason] ?? '#22c55e';
+  } as const;
+  const dotColor = hiringDotColor[activeSeason];
 
   return (
     <>
