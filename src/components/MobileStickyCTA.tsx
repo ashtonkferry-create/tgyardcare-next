@@ -59,7 +59,7 @@ export default function MobileStickyCTA() {
       >
         <div className="flex gap-3 max-w-lg mx-auto">
           <Link
-            href="/get-quote"
+            href="/contact"
             onClick={handleCTATap}
             className={`flex-1 flex items-center justify-center gap-2 bg-gradient-to-r ${btnGradient} text-white font-semibold text-sm rounded-lg py-3 px-4 shadow-lg transition-all duration-200`}
           >
