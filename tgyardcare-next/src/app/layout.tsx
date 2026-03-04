@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { createClient } from '@supabase/supabase-js';
 import './globals.css';
 import { Providers } from '@/components/Providers';
 
@@ -69,7 +70,29 @@ export const metadata: Metadata = {
   },
 };
 
-function GlobalJsonLd() {
+async function GlobalJsonLd() {
+  // Fetch live aggregate rating from seo_config (updated daily by review-schema-updater cron)
+  let ratingValue = '4.9';
+  let reviewCount = '80';
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const { data } = await supabase
+      .from('seo_config')
+      .select('value')
+      .eq('key', 'aggregate_rating')
+      .single();
+    if (data) {
+      const val = (data as { value: { ratingValue: string; reviewCount: string } }).value;
+      ratingValue = val.ratingValue ?? ratingValue;
+      reviewCount = val.reviewCount ?? reviewCount;
+    }
+  } catch {
+    // Fall back to hardcoded defaults
+  }
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
@@ -125,8 +148,8 @@ function GlobalJsonLd() {
     paymentAccepted: ['Cash', 'Check', 'Credit Card', 'Venmo'],
     aggregateRating: {
       '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      reviewCount: '80',
+      ratingValue,
+      reviewCount,
       bestRating: '5',
       worstRating: '1',
     },
