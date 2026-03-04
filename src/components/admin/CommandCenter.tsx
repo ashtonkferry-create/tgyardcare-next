@@ -298,7 +298,7 @@ export default function CommandCenter() {
             onClick={() => router.push("/admin/seo")}
             className="text-xs text-green-400 hover:text-green-300 flex items-center gap-1"
           >
-            View All 76 Pages <ArrowRight className="h-3 w-3" />
+            View All {pageCount} Pages <ArrowRight className="h-3 w-3" />
           </button>
         </div>
         {pageScores.length === 0 ? (
