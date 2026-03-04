@@ -917,7 +917,7 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
             {/* We're Hiring pulse pill */}
             <Link
               href="/careers"
-              className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/20 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/40 hover:scale-[1.02] transition-all duration-200"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/20 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/40 hover:scale-[1.02] transition-all duration-200"
             >
               <span className="relative flex h-2 w-2">
                 <span
