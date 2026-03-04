@@ -6,6 +6,7 @@ import './globals.css';
 import { Providers } from '@/components/Providers';
 import { GlobalSchema } from '@/components/GlobalSchema';
 import { NavigationSchema } from '@/components/schemas/NavigationSchema';
+import { AutoSchema } from '@/components/schemas/AutoSchema';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -83,6 +84,7 @@ export default function RootLayout({
         <NavigationSchema />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
+        <AutoSchema />
         <Providers>{children}</Providers>
         <Analytics />
         <SpeedInsights />
