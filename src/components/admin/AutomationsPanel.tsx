@@ -66,7 +66,17 @@ export default function AutomationsPanel() {
     setRunning(slug);
     try {
       const path = CRON_MAP[slug];
-      if (path) await fetch(path, { headers: { "x-admin-token": "dev", authorization: "Bearer dev" } });
+      if (path) {
+        const { data: { session } } = await supabase.auth.getSession();
+        await fetch("/api/admin/run-cron", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${session?.access_token ?? ""}`,
+          },
+          body: JSON.stringify({ path }),
+        });
+      }
       await load();
     } finally { setRunning(null); }
   };

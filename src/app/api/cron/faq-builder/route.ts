@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
       };
       await supabase.from("page_seo").upsert({ path, schema_data: schema }, { onConflict: "path" });
       processed++;
-    } catch { /* skip */ }
+    } catch (err) { console.error(`faq-builder failed for ${path}:`, err); }
   }
 
   await supabase.from("automation_runs").insert({

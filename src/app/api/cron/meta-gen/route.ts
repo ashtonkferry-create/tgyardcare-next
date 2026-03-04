@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
         await supabase.from("page_seo").upsert({ path: page.path, suggested_meta_description: text }, { onConflict: "path" });
         generated++;
       }
-    } catch { /* skip */ }
+    } catch (err) { console.error(`meta-gen failed for ${page.path}:`, err); }
   }
 
   await supabase.from("automation_runs").insert({
