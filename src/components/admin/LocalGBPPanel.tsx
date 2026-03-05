@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from "react";
-import { createClient } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -116,8 +116,6 @@ function statusVariant(status: string): string {
 // ---------------------------------------------------------------------------
 
 export default function LocalGBPPanel() {
-  const supabase = createClient();
-
   const [stats, setStats] = useState<QuickStats>({
     totalReviews: 0,
     avgRating: 0,
@@ -151,7 +149,7 @@ export default function LocalGBPPanel() {
       .limit(20);
     if (data) setReviews(data as unknown as ReviewRow[]);
     return data as unknown as ReviewRow[] | null;
-  }, [supabase]);
+  }, []);
 
   const fetchPosts = useCallback(async () => {
     const { data } = await supabase
@@ -161,7 +159,7 @@ export default function LocalGBPPanel() {
       .limit(20);
     if (data) setPosts(data as unknown as PostRow[]);
     return data as unknown as PostRow[] | null;
-  }, [supabase]);
+  }, []);
 
   const fetchStats = useCallback(async (reviewRows: ReviewRow[] | null, postRows: PostRow[] | null) => {
     // Reviews stats
@@ -211,7 +209,7 @@ export default function LocalGBPPanel() {
       postsThisMonth: postsThisMonth ?? 0,
       removalRate: Math.round(removalRate),
     });
-  }, [supabase]);
+  }, []);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
