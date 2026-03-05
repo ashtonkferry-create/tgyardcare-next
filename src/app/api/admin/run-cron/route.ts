@@ -15,6 +15,10 @@ const ALLOWED_PATHS = new Set([
   "/api/cron/gbp-post",
   "/api/cron/lead-response-timer",
   "/api/cron/weekly-digest",
+  "/api/cron/review-responder",
+  "/api/cron/gbp-post-publisher",
+  "/api/cron/review-faq-miner",
+  "/api/cron/gbp-audit",
 ]);
 
 export async function POST(req: NextRequest) {
