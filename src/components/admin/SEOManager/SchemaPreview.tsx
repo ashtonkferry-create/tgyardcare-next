@@ -108,7 +108,7 @@ export function SchemaPreview({ page }: SchemaPreviewProps) {
           "logo": `${CANONICAL_DOMAIN}/lovable-uploads/785f87d1-0deb-4f52-bb55-562cc863177a.webp`,
           "sameAs": [
             "https://facebook.com/totalguardyardcare",
-            "https://instagram.com/tgyardcare"
+            "https://www.instagram.com/totalguardyardcare"
           ]
         };
 

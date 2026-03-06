@@ -64,7 +64,7 @@ export function LocalBusinessSchema({
     },
     "sameAs": [
       "https://facebook.com/totalguardyardcare",
-      "https://instagram.com/tgyardcare"
+      "https://www.instagram.com/totalguardyardcare"
     ],
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
