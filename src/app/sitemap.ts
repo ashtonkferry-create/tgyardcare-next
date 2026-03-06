@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
+import { createClient } from '@supabase/supabase-js';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://tgyardcare.com';
   const now = new Date();
 
@@ -64,14 +65,54 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: now,
   }));
 
-  const blogPages: MetadataRoute.Sitemap = [
-    'spring-lawn-care-checklist', 'fall-cleanup-importance',
-  ].map(slug => ({
-    url: `${baseUrl}/blog/${slug}`,
-    changeFrequency: 'yearly' as const,
-    priority: 0.6,
-    lastModified: now,
-  }));
+  // Dynamic blog posts from Supabase
+  let blogPages: MetadataRoute.Sitemap = [];
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const { data: posts } = await supabase
+      .from('blog_posts')
+      .select('slug, published_at, updated_at')
+      .eq('status', 'published')
+      .not('published_at', 'is', null)
+      .order('published_at', { ascending: false });
+
+    if (posts && posts.length > 0) {
+      blogPages = posts.map(post => ({
+        url: `${baseUrl}/blog/${post.slug}`,
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+        lastModified: post.updated_at ? new Date(post.updated_at) : new Date(post.published_at),
+      }));
+    }
+  } catch {
+    // Fallback to hardcoded slugs if Supabase is unavailable
+    blogPages = [
+      'spring-lawn-care-checklist', 'fall-cleanup-importance',
+    ].map(slug => ({
+      url: `${baseUrl}/blog/${slug}`,
+      changeFrequency: 'yearly' as const,
+      priority: 0.6,
+      lastModified: now,
+    }));
+  }
+
+  // Always include hardcoded posts even if not in DB
+  const blogSlugs = new Set(blogPages.map(p => p.url));
+  const hardcodedSlugs = ['spring-lawn-care-checklist', 'fall-cleanup-importance'];
+  for (const slug of hardcodedSlugs) {
+    const url = `${baseUrl}/blog/${slug}`;
+    if (!blogSlugs.has(url)) {
+      blogPages.push({
+        url,
+        changeFrequency: 'yearly' as const,
+        priority: 0.6,
+        lastModified: now,
+      });
+    }
+  }
 
   return [
     ...staticPages,

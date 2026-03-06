@@ -33,6 +33,7 @@
     { "path": "/api/cron/review-responder",       "schedule": "0 8 * * *"    },
     { "path": "/api/cron/gbp-post-publisher",     "schedule": "0 14 * * 2"   },
     { "path": "/api/cron/review-faq-miner",       "schedule": "0 10 * * 0"   },
-    { "path": "/api/cron/gbp-audit",              "schedule": "0 8 * * 1"    }
+    { "path": "/api/cron/gbp-audit",              "schedule": "0 8 * * 1"    },
+    { "path": "/api/cron/blog-generator",          "schedule": "0 10 * * 5"   }
   ]
 }
