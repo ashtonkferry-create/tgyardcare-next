@@ -79,7 +79,7 @@ export default function MadisonContent() {
               Madison&apos;s Premier <span className="text-primary">Lawn Care Service</span>
             </h1>
             <p className="text-xl md:text-2xl text-white/90 mb-8 font-medium">
-              Professional lawn care and landscaping services for Madison homeowners and businesses. Serving all Madison neighborhoods with excellence since 2019.
+              Professional lawn care and landscaping services for Madison homeowners and businesses. Serving all Madison neighborhoods with excellence since 2023.
             </p>
             <div className="flex items-center gap-6 mb-10 flex-wrap">
               <div className="flex items-center gap-2 text-white">

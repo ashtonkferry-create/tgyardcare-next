@@ -33,11 +33,11 @@ export const BUSINESS = {
   phone: '+1-608-535-6057',
   phoneDisplay: '608-535-6057',
   email: 'totalguardllc@gmail.com',
-  foundingDate: '2019',
+  foundingDate: '2023',
   priceRange: '$$',
   slogan: "Madison's Most Reliable Yard Care",
   description:
-    'TotalGuard Yard Care provides premium lawn care, gutter cleaning, snow removal, and seasonal yard services to residential and commercial properties across Madison and Dane County, WI. Locally owned since 2019.',
+    'TotalGuard Yard Care provides premium lawn care, gutter cleaning, snow removal, and seasonal yard services to residential and commercial properties across Madison and Dane County, WI. Locally owned since 2023.',
   logo: `${CANONICAL_URL}/images/totalguard-logo-full.png`,
   image: `${CANONICAL_URL}/og-image.jpg`,
   url: CANONICAL_URL,

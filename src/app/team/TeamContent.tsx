@@ -87,7 +87,7 @@ export default function TeamContent() {
   return (
     <div className="min-h-screen text-white" style={{ background: bg.page }}>
       <AboutPageSchema />
-      <WebPageSchema name="Our Team" description="Meet the TotalGuard Yard Care team — locally owned lawn care in Madison, WI since 2019" url="/team" />
+      <WebPageSchema name="Our Team" description="Meet the TotalGuard Yard Care team — locally owned lawn care in Madison, WI since 2023" url="/team" />
       <BreadcrumbSchema items={[
         { name: "Home", url: "https://tgyardcare.com" },
         { name: "Our Team", url: "https://tgyardcare.com/team" }
@@ -97,7 +97,7 @@ export default function TeamContent() {
       {/* SEO hidden text */}
       <section className="sr-only">
         <h2>Meet the TotalGuard Yard Care Team</h2>
-        <p>TotalGuard Yard Care was founded by Alex and Vance, two Madison entrepreneurs committed to reliable, systems-driven lawn care across Dane County, Wisconsin since 2019.</p>
+        <p>TotalGuard Yard Care was founded by Alex and Vance, two Madison entrepreneurs committed to reliable, systems-driven lawn care across Dane County, Wisconsin since 2023.</p>
       </section>
 
       {/* ── HERO ── */}
@@ -225,7 +225,7 @@ export default function TeamContent() {
             <ScrollReveal delay={0.15}>
               <div className="grid grid-cols-3 gap-6">
                 {[
-                  { value: '2019', label: 'Founded' },
+                  { value: '2023', label: 'Founded' },
                   { value: '500+', label: 'Properties Served' },
                   { value: '4.9★', label: 'Google Rating' },
                 ].map((stat, i) => (

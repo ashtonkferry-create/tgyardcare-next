@@ -48,7 +48,7 @@ const metrics = [
   { value: 500, suffix: '+', label: 'Properties Served', icon: Home },
   { value: 4.9, suffix: '★', label: 'Google Rating', decimals: 1, icon: Star },
   { value: 12, suffix: '', label: 'Cities Covered', icon: MapPin },
-  { value: 2019, suffix: '', label: 'Est.', icon: CalendarDays },
+  { value: 2023, suffix: '', label: 'Est.', icon: CalendarDays },
 ];
 
 // TotalGuard Standard cards
@@ -77,12 +77,12 @@ const standards = [
 
 // Timeline milestones
 const milestones = [
-  { year: '2019', event: 'Founded in Madison', detail: 'Alex & Vance launch TotalGuard with a commitment to systems-first service.' },
-  { year: '2020', event: 'First 100 clients', detail: 'Rapid growth through word-of-mouth — 4.9★ rating established from day one.' },
-  { year: '2022', event: 'Commercial expansion', detail: 'Added HOA, office park, and retail property maintenance to our service portfolio.' },
-  { year: '2023', event: 'Dane County coverage', detail: 'Expanded to 12 cities — Madison, Middleton, Waunakee, Sun Prairie, and more.' },
-  { year: '2024', event: '500+ properties', detail: 'Serving 500+ residential and commercial properties across the greater Madison area.' },
-  { year: '2025+', event: 'The TotalGuard Standard', detail: 'Continuing to raise the bar for what reliable, systems-driven lawn care looks like in Wisconsin.' },
+  { year: '2023', event: 'Founded in Madison', detail: 'Alex & Vance launch TotalGuard with a commitment to systems-first service.' },
+  { year: '2024', event: 'Rapid growth', detail: 'Word-of-mouth drives rapid client growth — 4.9★ Google rating established early on.' },
+  { year: '2024', event: 'Commercial expansion', detail: 'Added HOA, office park, and retail property maintenance to our service portfolio.' },
+  { year: '2025', event: 'Dane County coverage', detail: 'Expanded to 12 cities — Madison, Middleton, Waunakee, Sun Prairie, and more.' },
+  { year: '2025', event: '500+ properties', detail: 'Serving 500+ residential and commercial properties across the greater Madison area.' },
+  { year: '2026+', event: 'The TotalGuard Standard', detail: 'Continuing to raise the bar for what reliable, systems-driven lawn care looks like in Wisconsin.' },
 ];
 
 // Who we serve cards
@@ -117,7 +117,7 @@ export default function AboutContent() {
       {/* SEO hidden text */}
       <section className="sr-only">
         <h2>About TotalGuard Yard Care</h2>
-        <p>TotalGuard Yard Care is a locally owned lawn care company serving Madison, Wisconsin and Dane County since 2019. We provide professional mowing, mulching, gutter cleaning, seasonal cleanups, fertilization, and snow removal with a 4.9-star Google rating and 100% satisfaction guarantee.</p>
+        <p>TotalGuard Yard Care is a locally owned lawn care company serving Madison, Wisconsin and Dane County since 2023. We provide professional mowing, mulching, gutter cleaning, seasonal cleanups, fertilization, and snow removal with a 4.9-star Google rating and 100% satisfaction guarantee.</p>
       </section>
 
       {/* ── HERO ── */}
@@ -183,7 +183,7 @@ export default function AboutContent() {
             <h2 className="text-3xl md:text-4xl font-black text-white mb-3">
               By the Numbers
             </h2>
-            <p className="text-white/60 text-lg">Six years of showing up, doing the work, and earning the rating.</p>
+            <p className="text-white/60 text-lg">Three years of showing up, doing the work, and earning the rating.</p>
           </ScrollReveal>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -309,7 +309,7 @@ export default function AboutContent() {
               Our Journey
             </h2>
             <p className="text-white/50 text-xl max-w-2xl mx-auto">
-              Six years of building something Madison could depend on.
+              Three years of building something Madison could depend on.
             </p>
           </ScrollReveal>
 
