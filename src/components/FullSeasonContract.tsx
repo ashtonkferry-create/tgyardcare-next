@@ -11,136 +11,163 @@ import {
   Sun,
   Snowflake,
   Crown,
-  X,
   DollarSign,
-  type LucideIcon
+  Calendar,
+  type LucideIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { AmbientParticles } from "@/components/AmbientParticles";
+import { AnimatedCounter } from "@/components/AnimatedCounter";
+
+/* ─── Data ─── */
 
 interface SeasonData {
   icon: LucideIcon;
   label: string;
-  color: string;
-  bg: string;
-  gradient: string;
   tagline: string;
+  jewel: string;
+  jewelHex: string;
+  bg: string;
   services: string[];
 }
 
+const seasons: SeasonData[] = [
+  {
+    icon: Leaf,
+    label: "Spring",
+    tagline: "Revival & Renewal",
+    jewel: "text-emerald-400",
+    jewelHex: "#34D399",
+    bg: "bg-emerald-500/10",
+    services: [
+      "Spring Cleanup",
+      "Lawn Recovery",
+      "Edging & Trimming",
+      "Mulching",
+      "Garden Bed Prep",
+      "Early Fertilization",
+    ],
+  },
+  {
+    icon: Sun,
+    label: "Summer",
+    tagline: "Peak Performance",
+    jewel: "text-blue-400",
+    jewelHex: "#60A5FA",
+    bg: "bg-blue-500/10",
+    services: [
+      "Weekly Mowing",
+      "Weed Control",
+      "Herbicide Treatments",
+      "Bush Trimming",
+      "Garden Maintenance",
+      "Property Upkeep",
+    ],
+  },
+  {
+    icon: Sparkles,
+    label: "Fall",
+    tagline: "Protect & Prepare",
+    jewel: "text-amber-600",
+    jewelHex: "#C87533",
+    bg: "bg-amber-700/10",
+    services: [
+      "Leaf Removal",
+      "Fall Cleanup",
+      "Aeration",
+      "Overseeding",
+      "Gutter Cleaning",
+      "Winterization",
+    ],
+  },
+  {
+    icon: Snowflake,
+    label: "Winter",
+    tagline: "Safe & Secure",
+    jewel: "text-slate-300",
+    jewelHex: "#94A3B8",
+    bg: "bg-slate-400/10",
+    services: [
+      "Snow Removal",
+      "Ice Management",
+      "Salting",
+      "Gutter Guards",
+      "Property Monitoring",
+      "Emergency Response",
+    ],
+  },
+];
+
+const months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+const benefitStats = [
+  {
+    icon: DollarSign,
+    value: 20,
+    suffix: "%",
+    label: "Bundle savings vs. booking separately",
+  },
+  {
+    icon: Calendar,
+    value: 365,
+    suffix: "",
+    label: "Days of continuous coverage",
+  },
+  {
+    icon: Shield,
+    value: 1,
+    suffix: "",
+    label: "Dedicated team, year-round",
+  },
+];
+
+/* ─── Component ─── */
+
 export function FullSeasonContract() {
+  const [expandedSeason, setExpandedSeason] = useState<number | null>(null);
   const contactLink = "/contact?service=full-season";
-  const [activeSeason, setActiveSeason] = useState<string | null>(null);
-
-  const seasons: SeasonData[] = [
-    {
-      icon: Leaf,
-      label: "Spring",
-      color: "text-emerald-500",
-      bg: "bg-emerald-500/10",
-      gradient: "from-emerald-500 to-green-600",
-      tagline: "Fresh starts & lawn revival",
-      services: ["Spring Cleanup", "Lawn Recovery", "Edging & Trimming", "Mulching", "Garden Bed Prep", "Early Fertilization"]
-    },
-    {
-      icon: Sun,
-      label: "Summer",
-      color: "text-amber-500",
-      bg: "bg-amber-500/10",
-      gradient: "from-amber-500 to-orange-500",
-      tagline: "Peak season perfection",
-      services: ["Weekly Mowing", "Weed Control", "Herbicide Treatments", "Bush Trimming", "Garden Maintenance", "Property Upkeep"]
-    },
-    {
-      icon: Sparkles,
-      label: "Fall",
-      color: "text-orange-500",
-      bg: "bg-orange-500/10",
-      gradient: "from-orange-500 to-red-500",
-      tagline: "Prepare for winter success",
-      services: ["Leaf Removal", "Fall Cleanup", "Aeration", "Overseeding", "Gutter Cleaning", "Winterization"]
-    },
-    {
-      icon: Snowflake,
-      label: "Winter",
-      color: "text-cyan-400",
-      bg: "bg-cyan-400/10",
-      gradient: "from-cyan-400 to-blue-500",
-      tagline: "Safe & accessible all season",
-      services: ["Snow Removal", "Ice Management", "Salting", "Gutter Guards", "Property Monitoring", "Emergency Response"]
-    },
-  ];
-
-  const benefits = [
-    "Priority scheduling year-round",
-    "One team, one standard",
-    "Predictable coverage",
-    "Never miss a season",
-  ];
-
-  const activeSeasonData = seasons.find(s => s.label === activeSeason);
 
   return (
-    <section className="relative py-16 md:py-24 overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <AmbientParticles density="sparse" />
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Gradient orbs */}
-        <motion.div
-          className="absolute -top-32 -left-32 w-96 h-96 bg-primary/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute -bottom-32 -right-32 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.4, 0.6, 0.4],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-primary/10 to-cyan-500/10 rounded-full blur-3xl"
-          animate={{
-            rotate: [0, 360],
-          }}
-          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-        />
-
-        {/* Floating particles */}
-        {[...Array(12)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1.5 h-1.5 bg-primary/40 rounded-full"
-            style={{
-              left: `${10 + (i * 7)}%`,
-              top: `${15 + ((i * 17) % 70)}%`,
-            }}
-            animate={{
-              y: [0, -30, 0],
-              opacity: [0.3, 0.8, 0.3],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: 3 + (i % 3),
-              repeat: Infinity,
-              delay: i * 0.3,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-
-        {/* Aurora shimmer overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/10 via-cyan-900/10 to-blue-900/10 animate-aurora-shimmer pointer-events-none" />
-      </div>
+    <section
+      className="relative py-20 md:py-32 overflow-hidden"
+      style={{ backgroundColor: "#0A0A0F" }}
+    >
+      {/* ── Background: dot grid + warm radial glow ── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, #D4A855 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+          opacity: 0.04,
+        }}
+      />
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at center 60%, rgba(212,168,85,0.08) 0%, transparent 70%)",
+        }}
+      />
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
-        <div className="max-w-5xl mx-auto">
-          {/* Premium badge */}
+        <div className="max-w-6xl mx-auto">
+          {/* ═══════════════ TIER 1: Hero Header ═══════════════ */}
+
+          {/* Badge */}
           <motion.div
             className="flex justify-center mb-6"
             initial={{ opacity: 0, y: 20 }}
@@ -148,257 +175,306 @@ export function FullSeasonContract() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-amber-400/10 text-amber-400 px-5 py-2.5 rounded-full text-sm font-bold border border-amber-500/30 shadow-lg shadow-amber-500/10">
+            <div
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold tracking-wide"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(212,168,85,0.15), rgba(245,200,66,0.08))",
+                border: "1px solid rgba(212,168,85,0.4)",
+                color: "#D4A855",
+              }}
+            >
               <Crown className="h-4 w-4" />
-              <span className="tracking-wide">FLAGSHIP PROPERTY CARE</span>
+              <span>FLAGSHIP PROPERTY CARE</span>
             </div>
           </motion.div>
 
-          {/* Main headline - fixed leading to prevent y cutoff */}
+          {/* Headline */}
           <motion.div
-            className="text-center mb-10"
+            className="text-center mb-5"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-5 leading-tight tracking-tight">
-              Full Season
-              <span className="block bg-gradient-to-r from-primary via-emerald-400 to-cyan-400 bg-clip-text text-transparent pb-2">
-                Property Care
-              </span>
+              <span
+                className="bg-clip-text text-transparent"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(135deg, #D4A855, #F5C842)",
+                }}
+              >
+                Full Season
+              </span>{" "}
+              <span className="text-white">Property Care</span>
             </h2>
             <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              One contract. Four seasons. Complete protection.
-              <span className="text-white font-semibold"> Stop scheduling—start enjoying your property.</span>
+              One contract. Twelve months. Zero gaps.
             </p>
           </motion.div>
 
-          {/* Hint text with professional icon */}
+          {/* ═══════════════ TIER 2: Season Cards + Timeline ═══════════════ */}
+
+          {/* Season cards grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 mb-10">
+            {seasons.map((season, index) => {
+              const isExpanded = expandedSeason === index;
+              const Icon = season.icon;
+
+              return (
+                <motion.div
+                  key={season.label}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                  whileHover={
+                    !isExpanded
+                      ? {
+                          y: -6,
+                          boxShadow: `0 12px 40px -8px ${season.jewelHex}33`,
+                        }
+                      : undefined
+                  }
+                  onClick={() =>
+                    setExpandedSeason(isExpanded ? null : index)
+                  }
+                  className="cursor-pointer rounded-2xl overflow-hidden"
+                  style={{
+                    background: "rgba(255,255,255,0.03)",
+                    backdropFilter: "blur(12px)",
+                    borderTop: `3px solid ${season.jewelHex}`,
+                    border: `1px solid rgba(255,255,255,0.06)`,
+                    borderTopColor: season.jewelHex,
+                    borderTopWidth: "3px",
+                  }}
+                >
+                  <div className="p-5 md:p-6">
+                    {/* Icon + name */}
+                    <div className="flex items-center gap-3 mb-2">
+                      <motion.div
+                        whileHover={{ rotate: 360 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 15,
+                        }}
+                      >
+                        <Icon
+                          className={`h-6 w-6 ${season.jewel}`}
+                        />
+                      </motion.div>
+                      <h3 className="text-white font-bold text-lg">
+                        {season.label}
+                      </h3>
+                    </div>
+
+                    {/* Tagline */}
+                    <p className="text-slate-400 text-sm mb-3">
+                      {season.tagline}
+                    </p>
+
+                    {/* Service count */}
+                    <p
+                      className="text-xs font-semibold"
+                      style={{ color: season.jewelHex }}
+                    >
+                      {season.services.length} services included
+                    </p>
+
+                    {/* Expanded services accordion */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-4 pt-4 border-t border-white/10 space-y-2">
+                            {season.services.map((service, si) => (
+                              <motion.div
+                                key={service}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: si * 0.05 }}
+                                className="flex items-center gap-2"
+                              >
+                                <CheckCircle2
+                                  className="h-3.5 w-3.5 flex-shrink-0"
+                                  style={{ color: season.jewelHex }}
+                                />
+                                <span className="text-white text-sm">
+                                  {service}
+                                </span>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Timeline bar */}
           <motion.div
-            className="text-center mb-5"
+            className="mb-14"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.25 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <motion.p
-              className="text-slate-400 text-sm flex items-center justify-center gap-2"
-              animate={{ opacity: [0.6, 1, 0.6] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <motion.div
-                animate={{ y: [0, -4, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="bg-primary/20 rounded-full p-1.5"
-              >
-                <ArrowRight className="h-3.5 w-3.5 text-primary rotate-[-90deg]" />
-              </motion.div>
-              Tap a season to explore services
-            </motion.p>
-          </motion.div>
-
-          {/* Seasons carousel with click interaction */}
-          <motion.div
-            className="flex flex-wrap justify-center gap-3 md:gap-4 mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            {seasons.map((season, index) => (
-              <motion.button
-                key={season.label}
-                onClick={() => setActiveSeason(activeSeason === season.label ? null : season.label)}
-                className={`group relative flex items-center gap-2.5 ${season.bg} backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-3.5 cursor-pointer transition-all duration-300 ${activeSeason === season.label ? 'ring-2 ring-primary border-primary/50 shadow-lg shadow-primary/20 animate-frost-glow' : 'hover:border-white/20 hover:shadow-lg hover:shadow-cyan-500/10'}`}
-                whileHover={{
-                  scale: 1.05,
-                  y: -3,
-                }}
-                whileTap={{ scale: 0.97 }}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{
-                  duration: 0.5,
-                  delay: 0.3 + index * 0.08,
-                  type: "spring",
-                  stiffness: 150,
-                  damping: 15,
-                }}
-              >
-                {/* Subtle pulse ring on first button when nothing selected */}
-                {index === 0 && !activeSeason && (
-                  <motion.span
-                    className="absolute inset-0 rounded-2xl border-2 border-primary/60"
-                    animate={{
-                      scale: [1, 1.08],
-                      opacity: [0.6, 0],
-                    }}
-                    transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
-                  />
-                )}
+            {/* Segmented bar */}
+            <div className="relative h-3 rounded-full overflow-hidden bg-white/5 mb-3">
+              {/* 4 season segments */}
+              {seasons.map((season, index) => (
                 <motion.div
-                  animate={{ rotate: activeSeason === season.label ? [0, 360] : [0, 8, -8, 0] }}
-                  transition={{
-                    duration: activeSeason === season.label ? 0.5 : 4,
-                    repeat: activeSeason === season.label ? 0 : Infinity,
-                    ease: "easeInOut"
+                  key={season.label}
+                  className="absolute top-0 h-full"
+                  style={{
+                    left: `${index * 25}%`,
+                    width: "25%",
+                    backgroundColor: season.jewelHex,
+                    transformOrigin: "left center",
                   }}
-                >
-                  <season.icon className={`h-5 w-5 md:h-6 md:w-6 ${season.color} transition-transform duration-300`} />
-                </motion.div>
-                <span className="text-white font-semibold text-sm md:text-base">{season.label}</span>
-              </motion.button>
-            ))}
-          </motion.div>
-
-          {/* Season popup */}
-          <AnimatePresence>
-            {activeSeasonData && (
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                className="mb-10"
-              >
-                <div className={`relative bg-gradient-to-br ${activeSeasonData.gradient} p-[2px] rounded-3xl shadow-2xl`}>
-                  <div className="bg-slate-900/95 backdrop-blur-xl rounded-3xl p-6 md:p-8">
-                    {/* Close button */}
-                    <button
-                      onClick={() => setActiveSeason(null)}
-                      className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors p-1"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-
-                    {/* Header */}
-                    <div className="flex items-center gap-4 mb-6">
-                      <motion.div
-                        className={`p-3 rounded-xl ${activeSeasonData.bg}`}
-                        animate={{ scale: [1, 1.05, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      >
-                        {(() => { const Icon = activeSeasonData.icon; return <Icon className={`h-8 w-8 ${activeSeasonData.color}`} />; })()}
-                      </motion.div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-white">{activeSeasonData.label} Coverage</h3>
-                        <p className={`text-sm font-medium ${activeSeasonData.color}`}>{activeSeasonData.tagline}</p>
-                      </div>
-                    </div>
-
-                    {/* Services grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {activeSeasonData.services.map((service, i) => (
-                        <motion.div
-                          key={service}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.05 }}
-                          className="flex items-center gap-2 bg-white/5 rounded-xl px-4 py-3"
-                        >
-                          <CheckCircle2 className={`h-4 w-4 flex-shrink-0 ${activeSeasonData.color}`} />
-                          <span className="text-white text-sm font-medium">{service}</span>
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    {/* Mini CTA */}
-                    <div className="mt-6 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-                      <p className="text-slate-400 text-sm">All {activeSeasonData.label.toLowerCase()} services included in your contract</p>
-                      <Button
-                        size="sm"
-                        className={`bg-gradient-to-r ${activeSeasonData.gradient} text-white font-bold px-6`}
-                        asChild
-                      >
-                        <Link href={contactLink}>
-                          Get Covered <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Bundle Savings Callout */}
-          <motion.div
-            className="mb-8 text-center"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.35 }}
-          >
-            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-emerald-500/20 via-primary/15 to-cyan-500/20 border border-primary/30 rounded-full px-6 py-3 shadow-lg shadow-primary/10">
-              <motion.div
-                className="p-2 rounded-lg bg-emerald-500/20"
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <DollarSign className="h-5 w-5 text-emerald-400" />
-              </motion.div>
-              <div className="text-left">
-                <p className="text-white font-bold text-sm md:text-base">
-                  Save 15-20% vs. booking services separately
-                </p>
-                <p className="text-slate-400 text-xs md:text-sm">
-                  Full Season clients lock in priority scheduling + bundle pricing
-                </p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Benefits strip */}
-          <motion.div
-            className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8 mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {benefits.map((benefit, index) => (
-                <motion.div
-                  key={benefit}
-                  className="flex items-center gap-3"
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: 0.6 + index * 0.15,
+                    ease: "easeOut",
+                  }}
+                />
+              ))}
+
+              {/* Golden coverage beam sweep */}
+              <motion.div
+                className="absolute top-0 h-full w-[15%] rounded-full"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent, #F5C842, transparent)",
+                  opacity: 0.6,
+                }}
+                animate={{ left: ["-15%", "100%"] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "linear",
+                  repeatDelay: 1,
+                }}
+              />
+            </div>
+
+            {/* Month labels */}
+            <div className="flex justify-between px-1">
+              {months.map((month, index) => (
+                <motion.span
+                  key={month}
+                  className="text-xs text-slate-500 font-medium"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: 0.8 + index * 0.04 }}
                 >
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                  </div>
-                  <span className="text-white text-sm md:text-base font-medium">{benefit}</span>
-                </motion.div>
+                  {month}
+                </motion.span>
               ))}
             </div>
           </motion.div>
 
-          {/* CTA section */}
+          {/* ═══════════════ TIER 3: Benefits + CTA + Trust ═══════════════ */}
+
+          {/* Benefit stats */}
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+          >
+            {benefitStats.map((stat, index) => {
+              const StatIcon = stat.icon;
+              return (
+                <motion.div
+                  key={stat.label}
+                  className="text-center rounded-2xl p-6 md:p-8"
+                  style={{
+                    background: "rgba(255,255,255,0.03)",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    duration: 0.4,
+                    delay: 0.8 + index * 0.1,
+                  }}
+                >
+                  <div
+                    className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, rgba(212,168,85,0.15), rgba(245,200,66,0.08))",
+                    }}
+                  >
+                    <StatIcon
+                      className="h-6 w-6"
+                      style={{ color: "#D4A855" }}
+                    />
+                  </div>
+                  <div
+                    className="text-4xl md:text-5xl font-bold mb-2"
+                    style={{ color: "#F5C842" }}
+                  >
+                    <AnimatedCounter
+                      end={stat.value}
+                      suffix={stat.suffix}
+                      duration={1800}
+                    />
+                  </div>
+                  <p className="text-slate-400 text-sm leading-relaxed">
+                    {stat.label}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+
+          {/* CTA */}
           <motion.div
             className="text-center"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.6 }}
+            transition={{ duration: 0.5, delay: 1.0 }}
           >
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <motion.div
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-primary via-emerald-500 to-primary bg-[length:200%_100%] hover:bg-[position:100%_0] text-primary-foreground font-bold text-sm md:text-lg px-5 sm:px-8 md:px-10 py-5 md:py-6 rounded-full shadow-xl shadow-primary/25 transition-all duration-500 group max-w-full animate-shimmer-btn"
+                  className="font-bold text-sm md:text-lg px-6 sm:px-10 py-5 md:py-6 rounded-full group"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #D4A855, #F5C842)",
+                    color: "#0A0A0F",
+                    boxShadow:
+                      "0 10px 40px -10px rgba(212,168,85,0.4)",
+                  }}
                   asChild
                 >
                   <Link href={contactLink}>
-                    <Shield className="mr-1.5 md:mr-2 h-4 w-4 md:h-5 md:w-5 flex-shrink-0 group-hover:rotate-12 transition-transform" />
-                    <span className="truncate">Request Full Season Coverage</span>
-                    <ArrowRight className="ml-1.5 md:ml-2 h-4 w-4 md:h-5 md:w-5 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
+                    <Shield className="mr-2 h-4 w-4 md:h-5 md:w-5 flex-shrink-0 group-hover:rotate-12 transition-transform" />
+                    <span>Lock In Full Season Coverage</span>
+                    <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
               </motion.div>
@@ -413,27 +489,17 @@ export function FullSeasonContract() {
               </motion.a>
             </div>
 
-            {/* Trust micro-proof */}
-            <motion.div
-              className="mt-8 flex flex-wrap justify-center items-center gap-4 md:gap-8 text-slate-400 text-sm"
+            {/* Trust line */}
+            <motion.p
+              className="mt-8 text-slate-500 text-sm max-w-xl mx-auto"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.8 }}
+              transition={{ duration: 0.5, delay: 1.2 }}
             >
-              <span className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary" />
-                500+ Madison Properties
-              </span>
-              <span className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary" />
-                Fully Insured
-              </span>
-              <span className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary" />
-                4.9★ Google Rating
-              </span>
-            </motion.div>
+              Trusted by 127 Madison families year-round &bull; 4.9&#9733;
+              Google Rating &bull; Fully Insured
+            </motion.p>
           </motion.div>
         </div>
       </div>
