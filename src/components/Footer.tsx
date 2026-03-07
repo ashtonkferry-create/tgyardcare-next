@@ -103,7 +103,7 @@ const cities = [
 ];
 
 const companyLinks = [
-  { label: 'About Us', href: '/about' },
+  { label: 'About', href: '/about' },
   { label: 'Our Team', href: '/team' },
   { label: 'Reviews', href: '/reviews' },
   { label: 'Gallery', href: '/gallery' },

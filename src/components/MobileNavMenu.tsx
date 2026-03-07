@@ -102,7 +102,7 @@ const commercialServices = [
 
 const aboutPages = [
   { name: "Portfolio", path: "/gallery" },
-  { name: "About Us", path: "/about" },
+  { name: "About", path: "/about" },
   { name: "Meet Our Team", path: "/team" },
   { name: "Service Areas", path: "/service-areas" },
   { name: "FAQ", path: "/faq" },
@@ -324,7 +324,7 @@ export function MobileNavMenu({ isOpen, onClose }: MobileNavMenuProps) {
                 onClick={toggleAbout}
                 className="flex items-center justify-between w-full p-3 rounded-lg bg-white/5 border border-white/10"
               >
-                <span className="text-sm font-medium text-white">About & Info</span>
+                <span className="text-sm font-medium text-white">Company</span>
                 <ChevronDown className={`h-4 w-4 text-white/50 transition-transform ${aboutOpen ? 'rotate-180' : ''}`} />
               </button>
 

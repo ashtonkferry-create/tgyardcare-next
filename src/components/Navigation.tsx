@@ -291,7 +291,7 @@ const commercialSidebar: MegaMenuSidebar = {
 // About pages
 // ---------------------------------------------------------------------------
 const aboutPages = [
-  { name: "About Us", path: "/about" },
+  { name: "About", path: "/about" },
   { name: "Meet Our Team", path: "/team" },
   { name: "Portfolio", path: "/gallery" },
   { name: "Service Areas", path: "/service-areas" },
@@ -837,14 +837,14 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
               </AnimatePresence>
             </div>
 
-            {/* About Us Dropdown */}
+            {/* Company Dropdown */}
             <div
               className="relative"
               onMouseEnter={openAbout}
               onMouseLeave={() => setAboutOpen(false)}
             >
               <button className={`flex items-center text-white/90 ${t.hoverText} transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5`}>
-                About Us
+                Company
                 <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${aboutOpen ? 'rotate-180' : ''}`} />
               </button>
 
