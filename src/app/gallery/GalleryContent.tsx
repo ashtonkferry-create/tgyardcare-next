@@ -1,240 +1,238 @@
 'use client';
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import { useState, useMemo } from 'react';
+import Image from 'next/image';
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 import CTASection from '@/components/CTASection';
-import { GallerySchema } from "@/components/schemas/GallerySchema";
-import { WebPageSchema } from "@/components/schemas/WebPageSchema";
-import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { GallerySchema } from '@/components/schemas/GallerySchema';
+import { WebPageSchema } from '@/components/schemas/WebPageSchema';
+import { GlassCard } from '@/components/GlassCard';
+import { ScrollReveal } from '@/components/ScrollReveal';
+import { AnimatedCounter } from '@/components/AnimatedCounter';
+import { AmbientParticles } from '@/components/AmbientParticles';
+import { ImageLightbox } from '@/components/ImageLightbox';
+import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
+import { galleryImages, categories, resolveImageSrc, type GalleryCategory } from '@/lib/galleryData';
+import { cn } from '@/lib/utils';
 
-interface GalleryItem {
-  id: string;
-  image_url: string;
-  category: string;
-  title: string;
-  service: string;
-  display_order: number;
-}
+const seasonalAccent = {
+  summer: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', solid: '#10b981' },
+  fall:   { text: 'text-amber-400',   bg: 'bg-amber-500/10',   border: 'border-amber-500/30',   solid: '#f59e0b' },
+  winter: { text: 'text-cyan-400',    bg: 'bg-cyan-500/10',    border: 'border-cyan-500/30',    solid: '#06b6d4' },
+} as const;
+
+const seasonalBg = {
+  summer: {
+    hero:    'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 70%), linear-gradient(to bottom, #050d07, #0a1a0e, #060e08)',
+    page:    '#050d07',
+    section: '#0a1a0e',
+  },
+  fall: {
+    hero:    'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(245,158,11,0.15) 0%, transparent 70%), linear-gradient(to bottom, #0d0900, #1a1000, #0d0900)',
+    page:    '#0d0900',
+    section: '#1a1000',
+  },
+  winter: {
+    hero:    'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(6,182,212,0.15) 0%, transparent 70%), linear-gradient(to bottom, #020810, #060f1a, #020810)',
+    page:    '#020810',
+    section: '#060f1a',
+  },
+} as const;
+
+const seasonalHoverBorder = {
+  summer: 'hover:border-emerald-500/30',
+  fall: 'hover:border-amber-500/30',
+  winter: 'hover:border-cyan-500/30',
+} as const;
+
+const seasonalPillActive = {
+  summer: 'bg-emerald-500/20 text-emerald-300 shadow-lg shadow-emerald-500/20',
+  fall: 'bg-amber-500/20 text-amber-300 shadow-lg shadow-amber-500/20',
+  winter: 'bg-cyan-500/20 text-cyan-300 shadow-lg shadow-cyan-500/20',
+} as const;
 
 export default function GalleryContent() {
-  const [activeTab, setActiveTab] = useState("all");
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { activeSeason } = useSeasonalTheme();
+  const acc = seasonalAccent[activeSeason];
+  const bg = seasonalBg[activeSeason];
 
-  useEffect(() => {
-    fetchGalleryItems();
-  }, []);
+  const [activeCategory, setActiveCategory] = useState<GalleryCategory>('all');
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
-  const fetchGalleryItems = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("gallery_items")
-        .select("*")
-        .order("display_order", { ascending: true });
+  const filteredImages = useMemo(
+    () => activeCategory === 'all' ? galleryImages : galleryImages.filter(img => img.category === activeCategory),
+    [activeCategory]
+  );
 
-      if (error) throw error;
-      setGalleryItems(data || []);
-    } catch (error) {
-      console.error("Error fetching gallery items:", error);
-    } finally {
-      setLoading(false);
-    }
+  const openLightbox = (index: number) => {
+    setSelectedIndex(index);
+    setIsLightboxOpen(true);
   };
 
-  const filteredItems = activeTab === "all"
-    ? galleryItems
-    : galleryItems.filter(item => item.category.toLowerCase() === activeTab);
+  const closeLightbox = () => {
+    setIsLightboxOpen(false);
+    setSelectedIndex(null);
+  };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  const isBeforeAfter = (img: { category: string }) => img.category === 'before-after';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20">
-      <GallerySchema images={[]} />
+    <div className="min-h-screen text-white" style={{ background: bg.page }}>
+      <GallerySchema images={galleryImages.filter(img => typeof img.src === 'string').map(img => img.src as string)} />
       <WebPageSchema name="Work Gallery" description="Before and after photos of our lawn care work in Madison, WI" url="/gallery" />
       <Navigation />
 
+      {/* SEO hidden text */}
       <section className="sr-only">
-        <h2>TG Yard Care Project Gallery</h2>
-        <p>Browse before-and-after photos of TG Yard Care's lawn mowing, mulching, garden bed, gutter cleaning, and seasonal cleanup projects across Madison, Wisconsin. Our portfolio showcases the quality and attention to detail that has earned us a 4.9-star Google rating from 60+ satisfied customers.</p>
+        <h2>TotalGuard Yard Care Project Gallery</h2>
+        <p>Browse before-and-after photos of TotalGuard Yard Care&apos;s lawn mowing, mulching, garden bed, gutter cleaning, and seasonal cleanup projects across Madison, Wisconsin. Our portfolio showcases the quality and attention to detail that has earned us a 4.9-star Google rating from 127 satisfied customers.</p>
       </section>
 
-      {/* Hero */}
-      <section className="py-16 md:py-24 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-b-2 border-primary/20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-6 animate-fade-in tracking-tight">
-            Real Results. Real Properties. Real Transformations.
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-4">
-            Explore <span className="font-bold text-primary">19+ stunning before &amp; after photos</span> from actual TotalGuard projects across Madison, Middleton, Waunakee &amp; surrounding Wisconsin communities.
-          </p>
-          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            See the incredible detail of our professional lawn care, landscaping, and property maintenance work.
-          </p>
+      {/* ── HERO ── */}
+      <section
+        className="relative overflow-hidden py-28 md:py-40"
+        style={{ background: bg.hero }}
+      >
+        <AmbientParticles density="sparse" className="absolute inset-0" />
+        <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-10 ${acc.bg}`} />
+
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <ScrollReveal>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-5 leading-tight">
+              Our Work Speaks for Itself
+            </h1>
+          </ScrollReveal>
+
+          <ScrollReveal delay={0.08}>
+            <p className="text-xl md:text-2xl text-white/55 max-w-2xl mx-auto mb-8 leading-relaxed">
+              33+ real project photos from properties across Madison, Middleton, Waunakee &amp; surrounding Dane County communities.
+            </p>
+          </ScrollReveal>
+
+          <ScrollReveal delay={0.15}>
+            <div className="h-1 w-24 rounded-full mx-auto" style={{ background: acc.solid }} />
+          </ScrollReveal>
         </div>
       </section>
 
-      {/* Gallery with Tabs */}
-      <section className="py-8 md:py-16">
+      {/* ── CATEGORY FILTER BAR ── */}
+      <section className="py-8 md:py-12" style={{ background: bg.page }}>
         <div className="container mx-auto px-4">
-          <div className="max-w-7xl mx-auto">
-            <div className="w-full">
-              <div className="flex justify-center mb-8 md:mb-12">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-3 w-full max-w-5xl">
-                  <button
-                    onClick={() => setActiveTab("all")}
-                    className={`py-3 px-3 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 ${
-                      activeTab === "all"
-                        ? "bg-primary text-white shadow-lg scale-105"
-                        : "bg-white/80 text-foreground hover:bg-primary/10 border-2 border-primary/20"
-                    }`}
-                  >
-                    All
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("mowing")}
-                    className={`py-3 px-3 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 ${
-                      activeTab === "mowing"
-                        ? "bg-primary text-white shadow-lg scale-105"
-                        : "bg-white/80 text-foreground hover:bg-primary/10 border-2 border-primary/20"
-                    }`}
-                  >
-                    Mowing
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("weeding")}
-                    className={`py-3 px-3 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 ${
-                      activeTab === "weeding"
-                        ? "bg-primary text-white shadow-lg scale-105"
-                        : "bg-white/80 text-foreground hover:bg-primary/10 border-2 border-primary/20"
-                    }`}
-                  >
-                    Weeding
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("mulching")}
-                    className={`py-3 px-3 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 ${
-                      activeTab === "mulching"
-                        ? "bg-primary text-white shadow-lg scale-105"
-                        : "bg-white/80 text-foreground hover:bg-primary/10 border-2 border-primary/20"
-                    }`}
-                  >
-                    Mulching
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("gutters")}
-                    className={`py-3 px-3 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 ${
-                      activeTab === "gutters"
-                        ? "bg-primary text-white shadow-lg scale-105"
-                        : "bg-white/80 text-foreground hover:bg-primary/10 border-2 border-primary/20"
-                    }`}
-                  >
-                    Gutters
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("landscaping")}
-                    className={`py-3 px-3 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 ${
-                      activeTab === "landscaping"
-                        ? "bg-primary text-white shadow-lg scale-105"
-                        : "bg-white/80 text-foreground hover:bg-primary/10 border-2 border-primary/20"
-                    }`}
-                  >
-                    Landscaping
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("seasonal")}
-                    className={`py-3 px-3 md:px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 col-span-2 md:col-span-3 lg:col-span-6 ${
-                      activeTab === "seasonal"
-                        ? "bg-primary text-white shadow-lg scale-105"
-                        : "bg-white/80 text-foreground hover:bg-primary/10 border-2 border-primary/20"
-                    }`}
-                  >
-                    Seasonal Services
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                  {filteredItems.map((item) => (
-                    <div key={item.id} className="relative">
-                      <Image
-                        src={item.image_url}
-                        alt={`${item.service} ${item.title} Madison WI - TotalGuard Yard Care`}
-                        className="w-full h-auto rounded-lg"
-                        width={600}
-                        height={400}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
-                    </div>
-                  ))}
-                </div>
-
-                {filteredItems.length === 0 && (
-                  <div className="text-center py-16">
-                    <p className="text-muted-foreground text-lg">No projects found in this category yet. Check back soon!</p>
-                  </div>
+          <div className="flex flex-wrap justify-center gap-3">
+            {categories.map((cat) => (
+              <button
+                key={cat.key}
+                onClick={() => setActiveCategory(cat.key)}
+                className={cn(
+                  'px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300',
+                  activeCategory === cat.key
+                    ? seasonalPillActive[activeSeason]
+                    : 'bg-white/[0.06] text-white/60 hover:text-white hover:bg-white/[0.1] border border-white/[0.08]'
                 )}
-              </div>
-            </div>
+              >
+                {cat.label}
+              </button>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Stats & Trust Section */}
-      <section className="py-16 md:py-20 bg-gradient-to-br from-primary/5 via-primary/3 to-primary/5">
+      {/* ── PORTFOLIO GRID ── */}
+      <section className="pb-16 md:pb-24" style={{ background: bg.page }}>
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-6">
-                Why Madison Homeowners Choose TotalGuard
-              </h2>
-              <div className="h-1 w-24 bg-primary rounded-full mx-auto mb-6"></div>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                Every transformation you see above represents <span className="font-semibold text-foreground">real results from real properties</span> in your neighborhood. Professional quality, reliable service, and stunning outcomes&mdash;guaranteed for every project we complete.
-              </p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 max-w-7xl mx-auto">
+            {filteredImages.map((img, index) => {
+              const imgSrc = resolveImageSrc(img.src);
+              const isPublicPath = typeof img.src === 'string' && img.src.startsWith('/');
+              const imgWidth = isBeforeAfter(img) ? 800 : 600;
+              const imgHeight = isBeforeAfter(img) ? 400 : 400;
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-              <div className="text-center group hover:scale-105 transition-transform duration-300">
-                <div className="bg-card rounded-2xl p-8 shadow-xl border-2 border-primary/20 hover:border-primary/40 transition-colors">
-                  <div className="text-5xl font-extrabold text-primary mb-3">
-                    100+
+              return (
+                <ScrollReveal key={img.id} delay={Math.min(index * 0.06, 0.5)}>
+                  <div
+                    className={cn(
+                      'group relative rounded-2xl overflow-hidden border border-white/[0.08] cursor-pointer',
+                      'hover:-translate-y-1 hover:shadow-2xl transition-all duration-500',
+                      seasonalHoverBorder[activeSeason]
+                    )}
+                    onClick={() => openLightbox(index)}
+                  >
+                    <Image
+                      src={imgSrc}
+                      alt={`${img.service} — ${img.title} — TotalGuard Yard Care Madison WI`}
+                      width={imgWidth}
+                      height={imgHeight}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="w-full h-auto"
+                      unoptimized={isPublicPath}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-end pb-6">
+                      <p className="text-white font-semibold text-base">{img.title}</p>
+                      <p className="text-white/50 text-xs mt-1">{img.service}</p>
+                      <span className="text-white/40 text-xs mt-2 uppercase tracking-wider">View Full Size</span>
+                    </div>
                   </div>
-                  <p className="text-base text-muted-foreground font-semibold">Properties Transformed</p>
-                </div>
-              </div>
-              <div className="text-center group hover:scale-105 transition-transform duration-300">
-                <div className="bg-card rounded-2xl p-8 shadow-xl border-2 border-primary/20 hover:border-primary/40 transition-colors">
-                  <div className="text-5xl font-extrabold text-primary mb-3">
-                    4.9
-                  </div>
-                  <p className="text-base text-muted-foreground font-semibold">Google Rating</p>
-                </div>
-              </div>
-              <div className="text-center group hover:scale-105 transition-transform duration-300">
-                <div className="bg-card rounded-2xl p-8 shadow-xl border-2 border-primary/20 hover:border-primary/40 transition-colors">
-                  <div className="text-5xl font-extrabold text-primary mb-3">
-                    24hr
-                  </div>
-                  <p className="text-base text-muted-foreground font-semibold">Response Time</p>
-                </div>
-              </div>
+                </ScrollReveal>
+              );
+            })}
+          </div>
+
+          {filteredImages.length === 0 && (
+            <div className="text-center py-16">
+              <p className="text-white/50 text-lg">No projects found in this category yet. Check back soon!</p>
             </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── STATS STRIP ── */}
+      <section className="py-16 md:py-20" style={{ background: bg.section }}>
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
+            {[
+              { value: 100, suffix: '+', decimals: 0, label: 'Properties Transformed' },
+              { value: 4.9, suffix: '',  decimals: 1, label: 'Google Rating' },
+              { value: 127, suffix: '',  decimals: 0, label: 'Five-Star Reviews' },
+            ].map((stat, i) => (
+              <ScrollReveal key={i} delay={i * 0.08}>
+                <GlassCard variant="dark" hover="lift" className="text-center py-8">
+                  <div className={`text-4xl md:text-5xl font-bold ${acc.text}`}>
+                    <AnimatedCounter end={stat.value} suffix={stat.suffix} decimals={stat.decimals} />
+                  </div>
+                  <p className="text-white/60 text-sm font-medium mt-2">{stat.label}</p>
+                </GlassCard>
+              </ScrollReveal>
+            ))}
+            <ScrollReveal delay={0.24}>
+              <GlassCard variant="dark" hover="lift" className="text-center py-8">
+                <div className={`text-4xl md:text-5xl font-bold ${acc.text}`}>
+                  24hr
+                </div>
+                <p className="text-white/60 text-sm font-medium mt-2">Response Time</p>
+              </GlassCard>
+            </ScrollReveal>
           </div>
         </div>
       </section>
+
+      {/* ── LIGHTBOX ── */}
+      {selectedIndex !== null && (
+        <ImageLightbox
+          isOpen={isLightboxOpen}
+          onClose={closeLightbox}
+          imageUrl={resolveImageSrc(filteredImages[selectedIndex].src)}
+          title={filteredImages[selectedIndex].title}
+          service={filteredImages[selectedIndex].service}
+          onPrevious={selectedIndex > 0 ? () => setSelectedIndex(selectedIndex - 1) : undefined}
+          onNext={selectedIndex < filteredImages.length - 1 ? () => setSelectedIndex(selectedIndex + 1) : undefined}
+          currentIndex={selectedIndex}
+          totalImages={filteredImages.length}
+        />
+      )}
 
       <CTASection />
-
       <Footer showCloser={false} />
     </div>
   );
