@@ -2,15 +2,15 @@ import type { Metadata } from 'next';
 import GalleryContent from './GalleryContent';
 
 export const metadata: Metadata = {
-  title: 'Before & After Gallery | TotalGuard Madison',
-  description: "See 50+ lawn transformations in Madison WI. Real before/after photos of mowing, mulching & gutter cleaning. Get inspired!",
-  keywords: 'before after lawn care Madison, lawn transformation photos, landscaping portfolio Madison WI, yard makeover gallery, professional lawn results',
+  title: 'Project Gallery | 33+ Real Transformations | TotalGuard Madison',
+  description: "Browse 33+ real before & after photos from TotalGuard Yard Care projects across Madison WI. Lawn mowing, mulching, gutters, pruning, seasonal cleanup — no stock photos.",
+  keywords: 'before after lawn care Madison, lawn transformation photos, landscaping portfolio Madison WI, yard makeover gallery, professional lawn results, garden bed photos, gutter cleaning before after',
   alternates: {
     canonical: 'https://tgyardcare.com/gallery',
   },
   openGraph: {
-    title: 'Before & After Gallery | TotalGuard Madison',
-    description: 'See 50+ lawn transformations in Madison WI. Real before/after photos of mowing, mulching & gutter cleaning. Get inspired!',
+    title: 'Project Gallery | 33+ Real Transformations | TotalGuard Madison',
+    description: 'Browse 33+ real before & after photos from TotalGuard Yard Care projects across Madison WI. Lawn mowing, mulching, gutters, pruning, seasonal cleanup — no stock photos.',
     url: 'https://tgyardcare.com/gallery',
     siteName: 'TG Yard Care',
     locale: 'en_US',
