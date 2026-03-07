@@ -179,7 +179,7 @@ function ParticleBurst({ accentRgb }: { accentRgb: string }) {
 function AnimatedCheckmark({ tokens }: { tokens: SeasonTokens }) {
   return (
     <motion.div
-      className="relative mx-auto w-24 h-24"
+      className="relative mx-auto w-16 h-16 sm:w-24 sm:h-24"
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       transition={{ type: 'spring', damping: 12, stiffness: 200, delay: 0.1 }}
@@ -193,7 +193,7 @@ function AnimatedCheckmark({ tokens }: { tokens: SeasonTokens }) {
           animate={{ pathLength: 1, opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.4 }}
         >
-          <Check className="w-12 h-12 text-white" strokeWidth={3} />
+          <Check className="w-8 h-8 sm:w-12 sm:h-12 text-white" strokeWidth={3} />
         </motion.div>
       </div>
       <ParticleBurst accentRgb={tokens.accentRgb} />
@@ -297,7 +297,7 @@ export function ConciergeConfirmation({
         <X className="h-4 w-4 text-white/30 group-hover:text-white/70 transition-colors" />
       </button>
 
-      <div className="relative z-10 px-8 py-8 space-y-5">
+      <div className="relative z-10 px-4 py-5 sm:px-8 sm:py-8 space-y-4 sm:space-y-5 max-h-[85vh] overflow-y-auto">
         {/* Phase 1 — Checkmark + Title */}
         <AnimatePresence>
           {phase >= 1 && (
@@ -310,7 +310,7 @@ export function ConciergeConfirmation({
               <AnimatedCheckmark tokens={tokens} />
 
               <motion.h2
-                className="text-2xl font-black text-white tracking-tight"
+                className="text-xl sm:text-2xl font-black text-white tracking-tight"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
@@ -344,7 +344,7 @@ export function ConciergeConfirmation({
                 Popular With Your Neighbors
               </p>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {upsellServices.map((svc, idx) => {
                   const Icon = svc.icon;
                   const badge = badges[idx];
@@ -358,7 +358,7 @@ export function ConciergeConfirmation({
                       <Link
                         href={`/services/${svc.slug}`}
                         onClick={() => trackUpsellClick(svc.name, svc.slug)}
-                        className={`group block bg-white/[0.06] border ${tokens.borderClass} backdrop-blur-sm rounded-xl px-4 pt-4 pb-2.5 space-y-1.5 transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.09] hover:shadow-lg h-full`}
+                        className={`group block bg-white/[0.06] border ${tokens.borderClass} backdrop-blur-sm rounded-xl px-2.5 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-2.5 space-y-1 sm:space-y-1.5 transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.09] hover:shadow-lg h-full`}
                       >
                         <div className="flex items-start justify-between gap-1">
                           <div

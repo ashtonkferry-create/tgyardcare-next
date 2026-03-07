@@ -245,7 +245,7 @@ function GlowInput({
             onFocus={(e) => { setFocused(true); inputProps.onFocus?.(e); }}
             onBlur={(e) => { setFocused(false); onFieldBlur(); inputProps.onBlur?.(e); }}
             className={`
-              w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white
+              w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl text-base sm:text-sm text-white
               placeholder:text-white/20
               border ${focused ? theme.inputBorderFocus : theme.inputBorder}
               ${theme.inputBg} backdrop-blur-sm
@@ -392,7 +392,7 @@ export default function QuickQuoteDialog({
               exit={{ opacity: 0 }}
             >
               {/* ── Header ── */}
-              <div className={`relative bg-gradient-to-br ${t.headerBg} px-6 pt-7 pb-5 overflow-hidden`}>
+              <div className={`relative bg-gradient-to-br ${t.headerBg} px-4 pt-5 pb-4 sm:px-6 sm:pt-7 sm:pb-5 overflow-hidden`}>
                 <FloatingParticles colors={t.particleColors} />
 
                 {/* Radial glow */}
@@ -436,7 +436,7 @@ export default function QuickQuoteDialog({
               <div className={`h-px ${t.divider}`} />
 
               {/* ── Form Body ── */}
-              <form onSubmit={handleSubmit} className="relative px-6 pt-5 pb-6">
+              <form onSubmit={handleSubmit} className="relative px-4 pt-4 pb-4 sm:px-6 sm:pt-5 sm:pb-6">
                 <FloatingParticles colors={t.particleColors} />
 
                 <div className="relative z-10 space-y-3.5">
@@ -528,7 +528,7 @@ export default function QuickQuoteDialog({
                           onBlur={() => { setMessageFocused(false); handleFieldBlur('message'); }}
                           required
                           className={`
-                            w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white
+                            w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl text-base sm:text-sm text-white
                             placeholder:text-white/20 resize-none
                             border ${messageFocused ? t.inputBorderFocus : t.inputBorder}
                             ${t.inputBg} backdrop-blur-sm

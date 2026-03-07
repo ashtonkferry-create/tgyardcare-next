@@ -924,7 +924,7 @@ export const ChatBot = () => {
                         value={feedbackText}
                         onChange={(e) => setFeedbackText(e.target.value)}
                         placeholder="Tell us more (optional)"
-                        className="w-full p-3 text-sm border border-white/[0.08] rounded-xl bg-white/[0.04] text-white/90 placeholder:text-white/25 resize-none focus:outline-none focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500/20"
+                        className="w-full p-3 text-base sm:text-sm border border-white/[0.08] rounded-xl bg-white/[0.04] text-white/90 placeholder:text-white/25 resize-none focus:outline-none focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500/20"
                         rows={2}
                       />
                       <Button
@@ -1010,7 +1010,7 @@ export const ChatBot = () => {
                       quoteStep === 'contact-info' ? "Name and phone/email..." :
                       "Ask a question..."
                     }
-                    className="flex-1 h-12 px-4 text-sm text-white/90 placeholder:text-white/25
+                    className="flex-1 h-12 px-4 text-base sm:text-sm text-white/90 placeholder:text-white/25
                       bg-white/[0.04] border border-white/[0.08] rounded-xl
                       focus:outline-none focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500/20
                       disabled:opacity-40 transition-all duration-200"
