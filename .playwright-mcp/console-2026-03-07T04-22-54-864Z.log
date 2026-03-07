@@ -1,0 +1,106 @@
+[    2730ms] [ERROR] In HTML, %s cannot be a descendant of <%s>.
+This will cause a hydration error.%s <div> p 
+
+  ...
+    <InnerLayoutRouter url="/" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} segmentPath={[...]} ...>
+      <SegmentViewNode type="page" pagePath="page.tsx">
+        <SegmentTrieNode>
+        <HomePage>
+          <HomeContent>
+            <div className="min-h-scre...">
+              <ScrollProgress>
+              <WebPageSchema>
+              <Navigation>
+              <section>
+              <SummerHero>
+              <section>
+              <SeasonalPriorityServices>
+              <WhyMadisonTrust>
+              <section>
+              <FullSeasonContract>
+                <section className="relative p...">
+                  <AmbientParticles>
+                  <div>
+                  <div className="container ...">
+                    <div className="max-w-5xl ...">
+                      <motion.div>
+                      <motion.div>
+                      <motion.div className="text-cente..." initial={{opacity:0}} whileInView={{opacity:1}} ...>
+                        <div className="text-cente..." style={{opacity:0}} ref={function useMotionRef.useCallback}>
+                          <motion.p className="text-slate..." animate={{opacity:[...]}} transition={{duration:3, ...}}>
+>                           <p
+>                             className="text-slate-400 text-sm flex items-center justify-center gap-2"
+>                             style={{}}
+>                             ref={function useMotionRef.useCallback}
+>                           >
+                              <motion.div animate={{y:[...]}} transition={{duration:2, ...}} className="bg-primary...">
+>                               <div
+>                                 className="bg-primary/20 rounded-full p-1.5"
+>                                 style={{}}
+>                                 ref={function useMotionRef.useCallback}
+>                               >
+                              ...
+                      ...
+              ...
+      ...
+ @ http://localhost:3848/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3127
+[    2731ms] [ERROR] <%s> cannot contain a nested %s.
+See this log for the ancestor stack trace. p <div> @ http://localhost:3848/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3127
+[    3117ms] Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+    at throwOnHydrationMismatch (http://localhost:3848/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:3348:56)
+    at beginWork (http://localhost:3848/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:6775:918)
+    at runWithFiberInDEV (http://localhost:3848/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:965:74)
+    at performUnitOfWork (http://localhost:3848/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:9562:97)
+    at workLoopConcurrentByScheduler (http://localhost:3848/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:9558:58)
+    at renderRootConcurrent (http://localhost:3848/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:9541:71)
+    at performWorkOnRoot (http://localhost:3848/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:9068:150)
+    at performWorkOnRootViaSchedulerTask (http://localhost:3848/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:10230:9)
+    at MessagePort.performWorkUntilDeadline (http://localhost:3848/_next/static/chunks/node_modules_next_dist_compiled_a0e4c7b4._.js:2647:64)
+[    4202ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seasonal_slides?select=*&is_active=eq.true&order=slide_order.asc:0
+[    4204ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=*:0
+[    4220ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[    4258ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=*&limit=1:0
+[    4274ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seasonal_priority_services?select=*&is_active=eq.true&order=service_order.asc:0
+[    4342ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seasonal_slides?select=*&is_active=eq.true&order=slide_order.asc:0
+[    4342ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[    4358ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=*:0
+[    4696ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=*&limit=1:0
+[    4697ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seasonal_priority_services?select=*&is_active=eq.true&order=service_order.asc:0
+[    4697ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[    4698ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[    4985ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[    5011ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3848/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[    5079ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[    5080ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3848/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[    5138ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[    5240ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[    5240ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[    5377ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[    6695ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[    6789ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[    6806ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[    6895ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[    6910ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[    6911ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3848/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[    7022ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[    7025ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[    7026ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3848/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[    7122ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[    7123ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[    7209ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[   21071ms] [WARNING] Image with src "/_next/static/media/service-mowing.a9ae9f85.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3848/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   21071ms] [WARNING] Image with src "/_next/static/media/service-spring-cleanup.9abc4e68.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3848/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   21071ms] [WARNING] Image with src "/_next/static/media/service-herbicide.e8494592.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3848/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   21071ms] [WARNING] Image with src "/_next/static/media/service-fertilization.58d8fd26.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3848/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   21071ms] [WARNING] Image with src "/_next/static/media/hero-aeration.13dac350.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3848/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   21072ms] [WARNING] Image with src "/_next/static/media/service-mulching.a94f84c6.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3848/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297

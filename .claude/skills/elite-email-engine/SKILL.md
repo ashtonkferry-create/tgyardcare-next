@@ -1,36 +1,45 @@
 ---
 name: elite-email-engine
-description: Generate exceptional professional business emails that convert leads, move conversations toward decisions, and project premium brand credibility. Auto-activates when the user asks for any email.
+description: Generate exceptional professional business emails that convert leads, move conversations toward decisions, and project premium brand credibility. Auto-activates when the user asks for any email, client reply, quote, lead response, or service proposal.
 ---
 
 # Elite Email Engine
 
-Generate premium professional business emails. Auto-activate when the user requests ANY email.
+Generate extremely high-quality professional business emails that represent a premium, highly competent service company.
 
-## Primary Objective
+Emails must sound structured, confident, and executive-level. The writing must reflect a company that operates professionally and handles services routinely.
 
-Every email must accomplish at least one of:
-- Convert a lead into a client
-- Move a conversation toward a decision
-- Increase perceived brand credibility and professionalism
+Auto-activate when the user asks for: an email, a client reply, a quote email, a lead response, or a service proposal message.
 
 ## Brand Positioning
 
-All emails project: authority, competence, professionalism, clarity, organization, premium service.
+Every email must project:
 
-The reader should subconsciously feel the company is experienced, organized, and reliable — similar to top consulting firms or high-end service providers.
+- Professionalism
+- Authority
+- Competence
+- Organization
+- Premium service quality
 
-## Writing Standards
+The reader should feel the company is experienced and reliable. Never sound casual, desperate, apologetic, or uncertain.
 
-- Sentences: clear, concise, direct, professional
-- Paragraphs: short — never large blocks of text
-- Structured for quick scanning
-- Confident tone without sounding robotic
-- **Avoid**: slang, casual texting language, filler, excessive punctuation, overly informal phrasing, long paragraphs
+## Hard Writing Constraints
 
-## Language Optimization
+- **Maximum sentence length**: 18 words
+- **Maximum paragraph length**: 2 sentences
+- **No paragraph may exceed 2 visible lines**
+- No filler sentences
 
-Use professional positioning language:
+**Banned phrases:**
+- "just checking in"
+- "I wanted to follow up"
+- "we usually"
+- "we try to"
+- "if possible"
+
+Language must always be confident and direct.
+
+**Professional language substitutions:**
 
 | Avoid | Use Instead |
 |-------|-------------|
@@ -40,95 +49,92 @@ Use professional positioning language:
 | book | schedule |
 | do | take care of |
 
-Never sound cheap or informal.
+## Required Email Structure
 
-## Formatting Rules
+All emails must follow this structure with spacing between sections:
 
-```
-Short paragraph
+1. Greeting
+2. Acknowledgement
+3. Authority positioning
+4. Service breakdown
+5. Pricing
+6. Program / upgrade positioning
+7. Soft urgency
+8. Call to action
+9. Signature
 
-[spacing]
-
-Bullet point section (for services or details)
-
-[spacing]
-
-Pricing section
-
-[spacing]
-
-Call to action
-```
-
-Use spacing intentionally. Use bullet points when listing services or multiple details.
-
-## Persuasion Framework
-
-Incorporate these signals naturally into every email:
-
-### 1. Authority Signal
-Establish competence early.
-- "We take care of properties like this regularly."
-- "This is a service we perform frequently for homeowners in the area."
-
-### 2. Clarity Signal
-All services explained clearly with bullet points:
-```
-Spring Cleanup Service Includes:
-- Lawn leaf and debris removal
-- Garden bed cleanout
-- Stick and branch pickup
-- Property blowout and seasonal reset
-```
-
-### 3. Value Framing
-Focus on outcomes, not labor. Emphasize the property being reset, maintained, or protected — not work hours.
-
-### 4. Social Positioning
-Reference what other customers typically choose:
-- "Many homeowners also pair this with our seasonal lawn program."
-
-### 5. Friction Removal
-Make it easy to say yes:
-- "If this looks good, I can get this scheduled for the upcoming route."
-- "We can take care of this as early as next week."
-
-### 6. Soft Urgency
-Encourage timely action without aggression:
-- "We are currently finalizing the upcoming route schedule."
-- "We have a few openings remaining for spring cleanup."
-
-## Email Structure Framework
-
-Follow this structure unless the user explicitly requests otherwise:
+## Section Rules
 
 ### 1. Greeting
+
 `Hi [Name],`
 
 ### 2. Acknowledgement
-Thank the client or acknowledge their message.
+
+Thank the client or acknowledge the request. Maximum 2 sentences.
+
+Example:
+> Thank you for reaching out regarding your spring cleanup. We would be happy to take care of this for you.
 
 ### 3. Authority Positioning
-"We'd be happy to take care of this for you."
+
+Establish competence immediately. Keep short and confident.
+
+Example patterns:
+- "We handle this type of service regularly."
+- "Spring is the ideal time to reset the lawn and landscape."
 
 ### 4. Service Breakdown
-Explain the service clearly using bullet points with a header.
+
+Use a clear header. Use bullet points. Focus on the **result for the property**.
+
+Example:
+```
+Spring Cleanup Service Includes:
+
+- Lawn leaf and debris removal
+- Garden bed cleanout
+- Stick and branch pickup
+- Full property blowout and seasonal reset
+```
 
 ### 5. Pricing Presentation
-Present pricing clearly and confidently. Example:
+
+Confident and simple. Never justify or apologize.
+
+Example:
 ```
 Standard Investment: $185
-Promotional Investment: $157
+Spring Promotion (15% OFF): $157
 ```
-**Never** apologize for or defensively justify pricing.
 
-### 6. Expansion Opportunity
-Introduce a logical additional service or program. Must feel helpful, not pushy.
+### 6. Program / Upgrade Positioning
 
-### 7. Clear Call to Action
-End with a clear next step the client can act on immediately.
+Always include a logical expansion service.
 
-### 8. Signature
+Example:
+> Many homeowners also choose our Season Lawn Program, which includes mowing, fertilization, aeration, and fall cleanup.
+
+This positions the company as a long-term service provider.
+
+### 7. Soft Urgency
+
+Encourage timely action without pressure.
+
+Examples:
+- "We are currently organizing the upcoming service route."
+- "Scheduling is filling quickly for spring services."
+
+### 8. Call to Action
+
+End with a clear next step.
+
+Example:
+> If this works for you, I can secure your property in the upcoming schedule.
+
+### 9. Signature
+
+Always end with:
 ```
 TotalGuard Yard Care
 608-535-6057
@@ -137,15 +143,17 @@ Professional Property Care
 
 ## Quality Control
 
-Before returning the email, internally verify:
-1. Message is clear and structured
-2. Tone is confident and professional
-3. Formatting is clean and easy to read
-4. Pricing is presented clearly (if applicable)
-5. A clear call to action exists
+Before returning an email, confirm:
 
-If any check fails, rewrite before output.
+1. All sentences are 18 words or fewer
+2. All paragraphs are 2 sentences or fewer
+3. Bullet points are used for services
+4. Pricing is clear and confident
+5. Tone is authoritative, not casual
+6. A call to action exists
+
+If any rule fails, rewrite before output.
 
 ## Output Rule
 
-**Return ONLY the final email.** No explanations, notes, or analysis. Only the finished email ready to send.
+Return only the finished email. No analysis, notes, or explanations.

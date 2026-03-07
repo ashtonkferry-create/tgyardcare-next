@@ -1,0 +1,709 @@
+[    4194ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seasonal_slides?select=*&is_active=eq.true&order=slide_order.asc:0
+[    4223ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=*:0
+[    4224ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seasonal_priority_services?select=*&is_active=eq.true&order=service_order.asc:0
+[    4263ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=*&limit=1:0
+[    6902ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[    7033ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[    7066ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[    7202ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[    7235ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[    7238ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[    7343ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[    7388ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[    7389ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[    7480ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[    7486ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[    7579ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[   29039ms] [WARNING] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   29050ms] [WARNING] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  116092ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=*:0
+[  116102ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seasonal_priority_services?select=*&is_active=eq.true&order=service_order.asc:0
+[  116103ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=*&limit=1:0
+[  116120ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seasonal_slides?select=*&is_active=eq.true&order=slide_order.asc:0
+[  118975ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  119011ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  119142ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  119152ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  119255ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[  119255ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[  119259ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  119260ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  119376ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  119385ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  119478ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  119486ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  120932ms] [WARNING] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  120939ms] [WARNING] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  159338ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <RedirectBoundary>
+      <RedirectErrorBoundary router={{...}}>
+        <InnerLayoutRouter url="/contact" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} segmentPath={[...]} ...>
+          <SegmentViewNode type="page" pagePath="contact/pa...">
+            <SegmentTrieNode>
+            <ContactPage>
+              <Suspense>
+                <ContactContent>
+                  <div className="min-h-scre..." style={{...}}>
+                    <ContactPageSchema>
+                    <WebPageSchema>
+                    <Navigation>
+                    <section>
+                    <section className="relative o..." style={{...}}>
+                      <AmbientParticles>
+                      <div>
+                      <div className="container ...">
+                        <ScrollReveal>
+                          <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                            <div
+                              className=""
+                              style={{
++                               opacity: 0
+-                               opacity: "0"
++                               filter: "blur(0px)"
+-                               filter: "blur(6px)"
++                               transform: "translateY(40px)"
+-                               transform: "translateY(40px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                        <ScrollReveal delay={0.08}>
+                          <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                            <div
+                              className=""
+                              style={{
++                               opacity: 0
+-                               opacity: "0"
++                               filter: "blur(0px)"
+-                               filter: "blur(6px)"
++                               transform: "translateY(40px)"
+-                               transform: "translateY(40px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                        <ScrollReveal delay={0.14}>
+                          <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                            <div
+                              className=""
+                              style={{
++                               opacity: 0
+-                               opacity: "0"
++                               filter: "blur(0px)"
+-                               filter: "blur(6px)"
++                               transform: "translateY(40px)"
+-                               transform: "translateY(40px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                        <ScrollReveal delay={0.2}>
+                          <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                            <div
+                              className=""
+                              style={{
++                               opacity: 0
+-                               opacity: "0"
++                               filter: "blur(0px)"
+-                               filter: "blur(6px)"
++                               transform: "translateY(40px)"
+-                               transform: "translateY(40px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                    <section className="py-6 borde..." style={{...}}>
+                      <div className="container ...">
+                        <div className="flex flex-...">
+                          <ScrollReveal delay={0}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal delay={0.06}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal delay={0.12}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal delay={0.18}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <TrustStrip variant="dark">
+                      <section className="py-5 bg-gr...">
+                        <div className="container ...">
+                          <ScrollReveal>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <section className="py-16 md:p..." style={{...}}>
+                      <div className="container ...">
+                        <div className="max-w-6xl ...">
+                          <ScrollReveal direction="left">
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateX(40px)"
+-                                 transform: "translateX(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal direction="right" delay={0.1}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateX(-40px)"
+-                                 transform: "translateX(-40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <section className="py-16 bord..." style={{...}}>
+                      <div className="container ...">
+                        <ScrollReveal className="text-cente...">
+                          <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                            <div
+                              className="text-center mb-10"
+                              style={{
++                               opacity: 0
+-                               opacity: "0"
++                               filter: "blur(0px)"
+-                               filter: "blur(6px)"
++                               transform: "translateY(40px)"
+-                               transform: "translateY(40px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                        <div className="grid grid-...">
+                          <ScrollReveal delay={0}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal delay={0.07}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal delay={0.14}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal delay={0.21000000000000002}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <section className="py-12 bord..." style={{...}}>
+                      <div className="container ...">
+                        <ScrollReveal>
+                          <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                            <div
+                              className=""
+                              style={{
++                               opacity: 0
+-                               opacity: "0"
++                               filter: "blur(0px)"
+-                               filter: "blur(6px)"
++                               transform: "translateY(40px)"
+-                               transform: "translateY(40px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                    ...
+          ...
+        ...
+ @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3127
+[  159414ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=*&limit=1:0
+[  159418ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=*:0
+[  159418ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seasonal_slides?select=*&is_active=eq.true&order=slide_order.asc:0
+[  159432ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seasonal_priority_services?select=*&is_active=eq.true&order=service_order.asc:0
+[  162580ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  162735ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  162753ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  162850ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  162890ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[  162891ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  162973ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[  162974ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  163017ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  163115ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  163130ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  163217ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  164325ms] [WARNING] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  164332ms] [WARNING] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  187183ms] [ERROR] In HTML, %s cannot be a descendant of <%s>.
+This will cause a hydration error.%s <div> p 
+
+  ...
+    <InnerLayoutRouter url="/" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} segmentPath={[...]} ...>
+      <SegmentViewNode type="page" pagePath="page.tsx">
+        <SegmentTrieNode>
+        <HomePage>
+          <HomeContent>
+            <div className="min-h-scre...">
+              <ScrollProgress>
+              <WebPageSchema>
+              <Navigation>
+              <section>
+              <SummerHero>
+              <section>
+              <SeasonalPriorityServices>
+              <WhyMadisonTrust>
+              <section>
+              <FullSeasonContract>
+                <section className="relative p...">
+                  <AmbientParticles>
+                  <div>
+                  <div className="container ...">
+                    <div className="max-w-5xl ...">
+                      <motion.div>
+                      <motion.div>
+                      <motion.div className="text-cente..." initial={{opacity:0}} whileInView={{opacity:1}} ...>
+                        <div className="text-cente..." style={{opacity:0}} ref={function useMotionRef.useCallback}>
+                          <motion.p className="text-slate..." animate={{opacity:[...]}} transition={{duration:3, ...}}>
+>                           <p
+>                             className="text-slate-400 text-sm flex items-center justify-center gap-2"
+>                             style={{}}
+>                             ref={function useMotionRef.useCallback}
+>                           >
+                              <motion.div animate={{y:[...]}} transition={{duration:2, ...}} className="bg-primary...">
+>                               <div
+>                                 className="bg-primary/20 rounded-full p-1.5"
+>                                 style={{}}
+>                                 ref={function useMotionRef.useCallback}
+>                               >
+                              ...
+                      ...
+              ...
+      ...
+ @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3127
+[  187184ms] [ERROR] <%s> cannot contain a nested %s.
+See this log for the ancestor stack trace. p <div> @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3127
+[  187707ms] [WARNING] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  188153ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  188348ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  188353ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  188466ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  188470ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[  188471ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  188595ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  188599ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[  188600ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  188702ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  188757ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  188916ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  195605ms] [WARNING] Image with src "/_next/static/media/service-fertilization.58d8fd26.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  195616ms] [WARNING] Image with src "/_next/static/media/service-spring-cleanup.9abc4e68.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  195616ms] [WARNING] Image with src "/_next/static/media/service-mowing.a9ae9f85.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  195637ms] [WARNING] Image with src "/_next/static/media/service-mulching.a94f84c6.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  203143ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=*:0
+[  203150ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <RedirectBoundary>
+      <RedirectErrorBoundary router={{...}}>
+        <InnerLayoutRouter url="/contact" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} segmentPath={[...]} ...>
+          <SegmentViewNode type="page" pagePath="contact/pa...">
+            <SegmentTrieNode>
+            <ContactPage>
+              <Suspense>
+                <ContactContent>
+                  <div className="min-h-scre..." style={{...}}>
+                    <ContactPageSchema>
+                    <WebPageSchema>
+                    <Navigation>
+                    <section>
+                    <section className="relative o..." style={{...}}>
+                      <AmbientParticles>
+                      <div>
+                      <div className="container ...">
+                        <ScrollReveal>
+                          <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                            <div
+                              className=""
+                              style={{
++                               opacity: 0
+-                               opacity: "0"
++                               filter: "blur(0px)"
+-                               filter: "blur(6px)"
++                               transform: "translateY(40px)"
+-                               transform: "translateY(40px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                        <ScrollReveal delay={0.08}>
+                          <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                            <div
+                              className=""
+                              style={{
++                               opacity: 0
+-                               opacity: "0"
++                               filter: "blur(0px)"
+-                               filter: "blur(6px)"
++                               transform: "translateY(40px)"
+-                               transform: "translateY(40px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                        <ScrollReveal delay={0.14}>
+                          <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                            <div
+                              className=""
+                              style={{
++                               opacity: 0
+-                               opacity: "0"
++                               filter: "blur(0px)"
+-                               filter: "blur(6px)"
++                               transform: "translateY(40px)"
+-                               transform: "translateY(40px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                        <ScrollReveal delay={0.2}>
+                          <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                            <div
+                              className=""
+                              style={{
++                               opacity: 0
+-                               opacity: "0"
++                               filter: "blur(0px)"
+-                               filter: "blur(6px)"
++                               transform: "translateY(40px)"
+-                               transform: "translateY(40px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                    <section className="py-6 borde..." style={{...}}>
+                      <div className="container ...">
+                        <div className="flex flex-...">
+                          <ScrollReveal delay={0}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal delay={0.06}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal delay={0.12}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal delay={0.18}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <TrustStrip variant="dark">
+                      <section className="py-5 bg-gr...">
+                        <div className="container ...">
+                          <ScrollReveal>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <section className="py-16 md:p..." style={{...}}>
+                      <div className="container ...">
+                        <div className="max-w-6xl ...">
+                          <ScrollReveal direction="left">
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateX(40px)"
+-                                 transform: "translateX(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal direction="right" delay={0.1}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateX(-40px)"
+-                                 transform: "translateX(-40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <section className="py-16 bord..." style={{...}}>
+                      <div className="container ...">
+                        <ScrollReveal className="text-cente...">
+                          <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                            <div
+                              className="text-center mb-10"
+                              style={{
++                               opacity: 0
+-                               opacity: "0"
++                               filter: "blur(0px)"
+-                               filter: "blur(6px)"
++                               transform: "translateY(40px)"
+-                               transform: "translateY(40px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                        <div className="grid grid-...">
+                          <ScrollReveal delay={0}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal delay={0.07}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal delay={0.14}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                          <ScrollReveal delay={0.21000000000000002}>
+                            <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                              <div
+                                className=""
+                                style={{
++                                 opacity: 0
+-                                 opacity: "0"
++                                 filter: "blur(0px)"
+-                                 filter: "blur(6px)"
++                                 transform: "translateY(40px)"
+-                                 transform: "translateY(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <section className="py-12 bord..." style={{...}}>
+                      <div className="container ...">
+                        <ScrollReveal>
+                          <motion.div ref={{current:null}} initial={{opacity:0, ...}} animate={{}} ...>
+                            <div
+                              className=""
+                              style={{
++                               opacity: 0
+-                               opacity: "0"
++                               filter: "blur(0px)"
+-                               filter: "blur(6px)"
++                               transform: "translateY(40px)"
+-                               transform: "translateY(40px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                    ...
+          ...
+        ...
+ @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3127
+[  203152ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=*&limit=1:0
+[  203172ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seasonal_slides?select=*&is_active=eq.true&order=slide_order.asc:0
+[  203201ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seasonal_priority_services?select=*&is_active=eq.true&order=service_order.asc:0
+[  204144ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  204145ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  204259ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  204264ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  204390ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[  204391ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  204393ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/promo_settings?select=id%2Cservice%2Cdiscount%2Cpath%2Cseasons%2Cduration_hours&is_active=eq.true&order=display_order.asc:0
+[  204394ms] [WARNING] Failed to fetch promotions, using fallback: {code: PGRST205, details: null, hint: null, message: Could not find the table 'public.promo_settings' in the schema cache} @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  204513ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  204524ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_override?select=active_override%2Cpreview_mode%2Cpreview_season&limit=1:0
+[  204627ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  204640ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/season_settings?select=season%2Cstart_month%2Cstart_day%2Cend_month%2Cend_day:0
+[  208121ms] [WARNING] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  208128ms] [WARNING] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
