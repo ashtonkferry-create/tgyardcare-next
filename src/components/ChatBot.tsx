@@ -17,35 +17,25 @@ import { usePromoSettings } from '@/hooks/usePromoSettings';
 
 type Message = { role: 'user' | 'assistant'; content: string };
 
-interface CustomerInfo {
-  name?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  serviceInterest?: string;
-  propertyType?: string;
-  urgency?: string;
-  timeline?: string;
-  preferredContact?: string;
-}
-
-interface LeadScore {
-  total: number;
-  serviceInterest: number;
-  urgency: number;
-  contactInfo: number;
-  budget: number;
+interface QuoteFormData {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  message: string;
 }
 
 type QuoteStep =
   | 'idle'
-  | 'property-type'
-  | 'location'
-  | 'service-details'
-  | 'timeline'
-  | 'contact-method'
-  | 'contact-info'
+  | 'name'
+  | 'email'
+  | 'phone'
+  | 'address'
+  | 'description'
+  | 'confirm'
+  | 'submitting'
   | 'complete'
+  | 'editing'
   | 'feedback'
   | 'feedback-submitted';
 
@@ -170,11 +160,11 @@ export const ChatBot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string>('');
   const [sessionSecret, setSessionSecret] = useState<string>('');
-  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({});
   const [showQuickReplies, setShowQuickReplies] = useState(true);
-  const [leadScore, setLeadScore] = useState<LeadScore>({ total: 0, serviceInterest: 0, urgency: 0, contactInfo: 0, budget: 0 });
   const [quoteStep, setQuoteStep] = useState<QuoteStep>('idle');
   const [selectedService, setSelectedService] = useState<string>('');
+  const [quoteFormData, setQuoteFormData] = useState<QuoteFormData>({ name: '', email: '', phone: '', address: '', message: '' });
+  const [editingField, setEditingField] = useState<keyof QuoteFormData | null>(null);
   const [feedbackRating, setFeedbackRating] = useState<number>(0);
   const [feedbackText, setFeedbackText] = useState<string>('');
   const [feedbackHover, setFeedbackHover] = useState<number>(0);
@@ -231,99 +221,7 @@ export const ChatBot = () => {
     }
   }, [isOpen]);
 
-  // ============ BUSINESS LOGIC (UNCHANGED) ============
-
-  const calculateLeadScore = (info: CustomerInfo, msgs: Message[]) => {
-    let score: LeadScore = { total: 0, serviceInterest: 0, urgency: 0, contactInfo: 0, budget: 0 };
-
-    if (info.serviceInterest) score.serviceInterest = 30;
-    else {
-      const serviceKeywords = ['mowing', 'gutter', 'cleanup', 'mulch', 'weeding', 'fertiliz', 'herbicide', 'snow', 'commercial', 'hoa'];
-      const hasServiceMention = msgs.some(m =>
-        serviceKeywords.some(k => m.content.toLowerCase().includes(k))
-      );
-      if (hasServiceMention) score.serviceInterest = 15;
-    }
-
-    const urgencyKeywords = ['asap', 'urgent', 'soon', 'today', 'this week', 'immediately', 'emergency'];
-    const hasUrgency = msgs.some(m =>
-      urgencyKeywords.some(k => m.content.toLowerCase().includes(k))
-    );
-    if (hasUrgency || info.timeline === 'asap') score.urgency = 25;
-    else if (info.timeline === 'this-week') score.urgency = 20;
-    else if (info.timeline === 'this-month') score.urgency = 10;
-
-    let contactPoints = 0;
-    if (info.name) contactPoints += 10;
-    if (info.email) contactPoints += 10;
-    if (info.phone) contactPoints += 10;
-    if (info.address) contactPoints += 5;
-    score.contactInfo = Math.min(contactPoints, 30);
-
-    if (info.propertyType === 'commercial' || info.propertyType === 'hoa') score.budget = 15;
-    else if (info.propertyType === 'residential') score.budget = 10;
-
-    score.total = score.serviceInterest + score.urgency + score.contactInfo + score.budget;
-    return score;
-  };
-
-  const saveConversation = async (msgs: Message[], info: CustomerInfo = customerInfo) => {
-    if (!sessionId) return;
-
-    const secret = sessionSecret || localStorage.getItem('chat_session_secret') || '';
-    if (!secret) return;
-
-    const score = calculateLeadScore(info, msgs);
-    setLeadScore(score);
-
-    try {
-      const { error } = await supabase.functions.invoke('chat-conversations', {
-        body: {
-          action: 'save',
-          sessionId,
-          sessionSecret: secret,
-          messages: msgs,
-          customer: {
-            name: info.name,
-            email: info.email,
-            phone: info.phone,
-            address: info.address,
-            serviceInterest: info.serviceInterest,
-            propertyType: info.propertyType,
-            timeline: info.timeline,
-            preferredContact: info.preferredContact
-          }
-        }
-      });
-
-      if (error) {
-        console.error('Failed to save chat conversation:', error);
-      }
-    } catch (error) {
-      console.error('Failed to save chat conversation:', error);
-    }
-
-    if ((score.total > 50 || quoteStep === 'complete') && (info.name || info.email || info.phone)) {
-      try {
-        await supabase.functions.invoke('lead-alert', {
-          body: {
-            customerName: info.name,
-            customerEmail: info.email,
-            customerPhone: info.phone,
-            customerAddress: info.address,
-            serviceInterest: info.serviceInterest,
-            propertyType: info.propertyType,
-            timeline: info.timeline,
-            preferredContact: info.preferredContact,
-            leadScore: score.total,
-            messages: msgs
-          }
-        });
-      } catch (error) {
-        console.error('Failed to send lead alert:', error);
-      }
-    }
-  };
+  // ============ QUOTE FLOW LOGIC ============
 
   const addAssistantMessage = (content: string) => {
     setMessages(prev => [...prev, { role: 'assistant', content }]);
@@ -333,149 +231,183 @@ export const ChatBot = () => {
     setMessages(prev => [...prev, { role: 'user', content }]);
   };
 
+  const showConfirmation = (data: QuoteFormData) => {
+    const summary =
+      `Here's your quote request:\n\n` +
+      `Name: ${data.name}\n` +
+      `Email: ${data.email}\n` +
+      `Phone: ${data.phone}\n` +
+      `Address: ${data.address}\n` +
+      `Service: ${selectedService}\n` +
+      `Details: ${data.message}\n\n` +
+      `Does everything look correct?`;
+    addAssistantMessage(summary);
+    setQuoteStep('confirm');
+  };
+
+  const submitQuote = async (data: QuoteFormData) => {
+    setQuoteStep('submitting');
+    addAssistantMessage("Submitting your quote request...");
+    try {
+      const fullMessage = `Service: ${selectedService}\n${data.message}`;
+      const { data: result, error } = await supabase.functions.invoke('contact-form', {
+        body: {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          address: data.address,
+          message: fullMessage,
+        },
+      });
+      if (error) throw new Error(error.message);
+      if (!result?.success) throw new Error('Failed to submit');
+
+      setQuoteStep('complete');
+      setTimeout(() => {
+        addAssistantMessage(`All set, ${data.name.split(/\s+/)[0]}! Your quote request has been submitted. Our team will follow up within 24 hours — check your email for a confirmation.`);
+        setTimeout(() => {
+          setQuoteStep('feedback');
+          addAssistantMessage("Before you go — how was your experience?");
+        }, 2000);
+      }, 300);
+    } catch (err) {
+      console.error('Quote submission error:', err);
+      setQuoteStep('confirm');
+      setTimeout(() => {
+        addAssistantMessage("Something went wrong submitting your quote. Please try again, or call us directly at 608-535-6057.");
+      }, 300);
+    }
+  };
+
   const startQuoteFlow = (service: string) => {
     setSelectedService(service);
-    setCustomerInfo(prev => ({ ...prev, serviceInterest: service }));
     addUserMessage(service);
     setShowQuickReplies(false);
-    setQuoteStep('property-type');
+    setQuoteStep('name');
     setTimeout(() => {
-      addAssistantMessage("Great choice. Is this for a residential property, commercial property, or HOA/multi-property?");
+      addAssistantMessage("Great choice! Let's get your free quote started. What's your full name?");
     }, 300);
   };
 
-  const handlePropertyType = (type: string) => {
-    const typeLabel = type === 'residential' ? 'Residential' : type === 'commercial' ? 'Commercial' : 'HOA/Multi-property';
-    addUserMessage(typeLabel);
-    setCustomerInfo(prev => ({ ...prev, propertyType: type }));
-    setQuoteStep('location');
-    setTimeout(() => {
-      addAssistantMessage("What's your address or nearest cross streets? Include your ZIP or neighborhood if you can.");
-    }, 300);
-  };
-
-  const handleLocationSubmit = () => {
+  const handleNameSubmit = () => {
     if (!input.trim()) return;
-    const location = input.trim();
-    addUserMessage(location);
-    setCustomerInfo(prev => ({ ...prev, address: location }));
+    const name = input.trim();
+    addUserMessage(name);
     setInput('');
-    setQuoteStep('service-details');
-
-    setTimeout(() => {
-      const serviceQuestions: Record<string, string> = {
-        'Lawn care': "How often would you like mowing service? Weekly, bi-weekly, or one-time?",
-        'Gutter services': "How many stories is your home? And do you have gutter guards installed?",
-        'Fertilization/weed control': "Are you looking for a seasonal fertilization plan or a one-time treatment?",
-        'Cleanups (spring/fall)': "Is this for spring cleanup, fall cleanup, or both seasons?",
-        'Mulch/landscaping': "What areas need mulching? Garden beds, trees, or the full property?",
-        'Commercial/HOA': "How many properties or units need service? What's the primary service needed?",
-        'Snow removal': "What areas need clearing? Driveway, sidewalks, parking lot, or the full property?",
-        'Get a quote': "What service are you most interested in? Mowing, gutters, cleanups, fertilization, or mulching?",
-        'Seasonal cleanup': "Is this for spring cleanup, fall cleanup, or both seasons?"
-      };
-      addAssistantMessage(serviceQuestions[selectedService] || "Tell me more about what you need.");
-    }, 300);
-  };
-
-  const handleServiceDetailsSubmit = () => {
-    if (!input.trim()) return;
-    addUserMessage(input.trim());
-    setInput('');
-    setQuoteStep('timeline');
-    setTimeout(() => {
-      addAssistantMessage("When do you need this done?");
-    }, 300);
-  };
-
-  const handleTimeline = (timeline: string) => {
-    const timelineLabels: Record<string, string> = {
-      'asap': 'ASAP',
-      'this-week': 'This week',
-      'this-month': 'This month',
-      'just-pricing': 'Just getting pricing'
-    };
-    addUserMessage(timelineLabels[timeline]);
-    setCustomerInfo(prev => ({ ...prev, timeline }));
-    setQuoteStep('contact-method');
-    setTimeout(() => {
-      addAssistantMessage("How would you prefer we reach out with your quote?");
-    }, 300);
-  };
-
-  const handleContactMethod = (method: string) => {
-    const methodLabels: Record<string, string> = {
-      'text': 'Text message',
-      'call': 'Phone call',
-      'email': 'Email'
-    };
-    addUserMessage(methodLabels[method]);
-    setCustomerInfo(prev => ({ ...prev, preferredContact: method }));
-    setQuoteStep('contact-info');
-    setTimeout(() => {
-      const placeholder = method === 'email'
-        ? "Please share your name and email address."
-        : "Please share your name and phone number.";
-      addAssistantMessage(placeholder);
-    }, 300);
-  };
-
-  const handleContactInfoSubmit = async () => {
-    if (!input.trim()) return;
-    const contactInput = input.trim();
-    addUserMessage(contactInput);
-
-    const updatedInfo = { ...customerInfo };
-
-    const emailMatch = contactInput.match(/[\w.-]+@[\w.-]+\.\w+/);
-    if (emailMatch) updatedInfo.email = emailMatch[0];
-
-    const phoneMatch = contactInput.match(/\d{3}[-.\s]?\d{3}[-.\s]?\d{4}/);
-    if (phoneMatch) updatedInfo.phone = phoneMatch[0].replace(/[-.\s]/g, '-');
-
-    const nameText = contactInput
-      .replace(/[\w.-]+@[\w.-]+\.\w+/g, '')
-      .replace(/\d{3}[-.\s]?\d{3}[-.\s]?\d{4}/g, '')
-      .trim();
-
-    if (nameText && nameText.length > 1) {
-      updatedInfo.name = nameText.split(/[,\n]/)[0].trim();
-    }
-
-    setCustomerInfo(updatedInfo);
-    setInput('');
-
-    if (!updatedInfo.name || updatedInfo.name.length < 2) {
-      setTimeout(() => {
-        if (updatedInfo.email || updatedInfo.phone) {
-          addAssistantMessage("Got it! I just need your name to complete the quote request.");
-        } else {
-          addAssistantMessage("I didn't catch your name. Could you share your name along with your contact info?");
-        }
-      }, 300);
+    if (name.length < 2) {
+      setTimeout(() => addAssistantMessage("I need at least 2 characters for your name. Could you try again?"), 300);
       return;
     }
-
-    if (!updatedInfo.email && !updatedInfo.phone) {
-      setTimeout(() => {
-        addAssistantMessage(`Thanks, ${updatedInfo.name}! I just need your phone number or email to send your quote.`);
-      }, 300);
+    const updated = { ...quoteFormData, name };
+    setQuoteFormData(updated);
+    if (editingField === 'name') {
+      setEditingField(null);
+      setTimeout(() => showConfirmation(updated), 300);
       return;
     }
+    setQuoteStep('email');
+    setTimeout(() => addAssistantMessage(`Nice to meet you, ${name}! What's your email address?`), 300);
+  };
 
-    setQuoteStep('complete');
+  const handleEmailSubmit = () => {
+    if (!input.trim()) return;
+    const email = input.trim().toLowerCase();
+    addUserMessage(email);
+    setInput('');
+    if (!/^[\w.-]+@[\w.-]+\.\w+$/.test(email)) {
+      setTimeout(() => addAssistantMessage("That doesn't look like a valid email. Could you double-check?"), 300);
+      return;
+    }
+    const updated = { ...quoteFormData, email };
+    setQuoteFormData(updated);
+    if (editingField === 'email') {
+      setEditingField(null);
+      setTimeout(() => showConfirmation(updated), 300);
+      return;
+    }
+    setQuoteStep('phone');
+    setTimeout(() => addAssistantMessage("Got it. What's the best phone number to reach you?"), 300);
+  };
 
-    const finalMessages = [...messages, { role: 'user' as const, content: contactInput }];
+  const handlePhoneSubmit = () => {
+    if (!input.trim()) return;
+    const phone = input.trim();
+    addUserMessage(phone);
+    setInput('');
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length < 10) {
+      setTimeout(() => addAssistantMessage("I need a valid phone number (at least 10 digits). Could you try again?"), 300);
+      return;
+    }
+    const updated = { ...quoteFormData, phone };
+    setQuoteFormData(updated);
+    if (editingField === 'phone') {
+      setEditingField(null);
+      setTimeout(() => showConfirmation(updated), 300);
+      return;
+    }
+    setQuoteStep('address');
+    setTimeout(() => addAssistantMessage("What's your property address?"), 300);
+  };
 
-    setTimeout(() => {
-      addAssistantMessage(`Perfect, ${updatedInfo.name}! Our team will follow up within 24 hours with your personalized quote. We look forward to working with you.`);
-      setTimeout(() => {
-        setQuoteStep('feedback');
-        addAssistantMessage("Before you go, how was your experience?");
-      }, 2000);
-    }, 300);
+  const handleAddressSubmit = () => {
+    if (!input.trim()) return;
+    const address = input.trim();
+    addUserMessage(address);
+    setInput('');
+    if (address.length < 5) {
+      setTimeout(() => addAssistantMessage("Could you provide a more complete address? Include street, city, or ZIP if you can."), 300);
+      return;
+    }
+    const updated = { ...quoteFormData, address };
+    setQuoteFormData(updated);
+    if (editingField === 'address') {
+      setEditingField(null);
+      setTimeout(() => showConfirmation(updated), 300);
+      return;
+    }
+    setQuoteStep('description');
+    setTimeout(() => addAssistantMessage("Last step — tell us about your project. Yard size, specific concerns, preferred schedule, anything that helps us give you an accurate quote."), 300);
+  };
 
-    await saveConversation(finalMessages, updatedInfo);
+  const handleDescriptionSubmit = () => {
+    if (!input.trim()) return;
+    const description = input.trim();
+    addUserMessage(description);
+    setInput('');
+    if (description.length < 5) {
+      setTimeout(() => addAssistantMessage("Could you give us a bit more detail? Even a sentence or two helps us quote accurately."), 300);
+      return;
+    }
+    const updated = { ...quoteFormData, message: description };
+    setQuoteFormData(updated);
+    if (editingField === 'message') {
+      setEditingField(null);
+      setTimeout(() => showConfirmation(updated), 300);
+      return;
+    }
+    setTimeout(() => showConfirmation(updated), 300);
+  };
+
+  const handleEditField = (field: keyof QuoteFormData) => {
+    const labels: Record<keyof QuoteFormData, string> = {
+      name: "What should the name be?",
+      email: "What's the correct email?",
+      phone: "What's the correct phone number?",
+      address: "What's the correct address?",
+      message: "What should the project details say?",
+    };
+    const stepMap: Record<keyof QuoteFormData, QuoteStep> = {
+      name: 'name',
+      email: 'email',
+      phone: 'phone',
+      address: 'address',
+      message: 'description',
+    };
+    setEditingField(field);
+    addUserMessage(`Edit ${field === 'message' ? 'details' : field}`);
+    setQuoteStep(stepMap[field]);
+    setTimeout(() => addAssistantMessage(labels[field]), 300);
   };
 
   const streamChat = async (userMessage: string) => {
@@ -486,22 +418,7 @@ export const ChatBot = () => {
     setInput('');
     setShowQuickReplies(false);
 
-    const updatedInfo = { ...customerInfo };
-    if (userMessage.toLowerCase().includes('@') && userMessage.includes('.')) {
-      const emailMatch = userMessage.match(/[\w.-]+@[\w.-]+\.\w+/);
-      if (emailMatch) updatedInfo.email = emailMatch[0];
-    }
-    if (userMessage.match(/\d{3}[-.]?\d{3}[-.]?\d{4}/)) {
-      const phoneMatch = userMessage.match(/\d{3}[-.]?\d{3}[-.]?\d{4}/);
-      if (phoneMatch) updatedInfo.phone = phoneMatch[0];
-    }
-    if (userMessage.toLowerCase().includes('commercial') || userMessage.toLowerCase().includes('business') || userMessage.toLowerCase().includes('hoa')) {
-      updatedInfo.propertyType = 'commercial';
-    }
-    if (userMessage.toLowerCase().includes('asap') || userMessage.toLowerCase().includes('urgent')) {
-      updatedInfo.timeline = 'asap';
-    }
-    setCustomerInfo(updatedInfo);
+    // Free-form chat — no quote data extraction needed
 
     let assistantContent = '';
     const updateAssistant = (chunk: string) => {
@@ -563,19 +480,14 @@ export const ChatBot = () => {
         }
       }
 
-      const finalMessages = [...updatedMessages, { role: 'assistant' as const, content: assistantContent }];
-      setMessages(finalMessages);
-      await saveConversation(finalMessages, updatedInfo);
+      setMessages([...updatedMessages, { role: 'assistant' as const, content: assistantContent }]);
       setIsLoading(false);
     } catch (e) {
       console.error('Chat error:', e);
-      const errorMsg = {
+      setMessages([...updatedMessages, {
         role: 'assistant' as const,
         content: "I'm having trouble connecting right now. Please call us at 608-535-6057 or email totalguardllc@gmail.com. We're happy to help."
-      };
-      const finalMessages = [...updatedMessages, errorMsg];
-      setMessages(finalMessages);
-      await saveConversation(finalMessages, updatedInfo);
+      }]);
       setIsLoading(false);
     }
   };
@@ -583,14 +495,13 @@ export const ChatBot = () => {
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
 
-    if (quoteStep === 'location') {
-      handleLocationSubmit();
-    } else if (quoteStep === 'service-details') {
-      handleServiceDetailsSubmit();
-    } else if (quoteStep === 'contact-info') {
-      handleContactInfoSubmit();
-    } else {
-      streamChat(input);
+    switch (quoteStep) {
+      case 'name': handleNameSubmit(); break;
+      case 'email': handleEmailSubmit(); break;
+      case 'phone': handlePhoneSubmit(); break;
+      case 'address': handleAddressSubmit(); break;
+      case 'description': handleDescriptionSubmit(); break;
+      default: streamChat(input);
     }
   };
 
@@ -611,20 +522,12 @@ export const ChatBot = () => {
     ),
   ];
 
-  const commercialFAQs = [
-    { text: "Documentation & invoicing", query: "How do you handle documentation and invoicing for commercial properties?" },
-    { text: "Multi-property service", query: "Can you service multiple properties or locations?" },
-    { text: "Response time", query: "What's your typical response time for service requests?" },
-    { text: "Insurance & liability", query: "Are you insured and what liability coverage do you have?" }
-  ];
-
-  const isCommercialFlow = customerInfo.propertyType === 'commercial' || customerInfo.propertyType === 'hoa' || selectedService === 'Commercial/HOA';
 
   // Quote step tracking
-  const STEP_ORDER = ['property-type', 'location', 'service-details', 'timeline', 'contact-method', 'contact-info'] as const;
-  const STEP_LABELS = ['Property', 'Location', 'Details', 'Timeline', 'Contact', 'Info'];
+  const STEP_ORDER = ['name', 'email', 'phone', 'address', 'description', 'confirm'] as const;
+  const STEP_LABELS = ['Name', 'Email', 'Phone', 'Address', 'Details', 'Review'];
   const currentStepIdx = STEP_ORDER.indexOf(quoteStep as typeof STEP_ORDER[number]);
-  const showProgress = quoteStep !== 'idle' && quoteStep !== 'complete' && quoteStep !== 'feedback' && quoteStep !== 'feedback-submitted';
+  const showProgress = quoteStep !== 'idle' && quoteStep !== 'complete' && quoteStep !== 'submitting' && quoteStep !== 'feedback' && quoteStep !== 'feedback-submitted';
 
   return (
     <>
@@ -813,66 +716,39 @@ export const ChatBot = () => {
                   </div>
                 )}
 
-                {/* ===== PROPERTY TYPE ===== */}
-                {quoteStep === 'property-type' && !isLoading && (
-                  <div className="pt-2">
+                {/* ===== CONFIRM / EDIT ===== */}
+                {quoteStep === 'confirm' && !isLoading && (
+                  <div className="pt-2 space-y-2">
                     <div className="flex flex-wrap gap-2">
-                      <GlassChip onClick={() => handlePropertyType('residential')} icon={<Home className="h-4 w-4" />} delay={0}>
-                        Residential
-                      </GlassChip>
-                      <GlassChip onClick={() => handlePropertyType('commercial')} icon={<Building2 className="h-4 w-4" />} delay={0.08}>
-                        Commercial
-                      </GlassChip>
-                      <GlassChip onClick={() => handlePropertyType('hoa')} icon={<Users className="h-4 w-4" />} delay={0.16}>
-                        HOA / Multi
+                      <GlassChip
+                        onClick={() => submitQuote(quoteFormData)}
+                        icon={<CheckCircle2 className="h-4 w-4 text-emerald-400" />}
+                        delay={0}
+                      >
+                        Submit Quote
                       </GlassChip>
                     </div>
-                  </div>
-                )}
-
-                {/* ===== TIMELINE ===== */}
-                {quoteStep === 'timeline' && !isLoading && (
-                  <div className="pt-2">
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        { value: 'asap', label: 'ASAP' },
-                        { value: 'this-week', label: 'This week' },
-                        { value: 'this-month', label: 'This month' },
-                        { value: 'just-pricing', label: 'Just pricing' }
-                      ].map((option, idx) => (
-                        <GlassChip key={option.value} onClick={() => handleTimeline(option.value)} delay={idx * 0.08}>
-                          {option.label}
-                        </GlassChip>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* ===== CONTACT METHOD ===== */}
-                {quoteStep === 'contact-method' && !isLoading && (
-                  <div className="pt-2">
-                    <div className="flex flex-wrap gap-2">
-                      <GlassChip onClick={() => handleContactMethod('text')} icon={<MessageSquare className="h-4 w-4" />} delay={0}>
-                        Text
-                      </GlassChip>
-                      <GlassChip onClick={() => handleContactMethod('call')} icon={<PhoneCall className="h-4 w-4" />} delay={0.08}>
-                        Call
-                      </GlassChip>
-                      <GlassChip onClick={() => handleContactMethod('email')} icon={<Mail className="h-4 w-4" />} delay={0.16}>
-                        Email
-                      </GlassChip>
-                    </div>
-                  </div>
-                )}
-
-                {/* ===== COMMERCIAL FAQs ===== */}
-                {isCommercialFlow && quoteStep === 'complete' && !isLoading && (
-                  <div className="pt-2">
-                    <div className="flex flex-wrap gap-2">
-                      {commercialFAQs.map((faq, idx) => (
-                        <GlassChip key={idx} onClick={() => streamChat(faq.query)} delay={idx * 0.08}>
-                          {faq.text}
-                        </GlassChip>
+                    <div className="flex flex-wrap gap-1.5">
+                      {([
+                        ['name', 'Name'],
+                        ['email', 'Email'],
+                        ['phone', 'Phone'],
+                        ['address', 'Address'],
+                        ['message', 'Details'],
+                      ] as [keyof QuoteFormData, string][]).map(([field, label], idx) => (
+                        <motion.button
+                          key={field}
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2, delay: 0.1 + idx * 0.05 }}
+                          onClick={() => handleEditField(field)}
+                          className="px-3 py-1.5 text-xs font-medium rounded-lg
+                            bg-white/[0.03] border border-white/[0.06] text-white/50
+                            hover:border-white/20 hover:text-white/80
+                            active:scale-[0.97] transition-all duration-200"
+                        >
+                          Edit {label}
+                        </motion.button>
                       ))}
                     </div>
                   </div>
@@ -975,8 +851,9 @@ export const ChatBot = () => {
                       ]);
                       setQuoteStep('idle');
                       setShowQuickReplies(true);
-                      setCustomerInfo({});
                       setSelectedService('');
+                      setQuoteFormData({ name: '', email: '', phone: '', address: '', message: '' });
+                      setEditingField(null);
                       setFeedbackRating(0);
                       setFeedbackText('');
                       setInput('');
@@ -996,7 +873,7 @@ export const ChatBot = () => {
             )}
 
             {/* ===== INPUT AREA ===== */}
-            {quoteStep !== 'feedback' && quoteStep !== 'feedback-submitted' && (
+            {quoteStep !== 'feedback' && quoteStep !== 'feedback-submitted' && quoteStep !== 'confirm' && quoteStep !== 'submitting' && (
               <div className="p-3 border-t border-white/[0.06]">
                 <div className="flex gap-2">
                   <input
@@ -1005,9 +882,11 @@ export const ChatBot = () => {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder={
-                      quoteStep === 'location' ? "Enter address or cross streets..." :
-                      quoteStep === 'service-details' ? "Describe your needs..." :
-                      quoteStep === 'contact-info' ? "Name and phone/email..." :
+                      quoteStep === 'name' ? "Your full name..." :
+                      quoteStep === 'email' ? "Your email address..." :
+                      quoteStep === 'phone' ? "Your phone number..." :
+                      quoteStep === 'address' ? "Your property address..." :
+                      quoteStep === 'description' ? "Describe your project..." :
                       "Ask a question..."
                     }
                     className="flex-1 h-12 px-4 text-base sm:text-sm text-white/90 placeholder:text-white/25
