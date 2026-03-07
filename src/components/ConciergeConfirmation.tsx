@@ -179,7 +179,7 @@ function ParticleBurst({ accentRgb }: { accentRgb: string }) {
 function AnimatedCheckmark({ tokens }: { tokens: SeasonTokens }) {
   return (
     <motion.div
-      className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24"
+      className="relative mx-auto w-24 h-24"
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       transition={{ type: 'spring', damping: 12, stiffness: 200, delay: 0.1 }}
@@ -193,7 +193,7 @@ function AnimatedCheckmark({ tokens }: { tokens: SeasonTokens }) {
           animate={{ pathLength: 1, opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.4 }}
         >
-          <Check className="w-10 h-10 sm:w-12 sm:h-12 text-white" strokeWidth={3} />
+          <Check className="w-12 h-12 text-white" strokeWidth={3} />
         </motion.div>
       </div>
       <ParticleBurst accentRgb={tokens.accentRgb} />
@@ -297,7 +297,7 @@ export function ConciergeConfirmation({
         <X className="h-4 w-4 text-white/30 group-hover:text-white/70 transition-colors" />
       </button>
 
-      <div className="relative z-10 px-5 py-6 sm:px-8 sm:py-8 space-y-5">
+      <div className="relative z-10 px-8 py-8 space-y-5">
         {/* Phase 1 — Checkmark + Title */}
         <AnimatePresence>
           {phase >= 1 && (
@@ -310,7 +310,7 @@ export function ConciergeConfirmation({
               <AnimatedCheckmark tokens={tokens} />
 
               <motion.h2
-                className="text-xl sm:text-2xl font-black text-white tracking-tight"
+                className="text-2xl font-black text-white tracking-tight"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
@@ -344,7 +344,7 @@ export function ConciergeConfirmation({
                 Popular With Your Neighbors
               </p>
 
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 {upsellServices.map((svc, idx) => {
                   const Icon = svc.icon;
                   const badge = badges[idx];
@@ -358,7 +358,7 @@ export function ConciergeConfirmation({
                       <Link
                         href={`/services/${svc.slug}`}
                         onClick={() => trackUpsellClick(svc.name, svc.slug)}
-                        className={`group block bg-white/[0.06] border ${tokens.borderClass} backdrop-blur-sm rounded-xl p-3 sm:p-4 space-y-2 transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.09] hover:shadow-lg h-full`}
+                        className={`group block bg-white/[0.06] border ${tokens.borderClass} backdrop-blur-sm rounded-xl px-4 pt-4 pb-2.5 space-y-1.5 transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.09] hover:shadow-lg h-full`}
                       >
                         <div className="flex items-start justify-between gap-1">
                           <div
@@ -372,7 +372,7 @@ export function ConciergeConfirmation({
                           </div>
                           {badge && (
                             <span
-                              className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full whitespace-nowrap"
+                              className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full whitespace-nowrap"
                               style={{
                                 backgroundColor: `rgba(${tokens.accentRgb}, 0.15)`,
                                 color: tokens.accentSolid,
@@ -382,10 +382,10 @@ export function ConciergeConfirmation({
                             </span>
                           )}
                         </div>
-                        <p className="text-white font-semibold text-xs sm:text-sm leading-tight">
+                        <p className="text-white font-semibold text-sm leading-tight">
                           {svc.name}
                         </p>
-                        <p className="text-white/40 text-[11px] leading-relaxed hidden sm:block">
+                        <p className="text-white/40 text-[11px] leading-relaxed">
                           {svc.hook}
                         </p>
                         <span
@@ -424,14 +424,14 @@ export function ConciergeConfirmation({
 
               {/* Bottom Bar */}
               <motion.div
-                className="flex flex-col sm:flex-row items-center gap-2 pt-1"
+                className="flex flex-row items-center gap-2 pt-1"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
               >
                 <a
                   href="tel:+16085356057"
-                  className="flex-1 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:brightness-110"
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:brightness-110"
                   style={{
                     background: tokens.ctaGradientCss,
                     boxShadow: `0 0 20px rgba(${tokens.accentRgb}, 0.3)`,
@@ -444,7 +444,7 @@ export function ConciergeConfirmation({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full sm:w-auto px-6 py-3 rounded-xl text-sm font-medium text-white/50 transition-colors duration-200 hover:text-white/80 hover:bg-white/[0.04]"
+                  className="px-6 py-3 rounded-xl text-sm font-medium text-white/50 transition-colors duration-200 hover:text-white/80 hover:bg-white/[0.04]"
                 >
                   Close
                 </button>
@@ -472,7 +472,7 @@ export function ConciergeConfirmation({
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent
-        className="sm:max-w-2xl p-0 border-0 bg-transparent shadow-2xl rounded-2xl overflow-hidden [&>button:last-child]:hidden"
+        className="sm:max-w-3xl p-0 border-0 bg-transparent shadow-2xl rounded-2xl overflow-hidden [&>button:last-child]:hidden"
         style={{ background: tokens.dialogBg }}
       >
         {/* Accessible title — visually hidden */}
