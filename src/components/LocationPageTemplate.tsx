@@ -10,7 +10,7 @@ import { LocationPageSchemas } from "@/components/schemas/LocationPageSchemas";
 import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
 import { WebPageSchema } from "@/components/schemas/WebPageSchema";
 import { ScrollProgress } from "@/components/ScrollProgress";
-import { SectionDivider, SectionConnector } from "@/components/SectionTransition";
+import { SectionDivider } from "@/components/SectionTransition";
 import { LocalFAQSection, WhatHappensNextSection } from "@/components/SearchIntentSections";
 import CTASection from '@/components/CTASection';
 import heroImage from "@/assets/hero-lawn.jpg";
@@ -125,7 +125,6 @@ export default function LocationPageTemplate({
       {/* Services Section */}
       <section className={cn("py-12 md:py-16 bg-background", MOBILE_ORDER.WHATS_INCLUDED)}>
         <div className="container mx-auto px-4">
-          <SectionConnector className="mb-8" />
 
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">

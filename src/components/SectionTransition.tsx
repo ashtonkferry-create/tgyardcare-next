@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
  */
 
 interface SectionTransitionProps {
-  variant?: "fade" | "gradient" | "arrow" | "connector" | "wave";
+  variant?: "fade" | "gradient" | "arrow" | "wave";
   from?: string; // HSL color values for gradients
   to?: string;
   className?: string;
@@ -68,17 +68,6 @@ export function SectionArrow({ className }: { className?: string }) {
           />
         </svg>
       </div>
-    </div>
-  );
-}
-
-// Connector line with dot - shows progression
-export function SectionConnector({ className }: { className?: string }) {
-  return (
-    <div className={cn("flex flex-col items-center py-6 md:py-8", className)}>
-      <div className="w-px h-8 md:h-12 bg-gradient-to-b from-transparent via-border to-border" />
-      <div className="w-2 h-2 rounded-full bg-primary/40 my-2" />
-      <div className="w-px h-8 md:h-12 bg-gradient-to-b from-border via-border to-transparent" />
     </div>
   );
 }
@@ -151,8 +140,6 @@ export function SectionTransition({
       return <SectionGradientBridge from={from} to={to} className={className} />;
     case "arrow":
       return <SectionArrow className={className} />;
-    case "connector":
-      return <SectionConnector className={className} />;
     case "wave":
       return <SectionWave from={from} to={to} className={className} />;
     case "fade":

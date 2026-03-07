@@ -11,7 +11,7 @@ import { LocationPageSchemas } from '@/components/schemas/LocationPageSchemas';
 import { BreadcrumbSchema } from '@/components/schemas/BreadcrumbSchema';
 import { WebPageSchema } from '@/components/schemas/WebPageSchema';
 import { ScrollProgress } from '@/components/ScrollProgress';
-import { SectionDivider, SectionConnector } from '@/components/SectionTransition';
+import { SectionDivider } from '@/components/SectionTransition';
 import { TrustBar } from '@/components/TrustBar';
 import { FeaturedReviews } from '@/components/FeaturedReviews';
 import CTASection from '@/components/CTASection';
@@ -154,7 +154,6 @@ export function LocationPageFromDB({ slug: propSlug }: LocationPageFromDBProps) 
       {locationServices && locationServices.length > 0 && (
         <section className="py-12 md:py-16 bg-background">
           <div className="container mx-auto px-4">
-            <SectionConnector className="mb-8" />
 
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">

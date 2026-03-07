@@ -444,32 +444,6 @@ All colors MUST be HSL.
     @apply transition-all duration-300;
   }
   
-  /* Dead zone prevention - never let sections feel isolated */
-  .flow-connected {
-    @apply relative;
-  }
-  
-  .flow-connected::before {
-    content: '';
-    @apply absolute -top-8 left-1/2 -translate-x-1/2 w-px h-8;
-    background: linear-gradient(to bottom, transparent, hsl(var(--border)));
-  }
-  
-  .flow-connected::after {
-    content: '';
-    @apply absolute -bottom-8 left-1/2 -translate-x-1/2 w-px h-8;
-    background: linear-gradient(to bottom, hsl(var(--border)), transparent);
-  }
-  
-  /* Visual progression indicator */
-  .flow-progress-dot {
-    @apply w-2 h-2 rounded-full bg-primary/30 transition-all duration-300;
-  }
-  
-  .flow-progress-dot.active {
-    @apply bg-primary scale-125;
-  }
-  
   /* Cognitive ease - reading comfort zones */
   .content-readable {
     @apply max-w-prose leading-relaxed;
