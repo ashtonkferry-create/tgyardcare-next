@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Phone, Mail, MapPin, ArrowRight, CheckCircle2, Loader2,
@@ -303,6 +303,17 @@ export default function QuickQuoteDialog({
         return next;
       });
     }
+  }, [formData]);
+
+  // Auto-detect filled fields (handles browser autofill)
+  useEffect(() => {
+    setCompletedFields(prev => {
+      const next = new Set(prev);
+      for (const [key, value] of Object.entries(formData)) {
+        if (value?.trim()) next.add(key);
+      }
+      return next.size !== prev.size ? next : prev;
+    });
   }, [formData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

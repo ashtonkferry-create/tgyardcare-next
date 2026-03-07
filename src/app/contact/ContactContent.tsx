@@ -173,6 +173,17 @@ export default function ContactContent() {
     }
   }, [formData]);
 
+  // Auto-detect filled fields (handles browser autofill)
+  useEffect(() => {
+    setCompletedFields(prev => {
+      const next = new Set(prev);
+      for (const [key, value] of Object.entries(formData)) {
+        if (value?.trim()) next.add(key);
+      }
+      return next.size !== prev.size ? next : prev;
+    });
+  }, [formData]);
+
   useEffect(() => {
     const serviceKey = searchParams.get('service');
     if (serviceKey) {
