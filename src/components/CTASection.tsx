@@ -90,18 +90,15 @@ export default function CTASection({
 
   // Final CTA - season-adaptive with immersive styling
   return (
-    <section className="py-14 md:py-20 bg-transparent">
+    <section className={`py-14 md:py-20 bg-gradient-to-br ${ct.bg}`}>
       <div className="container mx-auto px-4">
-        {/* Visual connector from previous section */}
-        <div className="w-12 h-px bg-border mx-auto mb-10" />
-
         <motion.div
           ref={ctaRef}
           initial={{ opacity: 0, y: 30, scale: 0.97 }}
           animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
           transition={{ duration: 0.7, ease: 'easeOut' }}
         >
-          <div className={`relative overflow-hidden bg-gradient-to-br ${ct.bg} border-2 ${ct.border} rounded-2xl p-8 md:p-12 text-center shadow-2xl max-w-4xl mx-auto`}>
+          <div className="relative overflow-hidden p-8 md:p-12 text-center max-w-4xl mx-auto">
             {/* Floating particles */}
             <AmbientParticles density="dense" />
             {/* Center glow */}
