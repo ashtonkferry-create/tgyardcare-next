@@ -150,7 +150,7 @@ export default function Footer({
   ];
 
   return (
-    <footer className="pb-24 lg:pb-0">
+    <footer>
 
       {/* ═══════════ ZONE 1 — THE CLOSER ═══════════ */}
       {showCloser && (
@@ -443,7 +443,7 @@ export default function Footer({
       </section>
 
       {/* ═══════════ ZONE 3 — SIGNATURE ═══════════ */}
-      <section className={`${t.footerBg} border-t ${t.sigBorder}`}>
+      <section className={`${t.footerBg} border-t ${t.sigBorder} pb-24 lg:pb-0`}>
         <div className="container mx-auto px-4 py-3">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 max-w-6xl mx-auto">
 

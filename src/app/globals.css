@@ -380,6 +380,7 @@ textarea:-webkit-autofill:focus {
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
   }
 
   body {
@@ -388,6 +389,7 @@ textarea:-webkit-autofill:focus {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
   }
 
   /* Prevent layout shift from images */

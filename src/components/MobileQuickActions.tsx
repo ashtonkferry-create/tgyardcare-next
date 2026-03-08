@@ -89,7 +89,7 @@ export function MobileQuickActionsInline({ className }: { className?: string }) 
       : summerActions;
 
   return (
-    <div className={cn("lg:hidden overflow-x-auto scrollbar-hide -mx-4 px-4", className)}>
+    <div className={cn("lg:hidden overflow-x-auto scrollbar-hide px-4", className)}>
       <div className="flex gap-2 pb-2">
         {actions.map((action) => {
           const Icon = action.icon;
