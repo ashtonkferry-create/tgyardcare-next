@@ -41,15 +41,9 @@ type QuoteStep =
   | 'feedback-submitted';
 
 const serviceOptions = [
-  { text: 'Lawn Mowing', icon: <Scissors className="h-4 w-4" /> },
-  { text: 'Fertilization & Herbicide', icon: <Leaf className="h-4 w-4" /> },
-  { text: 'Gutter Cleaning', icon: <Droplets className="h-4 w-4" /> },
-  { text: 'Gutter Guards', icon: <Shield className="h-4 w-4" /> },
-  { text: 'Spring Cleanup', icon: <Sparkles className="h-4 w-4" /> },
-  { text: 'Fall Cleanup', icon: <Leaf className="h-4 w-4" /> },
-  { text: 'Mulching & Garden Beds', icon: <Leaf className="h-4 w-4" /> },
-  { text: 'Bush Trimming', icon: <Scissors className="h-4 w-4" /> },
-  { text: 'Snow Removal', icon: <Snowflake className="h-4 w-4" /> },
+  { text: 'Lawn care', icon: <Scissors className="h-4 w-4" /> },
+  { text: 'Gutter services', icon: <Droplets className="h-4 w-4" /> },
+  { text: 'Seasonal cleanup', icon: <Leaf className="h-4 w-4" /> },
   { text: 'Other', icon: <MessageSquare className="h-4 w-4" /> },
 ];
 
