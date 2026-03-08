@@ -365,6 +365,21 @@ export default function Footer({
                   </Link>
                 </li>
               </ul>
+
+              {/* Hardscaping partner link */}
+              <div className="mt-3 pt-3 border-t border-white/[0.04] text-center">
+                <p className={`text-[10px] uppercase tracking-[0.15em] ${t.dimText} font-semibold mb-1`}>
+                  Looking for Hardscaping?
+                </p>
+                <Link
+                  href="/services/hardscaping"
+                  className={`inline-flex items-center gap-1 text-[13px] ${t.textColor} ${t.linkHover} transition-colors group`}
+                >
+                  <Layers className={`h-3.5 w-3.5 ${t.iconColor}`} />
+                  Hardscaping Services
+                  <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </div>
             </motion.div>
 
             {/* Column 5: CONNECT */}
@@ -432,24 +447,9 @@ export default function Footer({
               </div>
 
               {/* Seasonal Badge */}
-              <div className={`inline-flex items-center gap-1.5 ${t.seasonBg} ${t.seasonText} px-2.5 py-1 rounded-full text-[10px] font-medium border ${t.seasonBorder} mt-4`}>
+              <div className={`inline-flex items-center gap-1.5 ${t.seasonBg} ${t.seasonText} px-2.5 py-1 rounded-full text-[10px] font-medium border ${t.seasonBorder} mt-4 mb-0`}>
                 <SeasonIcon className="h-3 w-3 flex-shrink-0" />
                 <span>{seasonMessages[activeSeason]}</span>
-              </div>
-
-              {/* Hardscaping partner link */}
-              <div className="mt-4 pt-3 border-t border-white/[0.04]">
-                <p className={`text-[10px] uppercase tracking-[0.15em] ${t.dimText} font-semibold mb-1.5`}>
-                  Looking for Hardscaping?
-                </p>
-                <Link
-                  href="/services/hardscaping"
-                  className={`inline-flex items-center gap-1 text-[13px] ${t.textColor} ${t.linkHover} transition-colors group`}
-                >
-                  <Layers className={`h-3.5 w-3.5 ${t.iconColor}`} />
-                  Hardscaping Services
-                  <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                </Link>
               </div>
             </motion.div>
 
