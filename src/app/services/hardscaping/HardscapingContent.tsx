@@ -210,6 +210,7 @@ export default function HardscapingContent() {
       />
       <ResidentialSolutionSection
         serviceName="Hardscaping"
+        providerName="YD Exterior Visions"
         solutionPoints={[
           "Custom designs tailored to your property — patios, walls, walkways, fire pits, and edging",
           "Premium materials and expert craftsmanship on every installation",

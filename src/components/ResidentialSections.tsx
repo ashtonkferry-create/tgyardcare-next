@@ -14,6 +14,7 @@ export interface ResidentialSectionsProps {
   serviceName: string;
   problemPoints?: string[];
   solutionPoints?: string[];
+  providerName?: string;
 }
 
 export interface HomeownerType {
@@ -34,6 +35,7 @@ export interface ResidentialHomeownerTypesSectionProps {
 export interface ResidentialExpectationsSectionProps {
   serviceName: string;
   expectations?: Expectation[];
+  providerName?: string;
 }
 
 // ===============================
@@ -165,7 +167,8 @@ export function ResidentialProblemSection({
 
 export function ResidentialSolutionSection({
   serviceName,
-  solutionPoints = defaultSolutionPoints
+  solutionPoints = defaultSolutionPoints,
+  providerName = 'TotalGuard'
 }: ResidentialSectionsProps) {
   const { activeSeason } = useSeasonalTheme();
   const checkColor = seasonalCheckColor[activeSeason];
@@ -180,11 +183,11 @@ export function ResidentialSolutionSection({
                 <Shield className="h-5 w-5 md:h-6 md:w-6 text-primary" />
               </div>
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight">
-                How TotalGuard Is Different
+                How {providerName} Is Different
               </h2>
             </div>
             <p className="mobile-body text-white/60 mb-8 md:mb-10 leading-relaxed">
-              TotalGuard operates with documented processes. Here&apos;s how each one works.
+              {providerName} operates with documented processes. Here&apos;s how each one works.
             </p>
           </ScrollReveal>
 
@@ -256,7 +259,8 @@ export function ResidentialHomeownerTypesSection({
 
 export function ResidentialExpectationsSection({
   serviceName,
-  expectations = defaultExpectations
+  expectations = defaultExpectations,
+  providerName = 'TotalGuard'
 }: ResidentialExpectationsSectionProps) {
   const icons = [Calendar, Users, Sparkles, Shield, Clock, Heart];
   const { activeSeason } = useSeasonalTheme();
@@ -272,7 +276,7 @@ export function ResidentialExpectationsSection({
                 What You Can Expect
               </h2>
               <p className="mobile-body text-white/60 max-w-3xl mx-auto leading-relaxed">
-                Not promises&mdash;standards. Here&apos;s what working with TotalGuard actually looks like.
+                Not promises&mdash;standards. Here&apos;s what working with {providerName} actually looks like.
               </p>
             </div>
           </ScrollReveal>
