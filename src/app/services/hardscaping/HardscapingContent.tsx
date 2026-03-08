@@ -8,7 +8,6 @@ import { ScrollProgress } from "@/components/ScrollProgress";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
 import { TrustStrip } from "@/components/TrustStrip";
-import CTASection from "@/components/CTASection";
 import { AmbientParticles } from "@/components/AmbientParticles";
 import { ResidentialProblemSection, ResidentialSolutionSection } from "@/components/ResidentialSections";
 import { Button } from "@/components/ui/button";
@@ -56,8 +55,6 @@ const faqs = [
   { q: 'Do you offer free estimates?', a: 'Yes — every project starts with a free, no-obligation consultation and written estimate. Call (608) 576-4220 or email to schedule.' },
   { q: 'What areas do you serve?', a: 'We serve Madison, Middleton, Verona, Fitchburg, Sun Prairie, Monticello, and surrounding Dane County communities.' },
 ];
-
-function imgSrc(path: string) { return path; }
 
 // ---------------------------------------------------------------------------
 // Component
@@ -129,9 +126,15 @@ export default function HardscapingContent() {
       ════════════════════════════════════════════════════════════════════ */}
       <section className="relative min-h-[55vh] md:min-h-[60vh] flex items-center py-16 md:py-24">
         {/* Background layers */}
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${imgSrc('/images/gallery/paver-patio-1.jpg')})` }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a1f14]/90 via-[#0a1f14]/60 to-[#050d07]/95" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(10,31,20,0.4)_100%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a1f14] via-[#0d1a12] to-[#050d07]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(34,197,94,0.06)_0%,transparent_60%)]" />
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.04) 40px, rgba(255,255,255,0.04) 41px),
+                              repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.04) 40px, rgba(255,255,255,0.04) 41px)`,
+          }}
+        />
         <AmbientParticles density="sparse" />
 
         <div className="container mx-auto px-6 md:px-8 relative z-10 max-w-6xl">
@@ -297,12 +300,30 @@ export default function HardscapingContent() {
         </div>
       </section>
 
-      {/* Mid-page CTA */}
-      <CTASection
-        title="Ready to transform your outdoor space?"
-        description="Get a free, no-obligation hardscape estimate. Call or email — we respond within 24 hours."
-        variant="compact"
-      />
+      {/* Mid-page CTA — Routes to YD, not TotalGuard */}
+      <section className="py-10 md:py-12 bg-white/[0.04]">
+        <div className="container mx-auto px-6 md:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto">
+            <div className="text-center md:text-left">
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-1">Ready to transform your outdoor space?</h3>
+              <p className="text-white/70">Get a free, no-obligation hardscape estimate. Call or email — we respond within 24 hours.</p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button size="lg" className="w-full sm:w-auto font-bold bg-amber-500 hover:bg-amber-400 text-black" asChild>
+                <a href="tel:608-576-4220">
+                  Get Estimate <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+              <Button size="lg" variant="outline" className="w-full sm:w-auto font-bold" asChild>
+                <a href="tel:608-576-4220">
+                  <Phone className="mr-2 h-4 w-4" />
+                  Call
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
           REVIEWS — Social proof
