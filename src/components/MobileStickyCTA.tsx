@@ -52,9 +52,10 @@ export default function MobileStickyCTA() {
       className={`fixed bottom-0 left-0 right-0 z-40 lg:hidden transition-transform duration-300 ease-out ${
         show ? 'translate-y-0' : 'translate-y-full'
       }`}
+      style={{ backgroundColor: ctaBg }}
     >
       <div
-        className="backdrop-blur-xl border-t border-white/10 px-4 py-3 safe-area-bottom"
+        className="backdrop-blur-xl border-t border-white/10 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
         style={{ backgroundColor: `${ctaBg}f2` }}
       >
         <div className="flex gap-3 max-w-lg mx-auto">
