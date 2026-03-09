@@ -322,14 +322,16 @@ export default function HomeContent() {
               <Button variant="ghost" size="icon" onClick={() => carouselApi?.scrollPrev()} className="rounded-full h-8 w-8 border border-emerald-500/20 hover:border-emerald-400/40 hover:bg-emerald-500/10 text-emerald-300/70 hover:text-emerald-200" aria-label="Previous">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <div className="flex gap-1.5">
+              <div className="flex gap-1.5 items-center">
                 {Array.from({ length: totalSlides }).map((_, index) => (
                   <button
                     key={index}
                     onClick={() => carouselApi?.scrollTo(index)}
-                    className={`rounded-full transition-all duration-300 ${index === current ? 'bg-emerald-400 h-2 w-6' : 'bg-emerald-500/30 hover:bg-emerald-400/50 h-2 w-2'}`}
+                    className="relative flex items-center justify-center p-3"
                     aria-label={`Go to slide ${index + 1}`}
-                  />
+                  >
+                    <span className={`block rounded-full transition-all duration-300 ${index === current ? 'bg-emerald-400 h-2.5 w-8' : 'bg-emerald-500/30 hover:bg-emerald-400/50 h-2 w-2'}`} />
+                  </button>
                 ))}
               </div>
               <Button variant="ghost" size="icon" onClick={() => carouselApi?.scrollNext()} className="rounded-full h-8 w-8 border border-emerald-500/20 hover:border-emerald-400/40 hover:bg-emerald-500/10 text-emerald-300/70 hover:text-emerald-200" aria-label="Next">

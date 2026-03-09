@@ -50,6 +50,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
+    site: '@TotalGuardYC',
     title: 'TG Yard Care | Professional Lawn Care & Landscaping in Madison, WI',
     description:
       "Madison's most dependable yard care -- clean, precise mowing, landscaping, gutters, and seasonal cleanups done right the first time.",
