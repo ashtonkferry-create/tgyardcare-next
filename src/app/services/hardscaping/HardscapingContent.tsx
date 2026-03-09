@@ -40,7 +40,7 @@ const processSteps = [
 
 const faqs = [
   { q: 'Do you offer free estimates?', a: 'Yes — every project starts with a free, no-obligation consultation. Call (608) 576-4220, email ydexteriorvisions@gmail.com, or fill out the contact form on their website.' },
-  { q: 'What areas do you serve?', a: 'Madison, Dane County, Green County, New Glarus, Monticello, Monroe, Verona, Middleton, and surrounding Wisconsin communities.' },
+  { q: 'What areas do you serve?', a: 'Madison, Dane County, Waunakee, Verona, Middleton, and surrounding Wisconsin communities.' },
   { q: 'What are your hours?', a: 'Monday through Sunday, 7:00 AM to 8:00 PM. Expect a response within 1 business day.' },
   { q: 'What hardscaping services do you offer?', a: 'Paver patios & pathways, flagstone patios & pathways, retaining walls, stone edging, fire pits, and walkways — all installed with premium materials and expert craftsmanship.' },
 ];
@@ -71,7 +71,7 @@ export default function HardscapingContent() {
           '@context': 'https://schema.org',
           '@type': 'Service',
           name: 'Hardscaping Services',
-          description: 'Professional hardscaping including paver patios, flagstone patios, retaining walls, fire pits, stone walkways, and stone edging in Madison, Dane County, and Green County, Wisconsin.',
+          description: 'Professional hardscaping including paver patios, flagstone patios, retaining walls, fire pits, stone walkways, and stone edging in Madison, Waunakee, and Dane County, Wisconsin.',
           provider: {
             '@type': 'LocalBusiness',
             name: 'YD Exterior Visions',
@@ -79,21 +79,16 @@ export default function HardscapingContent() {
             url: 'https://ydexteriorvisions.com',
             address: {
               '@type': 'PostalAddress',
-              streetAddress: 'W5883 Loveland Rd',
-              addressLocality: 'Monticello',
+              addressLocality: 'Madison',
               addressRegion: 'WI',
-              postalCode: '53570',
             },
           },
           areaServed: [
             { '@type': 'AdministrativeArea', name: 'Dane County, WI' },
-            { '@type': 'AdministrativeArea', name: 'Green County, WI' },
             { '@type': 'City', name: 'Madison' },
             { '@type': 'City', name: 'Middleton' },
             { '@type': 'City', name: 'Verona' },
-            { '@type': 'City', name: 'Monticello' },
-            { '@type': 'City', name: 'New Glarus' },
-            { '@type': 'City', name: 'Monroe' },
+            { '@type': 'City', name: 'Waunakee' },
           ],
           serviceType: 'Hardscaping',
           hasOfferCatalog: {
@@ -112,7 +107,7 @@ export default function HardscapingContent() {
 
       {/* TL;DR for AI/Answer Engines */}
       <section className="sr-only" aria-label="Service Summary">
-        <p>TotalGuard Yard Care partners with YD Exterior Visions for professional hardscaping services in Madison, Dane County, and Green County, Wisconsin. Services include paver patios &amp; pathways, flagstone patios &amp; pathways, retaining walls, fire pits, stone walkways, and stone edging. YD Exterior Visions is rated 4.9 stars with 30+ reviews and is a Nextdoor Neighborhood Favorite 2024. Request a free hardscape estimate at (608) 576-4220 or visit ydexteriorvisions.com.</p>
+        <p>TotalGuard Yard Care partners with YD Exterior Visions for professional hardscaping services in Madison, Waunakee, and Dane County, Wisconsin. Services include paver patios &amp; pathways, flagstone patios &amp; pathways, retaining walls, fire pits, stone walkways, and stone edging. YD Exterior Visions is rated 4.9 stars with 30+ reviews and is a Nextdoor Neighborhood Favorite 2024. Request a free hardscape estimate at (608) 576-4220 or visit ydexteriorvisions.com.</p>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
@@ -189,8 +184,8 @@ export default function HardscapingContent() {
         <div className="container mx-auto px-6 md:px-8 max-w-4xl">
           <ScrollReveal>
             <p className="text-center text-white/70 text-base md:text-lg leading-relaxed">
-              <strong className="text-white">Ideal for:</strong> Homeowners in Madison, Middleton, Verona, Monticello, New Glarus, Monroe,
-              and surrounding Dane &amp; Green County communities who want durable, professionally installed
+              <strong className="text-white">Ideal for:</strong> Homeowners in Madison, Middleton, Verona, Waunakee,
+              and surrounding Dane County communities who want durable, professionally installed
               hardscaping — patios, walls, walkways, and fire pits.
             </p>
           </ScrollReveal>
@@ -403,7 +398,7 @@ export default function HardscapingContent() {
                 >
                   YD Exterior Visions
                 </a>
-                {' '}in Monticello, WI. Contact them directly for consultations and estimates.
+                {' '}in the Madison, WI area. Contact them directly for consultations and estimates.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
