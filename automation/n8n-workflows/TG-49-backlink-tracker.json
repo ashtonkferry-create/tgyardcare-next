@@ -1,0 +1,11 @@
+{
+  "name": "TG-49-backlink-tracker",
+  "nodes": [
+    { "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 13 * * 6" }] } }, "id": "schedule", "name": "Weekly Sat 8am CT", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 300] },
+    { "parameters": { "method": "GET", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/backlinks?select=id,target_url,source_page,status", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] } }, "id": "fetch-backlinks", "name": "Fetch Backlink Targets", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [220, 300] },
+    { "parameters": { "jsCode": "return $input.all().map(i => ({ json: { ...i.json, checked_at: new Date().toISOString(), status: 'pending_manual_check' } }));" }, "id": "flag-check", "name": "Flag for Check", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [440, 300] },
+    { "parameters": { "method": "POST", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/seo_intelligence_log", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] }, "sendBody": true, "bodyParameters": { "parameters": [{ "name": "event_type", "value": "backlink_check" }, { "name": "notes", "value": "=Weekly backlink audit run. {{$input.all().length}} backlinks checked." }, { "name": "logged_at", "value": "={{ new Date().toISOString() }}" }] } }, "id": "log-audit", "name": "Log Audit", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [660, 300] }
+  ],
+  "connections": { "Weekly Sat 8am CT": { "main": [[{ "node": "Fetch Backlink Targets", "type": "main", "index": 0 }]] }, "Fetch Backlink Targets": { "main": [[{ "node": "Flag for Check", "type": "main", "index": 0 }]] }, "Flag for Check": { "main": [[{ "node": "Log Audit", "type": "main", "index": 0 }]] } },
+  "settings": { "availableInMCP": true }
+}

@@ -1,0 +1,74 @@
+{
+  "name": "TG-11-reengagement-ladder",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 13 * * *" }] } },
+      "id": "schedule",
+      "name": "Daily 8am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/customers?select=id,first_name,email,last_job_completed_at,reengagement_stage,last_service",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+      },
+      "id": "fetch-customers",
+      "name": "Fetch All Customers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\nconst stages = [\n  { days: 30, stage: 1, subject: 'We miss your lawn! 🌿', body: 'Hi {name}, it\\'s been a while! Here\\'s a seasonal tip: {tip}. Ready to book? tgyardcare.com' },\n  { days: 60, stage: 2, subject: 'Your Madison neighbors are loving their lawns', body: 'Hi {name}, TotalGuard is keeping hundreds of Madison yards beautiful. We\\'d love to get yours back on track! tgyardcare.com' },\n  { days: 90, stage: 3, subject: '10% comeback offer — just for you', body: 'Hi {name}, we want you back! Use code COMEBACK10 for 10% off your next service. Book at tgyardcare.com or call (608) 535-6057.' },\n  { days: 120, stage: 4, subject: 'Last chance: 15% off to come back to TotalGuard', body: 'Hi {name}, this is your last discount offer: 15% off when you rebook. Code: LASTCHANCE15. Valid 7 days. tgyardcare.com' },\n  { days: 180, stage: 5, subject: 'Should we remove you from our list?', body: 'Hi {name}, we haven\\'t heard from you in a while. Should we remove you? If you\\'d like to stay connected, reply STAY. Otherwise no action needed.' }\n];\nfor (const item of $input.all()) {\n  const c = item.json;\n  if (!c.last_job_completed_at || !c.email) continue;\n  const daysSince = Math.floor((Date.now() - new Date(c.last_job_completed_at)) / (1000*60*60*24));\n  const currentStage = c.reengagement_stage || 0;\n  const nextStage = stages.find(s => s.days <= daysSince && s.stage > currentStage);\n  if (!nextStage) continue;\n  const tip = 'water deeply twice a week and avoid cutting more than 1/3 of grass height';\n  results.push({ json: { ...c, subject: nextStage.subject, body: nextStage.body.replace('{name}', c.first_name).replace('{tip}', tip), newStage: nextStage.stage } });\n}\nreturn results;"
+      },
+      "id": "determine-stage",
+      "name": "Determine Reengagement Stage",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "api-key", "value": "={{$vars.TG_BREVO_API_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" }, \"to\": [{ \"email\": \"{{ $json.email }}\", \"name\": \"{{ $json.first_name }}\" }], \"subject\": \"{{ $json.subject }}\", \"textContent\": \"{{ $json.body }}\" }"
+      },
+      "id": "send-reengagement",
+      "name": "Send Reengagement Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/customers?id=eq.{{$('Determine Reengagement Stage').first().json.id}}",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "reengagement_stage", "value": "={{$('Determine Reengagement Stage').first().json.newStage}}" }] }
+      },
+      "id": "update-stage",
+      "name": "Update Customer Stage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300]
+    }
+  ],
+  "connections": {
+    "Daily 8am CT": { "main": [[{ "node": "Fetch All Customers", "type": "main", "index": 0 }]] },
+    "Fetch All Customers": { "main": [[{ "node": "Determine Reengagement Stage", "type": "main", "index": 0 }]] },
+    "Determine Reengagement Stage": { "main": [[{ "node": "Send Reengagement Email", "type": "main", "index": 0 }]] },
+    "Send Reengagement Email": { "main": [[{ "node": "Update Customer Stage", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

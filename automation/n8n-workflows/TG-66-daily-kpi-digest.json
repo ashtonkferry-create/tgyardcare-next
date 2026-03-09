@@ -1,0 +1,210 @@
+{
+  "name": "TG-66-daily-kpi-digest",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 * * *"
+            }
+          ]
+        }
+      },
+      "id": "tg66-node-01",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/leads?select=id,source&created_at=gte.{{ $now.startOf('day').toISO() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg66-node-02",
+      "name": "Get Today Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/jobber_email_events?select=id,revenue&event_type=eq.job_completed&completed_at=gte.{{ $now.startOf('day').toISO() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg66-node-03",
+      "name": "Get Today Jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/reviews?select=id,rating&created_at=gte.{{ $now.startOf('day').toISO() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg66-node-04",
+      "name": "Get Today Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const leads = $('Get Today Leads').all().map(i => i.json);\nconst jobs = $('Get Today Jobs').all().map(i => i.json);\nconst reviews = $('Get Today Reviews').all().map(i => i.json);\nconst revenue = jobs.reduce((s, j) => s + (j.revenue || 0), 0);\nreturn [{ json: {\n  leads: leads.length,\n  jobs: jobs.length,\n  revenue: revenue.toFixed(0),\n  reviews: reviews.length,\n  date: new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })\n} }];"
+      },
+      "id": "tg66-node-05",
+      "name": "Aggregate KPIs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $vars.TG_OWNER_PHONE }}",
+        "message": "=TG Daily Report {{ $json.date }}: {{ $json.leads }} leads | {{ $json.jobs }} jobs (${{ $json.revenue }}) | {{ $json.reviews }} reviews"
+      },
+      "id": "tg66-node-06",
+      "name": "SMS KPI Digest",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        660,
+        0
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "twilio-cred",
+          "name": "twilioApi"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Today Leads",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Today Jobs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Today Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Today Leads": {
+      "main": [
+        [
+          {
+            "node": "Aggregate KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Today Jobs": {
+      "main": [
+        [
+          {
+            "node": "Aggregate KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Today Reviews": {
+      "main": [
+        [
+          {
+            "node": "Aggregate KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate KPIs": {
+      "main": [
+        [
+          {
+            "node": "SMS KPI Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

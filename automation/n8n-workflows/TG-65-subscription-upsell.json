@@ -1,0 +1,159 @@
+{
+  "name": "TG-65-subscription-upsell",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 1 * *"
+            }
+          ]
+        }
+      },
+      "id": "tg65-node-01",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/leads?select=id,first_name,email,phone,pricing_plan,job_count_90d,avg_job_value&status=eq.customer&pricing_plan=eq.per_visit&job_count_90d=gte.4",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg65-node-02",
+      "name": "Get High-Frequency Customers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "={{ $json }}",
+        "options": {}
+      },
+      "id": "tg65-node-03",
+      "name": "Split Customers",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const c = $json;\nconst perVisit = c.avg_job_value || 75;\nconst visitsPerMonth = (c.job_count_90d || 4) / 3;\nconst currentMonthly = perVisit * visitsPerMonth;\nconst subscriptionRate = currentMonthly * 0.85;\nconst monthlySavings = Math.round(currentMonthly - subscriptionRate);\nconst annualSavings = monthlySavings * 12;\nreturn [{ json: { ...c, currentMonthly: Math.round(currentMonthly), subscriptionRate: Math.round(subscriptionRate), monthlySavings, annualSavings } }];"
+      },
+      "id": "tg65-node-04",
+      "name": "Calculate Savings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $vars.TG_BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ sender: { name: 'TotalGuard Yard Care', email: 'workelyhelp@gmail.com' }, to: [{ email: $json.email, name: $json.first_name }], subject: `Save $${$json.monthlySavings}/month with a TotalGuard subscription plan`, textContent: `Hi ${$json.first_name},\n\nBased on your usage, switching to our subscription plan would save you $${$json.monthlySavings}/month ($${$json.annualSavings}/year).\n\nYou currently use us ${Math.round($json.job_count_90d/3)} times/month at $${$json.currentMonthly}/month. Our subscription locks you in at $${$json.subscriptionRate}/month with priority scheduling.\n\nReply to this email or visit ${$vars.TG_SITE_URL}/get-quote to switch.\n\nThe TotalGuard Team` }) }}"
+      },
+      "id": "tg65-node-05",
+      "name": "Send Upsell Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get High-Frequency Customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get High-Frequency Customers": {
+      "main": [
+        [
+          {
+            "node": "Split Customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Customers": {
+      "main": [
+        [
+          {
+            "node": "Calculate Savings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Savings": {
+      "main": [
+        [
+          {
+            "node": "Send Upsell Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

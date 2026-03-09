@@ -1,0 +1,281 @@
+{
+  "name": "TG-23-nextdoor-reputation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 * * 3"
+            }
+          ]
+        }
+      },
+      "id": "tg23-schedule-trigger",
+      "name": "Weekly Wed 9am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/nextdoor_tracking",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ week_of: new Date().toISOString().split('T')[0], status: 'pending_manual_entry', mentions_count: null, recommendations_count: null, notes: null, created_at: new Date().toISOString() }) }}",
+        "options": {}
+      },
+      "id": "tg23-create-tracking-entry",
+      "name": "Create Weekly Tracking Entry",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const entry = $input.item.json;\nconst entryId = Array.isArray(entry) ? entry[0]?.id : entry.id;\nconst weekOf = new Date().toISOString().split('T')[0];\nconst adminLink = 'https://tgyardcare.com/admin/nextdoor?week=' + weekOf + (entryId ? '&entry=' + entryId : '');\n\nreturn [{ json: { entry_id: entryId, week_of: weekOf, admin_link: adminLink } }];"
+      },
+      "id": "tg23-build-sms-payload",
+      "name": "Build Admin Link",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $vars.TG_OWNER_PHONE }}",
+        "message": "=TotalGuard Weekly Reminder: Log your Nextdoor mentions for the week of {{ $json.week_of }}. Visit the admin panel to record mentions and recommendations: {{ $json.admin_link }}"
+      },
+      "id": "tg23-sms-owner-reminder",
+      "name": "SMS Owner Weekly Reminder",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true,
+      "credentials": {
+        "twilioApi": {
+          "id": "tg-twilio-cred",
+          "name": "TotalGuard Twilio"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/nextdoor_tracking",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "week_of,mentions_count,recommendations_count,notes"
+            },
+            {
+              "name": "order",
+              "value": "week_of.desc"
+            },
+            {
+              "name": "limit",
+              "value": "4"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg23-fetch-recent-history",
+      "name": "Fetch Last 4 Weeks History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const history = $input.all().map(i => i.json);\nconst rows = Array.isArray(history) ? history : [];\n\nconst totalMentions = rows.reduce((s, r) => s + (r.mentions_count || 0), 0);\nconst totalRecs     = rows.reduce((s, r) => s + (r.recommendations_count || 0), 0);\n\nreturn [{ json: {\n  weeks_reviewed: rows.length,\n  total_mentions: totalMentions,\n  total_recommendations: totalRecs,\n  avg_mentions_per_week: rows.length ? (totalMentions / rows.length).toFixed(1) : 0\n} }];"
+      },
+      "id": "tg23-summarize-history",
+      "name": "Summarize Nextdoor History",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/nextdoor_tracking",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "=eq.{{ $('Build Admin Link').item.json.entry_id }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ rolling_4wk_mentions: $json.total_mentions, rolling_4wk_recommendations: $json.total_recommendations, avg_mentions_per_week: parseFloat($json.avg_mentions_per_week) }) }}",
+        "options": {}
+      },
+      "id": "tg23-update-summary",
+      "name": "Update Entry with Rolling Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        0
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Weekly Wed 9am CT": {
+      "main": [
+        [
+          {
+            "node": "Create Weekly Tracking Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Weekly Tracking Entry": {
+      "main": [
+        [
+          {
+            "node": "Build Admin Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Admin Link": {
+      "main": [
+        [
+          {
+            "node": "SMS Owner Weekly Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS Owner Weekly Reminder": {
+      "main": [
+        [
+          {
+            "node": "Fetch Last 4 Weeks History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Last 4 Weeks History": {
+      "main": [
+        [
+          {
+            "node": "Summarize Nextdoor History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Nextdoor History": {
+      "main": [
+        [
+          {
+            "node": "Update Entry with Rolling Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  }
+}

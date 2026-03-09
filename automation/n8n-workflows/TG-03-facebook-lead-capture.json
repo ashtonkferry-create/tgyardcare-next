@@ -1,0 +1,188 @@
+{
+  "name": "TG-03-facebook-lead-capture",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "fb-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json;\n\n// Facebook Lead Ads webhook delivers field_data as array of {name, values} pairs\n// Support both raw FB webhook format and pre-parsed format\nlet fields = {};\n\nif (body.field_data && Array.isArray(body.field_data)) {\n  body.field_data.forEach(f => {\n    fields[f.name] = f.values && f.values[0] ? f.values[0] : '';\n  });\n} else if (body.changes && Array.isArray(body.changes)) {\n  // Nested FB webhook format\n  const leadData = body.changes[0] && body.changes[0].value;\n  if (leadData && leadData.field_data) {\n    leadData.field_data.forEach(f => {\n      fields[f.name] = f.values && f.values[0] ? f.values[0] : '';\n    });\n  }\n} else {\n  // Already flat (pre-parsed)\n  fields = body;\n}\n\nconst full_name = fields.full_name || fields.name || '';\nconst nameParts = full_name.trim().split(' ');\nconst first_name = fields.first_name || nameParts[0] || '';\nconst last_name = fields.last_name || nameParts.slice(1).join(' ') || '';\nconst email = (fields.email || '').toLowerCase().trim();\nconst phone = (fields.phone_number || fields.phone || '').replace(/[^\\d+]/g, '');\nconst service = fields.service || fields.services_interested || fields.what_service || '';\nconst address = fields.street_address || fields.address || fields.zip_code || '';\n\n// FB lead-level metadata\nconst form_id = body.form_id || (body.changes && body.changes[0] && body.changes[0].value && body.changes[0].value.form_id) || '';\nconst ad_id = body.ad_id || (body.changes && body.changes[0] && body.changes[0].value && body.changes[0].value.ad_id) || '';\nconst campaign_id = body.campaign_id || '';\n\n// Score: paid source baseline\nlet score = 20;\nconst factors = ['Facebook Lead Ad (+20)'];\nif (phone) { score += 5; factors.push('Has phone (+5)'); }\nif (email) { score += 5; factors.push('Has email (+5)'); }\nif (address) { score += 5; factors.push('Has address (+5)'); }\n\nconst service_lower = service.toLowerCase();\nconst highValue = ['hardscaping', 'commercial', 'patio', 'irrigation', 'landscape design'];\nconst midValue = ['fertilization', 'aeration', 'mowing', 'lawn care', 'overseeding'];\nif (highValue.some(s => service_lower.includes(s))) { score += 20; factors.push('High-value service (+20)'); }\nelse if (midValue.some(s => service_lower.includes(s))) { score += 10; factors.push('Mid-value service (+10)'); }\n\nconst finalScore = Math.min(score, 100);\nlet lead_tier = 'cold';\nif (finalScore >= 70) lead_tier = 'hot';\nelse if (finalScore >= 50) lead_tier = 'warm';\nelse if (finalScore >= 30) lead_tier = 'standard';\n\nreturn {\n  json: {\n    first_name,\n    last_name,\n    email,\n    phone,\n    service,\n    address,\n    source: 'facebook_ads',\n    fb_form_id: form_id,\n    fb_ad_id: ad_id,\n    fb_campaign_id: campaign_id,\n    lead_score: finalScore,\n    lead_tier,\n    score_factors: factors,\n    raw_payload: JSON.stringify(body)\n  }\n};"
+      },
+      "id": "parse-fb-lead",
+      "name": "Parse Facebook Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"first_name\": \"{{ $json.first_name }}\",\n  \"last_name\": \"{{ $json.last_name }}\",\n  \"email\": \"{{ $json.email }}\",\n  \"phone\": \"{{ $json.phone }}\",\n  \"service\": \"{{ $json.service }}\",\n  \"address\": \"{{ $json.address }}\",\n  \"source\": \"facebook_ads\",\n  \"lead_score\": {{ $json.lead_score }},\n  \"lead_tier\": \"{{ $json.lead_tier }}\",\n  \"status\": \"new\",\n  \"raw_payload\": \"{{ $json.raw_payload }}\"\n}",
+        "options": {}
+      },
+      "id": "insert-fb-lead",
+      "name": "Insert FB Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const leadData = $('Parse Facebook Lead').first().json;\nconst insertResult = $input.first().json;\nconst lead_id = Array.isArray(insertResult) ? (insertResult[0] && insertResult[0].id) : (insertResult && insertResult.id);\n\nreturn {\n  json: {\n    ...leadData,\n    lead_id: lead_id || null\n  }\n};"
+      },
+      "id": "extract-fb-lead-id",
+      "name": "Extract Lead ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/contacts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $json.email }}\",\n  \"attributes\": {\n    \"FIRSTNAME\": \"{{ $json.first_name || '' }}\",\n    \"LASTNAME\": \"{{ $json.last_name || '' }}\",\n    \"SMS\": \"{{ $json.phone || '' }}\",\n    \"LEAD_SOURCE\": \"facebook_ads\",\n    \"LEAD_SCORE\": {{ $json.lead_score || 0 }},\n    \"LEAD_TIER\": \"{{ $json.lead_tier || 'cold' }}\",\n    \"SERVICE_INTEREST\": \"{{ $json.service || '' }}\"\n  },\n  \"listIds\": [1],\n  \"updateEnabled\": true\n}",
+        "options": {}
+      },
+      "id": "sync-fb-brevo",
+      "name": "Sync Brevo Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Extract Lead ID').first().json;\n\nreturn {\n  json: {\n    success: true,\n    lead_id: data.lead_id,\n    score: data.lead_score,\n    tier: data.lead_tier,\n    source: 'facebook_ads'\n  }\n};"
+      },
+      "id": "build-fb-response",
+      "name": "Build Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Facebook Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Facebook Lead": {
+      "main": [
+        [
+          {
+            "node": "Insert FB Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert FB Lead": {
+      "main": [
+        [
+          {
+            "node": "Extract Lead ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Lead ID": {
+      "main": [
+        [
+          {
+            "node": "Sync Brevo Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync Brevo Contact": {
+      "main": [
+        [
+          {
+            "node": "Build Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "name": "TG-72-competitor-intelligence-report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 15 * *"
+            }
+          ]
+        }
+      },
+      "id": "tg72-node-01",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/competitor_snapshots?select=competitor_name,service,price,rating,review_count,captured_at&order=captured_at.desc&limit=100",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg72-node-02",
+      "name": "Get Competitor Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json;\nconst summary = {};\ndata.forEach(d => {\n  if (!summary[d.competitor_name]) summary[d.competitor_name] = { services: [], avgRating: d.rating, reviewCount: d.review_count };\n  summary[d.competitor_name].services.push(`${d.service}: $${d.price}`);\n});\nreturn [{ json: { competitorSummary: JSON.stringify(summary), month: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }) } }];"
+      },
+      "id": "tg72-node-03",
+      "name": "Summarize Competitor Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $vars.TG_ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-3-5-haiku-20241022', max_tokens: 500, messages: [{ role: 'user', content: `Analyze TotalGuard Yard Care's competitive position in Madison WI lawn care market for ${$json.month}. What threats and opportunities exist? Give 2 threats and 2 opportunities with specific actions. Competitor data: ${$json.competitorSummary}` }] }) }}"
+      },
+      "id": "tg72-node-04",
+      "name": "AI Competitive Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $vars.TG_OWNER_PHONE }}",
+        "message": "=TG Monthly Competitive Intel ready for {{ $('Summarize Competitor Data').item.json.month }}. Check admin panel for full analysis."
+      },
+      "id": "tg72-node-05",
+      "name": "SMS Competitive Summary",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        880,
+        0
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "twilio-cred",
+          "name": "twilioApi"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Competitor Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Competitor Data": {
+      "main": [
+        [
+          {
+            "node": "Summarize Competitor Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Competitor Data": {
+      "main": [
+        [
+          {
+            "node": "AI Competitive Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Competitive Analysis": {
+      "main": [
+        [
+          {
+            "node": "SMS Competitive Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

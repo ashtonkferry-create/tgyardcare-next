@@ -1,0 +1,94 @@
+{
+  "name": "TG-25-crew-daily-briefing",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 12 * * 1-6" }] }
+      },
+      "id": "schedule",
+      "name": "Daily 7am CT Mon-Sat",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/jobber_email_events?parsed_event_type=eq.job_scheduled&parsed_at=gte.{{ new Date().toISOString().split('T')[0] }}&select=parsed_customer_name,parsed_address,parsed_service,parsed_at",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+          ]
+        }
+      },
+      "id": "fetch-jobs",
+      "name": "Fetch Today Jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.openweathermap.org/data/2.5/weather?q=Madison,WI,US&appid={{$vars.TG_OPENWEATHER_API_KEY}}&units=imperial"
+      },
+      "id": "fetch-weather",
+      "name": "Fetch Weather",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 400]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/inventory_tracking?select=yard_sign_count,door_hanger_count&limit=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+          ]
+        }
+      },
+      "id": "fetch-inventory",
+      "name": "Fetch Inventory",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "const jobs = $('Fetch Today Jobs').all().map(i => i.json);\nconst weather = $('Fetch Weather').first().json;\nconst inv = $('Fetch Inventory').first().json;\n\nconst forecast = weather.weather?.[0]?.description || 'Check weather app';\nconst temp = Math.round(weather.main?.temp || 0);\nconst wind = Math.round(weather.wind?.speed || 0);\n\nlet jobList = jobs.length > 0\n  ? jobs.map((j, i) => `${i+1}. ${j.parsed_service} @ ${j.parsed_address}`).join('\\n')\n  : 'No jobs scheduled yet — check Jobber';\n\nconst msg = `Good morning TG crew! ☀️\\n\\nToday's jobs:\\n${jobList}\\n\\nWeather: ${temp}°F, ${forecast}, wind ${wind}mph\\n\\nInventory: ${inv.yard_sign_count || '?'} signs, ${inv.door_hanger_count || '?'} hangers\\n\\n- TG System`;\n\nreturn [{ json: { message: msg } }];"
+      },
+      "id": "format-briefing",
+      "name": "Format Briefing",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}",
+        "to": "={{$vars.TG_CREW_PHONE_NUMBERS}}",
+        "message": "={{$json.message}}"
+      },
+      "id": "sms-briefing",
+      "name": "SMS Crew Briefing",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [660, 300],
+      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+    }
+  ],
+  "connections": {
+    "Daily 7am CT Mon-Sat": { "main": [[{ "node": "Fetch Today Jobs", "type": "main", "index": 0 }, { "node": "Fetch Weather", "type": "main", "index": 0 }, { "node": "Fetch Inventory", "type": "main", "index": 0 }]] },
+    "Fetch Today Jobs": { "main": [[{ "node": "Format Briefing", "type": "main", "index": 0 }]] },
+    "Fetch Weather": { "main": [[{ "node": "Format Briefing", "type": "main", "index": 0 }]] },
+    "Fetch Inventory": { "main": [[{ "node": "Format Briefing", "type": "main", "index": 0 }]] },
+    "Format Briefing": { "main": [[{ "node": "SMS Crew Briefing", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

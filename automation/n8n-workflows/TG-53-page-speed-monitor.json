@@ -1,0 +1,12 @@
+{
+  "name": "TG-53-page-speed-monitor",
+  "nodes": [
+    { "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 12 * * 1" }] } }, "id": "schedule", "name": "Weekly Mon 7am CT", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 300] },
+    { "parameters": { "jsCode": "return ['https://tgyardcare.com','https://tgyardcare.com/lawn-mowing','https://tgyardcare.com/snow-removal','https://tgyardcare.com/spring-cleanup'].map(url => ({ json: { url } }));" }, "id": "get-pages", "name": "Get Pages to Test", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [220, 300] },
+    { "parameters": { "method": "GET", "url": "=https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={{ encodeURIComponent($json.url) }}&strategy=mobile" }, "id": "fetch-speed", "name": "PageSpeed API", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [440, 300] },
+    { "parameters": { "jsCode": "const data = $input.first().json;\nconst score = Math.round((data.lighthouseResult?.categories?.performance?.score || 0) * 100);\nconst url = data.id || '';\nreturn [{ json: { url, mobile_score: score, checked_at: new Date().toISOString(), needs_alert: score < 85 } }];" }, "id": "extract-score", "name": "Extract Score", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [660, 300] },
+    { "parameters": { "method": "POST", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/page_speed_results", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] }, "sendBody": true, "bodyParameters": { "parameters": [{ "name": "page_url", "value": "={{$json.url}}" }, { "name": "mobile_score", "value": "={{$json.mobile_score}}" }, { "name": "checked_at", "value": "={{$json.checked_at}}" }] } }, "id": "log-score", "name": "Log Score", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [880, 300] }
+  ],
+  "connections": { "Weekly Mon 7am CT": { "main": [[{ "node": "Get Pages to Test", "type": "main", "index": 0 }]] }, "Get Pages to Test": { "main": [[{ "node": "PageSpeed API", "type": "main", "index": 0 }]] }, "PageSpeed API": { "main": [[{ "node": "Extract Score", "type": "main", "index": 0 }]] }, "Extract Score": { "main": [[{ "node": "Log Score", "type": "main", "index": 0 }]] } },
+  "settings": { "availableInMCP": true }
+}

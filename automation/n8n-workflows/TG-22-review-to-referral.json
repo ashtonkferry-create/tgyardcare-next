@@ -1,0 +1,241 @@
+{
+  "name": "TG-22-review-to-referral",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "tg22-workflow-trigger",
+      "name": "executeWorkflowTrigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 48,
+        "unit": "hours"
+      },
+      "id": "tg22-wait-48h",
+      "name": "Wait 48 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        0
+      ],
+      "webhookId": "tg22-wait-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const trigger = $('executeWorkflowTrigger').item.json;\n\nconst customerId = trigger.customer_id || 'unknown';\nconst ts = Date.now();\nconst raw = customerId + '-' + ts;\n\n// Simple hash-like code\nlet hash = 0;\nfor (let i = 0; i < raw.length; i++) {\n  const char = raw.charCodeAt(i);\n  hash = ((hash << 5) - hash) + char;\n  hash = hash & hash;\n}\nconst code = 'TG' + Math.abs(hash).toString(36).toUpperCase().slice(0, 6);\n\nreturn [{ json: {\n  ...trigger,\n  referral_code: code,\n  generated_at: new Date().toISOString()\n} }];"
+      },
+      "id": "tg22-generate-code",
+      "name": "Generate Referral Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/referrals",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ customer_id: $json.customer_id || null, referral_code: $json.referral_code, source: 'five_star_review', google_review_time: $json.google_review_time || null, created_at: new Date().toISOString(), status: 'active', discount_amount: 25 }) }}",
+        "options": {}
+      },
+      "id": "tg22-insert-referral",
+      "name": "Insert Referral to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Generate Referral Code').item.json;\nconst fn = d.first_name || 'there';\nconst code = d.referral_code;\n\nconst html = `<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333\">\n<div style=\"background:#1e40af;padding:20px;text-align:center\"><h1 style=\"color:#fff;margin:0\">TotalGuard Yard Care</h1></div>\n<div style=\"padding:30px\">\n  <h2>Thank you for the amazing review, ${fn}!</h2>\n  <p>Your 5-star review genuinely helps our small team grow — and we want to pay it forward.</p>\n  <p><strong>Refer a neighbor to TotalGuard and you BOTH get $25 off your next service.</strong></p>\n  <div style=\"background:#f0f9ff;border:2px solid #1e40af;border-radius:8px;padding:20px;text-align:center;margin:24px 0\">\n    <p style=\"margin:0 0 8px;font-size:14px;color:#555\">Your personal referral code:</p>\n    <p style=\"margin:0;font-size:28px;font-weight:bold;color:#1e40af;letter-spacing:4px\">${code}</p>\n  </div>\n  <p>Have your neighbor mention code <strong>${code}</strong> when they book, or book at <a href=\"https://tgyardcare.com\">tgyardcare.com</a>.</p>\n  <p>You'll both get <strong>$25 off</strong> automatically. No limits — refer as many neighbors as you like!</p>\n  <p style=\"font-size:13px;color:#666\">Questions? Call/text (608) 535-6057 or reply to this email.</p>\n</div>\n<div style=\"background:#f3f4f6;padding:20px;text-align:center;font-size:12px;color:#666\">\n  <p>TotalGuard Yard Care | Madison, WI | (608) 535-6057</p>\n  <p>totalguardllc@gmail.com | tgyardcare.com</p>\n</div></body></html>`;\n\nreturn [{ json: { ...d, htmlContent: html, subject: `Your $25 referral reward is ready, ${fn}!`, email_type: 'review_to_referral' } }];"
+      },
+      "id": "tg22-build-email",
+      "name": "Build Referral Invitation Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $vars.TG_BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ sender: { name: 'TotalGuard Yard Care', email: 'totalguardllc@gmail.com' }, to: [{ email: $json.email, name: ($json.first_name || '') + ' ' + ($json.last_name || '') }], subject: $json.subject, htmlContent: $json.htmlContent }) }}",
+        "options": {}
+      },
+      "id": "tg22-send-brevo",
+      "name": "Send Referral Email via Brevo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/email_sends",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ customer_id: $('Build Referral Invitation Email').item.json.customer_id || null, email_type: 'review_to_referral', sent_at: new Date().toISOString(), brevo_message_id: $json.messageId || null, subject: $('Build Referral Invitation Email').item.json.subject, recipient_email: $('Build Referral Invitation Email').item.json.email }) }}",
+        "options": {}
+      },
+      "id": "tg22-log-send",
+      "name": "Log to email_sends",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        0
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "executeWorkflowTrigger": {
+      "main": [
+        [
+          {
+            "node": "Wait 48 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 48 Hours": {
+      "main": [
+        [
+          {
+            "node": "Generate Referral Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Referral Code": {
+      "main": [
+        [
+          {
+            "node": "Insert Referral to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Referral to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Build Referral Invitation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Referral Invitation Email": {
+      "main": [
+        [
+          {
+            "node": "Send Referral Email via Brevo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Referral Email via Brevo": {
+      "main": [
+        [
+          {
+            "node": "Log to email_sends",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  }
+}

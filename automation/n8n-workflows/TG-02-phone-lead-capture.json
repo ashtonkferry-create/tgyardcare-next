@@ -1,0 +1,154 @@
+{
+  "name": "TG-02-phone-lead-capture",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "phone-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json;\n\n// Parse Twilio inbound SMS or voice call webhook fields\nconst from = body.From || body.from || '';\nconst to = body.To || body.to || '';\nconst msgBody = body.Body || body.body || '';\nconst callStatus = body.CallStatus || body.call_status || '';\nconst callerName = body.CallerName || body.caller_name || '';\nconst callSid = body.CallSid || body.call_sid || '';\nconst msgSid = body.MessageSid || body.message_sid || '';\n\n// Detect event type\nconst isCall = !!(callSid || callStatus);\nconst isSms = !!(msgSid || msgBody);\nconst eventType = isCall ? 'inbound_call' : 'inbound_sms';\n\n// Clean phone number\nconst phone = from.replace(/[^\\d+]/g, '');\n\n// Try to extract name from SMS body: \"Hi my name is John Smith\"\nlet first_name = callerName.split(' ')[0] || '';\nlet last_name = callerName.split(' ').slice(1).join(' ') || '';\n\n// Simple service keyword detection from SMS body\nconst bodyLower = msgBody.toLowerCase();\nlet service = '';\nif (bodyLower.includes('mow') || bodyLower.includes('lawn')) service = 'lawn-mowing';\nelse if (bodyLower.includes('fertil')) service = 'fertilization';\nelse if (bodyLower.includes('aerat')) service = 'aeration';\nelse if (bodyLower.includes('hardscap') || bodyLower.includes('patio')) service = 'hardscaping';\nelse if (bodyLower.includes('cleanup') || bodyLower.includes('leaf')) service = 'cleanup';\nelse if (bodyLower.includes('snow') || bodyLower.includes('plow')) service = 'snow-removal';\nelse if (bodyLower.includes('gutter')) service = 'gutter-cleaning';\nelse if (bodyLower.includes('irrig') || bodyLower.includes('sprinkler')) service = 'irrigation';\n\nreturn {\n  json: {\n    phone,\n    first_name,\n    last_name,\n    source: 'phone',\n    event_type: eventType,\n    is_call: isCall,\n    is_sms: isSms,\n    message_body: msgBody,\n    call_sid: callSid,\n    message_sid: msgSid,\n    twilio_to: to,\n    service,\n    raw_payload: JSON.stringify(body)\n  }\n};"
+      },
+      "id": "parse-twilio-webhook",
+      "name": "Parse Twilio Webhook",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"first_name\": \"{{ $json.first_name }}\",\n  \"last_name\": \"{{ $json.last_name }}\",\n  \"phone\": \"{{ $json.phone }}\",\n  \"source\": \"phone\",\n  \"service\": \"{{ $json.service }}\",\n  \"status\": \"new\",\n  \"lead_score\": 25,\n  \"lead_tier\": \"standard\",\n  \"raw_payload\": \"{{ $json.raw_payload }}\"\n}",
+        "options": {}
+      },
+      "id": "insert-phone-lead",
+      "name": "Insert Phone Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}",
+        "to": "={{ $('Parse Twilio Webhook').item.json.phone }}",
+        "message": "Thanks for contacting TotalGuard Yard Care! We'll get back to you within 2 hours. - The TG Team"
+      },
+      "id": "send-sms-reply",
+      "name": "Send SMS Reply",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true,
+      "credentials": {
+        "twilioApi": {
+          "id": "TG_TWILIO",
+          "name": "TG - Twilio"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const insertResult = $('Insert Phone Lead').first().json;\nconst lead_id = Array.isArray(insertResult) ? (insertResult[0] && insertResult[0].id) : (insertResult && insertResult.id);\n\nreturn {\n  json: {\n    success: true,\n    lead_id: lead_id || null,\n    source: 'phone',\n    sms_reply_sent: true\n  }\n};"
+      },
+      "id": "build-phone-response",
+      "name": "Build Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Twilio Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Twilio Webhook": {
+      "main": [
+        [
+          {
+            "node": "Insert Phone Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Phone Lead": {
+      "main": [
+        [
+          {
+            "node": "Send SMS Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send SMS Reply": {
+      "main": [
+        [
+          {
+            "node": "Build Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  }
+}

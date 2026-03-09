@@ -1,0 +1,254 @@
+{
+  "name": "TG-69-end-of-day-reconciliation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 2 * * *"
+            }
+          ]
+        }
+      },
+      "id": "tg69-node-01",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/jobber_email_events?select=id,customer_name,review_requested&event_type=eq.job_completed&completed_at=gte.{{ $now.minus({days:1}).startOf('day').toISO() }}&completed_at=lt.{{ $now.startOf('day').toISO() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg69-node-02",
+      "name": "Get Yesterday Jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/follow_up_queue?select=id,customer_name,due_at&status=eq.pending&due_at=lt.{{ $now.toISO() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg69-node-03",
+      "name": "Get Overdue Follow-Ups",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const jobs = $('Get Yesterday Jobs').all().map(i => i.json);\nconst overdue = $('Get Overdue Follow-Ups').all().map(i => i.json);\nconst missingReviews = jobs.filter(j => !j.review_requested);\nconst issues = [];\nif (missingReviews.length > 0) issues.push(`${missingReviews.length} jobs missing review request`);\nif (overdue.length > 0) issues.push(`${overdue.length} overdue follow-ups`);\nconst hasDiscrepancy = issues.length > 0;\nreturn [{ json: {\n  jobs_completed: jobs.length,\n  missing_review_requests: missingReviews.length,\n  overdue_followups: overdue.length,\n  issues: issues.join('; '),\n  has_discrepancy: hasDiscrepancy\n} }];"
+      },
+      "id": "tg69-node-04",
+      "name": "Reconcile Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/reconciliation_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ jobs_completed: $json.jobs_completed, missing_review_requests: $json.missing_review_requests, overdue_followups: $json.overdue_followups, issues: $json.issues, report_date: new Date().toISOString().split('T')[0], created_at: new Date().toISOString() }) }}"
+      },
+      "id": "tg69-node-05",
+      "name": "Insert Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.has_discrepancy }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg69-node-06",
+      "name": "Has Issues?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $vars.TG_OWNER_PHONE }}",
+        "message": "=TG EOD Alert: {{ $json.issues }}. Review in admin panel."
+      },
+      "id": "tg69-node-07",
+      "name": "SMS Discrepancy Alert",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        -100
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "twilio-cred",
+          "name": "twilioApi"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Yesterday Jobs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Overdue Follow-Ups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Yesterday Jobs": {
+      "main": [
+        [
+          {
+            "node": "Reconcile Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Overdue Follow-Ups": {
+      "main": [
+        [
+          {
+            "node": "Reconcile Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconcile Data": {
+      "main": [
+        [
+          {
+            "node": "Insert Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Report": {
+      "main": [
+        [
+          {
+            "node": "Has Issues?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Issues?": {
+      "main": [
+        [
+          {
+            "node": "SMS Discrepancy Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

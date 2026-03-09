@@ -1,0 +1,147 @@
+{
+  "name": "TG-42-youtube-shorts-planner",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 * * 5"
+            }
+          ]
+        }
+      },
+      "id": "trigger-yt-planner",
+      "name": "Schedule - Friday 9am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst month = now.getMonth();\nlet season = 'spring';\nif (month >= 5 && month <= 7) season = 'summer';\nelse if (month >= 8 && month <= 10) season = 'fall';\nelse if (month >= 11 || month <= 1) season = 'winter';\n\nconst seasonalServices = {\n  spring: ['spring cleanup','lawn aeration','overseeding','fertilization','weed control'],\n  summer: ['lawn mowing','irrigation setup','weed control','edging','mulching'],\n  fall: ['leaf removal','fall aeration','overseeding','gutter cleaning','fall cleanup'],\n  winter: ['snow removal','ice management','winter lawn tips','property winterization']\n};\n\nconst services = seasonalServices[season];\nconst ideas = [\n  { title: `Before & After: ${services[0]} transformation`, hook: 'You won\\'t believe this lawn makeover', cta: 'Book your transformation at tgyardcare.com' },\n  { title: `How we do ${services[1]} in Madison WI`, hook: 'Here\\'s exactly how pros do it', cta: 'Get the same results — link in bio' },\n  { title: `Why Madison homeowners choose TotalGuard for ${services[2]}`, hook: '3 reasons your neighbors trust us', cta: 'See why at tgyardcare.com' },\n  { title: `${season.charAt(0).toUpperCase()+season.slice(1)} lawn tip: ${services[3]}`, hook: 'Doing this wrong kills your lawn', cta: 'We handle it for you — book now' },\n  { title: `A day in the life: TotalGuard ${season} crew`, hook: 'What it really looks like behind the scenes', cta: 'Serving Madison WI — get a quote today' }\n];\n\nreturn [{ json: { season, ideas, ideaCount: ideas.length, generatedAt: now.toISOString() } }];"
+      },
+      "id": "generate-yt-ideas",
+      "name": "Generate YouTube Shorts Ideas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/content_ideas",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"type\": \"youtube_short\",\n  \"season\": \"{{ $json.season }}\",\n  \"ideas\": {{ JSON.stringify($json.ideas) }},\n  \"idea_count\": {{ $json.ideaCount }},\n  \"status\": \"pending_review\",\n  \"created_at\": \"{{ $json.generatedAt }}\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "insert-yt-ideas",
+      "name": "Insert YouTube Ideas to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $vars.TG_OWNER_PHONE }}",
+        "body": "=TG: This week's YouTube Shorts ideas are ready ({{ $('Generate YouTube Shorts Ideas').first().json.ideaCount }} ideas for {{ $('Generate YouTube Shorts Ideas').first().json.season }} season). Review at tgyardcare.com/admin/content"
+      },
+      "id": "sms-owner-yt",
+      "name": "SMS Owner - YouTube Ideas Ready",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        660,
+        300
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "twilio-creds",
+          "name": "Twilio API"
+        }
+      },
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Schedule - Friday 9am CT": {
+      "main": [
+        [
+          {
+            "node": "Generate YouTube Shorts Ideas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate YouTube Shorts Ideas": {
+      "main": [
+        [
+          {
+            "node": "Insert YouTube Ideas to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert YouTube Ideas to Supabase": {
+      "main": [
+        [
+          {
+            "node": "SMS Owner - YouTube Ideas Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  }
+}

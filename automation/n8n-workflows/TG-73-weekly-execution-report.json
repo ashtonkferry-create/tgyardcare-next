@@ -1,0 +1,221 @@
+{
+  "name": "TG-73-weekly-execution-report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 22 * * 5"
+            }
+          ]
+        }
+      },
+      "id": "tg73-node-01",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/automation_runs?select=workflow_name,status,created_at&created_at=gte.{{ $now.minus({days:7}).toISO() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg73-node-02",
+      "name": "Get Workflow Run Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const runs = $json;\nconst total = runs.length;\nconst errors = runs.filter(r => r.status === 'error').length;\nconst errorRate = total > 0 ? ((errors / total) * 100).toFixed(1) : 0;\nconst byWorkflow = {};\nruns.forEach(r => {\n  if (!byWorkflow[r.workflow_name]) byWorkflow[r.workflow_name] = { total: 0, errors: 0 };\n  byWorkflow[r.workflow_name].total++;\n  if (r.status === 'error') byWorkflow[r.workflow_name].errors++;\n});\nreturn [{ json: { total_runs: total, error_count: errors, error_rate: parseFloat(errorRate), high_error_rate: parseFloat(errorRate) > 5, week_of: new Date().toLocaleDateString() } }];"
+      },
+      "id": "tg73-node-03",
+      "name": "Calculate Error Rate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/weekly_execution_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ total_runs: $json.total_runs, error_count: $json.error_count, error_rate: $json.error_rate, week_of: $json.week_of, created_at: new Date().toISOString() }) }}"
+      },
+      "id": "tg73-node-04",
+      "name": "Insert Execution Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.high_error_rate }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg73-node-05",
+      "name": "Error Rate > 5%?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $vars.TG_BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ sender: { name: 'TotalGuard Automation', email: 'workelyhelp@gmail.com' }, to: [{ email: 'workelyhelp@gmail.com', name: 'TotalGuard Owner' }], subject: `TG Automation Alert: ${$json.error_rate}% error rate this week`, textContent: `Weekly Execution Report — Week of ${$json.week_of}\n\nTotal runs: ${$json.total_runs}\nErrors: ${$json.error_count}\nError rate: ${$json.error_rate}%\n\nThis exceeds the 5% threshold. Please review automation logs in the admin panel.` }) }}"
+      },
+      "id": "tg73-node-06",
+      "name": "Email High Error Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        -100
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Workflow Run Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Workflow Run Data": {
+      "main": [
+        [
+          {
+            "node": "Calculate Error Rate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Error Rate": {
+      "main": [
+        [
+          {
+            "node": "Insert Execution Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Execution Report": {
+      "main": [
+        [
+          {
+            "node": "Error Rate > 5%?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Rate > 5%?": {
+      "main": [
+        [
+          {
+            "node": "Email High Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "name": "TG-08-welcome-series",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 14 * * *" }] } },
+      "id": "schedule",
+      "name": "Daily 9am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/customers?welcome_series_started=eq.false&first_job_completed_at=not.is.null&select=id,first_name,last_name,email,phone,last_service,first_job_completed_at",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+      },
+      "id": "fetch-new-customers",
+      "name": "Fetch New Customers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const customers = $input.all().map(i => i.json);\nconst results = [];\nconst month = new Date().getMonth() + 1;\nconst seasonal = month >= 3 && month <= 5 ? 'spring cleanup and aeration' : month >= 6 && month <= 8 ? 'summer lawn care and fertilization' : month >= 9 && month <= 11 ? 'fall cleanup and gutter cleaning' : 'snow removal and winter prep';\n\nfor (const c of customers) {\n  const daysSince = Math.floor((Date.now() - new Date(c.first_job_completed_at)) / (1000*60*60*24));\n  let emailNum = null, subject = '', body = '';\n  if (daysSince <= 1) { emailNum = 1; subject = `Welcome to TotalGuard Yard Care, ${c.first_name}!`; body = `Hi ${c.first_name},\\n\\nWelcome to TotalGuard Yard Care! We're thrilled to have you as a customer. Your dedicated crew will be the same team every visit — same crew, same day, every week.\\n\\nQuestions? Call us at (608) 535-6057 or reply to this email.\\n\\n- The TotalGuard Team`; }\n  else if (daysSince === 7) { emailNum = 2; subject = `Lawn care tips from your TG crew`; body = `Hi ${c.first_name},\\n\\nA week in! Here are some quick tips to keep your yard looking great between visits...\\n\\nFor ${c.last_service || 'lawn care'}: water deeply 2-3x per week, avoid cutting more than 1/3 of grass height at once.\\n\\n- The TotalGuard Team`; }\n  else if (daysSince === 14) { emailNum = 3; subject = `How are we doing, ${c.first_name}?`; body = `Hi ${c.first_name},\\n\\nWe hope you're loving your yard! If we've exceeded your expectations, a quick Google review means the world to us:\\n\\nhttps://g.page/r/REVIEW_LINK\\n\\nIt only takes 30 seconds and helps us serve more Madison neighbors like you.\\n\\n- The TotalGuard Team`; }\n  else if (daysSince === 21) { emailNum = 4; subject = `Get $25 off — refer a neighbor!`; body = `Hi ${c.first_name},\\n\\nLove your yard? Share the love! Refer a neighbor to TotalGuard and you BOTH get $25 off your next service.\\n\\nJust have them mention your name when they book at tgyardcare.com.\\n\\n- The TotalGuard Team`; }\n  else if (daysSince === 30) { emailNum = 5; subject = `Your next TotalGuard service`; body = `Hi ${c.first_name},\\n\\nNow that you're settled in, have you considered our ${seasonal} services? Book online at tgyardcare.com or call (608) 535-6057.\\n\\n- The TotalGuard Team`; }\n  if (emailNum) results.push({ json: { ...c, emailNum, subject, body, daysSince } });\n}\nreturn results;"
+      },
+      "id": "determine-email",
+      "name": "Determine Email to Send",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "api-key", "value": "={{$vars.TG_BREVO_API_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" }, \"to\": [{ \"email\": \"{{ $json.email }}\", \"name\": \"{{ $json.first_name }} {{ $json.last_name }}\" }], \"subject\": \"{{ $json.subject }}\", \"textContent\": \"{{ $json.body }}\" }"
+      },
+      "id": "send-email",
+      "name": "Send via Brevo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/email_sends",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "customer_id", "value": "={{$('Determine Email to Send').first().json.id}}" }, { "name": "email_type", "value": "=welcome_series_{{$('Determine Email to Send').first().json.emailNum}}" }, { "name": "sent_at", "value": "={{ new Date().toISOString() }}" }, { "name": "subject", "value": "={{$('Determine Email to Send').first().json.subject}}" }] }
+      },
+      "id": "log-send",
+      "name": "Log Email Send",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300]
+    }
+  ],
+  "connections": {
+    "Daily 9am CT": { "main": [[{ "node": "Fetch New Customers", "type": "main", "index": 0 }]] },
+    "Fetch New Customers": { "main": [[{ "node": "Determine Email to Send", "type": "main", "index": 0 }]] },
+    "Determine Email to Send": { "main": [[{ "node": "Send via Brevo", "type": "main", "index": 0 }]] },
+    "Send via Brevo": { "main": [[{ "node": "Log Email Send", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

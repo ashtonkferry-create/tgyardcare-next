@@ -1,0 +1,254 @@
+{
+  "name": "TG-41-social-engagement-puller",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 13 * * *"
+            }
+          ]
+        }
+      },
+      "id": "trigger-engagement-puller",
+      "name": "Schedule - 8am CT Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/social_engagement",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "facebook_post_id",
+              "value": "not.is.null"
+            },
+            {
+              "name": "select",
+              "value": "id,post_id,facebook_post_id,instagram_container_id"
+            },
+            {
+              "name": "order",
+              "value": "published_at.desc"
+            },
+            {
+              "name": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "get-published-posts",
+      "name": "Get Published Posts with IDs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const posts = Array.isArray($input.first().json) ? $input.first().json : [];\nreturn posts.filter(p => p.facebook_post_id).map(p => ({ json: p }));"
+      },
+      "id": "split-posts-for-stats",
+      "name": "Split Posts for Stats Pull",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://graph.facebook.com/v19.0/{{ $json.facebook_post_id }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "likes.summary(true),comments.summary(true),shares,insights.metric(post_impressions)"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $vars.TG_FACEBOOK_ACCESS_TOKEN }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "get-fb-post-stats",
+      "name": "Get Facebook Post Stats",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const stats = $input.first().json;\nconst engagementRecord = $('Split Posts for Stats Pull').first().json;\nconst likes = stats?.likes?.summary?.total_count || 0;\nconst comments = stats?.comments?.summary?.total_count || 0;\nconst shares = stats?.shares?.count || 0;\nconst reach = stats?.insights?.data?.[0]?.values?.[0]?.value || 0;\nreturn [{\n  json: {\n    engagementId: engagementRecord.id,\n    likes,\n    comments,\n    shares,\n    reach,\n    updatedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "parse-stats",
+      "name": "Parse Engagement Stats",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/social_engagement",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "=eq.{{ $json.engagementId }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"likes\": {{ $json.likes }},\n  \"comments\": {{ $json.comments }},\n  \"shares\": {{ $json.shares }},\n  \"reach\": {{ $json.reach }},\n  \"last_updated_at\": \"{{ $json.updatedAt }}\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "update-engagement-metrics",
+      "name": "Update Engagement Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        300
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Schedule - 8am CT Daily": {
+      "main": [
+        [
+          {
+            "node": "Get Published Posts with IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Published Posts with IDs": {
+      "main": [
+        [
+          {
+            "node": "Split Posts for Stats Pull",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Posts for Stats Pull": {
+      "main": [
+        [
+          {
+            "node": "Get Facebook Post Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Facebook Post Stats": {
+      "main": [
+        [
+          {
+            "node": "Parse Engagement Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Engagement Stats": {
+      "main": [
+        [
+          {
+            "node": "Update Engagement Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  }
+}

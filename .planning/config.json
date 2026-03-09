@@ -1,0 +1,11 @@
+{
+  "model_profile": "quality",
+  "workflow": {
+    "require_discussion": false,
+    "require_verification": true,
+    "auto_commit": true,
+    "parallel_agents": true
+  },
+  "project": "TotalGuard Yard Care",
+  "version": "1.0"
+}

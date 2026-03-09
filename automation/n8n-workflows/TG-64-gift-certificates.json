@@ -1,0 +1,138 @@
+{
+  "name": "TG-64-gift-certificates",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "tg64-node-01",
+      "name": "Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "tg-gift-cert"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $json;\nconst chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';\nlet code = 'TG-';\nfor (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];\nreturn [{ json: {\n  purchaser_name: input.purchaser_name,\n  purchaser_email: input.purchaser_email,\n  recipient_name: input.recipient_name,\n  recipient_email: input.recipient_email,\n  amount: input.amount,\n  message: input.message || '',\n  code,\n  expires_at: new Date(Date.now() + 365*24*60*60*1000).toISOString()\n} }];"
+      },
+      "id": "tg64-node-02",
+      "name": "Generate Gift Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/gift_certificates",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ code: $json.code, purchaser_name: $json.purchaser_name, purchaser_email: $json.purchaser_email, recipient_name: $json.recipient_name, recipient_email: $json.recipient_email, amount: $json.amount, message: $json.message, status: 'active', expires_at: $json.expires_at, created_at: new Date().toISOString() }) }}"
+      },
+      "id": "tg64-node-03",
+      "name": "Insert Gift Certificate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $vars.TG_BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ sender: { name: 'TotalGuard Yard Care', email: 'workelyhelp@gmail.com' }, to: [{ email: $json.recipient_email, name: $json.recipient_name }], subject: `You received a $${$json.amount} TotalGuard Yard Care Gift Certificate!`, htmlContent: `<h2>🎁 Gift Certificate — $${$json.amount}</h2><p>Hi ${$json.recipient_name},</p><p>${$json.purchaser_name} has sent you a TotalGuard Yard Care gift certificate!</p><p><strong>Your Code: ${$json.code}</strong></p><p>Message: ${$json.message}</p><p>Redeem at: <a href='${$vars.TG_SITE_URL}/get-quote'>${$vars.TG_SITE_URL}/get-quote</a></p><p>Expires: ${new Date($json.expires_at).toLocaleDateString()}</p>` }) }}"
+      },
+      "id": "tg64-node-04",
+      "name": "Email Gift Certificate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Generate Gift Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Gift Code": {
+      "main": [
+        [
+          {
+            "node": "Insert Gift Certificate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Gift Certificate": {
+      "main": [
+        [
+          {
+            "node": "Email Gift Certificate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

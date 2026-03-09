@@ -1,0 +1,71 @@
+{
+  "name": "TG-35-social-posting-scheduler",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 15 * * *" }] } },
+      "id": "schedule",
+      "name": "Daily 10am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/social_posts?status=eq.scheduled&scheduled_for=lte.{{ new Date().toISOString() }}&select=id,content,image_url,platform,scheduled_for",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+      },
+      "id": "fetch-posts",
+      "name": "Fetch Scheduled Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": { "batchSize": 1, "options": {} },
+      "id": "split-posts",
+      "name": "Process Each Post",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v18.0/me/feed",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$vars.TG_FACEBOOK_ACCESS_TOKEN}}" }] },
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "message", "value": "={{$json.content}}" }, { "name": "link", "value": "https://tgyardcare.com" }] }
+      },
+      "id": "post-facebook",
+      "name": "Post to Facebook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/social_posts?id=eq.{{$('Process Each Post').first().json.id}}",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "status", "value": "published" }, { "name": "published_at", "value": "={{ new Date().toISOString() }}" }, { "name": "fb_post_id", "value": "={{$json.id}}" }] }
+      },
+      "id": "update-status",
+      "name": "Mark Published",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300]
+    }
+  ],
+  "connections": {
+    "Daily 10am CT": { "main": [[{ "node": "Fetch Scheduled Posts", "type": "main", "index": 0 }]] },
+    "Fetch Scheduled Posts": { "main": [[{ "node": "Process Each Post", "type": "main", "index": 0 }]] },
+    "Process Each Post": { "main": [[{ "node": "Post to Facebook", "type": "main", "index": 0 }]] },
+    "Post to Facebook": { "main": [[{ "node": "Mark Published", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

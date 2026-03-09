@@ -1,0 +1,73 @@
+{
+  "name": "TG-24-post-job-field-marketing",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "field-marketing-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const job = $input.first().json;\nreturn [{\n  json: {\n    job_id: job.job_id || job.id,\n    address: job.parsed_address || job.address || 'Unknown',\n    service: job.parsed_service || job.service || 'Service',\n    customer_name: job.parsed_customer_name || job.customer_name || '',\n    completed_at: new Date().toISOString(),\n    due_at: new Date(Date.now() + 24*60*60*1000).toISOString()\n  }\n}];"
+      },
+      "id": "prepare-task",
+      "name": "Prepare Task Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/field_marketing_tasks",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "job_id", "value": "={{$json.job_id}}" },
+            { "name": "job_address", "value": "={{$json.address}}" },
+            { "name": "yard_sign_required", "value": "true" },
+            { "name": "door_hanger_target", "value": "5" },
+            { "name": "due_at", "value": "={{$json.due_at}}" },
+            { "name": "status", "value": "pending" }
+          ]
+        }
+      },
+      "id": "create-task",
+      "name": "Create Field Marketing Task",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}",
+        "to": "={{$vars.TG_CREW_PHONE_NUMBERS}}",
+        "message": "=Job done at {{$node['Prepare Task Data'].json.address}}! Field tasks: yard sign + 5 door hangers to neighbors. Reply DONE when complete. - TG System"
+      },
+      "id": "sms-crew",
+      "name": "SMS Crew",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [660, 300],
+      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": { "main": [[{ "node": "Prepare Task Data", "type": "main", "index": 0 }]] },
+    "Prepare Task Data": { "main": [[{ "node": "Create Field Marketing Task", "type": "main", "index": 0 }]] },
+    "Create Field Marketing Task": { "main": [[{ "node": "SMS Crew", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

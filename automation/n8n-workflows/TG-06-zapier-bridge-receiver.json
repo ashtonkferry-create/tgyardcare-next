@@ -1,0 +1,572 @@
+{
+  "name": "TG-06-zapier-bridge-receiver",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "zapier-bridge-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "event_type",
+              "name": "event_type",
+              "value": "={{ $json.event_type || $json.type || 'unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "customer_name",
+              "name": "customer_name",
+              "value": "={{ $json.customer_name || $json.client_name || $json.name || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "customer_email",
+              "name": "customer_email",
+              "value": "={{ ($json.customer_email || $json.email || '').toLowerCase().trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "customer_phone",
+              "name": "customer_phone",
+              "value": "={{ ($json.customer_phone || $json.phone || '').replace(/[^\\d+]/g, '') }}",
+              "type": "string"
+            },
+            {
+              "id": "address",
+              "name": "address",
+              "value": "={{ $json.address || $json.service_address || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "service",
+              "name": "service",
+              "value": "={{ $json.service || $json.job_type || $json.work_type || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "amount",
+              "name": "amount",
+              "value": "={{ $json.amount || $json.total || $json.invoice_total || null }}",
+              "type": "number"
+            },
+            {
+              "id": "jobber_id",
+              "name": "jobber_id",
+              "value": "={{ $json.jobber_id || $json.job_id || $json.client_id || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "source_route",
+              "name": "source_route",
+              "value": "={{ $json.source_route || 'tg-jobber-bridge' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "normalize-bridge-data",
+      "name": "Normalize Bridge Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "new_client",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "new_client"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "job_completed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "job_completed"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "invoice_paid",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "invoice_paid"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "payment_received",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "payment_received"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "switch-event-type",
+      "name": "Switch on Event Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/jobber_email_events",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event_type\": \"new_request\",\n  \"customer_name\": \"{{ $json.customer_name }}\",\n  \"customer_email\": \"{{ $json.customer_email }}\",\n  \"customer_phone\": \"{{ $json.customer_phone }}\",\n  \"address\": \"{{ $json.address }}\",\n  \"service\": \"{{ $json.service }}\",\n  \"jobber_id\": \"{{ $json.jobber_id }}\",\n  \"processing_status\": \"processed\",\n  \"source\": \"zapier_bridge\"\n}",
+        "options": {}
+      },
+      "id": "insert-new-client-event",
+      "name": "Insert New Client Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        -240
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation,resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"first_name\": \"{{ ($json.customer_name || '').split(' ')[0] }}\",\n  \"last_name\": \"{{ ($json.customer_name || '').split(' ').slice(1).join(' ') }}\",\n  \"email\": \"{{ $json.customer_email }}\",\n  \"phone\": \"{{ $json.customer_phone }}\",\n  \"address\": \"{{ $json.address }}\",\n  \"service\": \"{{ $json.service }}\",\n  \"source\": \"jobber\",\n  \"status\": \"converted\",\n  \"lead_score\": 50,\n  \"lead_tier\": \"warm\"\n}",
+        "options": {}
+      },
+      "id": "upsert-lead-new-client",
+      "name": "Upsert Lead from New Client",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        -240
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/jobber_email_events",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event_type\": \"job_completed\",\n  \"customer_name\": \"{{ $json.customer_name }}\",\n  \"customer_email\": \"{{ $json.customer_email }}\",\n  \"customer_phone\": \"{{ $json.customer_phone }}\",\n  \"address\": \"{{ $json.address }}\",\n  \"service\": \"{{ $json.service }}\",\n  \"jobber_id\": \"{{ $json.jobber_id }}\",\n  \"processing_status\": \"processed\",\n  \"source\": \"zapier_bridge\"\n}",
+        "options": {}
+      },
+      "id": "insert-job-completed-event",
+      "name": "Insert Job Completed Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        -80
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait-24h-review",
+      "name": "Wait 24 Hours for Review",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"workelyhelp@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $json.customer_email }}\", \"name\": \"{{ $json.customer_name || 'Valued Customer' }}\" }],\n  \"subject\": \"How did we do? We'd love your feedback!\",\n  \"htmlContent\": \"<p>Hi {{ $json.customer_name || 'there' }},</p><p>Thank you for trusting TotalGuard Yard Care with your {{ $json.service || 'yard care' }}. We hope everything looks great!</p><p><a href='https://g.page/r/totalguardyardcare/review'>Leave us a Google review</a> — it means the world to our small team.</p><p>- The TotalGuard Team</p>\"\n}",
+        "options": {}
+      },
+      "id": "send-review-email-bridge",
+      "name": "Send Review Request Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        -80
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/jobber_email_events",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event_type\": \"invoice_sent\",\n  \"customer_name\": \"{{ $json.customer_name }}\",\n  \"customer_email\": \"{{ $json.customer_email }}\",\n  \"customer_phone\": \"{{ $json.customer_phone }}\",\n  \"address\": \"{{ $json.address }}\",\n  \"service\": \"{{ $json.service }}\",\n  \"amount\": {{ $json.amount || 'null' }},\n  \"jobber_id\": \"{{ $json.jobber_id }}\",\n  \"processing_status\": \"processed\",\n  \"source\": \"zapier_bridge\"\n}",
+        "options": {}
+      },
+      "id": "insert-invoice-paid-event",
+      "name": "Insert Invoice Paid Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        80
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/jobber_email_events",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event_type\": \"payment_received\",\n  \"customer_name\": \"{{ $json.customer_name }}\",\n  \"customer_email\": \"{{ $json.customer_email }}\",\n  \"customer_phone\": \"{{ $json.customer_phone }}\",\n  \"amount\": {{ $json.amount || 'null' }},\n  \"jobber_id\": \"{{ $json.jobber_id }}\",\n  \"processing_status\": \"processed\",\n  \"source\": \"zapier_bridge\"\n}",
+        "options": {}
+      },
+      "id": "insert-payment-event",
+      "name": "Insert Payment Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        240
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  json: {\n    success: true,\n    event_type: $('Normalize Bridge Data').first().json.event_type,\n    message: 'Jobber bridge event processed successfully'\n  }\n};"
+      },
+      "id": "bridge-success-response",
+      "name": "Bridge Success Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Bridge Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Bridge Data": {
+      "main": [
+        [
+          {
+            "node": "Switch on Event Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch on Event Type": {
+      "main": [
+        [
+          {
+            "node": "Insert New Client Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert Job Completed Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert Invoice Paid Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert Payment Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert New Client Event": {
+      "main": [
+        [
+          {
+            "node": "Upsert Lead from New Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Lead from New Client": {
+      "main": [
+        [
+          {
+            "node": "Bridge Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Job Completed Event": {
+      "main": [
+        [
+          {
+            "node": "Wait 24 Hours for Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 24 Hours for Review": {
+      "main": [
+        [
+          {
+            "node": "Send Review Request Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Review Request Email": {
+      "main": [
+        [
+          {
+            "node": "Bridge Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Invoice Paid Event": {
+      "main": [
+        [
+          {
+            "node": "Bridge Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Payment Event": {
+      "main": [
+        [
+          {
+            "node": "Bridge Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  }
+}

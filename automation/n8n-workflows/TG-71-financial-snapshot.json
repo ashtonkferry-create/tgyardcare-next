@@ -1,0 +1,185 @@
+{
+  "name": "TG-71-financial-snapshot",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 23 * * *"
+            }
+          ]
+        }
+      },
+      "id": "tg71-node-01",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/jobber_email_events?select=revenue,event_type,completed_at&event_type=in.(payment_received,job_completed)&completed_at=gte.{{ $now.startOf('day').toISO() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg71-node-02",
+      "name": "Get Today Financials",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/leads?select=id,estimated_value&status=eq.lead&created_at=gte.{{ $now.startOf('day').toISO() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg71-node-03",
+      "name": "Get New Bookings Value",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const events = $('Get Today Financials').all().map(i => i.json);\nconst bookings = $('Get New Bookings Value').all().map(i => i.json);\nconst collected = events.filter(e => e.event_type === 'payment_received').reduce((s,e) => s+(e.revenue||0), 0);\nconst jobsValue = events.filter(e => e.event_type === 'job_completed').reduce((s,e) => s+(e.revenue||0), 0);\nconst bookingsValue = bookings.reduce((s,b) => s+(b.estimated_value||0), 0);\nreturn [{ json: {\n  date: new Date().toISOString().split('T')[0],\n  revenue_collected: Math.round(collected),\n  jobs_value: Math.round(jobsValue),\n  bookings_value: Math.round(bookingsValue),\n  created_at: new Date().toISOString()\n} }];"
+      },
+      "id": "tg71-node-04",
+      "name": "Calculate Snapshot",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/financial_daily_snapshots",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ date: $json.date, revenue_collected: $json.revenue_collected, jobs_value: $json.jobs_value, bookings_value: $json.bookings_value, created_at: $json.created_at }) }}"
+      },
+      "id": "tg71-node-05",
+      "name": "Insert Snapshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Today Financials",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get New Bookings Value",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Today Financials": {
+      "main": [
+        [
+          {
+            "node": "Calculate Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get New Bookings Value": {
+      "main": [
+        [
+          {
+            "node": "Calculate Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Snapshot": {
+      "main": [
+        [
+          {
+            "node": "Insert Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

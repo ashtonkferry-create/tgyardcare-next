@@ -1,0 +1,58 @@
+{
+  "name": "TG-15-fall-nurture",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 14 * 8,9 1" }] } },
+      "id": "schedule",
+      "name": "Weekly Mon 9am CT Aug-Sep",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/customers?select=id,first_name,email&limit=500",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+      },
+      "id": "fetch-audience",
+      "name": "Fetch All Customers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const week = Math.ceil(new Date().getDate() / 7);\nconst emails = [\n  { subject: 'Fall cleanup season is here — book TotalGuard!', body: 'Hi {name},\\n\\nLeaves are starting to fall in Madison! TotalGuard\\'s fall cleanup includes leaf removal, yard cleanup, and bed prep for winter.\\n\\nBook your fall cleanup at tgyardcare.com' },\n  { subject: 'Your lawn needs aeration before winter', body: 'Hi {name},\\n\\nFall aeration is the single best thing you can do for your lawn before winter. Core aeration reduces compaction and helps roots grow stronger.\\n\\nBook aeration at tgyardcare.com or call (608) 535-6057' },\n  { subject: \"Don't forget your gutters this fall!\", body: 'Hi {name},\\n\\nLeaf-clogged gutters can cause serious damage over winter. TotalGuard gutter cleaning removes all debris and flushes downspouts.\\n\\nBook gutter cleaning at tgyardcare.com' },\n  { subject: 'Winterize now — your lawn will thank you in spring', body: 'Hi {name},\\n\\nOur complete fall package: cleanup + aeration + final fertilization + gutter cleaning. Everything your property needs before the first frost.\\n\\ntgyardcare.com' }\n];\nconst emailIdx = Math.min(week - 1, emails.length - 1);\nconst template = emails[emailIdx];\nreturn $input.all().map(i => ({ json: { ...i.json, subject: template.subject, body: template.body.replace('{name}', i.json.first_name || 'there') } }));"
+      },
+      "id": "build-email",
+      "name": "Build Fall Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "api-key", "value": "={{$vars.TG_BREVO_API_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" }, \"to\": [{ \"email\": \"{{ $json.email }}\", \"name\": \"{{ $json.first_name }}\" }], \"subject\": \"{{ $json.subject }}\", \"textContent\": \"{{ $json.body }}\" }"
+      },
+      "id": "send-fall",
+      "name": "Send Fall Nurture Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 300]
+    }
+  ],
+  "connections": {
+    "Weekly Mon 9am CT Aug-Sep": { "main": [[{ "node": "Fetch All Customers", "type": "main", "index": 0 }]] },
+    "Fetch All Customers": { "main": [[{ "node": "Build Fall Email", "type": "main", "index": 0 }]] },
+    "Build Fall Email": { "main": [[{ "node": "Send Fall Nurture Email", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

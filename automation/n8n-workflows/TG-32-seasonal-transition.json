@@ -1,0 +1,37 @@
+{
+  "name": "TG-32-seasonal-transition",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 14 1 * *" }] } },
+      "id": "schedule",
+      "name": "1st of Month 9am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const month = new Date().getMonth() + 1;\nconst alerts = {\n  3: { season: 'Spring', msg: '🌱 SPRING SEASON STARTING\\n• Launch spring cleanup campaigns\\n• Update website seasonal messaging\\n• Email all customers about spring packages\\n• Check and restock equipment' },\n  5: { season: 'Peak Summer', msg: '☀️ PEAK MOWING SEASON\\n• Ensure all crews staffed\\n• Restock yard signs and door hangers\\n• Push fertilization and herbicide upsells\\n• Monitor crew scheduling' },\n  9: { season: 'Fall', msg: '🍂 FALL TRANSITION\\n• Start fall cleanup + aeration campaigns\\n• Push leaf removal messaging\\n• Prepare gutter cleaning promos\\n• Begin snow removal contract outreach' },\n  11: { season: 'Snow', msg: '❄️ SNOW SEASON\\n• Activate snow removal contracts\\n• Update emergency response protocols\\n• SMS all snow customers with service reminder\\n• Stock salt and snow equipment' },\n  2: { season: 'Pre-Spring', msg: '📅 PRE-SPRING\\n• Begin spring nurture email campaign\\n• Start booking spring cleanups early\\n• Update pricing for new season' }\n};\nconst alert = alerts[month] || { season: 'Monthly', msg: `Monthly check-in (Month ${month}). Review marketing calendar and upcoming seasonal needs.` };\nreturn [{ json: { ...alert, month } }];"
+      },
+      "id": "get-seasonal-alert",
+      "name": "Get Seasonal Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$vars.TG_OWNER_PHONE}}", "message": "=TG Seasonal Transition Alert:\\n{{$json.msg}}" },
+      "id": "sms-owner",
+      "name": "SMS Owner Alert",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [440, 300],
+      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+    }
+  ],
+  "connections": {
+    "1st of Month 9am CT": { "main": [[{ "node": "Get Seasonal Alert", "type": "main", "index": 0 }]] },
+    "Get Seasonal Alert": { "main": [[{ "node": "SMS Owner Alert", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

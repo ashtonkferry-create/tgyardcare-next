@@ -1,0 +1,74 @@
+{
+  "name": "TG-33-neighbor-postcards",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" }, "conditions": [{ "leftValue": "={{$json.job_amount}}", "rightValue": 200, "operator": { "type": "number", "operation": "gte" } }] }
+      },
+      "id": "check-value",
+      "name": "High-Value Job (>$200)?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/job_photos?job_id=eq.{{$json.job_id}}&flagged_for_social=eq.true&select=photo_url&limit=1",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+      },
+      "id": "get-photo",
+      "name": "Get Best Job Photo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.lob.com/v1/postcards",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Basic {{ Buffer.from($vars.TG_LOB_API_KEY + ':').toString('base64') }}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"description\": \"TG Neighbor Postcard\", \"to\": { \"name\": \"Neighbor\", \"address_line1\": \"{{ $('Execute Workflow Trigger').first().json.job_address }}\", \"address_city\": \"Madison\", \"address_state\": \"WI\", \"address_zip\": \"53711\" }, \"from\": { \"name\": \"TotalGuard Yard Care\", \"address_line1\": \"7610 Welton Dr\", \"address_city\": \"Madison\", \"address_state\": \"WI\", \"address_zip\": \"53711\" }, \"front\": \"<html><body style='font-family:sans-serif;text-align:center;padding:20px'><h2>Your neighbor just got their yard transformed!</h2><p>TotalGuard Yard Care — Madison's Most Reliable Yard Care</p></body></html>\", \"back\": \"<html><body style='font-family:sans-serif;padding:20px'><h3>New Customer Offer: 15% off your first service</h3><p>Same crew. Same day. Every week.</p><p>Book at tgyardcare.com or call (608) 535-6057</p></body></html>\", \"size\": \"4x6\" }"
+      },
+      "id": "send-postcard",
+      "name": "Send Lob Postcard",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/postcards",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "job_id", "value": "={{$('Execute Workflow Trigger').first().json.job_id}}" }, { "name": "lob_id", "value": "={{$json.id}}" }, { "name": "sent_at", "value": "={{ new Date().toISOString() }}" }, { "name": "estimated_cost", "value": "0.65" }] }
+      },
+      "id": "log-postcard",
+      "name": "Log Postcard",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 200]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": { "main": [[{ "node": "High-Value Job (>$200)?", "type": "main", "index": 0 }]] },
+    "High-Value Job (>$200)?": { "main": [[{ "node": "Get Best Job Photo", "type": "main", "index": 0 }], []] },
+    "Get Best Job Photo": { "main": [[{ "node": "Send Lob Postcard", "type": "main", "index": 0 }]] },
+    "Send Lob Postcard": { "main": [[{ "node": "Log Postcard", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

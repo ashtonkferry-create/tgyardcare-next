@@ -1,0 +1,44 @@
+{
+  "name": "TG-37-ai-caption-generator",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "x-api-key", "value": "={{$vars.TG_ANTHROPIC_API_KEY}}" }, { "name": "anthropic-version", "value": "2023-06-01" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-haiku-4-5-20251001\", \"max_tokens\": 500, \"messages\": [{ \"role\": \"user\", \"content\": \"Generate 3 social media caption options for a {{ $json.season || 'seasonal' }} {{ $json.service_type || 'lawn care' }} photo for TotalGuard Yard Care (Madison WI). Each caption: max 150 chars, friendly professional tone, local references, 3-5 relevant hashtags. Include #TotalGuard #MadisonWI. Return as JSON array: [{caption, hashtags}]\" }] }"
+      },
+      "id": "generate-captions",
+      "name": "Generate Captions via Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const resp = $input.first().json;\nconst text = resp.content?.[0]?.text || '[]';\nlet captions = [];\ntry {\n  const match = text.match(/\\[.*\\]/s);\n  if (match) captions = JSON.parse(match[0]);\n} catch { captions = [{ caption: text.substring(0, 150), hashtags: '#TotalGuard #MadisonWI' }]; }\nreturn [{ json: { captions, count: captions.length } }];"
+      },
+      "id": "parse-captions",
+      "name": "Parse Captions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": { "main": [[{ "node": "Generate Captions via Claude", "type": "main", "index": 0 }]] },
+    "Generate Captions via Claude": { "main": [[{ "node": "Parse Captions", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

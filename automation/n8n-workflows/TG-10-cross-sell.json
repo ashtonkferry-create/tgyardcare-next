@@ -1,0 +1,58 @@
+{
+  "name": "TG-10-cross-sell",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 16 * * *" }] } },
+      "id": "schedule",
+      "name": "Daily 11am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/jobber_email_events?parsed_event_type=eq.job_completed&parsed_at=gte.{{ new Date(Date.now()-14*24*60*60*1000).toISOString() }}&select=parsed_customer_email,parsed_customer_name,parsed_service,parsed_customer_phone",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+      },
+      "id": "fetch-completed",
+      "name": "Fetch Recently Completed Jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const map = { 'Lawn Mowing': ['Fertilization','Aeration','Weeding'], 'Spring Cleanup': ['Lawn Mowing','Mulching','Garden Bed Care'], 'Fall Cleanup': ['Leaf Removal','Gutter Cleaning','Aeration'], 'Gutter Cleaning': ['Gutter Guard Installation','Fall Cleanup'], 'Snow Removal': ['Spring Cleanup'], 'Garden Bed Care': ['Mulching','Bush Trimming','Hardscaping'], 'Fertilization': ['Aeration','Herbicide Services'], 'Leaf Removal': ['Gutter Cleaning','Fall Cleanup'], 'Aeration': ['Fertilization','Herbicide Services'], 'Mulching': ['Garden Bed Care','Bush Trimming'] };\nconst results = [];\nfor (const item of $input.all()) {\n  const job = item.json;\n  const suggestions = map[job.parsed_service] || ['Lawn Mowing','Spring Cleanup'];\n  const suggest = suggestions[0];\n  results.push({ json: { ...job, suggest_service: suggest, subject: `Have you tried TotalGuard's ${suggest}?` } });\n}\nreturn results;"
+      },
+      "id": "build-crosssell",
+      "name": "Build Cross-sell Suggestion",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "api-key", "value": "={{$vars.TG_BREVO_API_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" }, \"to\": [{ \"email\": \"{{ $json.parsed_customer_email }}\", \"name\": \"{{ $json.parsed_customer_name }}\" }], \"subject\": \"{{ $json.subject }}\", \"textContent\": \"Hi {{ $json.parsed_customer_name }},\\n\\nGlad your {{ $json.parsed_service }} went well! Many of our Madison customers also love our {{ $json.suggest_service }} service.\\n\\nInterested? Book at tgyardcare.com or call (608) 535-6057.\\n\\n- TotalGuard Team\" }"
+      },
+      "id": "send-crosssell",
+      "name": "Send Cross-sell Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 300]
+    }
+  ],
+  "connections": {
+    "Daily 11am CT": { "main": [[{ "node": "Fetch Recently Completed Jobs", "type": "main", "index": 0 }]] },
+    "Fetch Recently Completed Jobs": { "main": [[{ "node": "Build Cross-sell Suggestion", "type": "main", "index": 0 }]] },
+    "Build Cross-sell Suggestion": { "main": [[{ "node": "Send Cross-sell Email", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

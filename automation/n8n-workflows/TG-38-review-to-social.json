@@ -1,0 +1,259 @@
+{
+  "name": "TG-38-review-to-social",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger-review-social",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "reviewerName",
+              "name": "reviewerName",
+              "value": "={{ $json.reviewer_name || $json.reviewerName || 'A happy customer' }}",
+              "type": "string"
+            },
+            {
+              "id": "reviewText",
+              "name": "reviewText",
+              "value": "={{ $json.review_text || $json.reviewText || $json.body || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "rating",
+              "name": "rating",
+              "value": "={{ parseInt($json.rating || 5) }}",
+              "type": "number"
+            },
+            {
+              "id": "reviewId",
+              "name": "reviewId",
+              "value": "={{ $json.review_id || $json.reviewId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "platform",
+              "name": "platform",
+              "value": "={{ $json.platform || 'google' }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "normalize-review-data",
+      "name": "Normalize Review Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "is-five-star",
+              "leftValue": "={{ $json.rating >= 5 }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "is-five-star-check",
+      "name": "Is 5-Star Review?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst excerpt = data.reviewText.length > 120 ? data.reviewText.substring(0, 117) + '...' : data.reviewText;\nconst stars = '⭐'.repeat(data.rating);\nconst caption = `${stars} ${data.reviewerName} says: \"${excerpt}\" We love serving Madison! Book at tgyardcare.com #TotalGuard #MadisonWI #LawnCare #CustomerLove`;\nreturn [{ json: { ...data, caption, excerpt } }];"
+      },
+      "id": "format-review-post",
+      "name": "Format Review as Social Post",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/social_posts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content_type\": \"testimonial\",\n  \"caption\": {{ JSON.stringify($json.caption) }},\n  \"status\": \"draft\",\n  \"source_review_id\": \"{{ $json.reviewId }}\",\n  \"source_platform\": \"{{ $json.platform }}\",\n  \"reviewer_name\": \"{{ $json.reviewerName }}\",\n  \"created_at\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "insert-review-post",
+      "name": "Insert Review as Draft Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        200
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $vars.TG_OWNER_PHONE }}",
+        "body": "=TG: New 5-star review from {{ $('Normalize Review Data').first().json.reviewerName }} is ready as a social post draft. Approve it at tgyardcare.com/admin/social"
+      },
+      "id": "sms-owner-review",
+      "name": "SMS Owner - Review Post Ready",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        200
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "twilio-creds",
+          "name": "Twilio API"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { skipped: true, reason: 'not_five_stars', rating: $json.rating } }];"
+      },
+      "id": "skip-not-five-star",
+      "name": "Skip - Not 5-Star",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Review Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Review Data": {
+      "main": [
+        [
+          {
+            "node": "Is 5-Star Review?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is 5-Star Review?": {
+      "main": [
+        [
+          {
+            "node": "Format Review as Social Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip - Not 5-Star",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Review as Social Post": {
+      "main": [
+        [
+          {
+            "node": "Insert Review as Draft Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Review as Draft Post": {
+      "main": [
+        [
+          {
+            "node": "SMS Owner - Review Post Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  }
+}

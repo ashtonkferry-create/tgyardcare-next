@@ -1,0 +1,178 @@
+{
+  "name": "TG-20-ai-review-response",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "tg20-workflow-trigger",
+      "name": "executeWorkflowTrigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $vars.TG_ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 300, system: 'You are responding to a Google review for TotalGuard Yard Care, a landscaping company in Madison WI. Be warm, professional, and specific. For positive reviews: thank sincerely, mention the specific service, invite them back. For negative reviews: apologize genuinely, acknowledge the specific issue, offer to make it right at (608) 535-6057. Keep responses under 100 words. Never be defensive.', messages: [{ role: 'user', content: 'Review (' + $json.rating + ' stars) from ' + $json.reviewer_name + ': \"' + $json.review_text + '\"\\n\\nWrite a response from TotalGuard Yard Care.' }] }) }}",
+        "options": {}
+      },
+      "id": "tg20-call-claude",
+      "name": "Generate AI Response via Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const trigger = $('executeWorkflowTrigger').item.json;\nconst claudeResponse = $input.item.json;\n\nconst draftText = claudeResponse.content?.[0]?.text || 'Thank you for your review! We appreciate your feedback. — The TotalGuard Team';\n\nreturn [{ json: {\n  reviewer_name:      trigger.reviewer_name,\n  rating:             trigger.rating,\n  review_text:        trigger.review_text,\n  google_review_time: trigger.google_review_time || null,\n  draft_response:     draftText,\n  status:             'pending_approval'\n} }];"
+      },
+      "id": "tg20-extract-draft",
+      "name": "Extract Draft Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/review_responses",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "tg20-save-draft",
+      "name": "Save Draft to review_responses",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $vars.TG_OWNER_PHONE }}",
+        "message": "=New {{ $('Extract Draft Response').item.json.rating }}-star Google review from {{ $('Extract Draft Response').item.json.reviewer_name }}. AI draft response is ready for your approval in the TotalGuard admin dashboard. Review admin panel to approve or edit before posting."
+      },
+      "id": "tg20-notify-owner",
+      "name": "SMS Owner with Draft Ready",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        880,
+        0
+      ],
+      "continueOnFail": true,
+      "credentials": {
+        "twilioApi": {
+          "id": "tg-twilio-cred",
+          "name": "TotalGuard Twilio"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "executeWorkflowTrigger": {
+      "main": [
+        [
+          {
+            "node": "Generate AI Response via Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate AI Response via Claude": {
+      "main": [
+        [
+          {
+            "node": "Extract Draft Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Draft Response": {
+      "main": [
+        [
+          {
+            "node": "Save Draft to review_responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Draft to review_responses": {
+      "main": [
+        [
+          {
+            "node": "SMS Owner with Draft Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  }
+}

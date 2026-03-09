@@ -1,0 +1,383 @@
+{
+  "name": "TG-05-jobber-email-parser",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 5,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "mailbox": "INBOX",
+        "options": {
+          "allowUnauthorizedCerts": false,
+          "customEmailConfig": "[\"UNSEEN\"]"
+        }
+      },
+      "id": "imap-trigger",
+      "name": "Read Jobber Emails",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "imap": {
+          "id": "TG_IMAP",
+          "name": "TG - Jobber Gmail IMAP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const email = $input.first().json;\nconst subject = (email.subject || '').trim();\nconst body = email.text || email.html || email.textAsHtml || '';\nconst from = email.from && email.from.text ? email.from.text : (email.from || '');\nconst receivedAt = email.date || new Date().toISOString();\n\n// Determine event type from subject\nlet event_type = 'unknown';\nif (/new request/i.test(subject)) event_type = 'new_request';\nelse if (/job scheduled/i.test(subject)) event_type = 'job_scheduled';\nelse if (/job complet|completed/i.test(subject)) event_type = 'job_completed';\nelse if (/invoice/i.test(subject)) event_type = 'invoice_sent';\nelse if (/payment/i.test(subject)) event_type = 'payment_received';\n\n// Extract customer name\nlet customer_name = '';\nconst nameMatch = body.match(/(?:client|customer|name)[:\\s]+([A-Z][a-z]+ [A-Z][a-z]+)/i)\n  || body.match(/^([A-Z][a-z]+ [A-Z][a-z]+)/m)\n  || subject.match(/for ([A-Z][a-z]+ [A-Z][a-z]+)/i);\nif (nameMatch) customer_name = nameMatch[1].trim();\n\n// Extract email\nlet customer_email = '';\nconst emailMatch = body.match(/[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}/);\nif (emailMatch) customer_email = emailMatch[0].toLowerCase();\n\n// Extract phone\nlet customer_phone = '';\nconst phoneMatch = body.match(/(\\+?1?[\\s.-]?\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4})/);\nif (phoneMatch) customer_phone = phoneMatch[1].replace(/[^\\d+]/g, '');\n\n// Extract address\nlet address = '';\nconst addressMatch = body.match(/(\\d+\\s+[A-Za-z0-9\\s,]+(?:St|Ave|Rd|Dr|Ln|Blvd|Way|Ct|Pl|Cir)[.,]?\\s*(?:[A-Za-z]+,?\\s*WI)?\\s*\\d{5}?)/i);\nif (addressMatch) address = addressMatch[1].trim();\n\n// Extract service\nlet service = '';\nconst serviceMatch = body.match(/(?:service|job type|work)[:\\s]+([^\\n\\r]+)/i)\n  || subject.match(/(?:for|re:)[\\s]+([^-\\n]+)/i);\nif (serviceMatch) service = serviceMatch[1].trim();\n\n// Extract dollar amount\nlet amount = null;\nconst amountMatch = body.match(/\\$([\\d,]+(?:\\.\\d{2})?)/);\nif (amountMatch) amount = parseFloat(amountMatch[1].replace(',', ''));\n\n// Extract Jobber job/request ID\nlet jobber_id = '';\nconst jobberIdMatch = body.match(/(?:job|request|invoice)[\\s#]+([A-Z0-9-]+)/i)\n  || subject.match(/#([A-Z0-9-]+)/i);\nif (jobberIdMatch) jobber_id = jobberIdMatch[1];\n\nreturn {\n  json: {\n    event_type,\n    customer_name,\n    customer_email,\n    customer_phone,\n    address,\n    service,\n    amount,\n    jobber_id,\n    email_subject: subject,\n    email_from: from,\n    received_at: receivedAt,\n    raw_subject: subject,\n    processing_status: 'processing'\n  }\n};"
+      },
+      "id": "parse-jobber-email",
+      "name": "Parse Jobber Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/jobber_email_events",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event_type\": \"{{ $json.event_type }}\",\n  \"customer_name\": \"{{ $json.customer_name }}\",\n  \"customer_email\": \"{{ $json.customer_email }}\",\n  \"customer_phone\": \"{{ $json.customer_phone }}\",\n  \"address\": \"{{ $json.address }}\",\n  \"service\": \"{{ $json.service }}\",\n  \"amount\": {{ $json.amount || 'null' }},\n  \"jobber_id\": \"{{ $json.jobber_id }}\",\n  \"email_subject\": \"{{ $json.email_subject }}\",\n  \"received_at\": \"{{ $json.received_at }}\",\n  \"processing_status\": \"processing\"\n}",
+        "options": {}
+      },
+      "id": "insert-email-event",
+      "name": "Insert Email Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const parsedData = $('Parse Jobber Email').first().json;\nconst insertResult = $input.first().json;\nconst event_id = Array.isArray(insertResult) ? (insertResult[0] && insertResult[0].id) : (insertResult && insertResult.id);\n\nreturn {\n  json: {\n    ...parsedData,\n    event_id: event_id || null\n  }\n};"
+      },
+      "id": "extract-event-id",
+      "name": "Extract Event ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "new_request",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "new_request"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "job_completed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "job_completed"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "id": "route-event-type",
+      "name": "Route Event Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation,resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"first_name\": \"{{ ($json.customer_name || '').split(' ')[0] }}\",\n  \"last_name\": \"{{ ($json.customer_name || '').split(' ').slice(1).join(' ') }}\",\n  \"email\": \"{{ $json.customer_email }}\",\n  \"phone\": \"{{ $json.customer_phone }}\",\n  \"address\": \"{{ $json.address }}\",\n  \"service\": \"{{ $json.service }}\",\n  \"source\": \"jobber\",\n  \"status\": \"new\",\n  \"lead_score\": 25,\n  \"lead_tier\": \"standard\"\n}",
+        "options": {}
+      },
+      "id": "upsert-new-request-lead",
+      "name": "Upsert Lead (New Request)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        -100
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait-24h",
+      "name": "Wait 24 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"workelyhelp@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $json.customer_email }}\", \"name\": \"{{ $json.customer_name || 'Valued Customer' }}\" }],\n  \"subject\": \"How did we do? Leave us a review!\",\n  \"htmlContent\": \"<p>Hi {{ $json.customer_name || 'there' }},</p><p>Thank you for choosing TotalGuard Yard Care! We hope you're happy with your {{ $json.service || 'service' }}.</p><p>Would you mind leaving us a quick Google review? It takes less than 2 minutes and helps us grow.</p><p><a href='https://g.page/r/totalguardyardcare/review' style='background:#16a34a;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;'>Leave a Review</a></p><p>Thank you!<br>The TotalGuard Team</p>\"\n}",
+        "options": {}
+      },
+      "id": "send-review-request",
+      "name": "Send Review Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        100
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/jobber_email_events?id=eq.{{ $('Extract Event ID').item.json.event_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"processing_status\": \"processed\" }",
+        "options": {}
+      },
+      "id": "mark-event-processed",
+      "name": "Mark Event Processed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        0
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Read Jobber Emails": {
+      "main": [
+        [
+          {
+            "node": "Parse Jobber Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Jobber Email": {
+      "main": [
+        [
+          {
+            "node": "Insert Email Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Email Event": {
+      "main": [
+        [
+          {
+            "node": "Extract Event ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Event ID": {
+      "main": [
+        [
+          {
+            "node": "Route Event Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Event Type": {
+      "main": [
+        [
+          {
+            "node": "Upsert Lead (New Request)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 24 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Lead (New Request)": {
+      "main": [
+        [
+          {
+            "node": "Mark Event Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 24 Hours": {
+      "main": [
+        [
+          {
+            "node": "Send Review Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Review Request": {
+      "main": [
+        [
+          {
+            "node": "Mark Event Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  }
+}

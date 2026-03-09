@@ -1,0 +1,392 @@
+{
+  "name": "TG-19-google-review-sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 11 * * *"
+            }
+          ]
+        }
+      },
+      "id": "tg19-schedule-trigger",
+      "name": "Daily 6am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://maps.googleapis.com/maps/api/place/details/json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "place_id",
+              "value": "={{ $vars.TG_GOOGLE_PLACE_ID }}"
+            },
+            {
+              "name": "fields",
+              "value": "reviews"
+            },
+            {
+              "name": "key",
+              "value": "={{ $vars.TG_GOOGLE_PLACES_API_KEY }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg19-fetch-google-reviews",
+      "name": "Fetch Google Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/reviews",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "google_review_time"
+            },
+            {
+              "name": "source",
+              "value": "eq.google"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg19-get-existing-reviews",
+      "name": "Get Existing Reviews from Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const googleData = $('Fetch Google Reviews').item.json;\nconst existingReviews = $('Get Existing Reviews from Supabase').all().map(i => i.json);\n\nconst reviews = googleData.result?.reviews || [];\nconst existingTimes = new Set(existingReviews.map(r => r.google_review_time));\n\nconst newReviews = reviews.filter(r => !existingTimes.has(String(r.time)));\n\nreturn newReviews.map(r => ({ json: {\n  google_review_time: String(r.time),\n  reviewer_name:      r.author_name,\n  rating:             r.rating,\n  review_text:        r.text,\n  profile_photo_url:  r.profile_photo_url || null,\n  source:             'google',\n  created_at:         new Date(r.time * 1000).toISOString()\n} }));"
+      },
+      "id": "tg19-find-new-reviews",
+      "name": "Find New Reviews",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        110
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/reviews",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "tg19-insert-review",
+      "name": "Insert New Review",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        110
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Find New Reviews').item.json.rating }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg19-is-five-star",
+      "name": "Is 5-Star Review",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Find New Reviews').item.json.rating }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "smallerEqual"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg19-is-low-rating",
+      "name": "Is 1-2 Star Review",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        880,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://n8n.instance/webhook/tg-review-to-referral",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ reviewer_name: $('Find New Reviews').item.json.reviewer_name, rating: $('Find New Reviews').item.json.rating, review_text: $('Find New Reviews').item.json.review_text, google_review_time: $('Find New Reviews').item.json.google_review_time }) }}",
+        "options": {}
+      },
+      "id": "tg19-trigger-referral",
+      "name": "Trigger TG-22 Review-to-Referral",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $vars.TG_OWNER_PHONE }}",
+        "message": "=URGENT: TotalGuard received a {{ $('Find New Reviews').item.json.rating }}-star Google review from {{ $('Find New Reviews').item.json.reviewer_name }}. Review: \"{{ $('Find New Reviews').item.json.review_text.substring(0,100) }}...\" — Log in to respond immediately."
+      },
+      "id": "tg19-alert-owner-sms",
+      "name": "Alert Owner Low Rating SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        220
+      ],
+      "continueOnFail": true,
+      "credentials": {
+        "twilioApi": {
+          "id": "tg-twilio-cred",
+          "name": "TotalGuard Twilio"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://n8n.instance/webhook/tg-ai-review-response",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ reviewer_name: $('Find New Reviews').item.json.reviewer_name, rating: $('Find New Reviews').item.json.rating, review_text: $('Find New Reviews').item.json.review_text }) }}",
+        "options": {}
+      },
+      "id": "tg19-trigger-ai-response",
+      "name": "Trigger TG-20 AI Response",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        440
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Daily 6am CT": {
+      "main": [
+        [
+          {
+            "node": "Fetch Google Reviews",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Existing Reviews from Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Google Reviews": {
+      "main": [
+        [
+          {
+            "node": "Find New Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Existing Reviews from Supabase": {
+      "main": [
+        [
+          {
+            "node": "Find New Reviews",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Find New Reviews": {
+      "main": [
+        [
+          {
+            "node": "Insert New Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert New Review": {
+      "main": [
+        [
+          {
+            "node": "Is 5-Star Review",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is 1-2 Star Review",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Trigger TG-20 AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is 5-Star Review": {
+      "main": [
+        [
+          {
+            "node": "Trigger TG-22 Review-to-Referral",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is 1-2 Star Review": {
+      "main": [
+        [
+          {
+            "node": "Alert Owner Low Rating SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  }
+}

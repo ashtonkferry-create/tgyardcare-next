@@ -1,0 +1,368 @@
+{
+  "name": "TG-17-brevo-segmentation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      },
+      "id": "tg17-schedule-trigger",
+      "name": "Daily 5am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/customers",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,first_name,last_name,email,phone,last_job_completed_at,last_service,city,tier,created_at"
+            },
+            {
+              "name": "email",
+              "value": "not.is.null"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg17-get-customers",
+      "name": "Get All Customers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,first_name,last_name,email,phone,created_at,city,last_service_interest"
+            },
+            {
+              "name": "email",
+              "value": "not.is.null"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg17-get-leads",
+      "name": "Get All Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = Date.now();\nconst d90 = now - 90 * 86400000;\nconst d30 = now - 30 * 86400000;\n\nconst customers = $('Get All Customers').all().map(i => i.json);\nconst leads     = $('Get All Leads').all().map(i => i.json);\n\nconst cities = ['Madison','Middleton','Fitchburg','Sun Prairie','Verona','Waunakee','Monona','Cottage Grove','DeForest','Stoughton','McFarland','Oregon'];\nconst services = ['Lawn Mowing','Fertilization','Aeration','Herbicide','Weeding','Mulching','Garden Bed Care','Bush Trimming','Hardscaping','Spring Cleanup','Fall Cleanup','Leaf Removal','Gutter Cleaning','Snow Removal'];\n\nconst segments = [];\n\n// Customer segments\nconst active   = customers.filter(c => c.last_job_completed_at && new Date(c.last_job_completed_at).getTime() > d90);\nconst dormant  = customers.filter(c => !c.last_job_completed_at || new Date(c.last_job_completed_at).getTime() <= d90);\nconst vip      = customers.filter(c => c.tier === 'vip');\n\nsegments.push({ name: 'TG_Active_Customers',  contacts: active.map(c => ({ email: c.email, firstName: c.first_name, lastName: c.last_name })) });\nsegments.push({ name: 'TG_Dormant_Customers', contacts: dormant.map(c => ({ email: c.email, firstName: c.first_name, lastName: c.last_name })) });\nsegments.push({ name: 'TG_VIP_Customers',     contacts: vip.map(c => ({ email: c.email, firstName: c.first_name, lastName: c.last_name })) });\n\n// New leads < 30d\nconst newLeads = leads.filter(l => new Date(l.created_at).getTime() > d30);\nsegments.push({ name: 'TG_New_Leads_30d', contacts: newLeads.map(l => ({ email: l.email, firstName: l.first_name, lastName: l.last_name })) });\n\n// By service\nfor (const svc of services) {\n  const matched = customers.filter(c => c.last_service === svc);\n  if (matched.length > 0) {\n    segments.push({ name: 'TG_Service_' + svc.replace(/\\s+/g, '_'), contacts: matched.map(c => ({ email: c.email, firstName: c.first_name, lastName: c.last_name })) });\n  }\n}\n\n// By city\nfor (const city of cities) {\n  const cityCustomers = customers.filter(c => c.city === city);\n  const cityLeads     = leads.filter(l => l.city === city);\n  const all = [...cityCustomers, ...cityLeads];\n  if (all.length > 0) {\n    segments.push({ name: 'TG_City_' + city.replace(/\\s+/g, '_'), contacts: all.map(c => ({ email: c.email, firstName: c.first_name, lastName: c.last_name })) });\n  }\n}\n\nreturn segments.map(s => ({ json: s }));"
+      },
+      "id": "tg17-build-segments",
+      "name": "Build All Segments",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        110
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.brevo.com/v3/contacts/lists",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $vars.TG_BREVO_API_KEY }}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "50"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg17-get-brevo-lists",
+      "name": "Get Existing Brevo Lists",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        110
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const segment = $('Build All Segments').item.json;\nconst listsResponse = $input.item.json;\nconst existingLists = listsResponse.lists || [];\n\nconst existing = existingLists.find(l => l.name === segment.name);\n\nreturn [{ json: {\n  segment_name: segment.name,\n  contacts: segment.contacts,\n  list_id: existing ? existing.id : null,\n  needs_creation: !existing\n} }];"
+      },
+      "id": "tg17-check-list-exists",
+      "name": "Check List Exists",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        110
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.needs_creation }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg17-needs-creation-filter",
+      "name": "Needs List Creation",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/contacts/lists",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $vars.TG_BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ name: $json.segment_name, folderId: 1 }) }}",
+        "options": {}
+      },
+      "id": "tg17-create-list",
+      "name": "Create Brevo List",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.brevo.com/v3/contacts/lists/{{ $json.list_id || $('Create Brevo List').item.json.id }}/contacts/add",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $vars.TG_BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ emails: $('Check List Exists').item.json.contacts.map(c => c.email) }) }}",
+        "options": {}
+      },
+      "id": "tg17-add-contacts",
+      "name": "Add Contacts to List",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        110
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Daily 5am CT": {
+      "main": [
+        [
+          {
+            "node": "Get All Customers",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get All Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Customers": {
+      "main": [
+        [
+          {
+            "node": "Build All Segments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Leads": {
+      "main": [
+        [
+          {
+            "node": "Build All Segments",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Build All Segments": {
+      "main": [
+        [
+          {
+            "node": "Get Existing Brevo Lists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Existing Brevo Lists": {
+      "main": [
+        [
+          {
+            "node": "Check List Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check List Exists": {
+      "main": [
+        [
+          {
+            "node": "Needs List Creation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs List Creation": {
+      "main": [
+        [
+          {
+            "node": "Create Brevo List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Brevo List": {
+      "main": [
+        [
+          {
+            "node": "Add Contacts to List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  }
+}

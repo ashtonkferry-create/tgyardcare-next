@@ -1,0 +1,76 @@
+{
+  "name": "TG-13-review-followup",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": { "amount": 1, "unit": "days" },
+      "id": "wait-24h",
+      "name": "Wait 24 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/review_request_links?job_id=eq.{{$('Execute Workflow Trigger').first().json.job_id}}&select=id&limit=2",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+      },
+      "id": "check-existing",
+      "name": "Check Existing Requests",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" }, "conditions": [{ "leftValue": "={{$json.length}}", "rightValue": 2, "operator": { "type": "number", "operation": "lt" } }] }
+      },
+      "id": "under-limit",
+      "name": "Under 2 Requests?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$('Execute Workflow Trigger').first().json.customer_phone}}", "message": "=Hi {{$('Execute Workflow Trigger').first().json.customer_first_name}}, thanks for choosing TotalGuard! If you loved our {{$('Execute Workflow Trigger').first().json.service}}, a quick Google review helps us serve more Madison neighbors like you: {{$vars.TG_GOOGLE_REVIEW_LINK}} — The TG Team" },
+      "id": "sms-review",
+      "name": "SMS Review Request",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [880, 200],
+      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/review_request_links",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "job_id", "value": "={{$('Execute Workflow Trigger').first().json.job_id}}" }, { "name": "customer_phone", "value": "={{$('Execute Workflow Trigger').first().json.customer_phone}}" }, { "name": "sent_at", "value": "={{ new Date().toISOString() }}" }, { "name": "channel", "value": "sms" }] }
+      },
+      "id": "log-request",
+      "name": "Log Review Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 200]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": { "main": [[{ "node": "Wait 24 Hours", "type": "main", "index": 0 }]] },
+    "Wait 24 Hours": { "main": [[{ "node": "Check Existing Requests", "type": "main", "index": 0 }]] },
+    "Check Existing Requests": { "main": [[{ "node": "Under 2 Requests?", "type": "main", "index": 0 }]] },
+    "Under 2 Requests?": { "main": [[{ "node": "SMS Review Request", "type": "main", "index": 0 }], []] },
+    "SMS Review Request": { "main": [[{ "node": "Log Review Request", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

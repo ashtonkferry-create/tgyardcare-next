@@ -1,0 +1,220 @@
+{
+  "name": "TG-68-revenue-forecaster",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 13 1 * *"
+            }
+          ]
+        }
+      },
+      "id": "tg68-node-01",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/financial_daily_snapshots?select=date,revenue_collected,bookings_value&date=gte.{{ $now.minus({days:365}).toFormat('yyyy-MM-dd') }}&order=date.asc",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg68-node-02",
+      "name": "Get 12 Month Revenue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const snapshots = $json;\nconst monthly = {};\nsnapshots.forEach(s => {\n  const month = s.date?.substring(0,7);\n  if (!month) return;\n  if (!monthly[month]) monthly[month] = 0;\n  monthly[month] += s.revenue_collected || 0;\n});\nconst monthlyArr = Object.entries(monthly).map(([m,r]) => ({ month: m, revenue: Math.round(r) }));\nconst season = ['winter','winter','spring','spring','spring','summer','summer','summer','fall','fall','fall','winter'][new Date().getMonth()];\nreturn [{ json: { monthlyRevenue: JSON.stringify(monthlyArr), upcomingSeason: season } }];"
+      },
+      "id": "tg68-node-03",
+      "name": "Prepare Revenue Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $vars.TG_ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-3-5-sonnet-20241022', max_tokens: 600, messages: [{ role: 'user', content: `Based on TotalGuard Yard Care's 12-month revenue data and seasonal patterns for Madison WI, forecast next 3 months revenue. Consider seasonal demand (upcoming: ${$json.upcomingSeason}), weather patterns, and growth trends. Give specific monthly dollar estimates and confidence level.\n\nMonthly revenue data: ${$json.monthlyRevenue}` }] }) }}"
+      },
+      "id": "tg68-node-04",
+      "name": "AI Revenue Forecast",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/revenue_forecasts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ forecast_text: $json.content?.[0]?.text, season: $('Prepare Revenue Data').item.json.upcomingSeason, generated_at: new Date().toISOString() }) }}"
+      },
+      "id": "tg68-node-05",
+      "name": "Save Forecast",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $vars.TG_OWNER_PHONE }}",
+        "message": "=TG Revenue Forecast ready for next 3 months ({{ $('Prepare Revenue Data').item.json.upcomingSeason }} season). Check admin panel for details."
+      },
+      "id": "tg68-node-06",
+      "name": "SMS Forecast Summary",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        0
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "twilio-cred",
+          "name": "twilioApi"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get 12 Month Revenue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get 12 Month Revenue": {
+      "main": [
+        [
+          {
+            "node": "Prepare Revenue Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Revenue Data": {
+      "main": [
+        [
+          {
+            "node": "AI Revenue Forecast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Revenue Forecast": {
+      "main": [
+        [
+          {
+            "node": "Save Forecast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Forecast": {
+      "main": [
+        [
+          {
+            "node": "SMS Forecast Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "name": "TG-29-technician-photo-upload",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/storage/v1/object/tg-job-photos/{{ $json.job_id }}-{{ Date.now() }}.jpg",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "image/jpeg" }] },
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "photo_base64", "value": "={{$json.photo_base64}}" }] }
+      },
+      "id": "upload-photo",
+      "name": "Upload to Supabase Storage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "x-api-key", "value": "={{$vars.TG_ANTHROPIC_API_KEY}}" }, { "name": "anthropic-version", "value": "2023-06-01" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-haiku-4-5-20251001\", \"max_tokens\": 400, \"messages\": [{ \"role\": \"user\", \"content\": [{ \"type\": \"text\", \"text\": \"Analyze this yard care photo. Respond in JSON: {service_type, condition_assessment, quality_rating (1-5), alt_text (SEO-friendly, max 120 chars), social_caption (engaging, max 150 chars, include relevant hashtags), flagged_for_social (true if quality>=4)}.\" }] }] }"
+      },
+      "id": "ai-analyze",
+      "name": "AI Photo Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResp = $input.first().json;\nconst content = aiResp.content?.[0]?.text || '{}';\nlet analysis = {};\ntry { analysis = JSON.parse(content); } catch { analysis = { service_type: 'unknown', quality_rating: 3, flagged_for_social: false }; }\nreturn [{ json: { ...analysis, photo_url: $('Upload to Supabase Storage').first().json.Key || '' } }];"
+      },
+      "id": "parse-analysis",
+      "name": "Parse AI Analysis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/job_photos",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "job_id", "value": "={{$('Execute Workflow Trigger').first().json.job_id}}" }, { "name": "photo_url", "value": "={{$json.photo_url}}" }, { "name": "service_type", "value": "={{$json.service_type}}" }, { "name": "quality_rating", "value": "={{$json.quality_rating}}" }, { "name": "ai_caption", "value": "={{$json.social_caption}}" }, { "name": "alt_text", "value": "={{$json.alt_text}}" }, { "name": "flagged_for_social", "value": "={{$json.flagged_for_social}}" }] }
+      },
+      "id": "insert-photo",
+      "name": "Insert Photo Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": { "main": [[{ "node": "Upload to Supabase Storage", "type": "main", "index": 0 }]] },
+    "Upload to Supabase Storage": { "main": [[{ "node": "AI Photo Analysis", "type": "main", "index": 0 }]] },
+    "AI Photo Analysis": { "main": [[{ "node": "Parse AI Analysis", "type": "main", "index": 0 }]] },
+    "Parse AI Analysis": { "main": [[{ "node": "Insert Photo Record", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

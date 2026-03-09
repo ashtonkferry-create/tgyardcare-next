@@ -1,0 +1,290 @@
+{
+  "name": "TG-01-lead-capture",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "lead-capture-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "first_name",
+              "name": "first_name",
+              "value": "={{ $json.first_name || $json.firstName || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "last_name",
+              "name": "last_name",
+              "value": "={{ $json.last_name || $json.lastName || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "email",
+              "name": "email",
+              "value": "={{ ($json.email || '').toLowerCase().trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "phone",
+              "name": "phone",
+              "value": "={{ ($json.phone || '').replace(/[^\\d+]/g, '') }}",
+              "type": "string"
+            },
+            {
+              "id": "service",
+              "name": "service",
+              "value": "={{ $json.service || $json.services || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "address",
+              "name": "address",
+              "value": "={{ $json.address || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "source",
+              "name": "source",
+              "value": "={{ $json.source || 'website' }}",
+              "type": "string"
+            },
+            {
+              "id": "utm_source",
+              "name": "utm_source",
+              "value": "={{ $json.utm_params && $json.utm_params.utm_source ? $json.utm_params.utm_source : ($json.utm_source || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "utm_medium",
+              "name": "utm_medium",
+              "value": "={{ $json.utm_params && $json.utm_params.utm_medium ? $json.utm_params.utm_medium : ($json.utm_medium || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "utm_campaign",
+              "name": "utm_campaign",
+              "value": "={{ $json.utm_params && $json.utm_params.utm_campaign ? $json.utm_params.utm_campaign : ($json.utm_campaign || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "utm_term",
+              "name": "utm_term",
+              "value": "={{ $json.utm_params && $json.utm_params.utm_term ? $json.utm_params.utm_term : ($json.utm_term || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "utm_content",
+              "name": "utm_content",
+              "value": "={{ $json.utm_params && $json.utm_params.utm_content ? $json.utm_params.utm_content : ($json.utm_content || '') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "normalize-lead-data",
+      "name": "Normalize Lead Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $input.first().json;\n\nlet score = 0;\nconst factors = [];\n\n// Source quality\nconst source = (lead.source || '').toLowerCase();\nif (source === 'referral') { score += 30; factors.push('Referral source (+30)'); }\nelse if (source === 'organic' || source === 'seo') { score += 25; factors.push('Organic source (+25)'); }\nelse if (source.includes('paid') || source.includes('google_ads') || source.includes('ppc') || source.includes('lsa')) { score += 20; factors.push('Paid source (+20)'); }\nelse if (source === 'manual') { score += 15; factors.push('Manual entry (+15)'); }\nelse { score += 10; factors.push('Other source (+10)'); }\n\n// Contact completeness\nif (lead.phone) { score += 5; factors.push('Has phone (+5)'); }\nif (lead.email) { score += 5; factors.push('Has email (+5)'); }\nif (lead.address) { score += 5; factors.push('Has address (+5)'); }\n\n// High-value service detection\nconst service = (lead.service || '').toLowerCase();\nconst highValueServices = ['hardscaping', 'commercial', 'patio', 'retaining wall', 'landscape design', 'irrigation', 'outdoor kitchen'];\nconst midValueServices = ['fertilization', 'aeration', 'overseeding', 'mowing', 'lawn care', 'lawn maintenance'];\nconst cleanupServices = ['cleanup', 'leaf', 'mulch', 'gutter', 'snow'];\nif (highValueServices.some(s => service.includes(s))) {\n  score += 20; factors.push('High-value service (+20)');\n} else if (midValueServices.some(s => service.includes(s))) {\n  score += 10; factors.push('Mid-value service (+10)');\n} else if (cleanupServices.some(s => service.includes(s))) {\n  score += 5; factors.push('Cleanup service (+5)');\n}\n\n// Core service area detection\nconst address = (lead.address || '').toLowerCase();\nconst coreAreas = ['madison', 'middleton', 'fitchburg', 'verona', 'waunakee', 'deforest', 'sun prairie', 'stoughton', 'monona', 'mcfarland'];\nif (coreAreas.some(a => address.includes(a))) {\n  score += 5; factors.push('Core service area (+5)');\n}\n\nconst finalScore = Math.min(score, 100);\n\nlet lead_tier = 'cold';\nif (finalScore >= 70) lead_tier = 'hot';\nelse if (finalScore >= 50) lead_tier = 'warm';\nelse if (finalScore >= 30) lead_tier = 'standard';\n\nreturn {\n  json: {\n    ...lead,\n    lead_score: finalScore,\n    lead_tier: lead_tier,\n    score_factors: factors\n  }\n};"
+      },
+      "id": "score-lead",
+      "name": "Score Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"first_name\": \"{{ $json.first_name }}\",\n  \"last_name\": \"{{ $json.last_name }}\",\n  \"email\": \"{{ $json.email }}\",\n  \"phone\": \"{{ $json.phone }}\",\n  \"service\": \"{{ $json.service }}\",\n  \"address\": \"{{ $json.address }}\",\n  \"source\": \"{{ $json.source }}\",\n  \"utm_source\": \"{{ $json.utm_source }}\",\n  \"utm_medium\": \"{{ $json.utm_medium }}\",\n  \"utm_campaign\": \"{{ $json.utm_campaign }}\",\n  \"utm_term\": \"{{ $json.utm_term }}\",\n  \"utm_content\": \"{{ $json.utm_content }}\",\n  \"lead_score\": {{ $json.lead_score }},\n  \"lead_tier\": \"{{ $json.lead_tier }}\",\n  \"status\": \"new\"\n}",
+        "options": {}
+      },
+      "id": "insert-supabase-lead",
+      "name": "Insert Supabase Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const leadData = $('Score Lead').first().json;\nconst insertResult = $input.first().json;\nconst lead_id = Array.isArray(insertResult) ? (insertResult[0] && insertResult[0].id) : (insertResult && insertResult.id);\n\nreturn {\n  json: {\n    ...leadData,\n    lead_id: lead_id || null\n  }\n};"
+      },
+      "id": "extract-lead-id",
+      "name": "Extract Lead ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/contacts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $json.email }}\",\n  \"attributes\": {\n    \"FIRSTNAME\": \"{{ $json.first_name || '' }}\",\n    \"LASTNAME\": \"{{ $json.last_name || '' }}\",\n    \"SMS\": \"{{ $json.phone || '' }}\",\n    \"LEAD_SOURCE\": \"{{ $json.source || 'website' }}\",\n    \"LEAD_SCORE\": {{ $json.lead_score || 0 }},\n    \"LEAD_TIER\": \"{{ $json.lead_tier || 'cold' }}\",\n    \"SERVICE_INTEREST\": \"{{ $json.service || '' }}\"\n  },\n  \"listIds\": [1],\n  \"updateEnabled\": true\n}",
+        "options": {}
+      },
+      "id": "sync-brevo-contact",
+      "name": "Sync Brevo Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Extract Lead ID').first().json;\n\nreturn {\n  json: {\n    success: true,\n    lead_id: data.lead_id,\n    score: data.lead_score,\n    tier: data.lead_tier\n  }\n};"
+      },
+      "id": "build-response",
+      "name": "Build Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Score Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Lead": {
+      "main": [
+        [
+          {
+            "node": "Insert Supabase Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Supabase Lead": {
+      "main": [
+        [
+          {
+            "node": "Extract Lead ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Lead ID": {
+      "main": [
+        [
+          {
+            "node": "Sync Brevo Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync Brevo Contact": {
+      "main": [
+        [
+          {
+            "node": "Build Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  }
+}

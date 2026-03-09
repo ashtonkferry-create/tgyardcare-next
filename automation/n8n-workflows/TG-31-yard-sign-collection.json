@@ -1,0 +1,51 @@
+{
+  "name": "TG-31-yard-sign-collection",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 13 * * *" }] } },
+      "id": "schedule",
+      "name": "Daily 8am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/yard_sign_deployments?collected=eq.false&placed_at=lt.{{ new Date(Date.now()-7*24*60*60*1000).toISOString() }}&select=id,address,placed_at",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+      },
+      "id": "fetch-signs",
+      "name": "Fetch Signs to Collect",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const signs = $input.all().map(i => i.json);\nif (signs.length === 0) return [{ json: { skip: true } }];\nconst list = signs.map(s => s.address).join('\\n- ');\nreturn [{ json: { count: signs.length, message: `TG Yard Sign Collection Needed (${signs.length}):\\n- ${list}\\nPlease collect today. - TG System` } }];"
+      },
+      "id": "format-msg",
+      "name": "Format Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$vars.TG_CREW_PHONE_NUMBERS}}", "message": "={{$json.message}}" },
+      "id": "sms-crew",
+      "name": "SMS Crew Collection Task",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [660, 300],
+      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+    }
+  ],
+  "connections": {
+    "Daily 8am CT": { "main": [[{ "node": "Fetch Signs to Collect", "type": "main", "index": 0 }]] },
+    "Fetch Signs to Collect": { "main": [[{ "node": "Format Message", "type": "main", "index": 0 }]] },
+    "Format Message": { "main": [[{ "node": "SMS Crew Collection Task", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

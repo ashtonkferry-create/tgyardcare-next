@@ -1,0 +1,302 @@
+{
+  "name": "TG-18-post-job-review-request",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "tg18-workflow-trigger",
+      "name": "executeWorkflowTrigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 24,
+        "unit": "hours"
+      },
+      "id": "tg18-wait-24h",
+      "name": "Wait 24 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        0
+      ],
+      "webhookId": "tg18-wait-webhook"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/review_request_links",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "customer_id",
+              "value": "=eq.{{ $json.customer_id }}"
+            },
+            {
+              "name": "job_id",
+              "value": "=eq.{{ $json.job_id }}"
+            },
+            {
+              "name": "select",
+              "value": "id,sent_count"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg18-check-count",
+      "name": "Check Review Request Count",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const trigger = $('executeWorkflowTrigger').item.json;\nconst existing = $input.item.json;\nconst sentCount = Array.isArray(existing) ? existing.reduce((s, r) => s + (r.sent_count || 1), 0) : 0;\n\nif (sentCount >= 2) {\n  return [{ json: { skip: true, customer_id: trigger.customer_id } }];\n}\nreturn [{ json: { ...trigger, skip: false, sent_count: sentCount } }];"
+      },
+      "id": "tg18-enforce-limit",
+      "name": "Enforce Max 2 Per Job",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg18-skip-filter",
+      "name": "Skip If Limit Reached",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $json.phone }}",
+        "message": "=Hi {{ $json.first_name }}, thanks for choosing TotalGuard! If you loved our {{ $json.service }}, a quick Google review helps us serve more Madison neighbors: {{ $vars.TG_GOOGLE_REVIEW_LINK }} - The TG Team"
+      },
+      "id": "tg18-send-sms",
+      "name": "Send Review SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        0
+      ],
+      "continueOnFail": true,
+      "credentials": {
+        "twilioApi": {
+          "id": "tg-twilio-cred",
+          "name": "TotalGuard Twilio"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $vars.TG_BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ sender: { name: 'TotalGuard Yard Care', email: 'totalguardllc@gmail.com' }, to: [{ email: $json.email, name: $json.first_name + ' ' + ($json.last_name || '') }], subject: 'How did we do? Leave us a quick review!', htmlContent: '<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333\"><div style=\"background:#1e40af;padding:20px;text-align:center\"><h1 style=\"color:#fff;margin:0\">TotalGuard Yard Care</h1></div><div style=\"padding:30px\"><h2>Thanks for choosing TotalGuard, ' + $json.first_name + '!</h2><p>We hope your <strong>' + $json.service + '</strong> service exceeded expectations. If you had a great experience, a Google review would mean the world to our crew.</p><p style=\"text-align:center;margin:30px 0\"><a href=\"' + $vars.TG_GOOGLE_REVIEW_LINK + '\" style=\"background:#1e40af;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold\">Leave a Google Review ⭐</a></p><p style=\"font-size:13px;color:#666\">Takes 60 seconds. Thank you!</p></div><div style=\"background:#f3f4f6;padding:20px;text-align:center;font-size:12px;color:#666\"><p>TotalGuard Yard Care | Madison, WI | (608) 535-6057</p></div></body></html>' }) }}",
+        "options": {}
+      },
+      "id": "tg18-send-email",
+      "name": "Send Review Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/review_request_links",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ customer_id: $('Enforce Max 2 Per Job').item.json.customer_id, job_id: $('Enforce Max 2 Per Job').item.json.job_id, sent_at: new Date().toISOString(), sent_count: $('Enforce Max 2 Per Job').item.json.sent_count + 1, review_link: $vars.TG_GOOGLE_REVIEW_LINK, channel: 'sms_email' }) }}",
+        "options": {}
+      },
+      "id": "tg18-log-request",
+      "name": "Log to review_request_links",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        0
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "executeWorkflowTrigger": {
+      "main": [
+        [
+          {
+            "node": "Wait 24 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 24 Hours": {
+      "main": [
+        [
+          {
+            "node": "Check Review Request Count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Review Request Count": {
+      "main": [
+        [
+          {
+            "node": "Enforce Max 2 Per Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enforce Max 2 Per Job": {
+      "main": [
+        [
+          {
+            "node": "Skip If Limit Reached",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip If Limit Reached": {
+      "main": [
+        [
+          {
+            "node": "Send Review SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Review SMS": {
+      "main": [
+        [
+          {
+            "node": "Send Review Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Review Email": {
+      "main": [
+        [
+          {
+            "node": "Log to review_request_links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  }
+}

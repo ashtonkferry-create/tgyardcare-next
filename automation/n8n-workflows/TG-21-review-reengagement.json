@@ -1,0 +1,359 @@
+{
+  "name": "TG-21-review-reengagement",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 15 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "tg21-schedule-trigger",
+      "name": "Weekly Mon 10am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/customers",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,first_name,last_name,email,phone,job_count"
+            },
+            {
+              "name": "job_count",
+              "value": "gte.3"
+            },
+            {
+              "name": "email",
+              "value": "not.is.null"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg21-get-loyal-customers",
+      "name": "Get Customers 3+ Jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/reviews",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "customer_id"
+            },
+            {
+              "name": "source",
+              "value": "eq.google"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg21-get-reviewers",
+      "name": "Get Customers Who Left Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/email_sends",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "email_type",
+              "value": "eq.review_reengagement"
+            },
+            {
+              "name": "sent_at",
+              "value": "=gte.{{ new Date(Date.now() - 90*24*60*60*1000).toISOString() }}"
+            },
+            {
+              "name": "select",
+              "value": "customer_id,sent_at"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg21-get-recent-sends",
+      "name": "Get Recent Reengagement Sends",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const customers   = $('Get Customers 3+ Jobs').all().map(i => i.json);\nconst reviewers   = $('Get Customers Who Left Reviews').all().map(i => i.json);\nconst recentSends = $('Get Recent Reengagement Sends').all().map(i => i.json);\n\nconst reviewerIds   = new Set(reviewers.map(r => r.customer_id));\nconst recentSendIds = new Set(recentSends.map(r => r.customer_id));\n\nconst eligible = customers.filter(c =>\n  !reviewerIds.has(c.id) &&\n  !recentSendIds.has(c.id) &&\n  c.email\n);\n\nreturn eligible.map(c => ({ json: {\n  customer_id: c.id,\n  first_name:  c.first_name || 'there',\n  last_name:   c.last_name  || '',\n  email:       c.email,\n  job_count:   c.job_count\n} }));"
+      },
+      "id": "tg21-filter-eligible",
+      "name": "Filter Eligible Customers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const c = $input.item.json;\nconst fn = c.first_name;\nconst jobs = c.job_count;\n\nconst html = `<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333\">\n<div style=\"background:#1e40af;padding:20px;text-align:center\"><h1 style=\"color:#fff;margin:0\">TotalGuard Yard Care</h1></div>\n<div style=\"padding:30px\">\n  <h2>You've been an amazing customer, ${fn}</h2>\n  <p>You've trusted TotalGuard with your yard <strong>${jobs} times</strong> — and we couldn't be more grateful for that loyalty.</p>\n  <p>If you've had a great experience, we'd love if you'd share it with your neighbors on Google. It only takes 60 seconds and it helps our small crew grow.</p>\n  <p style=\"text-align:center;margin:30px 0\">\n    <a href=\"${$vars.TG_GOOGLE_REVIEW_LINK}\" style=\"background:#1e40af;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold\">Leave a Google Review ⭐</a>\n  </p>\n  <p style=\"font-size:13px;color:#666\">No pressure — we'll keep showing up for your yard either way. We just appreciate you!</p>\n  <p>— The TotalGuard Crew</p>\n</div>\n<div style=\"background:#f3f4f6;padding:20px;text-align:center;font-size:12px;color:#666\">\n  <p>TotalGuard Yard Care | Madison, WI | (608) 535-6057</p>\n  <p>totalguardllc@gmail.com | tgyardcare.com</p>\n</div></body></html>`;\n\nreturn [{ json: { ...c, htmlContent: html, subject: `You've been a loyal TotalGuard customer — a quick favor?`, email_type: 'review_reengagement' } }];"
+      },
+      "id": "tg21-build-email",
+      "name": "Build Review Reengagement Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $vars.TG_BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ sender: { name: 'TotalGuard Yard Care', email: 'totalguardllc@gmail.com' }, to: [{ email: $json.email, name: $json.first_name + ' ' + $json.last_name }], subject: $json.subject, htmlContent: $json.htmlContent }) }}",
+        "options": {}
+      },
+      "id": "tg21-send-brevo",
+      "name": "Send via Brevo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        220
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/email_sends",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ customer_id: $('Build Review Reengagement Email').item.json.customer_id, email_type: 'review_reengagement', sent_at: new Date().toISOString(), brevo_message_id: $json.messageId || null, subject: $('Build Review Reengagement Email').item.json.subject, recipient_email: $('Build Review Reengagement Email').item.json.email }) }}",
+        "options": {}
+      },
+      "id": "tg21-log-send",
+      "name": "Log to email_sends",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        220
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Weekly Mon 10am CT": {
+      "main": [
+        [
+          {
+            "node": "Get Customers 3+ Jobs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Customers Who Left Reviews",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Recent Reengagement Sends",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Customers 3+ Jobs": {
+      "main": [
+        [
+          {
+            "node": "Filter Eligible Customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Customers Who Left Reviews": {
+      "main": [
+        [
+          {
+            "node": "Filter Eligible Customers",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get Recent Reengagement Sends": {
+      "main": [
+        [
+          {
+            "node": "Filter Eligible Customers",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Filter Eligible Customers": {
+      "main": [
+        [
+          {
+            "node": "Build Review Reengagement Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Review Reengagement Email": {
+      "main": [
+        [
+          {
+            "node": "Send via Brevo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send via Brevo": {
+      "main": [
+        [
+          {
+            "node": "Log to email_sends",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  }
+}

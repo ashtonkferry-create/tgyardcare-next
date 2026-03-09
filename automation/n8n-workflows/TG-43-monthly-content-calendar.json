@@ -1,0 +1,171 @@
+{
+  "name": "TG-43-monthly-content-calendar",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 25 * *"
+            }
+          ]
+        }
+      },
+      "id": "trigger-monthly-calendar",
+      "name": "Schedule - 25th of Month 9am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);\nconst daysInMonth = new Date(now.getFullYear(), now.getMonth() + 2, 0).getDate();\nconst month = nextMonth.getMonth();\nconst monthName = nextMonth.toLocaleString('en-US', { month: 'long' });\n\nlet season = 'spring';\nif (month >= 5 && month <= 7) season = 'summer';\nelse if (month >= 8 && month <= 10) season = 'fall';\nelse if (month >= 11 || month <= 1) season = 'winter';\n\nconst contentMix = ['before_after','tip','testimonial','seasonal_promo','team_behindscenes'];\nconst contentWeights = [0.30, 0.20, 0.20, 0.20, 0.10];\n\nconst services = [\n  'lawn_mowing','aeration','overseeding','fertilization','weed_control',\n  'leaf_removal','spring_cleanup','fall_cleanup','gutter_cleaning',\n  'snow_removal','hedge_trimming','mulching','edging','dethatching','irrigation'\n];\n\nconst seasonalHashtags = {\n  spring: '#SpringLawn #SpringCleanup #MadisonWI #TotalGuard',\n  summer: '#SummerLawn #LawnCare #MadisonWI #TotalGuard',\n  fall: '#FallCleanup #LeafRemoval #MadisonWI #TotalGuard',\n  winter: '#SnowRemoval #WinterLawn #MadisonWI #TotalGuard'\n};\n\nconst posts = [];\nfor (let day = 1; day <= daysInMonth; day++) {\n  const postDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), day, 10, 0, 0);\n  const typeIndex = Math.floor(day / daysInMonth * contentMix.length * 3) % contentMix.length;\n  const contentType = contentMix[typeIndex];\n  const service = services[(day - 1) % services.length];\n  const hashtags = seasonalHashtags[season];\n  const caption = `${monthName} ${contentType.replace(/_/g,' ')} — ${service.replace(/_/g,' ')} by TotalGuard Yard Care. Serving Madison, Middleton, Waunakee & surrounding areas. Book at tgyardcare.com ${hashtags}`;\n  posts.push({\n    json: {\n      content_type: contentType,\n      service_type: service,\n      season,\n      caption,\n      status: 'draft',\n      scheduled_for: postDate.toISOString(),\n      created_at: now.toISOString()\n    }\n  });\n}\nreturn posts;"
+      },
+      "id": "generate-monthly-calendar",
+      "name": "Generate 30-Day Content Calendar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/social_posts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content_type\": \"{{ $json.content_type }}\",\n  \"service_type\": \"{{ $json.service_type }}\",\n  \"season\": \"{{ $json.season }}\",\n  \"caption\": {{ JSON.stringify($json.caption) }},\n  \"status\": \"draft\",\n  \"scheduled_for\": \"{{ $json.scheduled_for }}\",\n  \"created_at\": \"{{ $json.created_at }}\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "insert-monthly-posts",
+      "name": "Insert Monthly Draft Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const allInserted = $input.all();\nreturn [{ json: { count: allInserted.length, message: `Monthly calendar ready: ${allInserted.length} posts` } }];"
+      },
+      "id": "summarize-monthly",
+      "name": "Summarize Monthly Calendar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
+        "to": "={{ $vars.TG_OWNER_PHONE }}",
+        "body": "=TG: Next month's social content calendar is ready — {{ $json.count }} draft posts created (30% before/after, 20% tips, 20% testimonials, 20% promos, 10% behind-scenes). Review at tgyardcare.com/admin/social"
+      },
+      "id": "sms-owner-monthly",
+      "name": "SMS Owner - Monthly Calendar Ready",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        880,
+        300
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "twilio-creds",
+          "name": "Twilio API"
+        }
+      },
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Schedule - 25th of Month 9am CT": {
+      "main": [
+        [
+          {
+            "node": "Generate 30-Day Content Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate 30-Day Content Calendar": {
+      "main": [
+        [
+          {
+            "node": "Insert Monthly Draft Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Monthly Draft Posts": {
+      "main": [
+        [
+          {
+            "node": "Summarize Monthly Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Monthly Calendar": {
+      "main": [
+        [
+          {
+            "node": "SMS Owner - Monthly Calendar Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "name": "TG-07-lead-scoring",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 8 * * *" }]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Daily 2am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?created_at=gte.{{ new Date(Date.now()-30*24*60*60*1000).toISOString() }}&select=id,first_name,last_name,email,phone,service,address,source,created_at",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+          ]
+        }
+      },
+      "id": "fetch-leads",
+      "name": "Fetch Leads Last 30 Days",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const lead = item.json;\n  let score = 0;\n\n  // Source quality\n  const sourceScores = { referral: 30, organic: 25, paid: 20, manual: 15, phone: 20, facebook_ads: 18, website: 22 };\n  score += sourceScores[lead.source] || 10;\n\n  // Service value\n  const highValue = ['Hardscaping', 'Gutter Guard Installation'];\n  const medValue = ['Fertilization', 'Aeration', 'Garden Bed Care', 'Mulching', 'Bush Trimming'];\n  if (highValue.includes(lead.service)) score += 20;\n  else if (medValue.includes(lead.service)) score += 12;\n  else score += 5;\n\n  // Completeness\n  if (lead.phone) score += 5;\n  if (lead.email) score += 5;\n  if (lead.address) score += 5;\n\n  // Recency\n  const daysSince = (Date.now() - new Date(lead.created_at).getTime()) / (1000*60*60*24);\n  if (daysSince < 1) score += 20;\n  else if (daysSince < 7) score += 15;\n  else if (daysSince < 30) score += 10;\n\n  const status = score >= 70 ? 'hot' : score >= 40 ? 'warm' : 'cold';\n\n  results.push({ json: { lead_id: lead.id, score: Math.min(score, 100), status, calculated_at: new Date().toISOString() } });\n}\n\nreturn results;"
+      },
+      "id": "calculate-scores",
+      "name": "Calculate Lead Scores",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/lead_scores",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "resolution=merge-duplicates" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "lead_id", "value": "={{$json.lead_id}}" },
+            { "name": "score", "value": "={{$json.score}}" },
+            { "name": "status", "value": "={{$json.status}}" },
+            { "name": "calculated_at", "value": "={{$json.calculated_at}}" }
+          ]
+        }
+      },
+      "id": "upsert-scores",
+      "name": "Upsert Lead Scores",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 0]
+    }
+  ],
+  "connections": {
+    "Daily 2am CT": { "main": [[{ "node": "Fetch Leads Last 30 Days", "type": "main", "index": 0 }]] },
+    "Fetch Leads Last 30 Days": { "main": [[{ "node": "Calculate Lead Scores", "type": "main", "index": 0 }]] },
+    "Calculate Lead Scores": { "main": [[{ "node": "Upsert Lead Scores", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

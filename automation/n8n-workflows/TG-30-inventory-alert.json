@@ -1,0 +1,51 @@
+{
+  "name": "TG-30-inventory-alert",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 0 * * *" }] } },
+      "id": "schedule",
+      "name": "Daily 7pm CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/inventory_tracking?select=yard_sign_count,door_hanger_count&limit=1",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+      },
+      "id": "fetch-inventory",
+      "name": "Fetch Inventory",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" }, "conditions": [{ "leftValue": "={{$json.yard_sign_count < 20 || $json.door_hanger_count < 50}}", "rightValue": true, "operator": { "type": "boolean", "operation": "equal" } }] }
+      },
+      "id": "check-low",
+      "name": "Is Inventory Low?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$vars.TG_OWNER_PHONE}}", "message": "=⚠️ TG Low Inventory Alert!\nYard Signs: {{$json.yard_sign_count}} (min 20)\nDoor Hangers: {{$json.door_hanger_count}} (min 50)\nTime to reorder! - TG System" },
+      "id": "sms-alert",
+      "name": "SMS Low Inventory Alert",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [660, 200],
+      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+    }
+  ],
+  "connections": {
+    "Daily 7pm CT": { "main": [[{ "node": "Fetch Inventory", "type": "main", "index": 0 }]] },
+    "Fetch Inventory": { "main": [[{ "node": "Is Inventory Low?", "type": "main", "index": 0 }]] },
+    "Is Inventory Low?": { "main": [[{ "node": "SMS Low Inventory Alert", "type": "main", "index": 0 }], []] }
+  },
+  "settings": { "availableInMCP": true }
+}

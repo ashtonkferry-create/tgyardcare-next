@@ -1,0 +1,53 @@
+{
+  "name": "TG-36-content-calendar-generator",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 1 * * 1" }] } },
+      "id": "schedule",
+      "name": "Weekly Sunday 8pm CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst month = now.getMonth() + 1;\nconst seasons = { 12:0,1:0,2:0, 3:1,4:1,5:1, 6:2,7:2,8:2, 9:3,10:3,11:3 };\nconst seasonNames = ['Winter','Spring','Summer','Fall'];\nconst season = seasonNames[seasons[month]];\nconst services = ['Lawn Mowing','Fertilization','Aeration','Weeding','Mulching','Garden Bed Care','Bush Trimming','Spring Cleanup','Fall Cleanup','Leaf Removal','Gutter Cleaning','Snow Removal'];\nconst types = ['before_after','tip','testimonial','seasonal_promo','behind_the_scenes','educational'];\nconst posts = [];\nfor (let d = 0; d < 7; d++) {\n  const postDate = new Date(Date.now() + (d+1)*24*60*60*1000);\n  const service = services[d % services.length];\n  const type = types[d % types.length];\n  const captions = {\n    before_after: `Amazing ${service} transformation in Madison! 🌿 Before & After. Your yard could look like this — call (608) 535-6057 #TotalGuard #MadisonWI #${service.replace(/ /g,'')}`,\n    tip: `💡 ${season} tip: ${service} done right keeps your yard healthy all season. TotalGuard crew is ready! #LawnCare #Madison`,\n    testimonial: `⭐⭐⭐⭐⭐ Another happy TotalGuard customer in Madison! Same crew, same day, every week. Book at tgyardcare.com`,\n    seasonal_promo: `🌱 ${season} special: Get your ${service} booked before the rush! Limited spots — tgyardcare.com #MadisonWI`,\n    behind_the_scenes: `A day in the life of your TotalGuard crew! Early mornings, great results 💪 #YardCare #MadisonWI`,\n    educational: `Did you know? ${service} at the right time makes a huge difference for your lawn. Ask TotalGuard! (608) 535-6057`\n  };\n  posts.push({ content: captions[type], type, service, scheduled_for: postDate.toISOString(), status: 'draft', platform: 'facebook', season });\n}\nreturn posts.map(p => ({ json: p }));"
+      },
+      "id": "generate-calendar",
+      "name": "Generate 7-Day Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/social_posts",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "content", "value": "={{$json.content}}" }, { "name": "type", "value": "={{$json.type}}" }, { "name": "service", "value": "={{$json.service}}" }, { "name": "scheduled_for", "value": "={{$json.scheduled_for}}" }, { "name": "status", "value": "draft" }, { "name": "platform", "value": "facebook" }] }
+      },
+      "id": "insert-posts",
+      "name": "Insert Draft Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$vars.TG_OWNER_PHONE}}", "message": "TG: Next week's social content calendar (7 posts) generated as drafts. Review and approve at tgyardcare.com/admin - TG System" },
+      "id": "sms-owner",
+      "name": "SMS Owner",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [660, 300],
+      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+    }
+  ],
+  "connections": {
+    "Weekly Sunday 8pm CT": { "main": [[{ "node": "Generate 7-Day Content", "type": "main", "index": 0 }]] },
+    "Generate 7-Day Content": { "main": [[{ "node": "Insert Draft Posts", "type": "main", "index": 0 }]] },
+    "Insert Draft Posts": { "main": [[{ "node": "SMS Owner", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}

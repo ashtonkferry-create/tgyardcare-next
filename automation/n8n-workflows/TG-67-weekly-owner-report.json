@@ -1,0 +1,266 @@
+{
+  "name": "TG-67-weekly-owner-report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 13 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "tg67-node-01",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/leads?select=id,source&created_at=gte.{{ $now.minus({days:7}).toISO() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg67-node-02",
+      "name": "Get Week Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/jobber_email_events?select=id,revenue,event_type&completed_at=gte.{{ $now.minus({days:7}).toISO() }}&event_type=eq.job_completed",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg67-node-03",
+      "name": "Get Week Jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/reviews?select=id,rating&created_at=gte.{{ $now.minus({days:7}).toISO() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "tg67-node-04",
+      "name": "Get Week Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const leads = $('Get Week Leads').all().map(i => i.json);\nconst jobs = $('Get Week Jobs').all().map(i => i.json);\nconst reviews = $('Get Week Reviews').all().map(i => i.json);\nconst revenue = jobs.reduce((s,j) => s+(j.revenue||0), 0);\nconst avgRating = reviews.length ? (reviews.reduce((s,r)=>s+(r.rating||0),0)/reviews.length).toFixed(1) : 'N/A';\nreturn [{ json: { leads: leads.length, jobs: jobs.length, revenue: revenue.toFixed(0), reviews: reviews.length, avgRating, weekOf: new Date().toLocaleDateString() } }];"
+      },
+      "id": "tg67-node-05",
+      "name": "Aggregate Week Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $vars.TG_ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-3-5-haiku-20241022', max_tokens: 600, messages: [{ role: 'user', content: `Summarize this week's TotalGuard Yard Care business performance and give 3 key insights and 2 recommended actions. Be specific and actionable. Data: Leads: ${$json.leads}, Jobs: ${$json.jobs}, Revenue: $${$json.revenue}, Reviews: ${$json.reviews} (avg ${$json.avgRating} stars). Week of ${$json.weekOf}` }] }) }}"
+      },
+      "id": "tg67-node-06",
+      "name": "AI Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $vars.TG_BREVO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ sender: { name: 'TotalGuard Reports', email: 'workelyhelp@gmail.com' }, to: [{ email: 'workelyhelp@gmail.com', name: 'TotalGuard Owner' }], subject: `TG Weekly Report — Week of ${$('Aggregate Week Data').item.json.weekOf}`, textContent: `WEEKLY SUMMARY\n\nLeads: ${$('Aggregate Week Data').item.json.leads}\nJobs Completed: ${$('Aggregate Week Data').item.json.jobs}\nRevenue: $${$('Aggregate Week Data').item.json.revenue}\nReviews: ${$('Aggregate Week Data').item.json.reviews} (avg ${$('Aggregate Week Data').item.json.avgRating} stars)\n\nAI ANALYSIS:\n${$json.content?.[0]?.text || 'Analysis unavailable.'}` }) }}"
+      },
+      "id": "tg67-node-07",
+      "name": "Email Weekly Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Week Leads",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Week Jobs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Week Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Week Leads": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Week Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Week Jobs": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Week Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Week Reviews": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Week Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Week Data": {
+      "main": [
+        [
+          {
+            "node": "AI Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Summary": {
+      "main": [
+        [
+          {
+            "node": "Email Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

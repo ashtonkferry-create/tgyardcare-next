@@ -1,0 +1,74 @@
+{
+  "name": "TG-09-followup-sequences",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 15 * * *" }] } },
+      "id": "schedule",
+      "name": "Daily 10am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?status=not.eq.converted&select=id,first_name,email,phone,service,score,created_at,source",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+      },
+      "id": "fetch-leads",
+      "name": "Fetch Active Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const leads = $input.all().map(i => i.json);\nconst results = [];\nfor (const lead of leads) {\n  const days = Math.floor((Date.now() - new Date(lead.created_at)) / (1000*60*60*24));\n  const score = lead.score || 0;\n  let tier = score >= 70 ? 'hot' : score >= 40 ? 'warm' : 'cold';\n  let sendDay = false;\n  if (tier === 'hot' && [1,3,5].includes(days)) sendDay = true;\n  if (tier === 'warm' && [2,5,10].includes(days)) sendDay = true;\n  if (tier === 'cold' && [3,7,14,30].includes(days)) sendDay = true;\n  if (!sendDay) continue;\n  const subjects = { hot: [`Your TotalGuard quote is ready, ${lead.first_name}`, `Still thinking it over? We saved your spot`, `Final notice: lock in your lawn care rate`], warm: [`Madison lawn tips — from TotalGuard`, `How TotalGuard protects your lawn all season`, `Your neighbors are loving their TotalGuard service`], cold: [`Free lawn care tips from TotalGuard`, `Seasonal reminder from TotalGuard Yard Care`, `When you're ready, we're here`] };\n  const seqIdx = tier === 'hot' ? [1,3,5].indexOf(days) : tier === 'warm' ? [2,5,10].indexOf(days) : [3,7,14,30].indexOf(days);\n  const subject = subjects[tier][Math.min(seqIdx, subjects[tier].length-1)];\n  results.push({ json: { ...lead, tier, days, subject } });\n}\nreturn results;"
+      },
+      "id": "filter-leads",
+      "name": "Filter Leads Due for Follow-up",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "api-key", "value": "={{$vars.TG_BREVO_API_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" }, \"to\": [{ \"email\": \"{{ $json.email }}\", \"name\": \"{{ $json.first_name }}\" }], \"subject\": \"{{ $json.subject }}\", \"textContent\": \"Hi {{ $json.first_name }},\\n\\nThanks for your interest in TotalGuard Yard Care! We'd love to get your {{ $json.service || 'yard' }} looking its best.\\n\\nBook online at tgyardcare.com or call (608) 535-6057.\\n\\n- The TotalGuard Team\" }"
+      },
+      "id": "send-followup",
+      "name": "Send Follow-up Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/email_sends",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "lead_id", "value": "={{$('Filter Leads Due for Follow-up').first().json.id}}" }, { "name": "email_type", "value": "=followup_{{$('Filter Leads Due for Follow-up').first().json.tier}}_day{{$('Filter Leads Due for Follow-up').first().json.days}}" }, { "name": "sent_at", "value": "={{ new Date().toISOString() }}" }] }
+      },
+      "id": "log-send",
+      "name": "Log Follow-up",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300]
+    }
+  ],
+  "connections": {
+    "Daily 10am CT": { "main": [[{ "node": "Fetch Active Leads", "type": "main", "index": 0 }]] },
+    "Fetch Active Leads": { "main": [[{ "node": "Filter Leads Due for Follow-up", "type": "main", "index": 0 }]] },
+    "Filter Leads Due for Follow-up": { "main": [[{ "node": "Send Follow-up Email", "type": "main", "index": 0 }]] },
+    "Send Follow-up Email": { "main": [[{ "node": "Log Follow-up", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "availableInMCP": true }
+}
