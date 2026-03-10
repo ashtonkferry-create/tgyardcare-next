@@ -80,6 +80,13 @@ export async function GET(req: NextRequest) {
     pages_affected: results.length,
   });
 
+  for (const result of results.filter((r) => !r.valid)) {
+    await supabase.from("seo_heal_queue").upsert(
+      { url: `${SITE_URL}${result.path}`, issue_type: "schema_error", severity: "standard", details: { schemas_found: result.schemas, issues: result.issues }, status: "pending", updated_at: new Date().toISOString() },
+      { onConflict: "url,issue_type" }
+    );
+  }
+
   return NextResponse.json({
     success: true,
     passing,

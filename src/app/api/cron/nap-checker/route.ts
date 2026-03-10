@@ -87,6 +87,13 @@ export async function GET(req: NextRequest) {
     pages_affected: issues.length,
   });
 
+  for (const issue of issues) {
+    await supabase.from("seo_heal_queue").upsert(
+      { url: `${SITE_URL}${issue.path}`, issue_type: "nap_mismatch", severity: "standard", details: { problems: issue.problems }, status: "pending", updated_at: new Date().toISOString() },
+      { onConflict: "url,issue_type" }
+    );
+  }
+
   return NextResponse.json({
     success: true,
     pagesChecked: PAGES_TO_CHECK.length,

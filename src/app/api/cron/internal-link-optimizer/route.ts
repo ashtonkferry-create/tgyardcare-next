@@ -113,6 +113,13 @@ export async function GET(req: NextRequest) {
       pages_affected: suggestions.length,
     });
 
+    for (const s of suggestions.filter((s) => s.incomingCount < 3)) {
+      await supabase.from("seo_heal_queue").upsert(
+        { url: `${SITE_URL}${s.page}`, issue_type: "orphan_page", severity: "standard", details: { incoming_links: s.incomingCount, outgoing_links: s.outgoingCount, suggestion: s.suggestion }, status: "pending", updated_at: new Date().toISOString() },
+        { onConflict: "url,issue_type" }
+      );
+    }
+
     return NextResponse.json({
       success: true,
       pagesAnalyzed: ALL_PAGES.length,

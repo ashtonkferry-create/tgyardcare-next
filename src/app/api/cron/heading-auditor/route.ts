@@ -78,6 +78,22 @@ export async function GET(req: NextRequest) {
     pages_affected: results.length,
   });
 
+  for (const result of results) {
+    const fullUrl = `${SITE_URL}${result.path}`;
+    if (result.h1Count === 0) {
+      await supabase.from("seo_heal_queue").upsert(
+        { url: fullUrl, issue_type: "missing_h1", severity: "standard", details: { h1_count: 0, issues: result.issues }, status: "pending", updated_at: new Date().toISOString() },
+        { onConflict: "url,issue_type" }
+      );
+    }
+    if (result.h1Count > 1 || result.issues.some((i) => i.includes("hierarchy"))) {
+      await supabase.from("seo_heal_queue").upsert(
+        { url: fullUrl, issue_type: "heading_order", severity: "standard", details: { h1_count: result.h1Count, issues: result.issues }, status: "pending", updated_at: new Date().toISOString() },
+        { onConflict: "url,issue_type" }
+      );
+    }
+  }
+
   return NextResponse.json({
     success: true,
     pagesChecked: PAGES_TO_CHECK.length,

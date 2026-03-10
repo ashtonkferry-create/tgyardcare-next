@@ -13,6 +13,19 @@ export async function GET(req: NextRequest) {
     .update({ needs_refresh: true }).lt("audited_at", staleDate).select("path");
   const count = data?.length ?? 0;
 
+  if (data && data.length > 0) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tgyardcare.com";
+    for (const row of data) {
+      const path = (row as Record<string, unknown>).path as string;
+      if (path) {
+        await supabase.from("seo_heal_queue").upsert(
+          { url: `${siteUrl}${path}`, issue_type: "stale_content", severity: "standard", details: { flagged_by: "content-freshness", stale_threshold_days: 90 }, status: "pending", updated_at: new Date().toISOString() },
+          { onConflict: "url,issue_type" }
+        );
+      }
+    }
+  }
+
   await supabase.from("automation_runs").insert({
     automation_slug: "content-freshness-monitor", status: "success",
     result_summary: `Flagged ${count} pages as stale (>90 days)`,

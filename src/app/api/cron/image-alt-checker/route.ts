@@ -70,6 +70,13 @@ export async function GET(req: NextRequest) {
     pages_affected: results.filter((r) => r.missingAlt > 0).length,
   });
 
+  for (const result of results.filter((r) => r.missingAlt > 0)) {
+    await supabase.from("seo_heal_queue").upsert(
+      { url: `${SITE_URL}${result.path}`, issue_type: "missing_alt", severity: "standard", details: { missing_alt_count: result.missingAlt, sample_images: result.images }, status: "pending", updated_at: new Date().toISOString() },
+      { onConflict: "url,issue_type" }
+    );
+  }
+
   return NextResponse.json({
     success: true,
     totalImages,

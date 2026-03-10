@@ -19,6 +19,14 @@ export async function GET(req: NextRequest) {
     if (!res?.ok) broken.push(`${url} (${res?.status ?? "timeout"})`);
   }
 
+  for (const entry of broken) {
+    const brokenUrl = entry.split(" (")[0];
+    await supabase.from("seo_heal_queue").upsert(
+      { url: brokenUrl, issue_type: "sitemap_mismatch", severity: "standard", details: { raw: entry }, status: "pending", updated_at: new Date().toISOString() },
+      { onConflict: "url,issue_type" }
+    );
+  }
+
   const status = broken.length === 0 ? "success" : broken.length < 3 ? "warning" : "error";
   const summary = broken.length === 0
     ? `All ${urls.length} sitemap URLs return 200`
