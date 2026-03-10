@@ -59,6 +59,10 @@ const nextConfig: NextConfig = {
       { source: "/testimonies", destination: "/reviews", permanent: true },
       { source: "/privacy-policy", destination: "/privacy", permanent: true },
       { source: "/blog/tags/:path*", destination: "/blog", permanent: true },
+      // Additional old Wix URLs still getting GSC impressions
+      { source: "/window-cleaning", destination: "/services/gutter-cleaning", permanent: true },
+      { source: "/post/:path*", destination: "/blog", permanent: true },
+      { source: "/service-page/:path*", destination: "/services", permanent: true },
     ];
   },
 };
