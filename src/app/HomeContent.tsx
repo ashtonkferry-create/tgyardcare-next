@@ -162,7 +162,7 @@ export default function HomeContent() {
 
   const trustStats = [
     { value: '500+', label: 'Dane County Properties' },
-    { value: '4.9★', label: '79 Google Reviews' },
+    { value: '4.9★', label: '80+ Google Reviews' },
     { value: '12', label: 'Madison-Area Cities' },
     { value: '24hr', label: 'Quote Response' },
   ];

@@ -73,7 +73,7 @@ export default function ReviewsContent() {
       {/* SEO hidden text */}
       <section className="sr-only">
         <h2>TotalGuard Yard Care Customer Reviews</h2>
-        <p>TotalGuard Yard Care has earned a 4.9-star rating from 79 verified Google reviews in Madison, Wisconsin. Customers consistently praise reliability, attention to detail, and same-crew-every-visit commitment.</p>
+        <p>TotalGuard Yard Care has earned a 4.9-star rating from 80+ verified Google reviews in Madison, Wisconsin. Customers consistently praise reliability, attention to detail, and same-crew-every-visit commitment.</p>
       </section>
 
       {/* ── HERO ── */}
@@ -111,7 +111,7 @@ export default function ReviewsContent() {
 
           <ScrollReveal delay={0.2}>
             <p className="text-xl text-white/55 max-w-2xl mx-auto mb-10 leading-relaxed">
-              79 verified Google reviews. Real clients. Real results. Read what homeowners across Dane County say about TotalGuard.
+              80+ verified Google reviews. Real clients. Real results. Read what homeowners across Dane County say about TotalGuard.
             </p>
           </ScrollReveal>
 
@@ -145,7 +145,7 @@ export default function ReviewsContent() {
           <div className="flex flex-wrap justify-center gap-10 md:gap-20">
             {[
               { value: 4.9, suffix: '★', decimals: 1, label: 'Google Rating', icon: Star },
-              { value: 79, suffix: '+', decimals: 0, label: 'Verified Reviews', icon: ThumbsUp },
+              { value: 80, suffix: '+', decimals: 0, label: 'Verified Reviews', icon: ThumbsUp },
               { value: 100, suffix: '%', decimals: 0, label: 'Would Recommend', icon: CheckCircle },
             ].map((s, i) => {
               const Icon = s.icon;

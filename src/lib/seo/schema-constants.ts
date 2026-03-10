@@ -106,8 +106,8 @@ export const AGGREGATE_RATING = {
   ratingValue: 4.9,
   bestRating: 5,
   worstRating: 1,
-  ratingCount: 79,
-  reviewCount: 79,
+  ratingCount: 80,
+  reviewCount: 80,
 } as const;
 
 // ---------------------------------------------------------------------------

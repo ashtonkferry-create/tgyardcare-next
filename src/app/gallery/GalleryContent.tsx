@@ -87,7 +87,7 @@ export default function GalleryContent() {
       {/* SEO hidden text */}
       <section className="sr-only">
         <h2>TotalGuard Yard Care Project Gallery</h2>
-        <p>Browse before-and-after photos of TotalGuard Yard Care&apos;s lawn mowing, mulching, garden bed, gutter cleaning, and seasonal cleanup projects across Madison, Wisconsin. Our portfolio showcases the quality and attention to detail that has earned us a 4.9-star Google rating from 127 satisfied customers.</p>
+        <p>Browse before-and-after photos of TotalGuard Yard Care&apos;s lawn mowing, mulching, garden bed, gutter cleaning, and seasonal cleanup projects across Madison, Wisconsin. Our portfolio showcases the quality and attention to detail that has earned us a 4.9-star Google rating from 80+ satisfied customers.</p>
       </section>
 
       {/* ── HERO ── */}
@@ -194,7 +194,7 @@ export default function GalleryContent() {
             {[
               { value: 100, suffix: '+', decimals: 0, label: 'Properties Transformed' },
               { value: 4.9, suffix: '',  decimals: 1, label: 'Google Rating' },
-              { value: 127, suffix: '',  decimals: 0, label: 'Five-Star Reviews' },
+              { value: 80, suffix: '+',  decimals: 0, label: 'Five-Star Reviews' },
             ].map((stat, i) => (
               <ScrollReveal key={i} delay={i * 0.08}>
                 <GlassCard variant="dark" hover="lift" className="text-center py-8">

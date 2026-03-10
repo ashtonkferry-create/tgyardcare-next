@@ -511,7 +511,7 @@ export function FullSeasonContract() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 1.2 }}
             >
-              Trusted by 127 Madison families year-round &bull; 4.9&#9733;
+              Trusted by 80+ Madison families year-round &bull; 4.9&#9733;
               Google Rating &bull; Fully Insured
             </motion.p>
           </motion.div>

@@ -82,7 +82,7 @@ export function GoogleReviewsSection() {
                 ))}
               </div>
               <span className="text-sm text-gray-500">
-                Based on 79 reviews
+                Based on 80+ reviews
               </span>
             </div>
           </div>
@@ -149,7 +149,7 @@ export function GoogleReviewsSection() {
         {/* Review Stats Strip */}
         <div className="flex flex-wrap justify-center items-center gap-6 mb-6 py-4 border-t border-b border-gray-200/50">
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">79</p>
+            <p className="text-2xl font-bold text-gray-900">80+</p>
             <p className="text-xs text-gray-500">Google Reviews</p>
           </div>
           <div className="w-px h-8 bg-gray-200 hidden sm:block" />

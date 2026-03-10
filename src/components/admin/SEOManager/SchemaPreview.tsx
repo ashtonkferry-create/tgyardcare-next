@@ -42,7 +42,7 @@ export function SchemaPreview({ page }: SchemaPreviewProps) {
           "aggregateRating": {
             "@type": "AggregateRating",
             "ratingValue": "4.9",
-            "reviewCount": "127"
+            "reviewCount": "80"
           }
         };
 
