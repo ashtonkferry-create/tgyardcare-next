@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
 const GONE_PATTERNS = [
   /^\/service-page(\/|$)/,
@@ -15,10 +16,47 @@ const GONE_PATTERNS = [
   /^\/window-cleaning$/,
 ];
 
-export function middleware(request: NextRequest) {
+// In-memory redirect cache (per edge instance, 5-min TTL)
+let redirectCache: Map<string, { destination: string; statusCode: number }> = new Map();
+let cacheTimestamp = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+async function getRedirect(pathname: string): Promise<{ destination: string; statusCode: number } | null> {
+  const now = Date.now();
+
+  // Refresh cache if expired
+  if (now - cacheTimestamp > CACHE_TTL) {
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      const { data } = await supabase
+        .from('seo_redirects')
+        .select('source_path, destination_path, status_code');
+
+      redirectCache = new Map();
+      if (data) {
+        for (const row of data) {
+          redirectCache.set(row.source_path, {
+            destination: row.destination_path,
+            statusCode: row.status_code || 301,
+          });
+        }
+      }
+      cacheTimestamp = now;
+    } catch {
+      // On error, keep stale cache rather than failing
+    }
+  }
+
+  return redirectCache.get(pathname) || null;
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 410 Gone for old Wix URLs
+  // 410 Gone for old Wix URLs (highest priority)
   for (const pattern of GONE_PATTERNS) {
     if (pattern.test(pathname)) {
       return new NextResponse(
@@ -48,11 +86,32 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
+  // Dynamic redirect lookup from seo_redirects table
+  const redirect = await getRedirect(pathname);
+  if (redirect) {
+    const destinationUrl = request.nextUrl.clone();
+    destinationUrl.pathname = redirect.destination;
+
+    // Increment hit_count in background (fire and forget)
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      supabase.rpc('increment_redirect_hit', { p_source: pathname }).then(() => {});
+    } catch {
+      // Non-critical — don't block the redirect
+    }
+
+    return NextResponse.redirect(destinationUrl, redirect.statusCode);
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
+    // Legacy Wix patterns
     '/service-page/:path*',
     '/post/:path*',
     '/product-page/:path*',
@@ -65,5 +124,7 @@ export const config = {
     '/wix-code-dev-tools/:path*',
     '/_serverless/:path*',
     '/window-cleaning',
+    // Catch all public paths for dynamic redirects (excludes _next, api, admin)
+    '/((?!_next|api|admin).*)',
   ],
 };
