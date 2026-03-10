@@ -38,25 +38,25 @@ const seasonalBg = {
 } as const;
 
 const reviews = [
-  { name: "Jennifer M.", rating: 5, date: "2 weeks ago", text: "TotalGuard has been maintaining our lawn for over a year now and we couldn't be happier! Alex and Vance are always professional, responsive, and go above and beyond. Our yard has never looked better. Highly recommend!", service: "Lawn Mowing & Maintenance" },
-  { name: "Michael R.", rating: 5, date: "1 month ago", text: "Exceptional service from start to finish. They completely transformed our overgrown garden beds with fresh mulch and weeding. The before and after is night and day. These guys really care about their work!", service: "Garden Bed Makeover" },
-  { name: "Sarah L.", rating: 5, date: "1 month ago", text: "We hired TotalGuard for fall cleanup and gutter cleaning. They were prompt, thorough, and very reasonably priced. Our gutters are flowing perfectly and the yard looks immaculate. Will definitely use them again!", service: "Fall Cleanup & Gutter Cleaning" },
-  { name: "David K.", rating: 5, date: "2 months ago", text: "Best lawn care service in Madison! They're reliable, affordable, and do amazing work. My neighbors have been asking who takes care of my lawn because it looks so good. Thank you TotalGuard!", service: "Weekly Lawn Care" },
-  { name: "Emily P.", rating: 5, date: "2 months ago", text: "I was struggling with weeds taking over my lawn and garden beds. TotalGuard came in with a comprehensive plan and executed it perfectly. My yard is finally under control and looks beautiful. So grateful for their expertise!", service: "Weeding & Herbicide Treatment" },
-  { name: "Robert T.", rating: 5, date: "3 months ago", text: "TotalGuard installed gutter guards on our home and the difference is incredible. No more clogged gutters or water issues. The installation was clean and professional. Great investment!", service: "Gutter Guard Installation" },
-  { name: "Lisa H.", rating: 5, date: "3 months ago", text: "Alex and Vance are young entrepreneurs who really know their stuff. They're punctual, detail-oriented, and their prices are very fair. We've been using them all season and plan to continue. Highly recommend supporting this local business!", service: "Seasonal Services" },
-  { name: "James W.", rating: 5, date: "4 months ago", text: "Had TotalGuard do our spring cleanup and fertilization. They removed all the winter debris, overseeded bare spots, and now our lawn is thick and green. Excellent communication throughout the whole process.", service: "Spring Cleanup & Fertilization" },
-  { name: "Amanda S.", rating: 5, date: "4 months ago", text: "We've tried several lawn care companies in Madison and TotalGuard is by far the best. They're responsive to texts, show up when they say they will, and the quality of work is outstanding. You won't be disappointed!", service: "Lawn Maintenance" },
-  { name: "Thomas B.", rating: 5, date: "5 months ago", text: "Our yard was a mess when we bought our home. TotalGuard came in and completely transformed it - mulching, weeding, lawn care, the works. They're honest, hardworking, and deliver great results. 10/10 would recommend!", service: "Complete Yard Transformation" },
-  { name: "Karen D.", rating: 5, date: "5 months ago", text: "Professional, reliable, and affordable. TotalGuard has been handling our leaf removal for two seasons now. They're always on time and do a thorough job. Makes fall so much easier!", service: "Leaf Removal" },
-  { name: "Paul M.", rating: 5, date: "6 months ago", text: "Hired TotalGuard for gutter cleaning after years of neglecting it. They cleaned everything out, showed me photos of the work, and gave great advice on maintenance. Very satisfied with their service!", service: "Gutter Cleaning" },
+  { name: "Kaleb D.", rating: 5, date: "Yesterday", text: "TotalGuard Yard Care has been fantastic to work with. The lawn mowing and trimming are always done professionally.", service: "Lawn Mowing & Trimming" },
+  { name: "Will J.", rating: 5, date: "4 weeks ago", text: "We hired TotalGuard Yard Care after dealing with inconsistent service from other companies, and the difference was immediate.", service: "Lawn Care" },
+  { name: "Nick B.", rating: 5, date: "5 weeks ago", text: "I recently purchased a seasonal round of herbicide treatment and I am beyond grateful for TotalGuard. They were very prompt on their response time, and did a great job killing my dandelions. Highly recommend.", service: "Herbicide Treatment" },
+  { name: "Barb O.", rating: 5, date: "16 weeks ago", text: "Vance is responsive and the work is well done. They took on a job that others would not. They are also very quick. They have lots of energy. Highly recommend.", service: "Mulching & Weeding" },
+  { name: "Bryce", rating: 5, date: "36 weeks ago", text: "Called for a gutter cleaning and ended up hiring them for mowing too. These guys are punctual, friendly, and very detail-oriented. My gutters used to overflow — now they drain perfectly. Worth every penny.", service: "Gutter Cleaning" },
+  { name: "Matthew W.", rating: 5, date: "38 weeks ago", text: "Vance and Alex did an excellent job of mulching our perennial beds, several located on fairly steep pitches. Very professional, careful attention to detail, good cleanup.", service: "Mulching" },
+  { name: "Kyle G.", rating: 5, date: "Jul 2024", text: "I recently hired TotalGuard Yard Care to take care of my lawn, and I couldn't be more pleased with the service they provided.", service: "Lawn Care" },
+  { name: "Tracy B.", rating: 5, date: "Jun 2024", text: "Vance was quick to respond to my request, was easy to work with, arrived as promised and did an amazing job with helping clear out weeds and get my plant bed looking great.", service: "Garden Beds & Weeding" },
+  { name: "Carla R.", rating: 5, date: "Jun 2024", text: "They did such a good job with my gutters. Fast responses and they came over the next day I contacted them. Would totally recommend their services.", service: "Gutter Cleaning" },
+  { name: "Ian F.", rating: 5, date: "Jun 2024", text: "Total Guard Yard care exceeded my expectations with their professionalism and attention to detail. My yard has never looked better.", service: "Lawn Care" },
+  { name: "Peter M.", rating: 5, date: "4 weeks ago", text: "Very professional and easy to work with. Communication was clear, pricing was fair, and the results were solid. Our lawn hasn't looked this clean in a long time.", service: "Lawn Care" },
+  { name: "Erica S.", rating: 5, date: "31 weeks ago", text: "TotalGuard Yard Care did a fantastic job installing edging to prevent runoff in my front yard at a reasonable cost!", service: "Edging & Garden Beds" },
 ];
 
 // Pull quotes — featured at top
 const highlights = [
-  { quote: "Best lawn care service in Madison!", name: "David K.", service: "Weekly Lawn Care" },
-  { quote: "The before and after is night and day.", name: "Michael R.", service: "Garden Bed Makeover" },
-  { quote: "You won't be disappointed!", name: "Amanda S.", service: "Lawn Maintenance" },
+  { quote: "We hired TotalGuard Yard Care after dealing with inconsistent service from other companies, and the difference was immediate.", name: "Will J.", service: "Lawn Care" },
+  { quote: "I started out looking in Nextdoor for someone to mow my lawn on a regular basis. Let me tell you how satisfied I am with TotalGuard Yard Care.", name: "Janice G.", service: "Weekly Mowing" },
+  { quote: "Vance and Alex did an excellent job of mulching our perennial beds, several located on fairly steep pitches. Very professional, careful attention to detail, good cleanup.", name: "Matthew W.", service: "Mulching" },
 ];
 
 export default function ReviewsContent() {
@@ -73,7 +73,7 @@ export default function ReviewsContent() {
       {/* SEO hidden text */}
       <section className="sr-only">
         <h2>TotalGuard Yard Care Customer Reviews</h2>
-        <p>TotalGuard Yard Care has earned a 4.9-star rating from 80+ verified Google reviews in Madison, Wisconsin. Customers consistently praise reliability, attention to detail, and same-crew-every-visit commitment.</p>
+        <p>TotalGuard Yard Care has earned a 4.9-star rating from 79 verified Google reviews in Madison, Wisconsin. Customers consistently praise reliability, attention to detail, and same-crew-every-visit commitment.</p>
       </section>
 
       {/* ── HERO ── */}
@@ -111,7 +111,7 @@ export default function ReviewsContent() {
 
           <ScrollReveal delay={0.2}>
             <p className="text-xl text-white/55 max-w-2xl mx-auto mb-10 leading-relaxed">
-              80+ verified Google reviews. Real clients. Real results. Read what homeowners across Dane County say about TotalGuard.
+              79 verified Google reviews. Real clients. Real results. Read what homeowners across Dane County say about TotalGuard.
             </p>
           </ScrollReveal>
 
@@ -145,7 +145,7 @@ export default function ReviewsContent() {
           <div className="flex flex-wrap justify-center gap-10 md:gap-20">
             {[
               { value: 4.9, suffix: '★', decimals: 1, label: 'Google Rating', icon: Star },
-              { value: 80, suffix: '+', decimals: 0, label: 'Verified Reviews', icon: ThumbsUp },
+              { value: 79, suffix: '+', decimals: 0, label: 'Verified Reviews', icon: ThumbsUp },
               { value: 100, suffix: '%', decimals: 0, label: 'Would Recommend', icon: CheckCircle },
             ].map((s, i) => {
               const Icon = s.icon;

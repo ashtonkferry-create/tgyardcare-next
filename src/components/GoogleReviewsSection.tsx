@@ -9,24 +9,24 @@ import Link from "next/link";
 // Real Google Business Profile reviews
 const googleReviews = [
   {
-    name: "Jennifer M.",
+    name: "Kaleb D.",
     rating: 5,
-    date: "2 weeks ago",
-    text: "TotalGuard has been maintaining our lawn for over a year now and we couldn't be happier! Alex and Vance are always professional, responsive, and go above and beyond. Our yard has never looked better.",
+    date: "Yesterday",
+    text: "TotalGuard Yard Care has been fantastic to work with. The lawn mowing and trimming are always done professionally.",
     verified: true
   },
   {
-    name: "David K.",
+    name: "Janice G.",
     rating: 5,
-    date: "2 months ago",
-    text: "Best lawn care service in Madison! They're reliable, affordable, and do amazing work. My neighbors have been asking who takes care of my lawn because it looks so good.",
+    date: "Jul 2024",
+    text: "I started out looking in Nextdoor for someone to mow my lawn on a regular basis. Let me tell you how satisfied I am with TotalGuard Yard Care.",
     verified: true
   },
   {
-    name: "Amanda S.",
+    name: "Barb O.",
     rating: 5,
-    date: "4 months ago",
-    text: "We've tried several lawn care companies in Madison and TotalGuard is by far the best. They're responsive to texts, show up when they say they will, and the quality of work is outstanding.",
+    date: "16 weeks ago",
+    text: "Vance is responsive and the work is well done. They took on a job that others would not. They are also very quick. They have lots of energy. Highly recommend.",
     verified: true
   }
 ];
@@ -39,38 +39,7 @@ export function GoogleReviewsSection() {
   return (
     <section ref={sectionRef} className="py-12 md:py-16 bg-white">
       <div className="container mx-auto px-4">
-        {/* Google Reviews Schema - Crawlable */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "LocalBusiness",
-            "name": "TotalGuard Yard Care",
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.9",
-              "reviewCount": "80",
-              "bestRating": "5",
-              "worstRating": "1"
-            },
-            "review": googleReviews.map(review => ({
-              "@type": "Review",
-              "author": {
-                "@type": "Person",
-                "name": review.name
-              },
-              "reviewRating": {
-                "@type": "Rating",
-                "ratingValue": review.rating.toString(),
-                "bestRating": "5"
-              },
-              "reviewBody": review.text,
-              "publisher": {
-                "@type": "Organization",
-                "name": "Google"
-              }
-            }))
-          })
-        }} />
+        {/* Review structured data handled centrally by ReviewPageSchema */}
 
         {/* Section Header with Google Branding */}
         <div className="text-center mb-8">
@@ -113,7 +82,7 @@ export function GoogleReviewsSection() {
                 ))}
               </div>
               <span className="text-sm text-gray-500">
-                Based on 80+ reviews
+                Based on 79 reviews
               </span>
             </div>
           </div>
@@ -130,8 +99,6 @@ export function GoogleReviewsSection() {
             >
             <article
               className="bg-white border border-gray-200 rounded-xl p-5 hover:border-primary/30 hover:shadow-md backdrop-blur-sm hover:shadow-blue-100/20 transition-all duration-300"
-              itemScope
-              itemType="https://schema.org/Review"
             >
               {/* Review Header */}
               <div className="flex items-start justify-between mb-3">
@@ -143,7 +110,7 @@ export function GoogleReviewsSection() {
                     </span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 text-sm" itemProp="author">
+                    <p className="font-semibold text-gray-900 text-sm">
                       {review.name}
                     </p>
                     <p className="text-xs text-gray-500">{review.date}</p>
@@ -159,9 +126,7 @@ export function GoogleReviewsSection() {
               </div>
 
               {/* Star Rating - Google Yellow */}
-              <div className="flex gap-0.5 mb-3" itemProp="reviewRating" itemScope itemType="https://schema.org/Rating">
-                <meta itemProp="ratingValue" content={review.rating.toString()} />
-                <meta itemProp="bestRating" content="5" />
+              <div className="flex gap-0.5 mb-3">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
@@ -173,7 +138,6 @@ export function GoogleReviewsSection() {
               {/* Review Text */}
               <p
                 className="text-sm text-gray-900 leading-relaxed"
-                itemProp="reviewBody"
               >
                 &ldquo;{review.text}&rdquo;
               </p>
@@ -185,7 +149,7 @@ export function GoogleReviewsSection() {
         {/* Review Stats Strip */}
         <div className="flex flex-wrap justify-center items-center gap-6 mb-6 py-4 border-t border-b border-gray-200/50">
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">60+</p>
+            <p className="text-2xl font-bold text-gray-900">79</p>
             <p className="text-xs text-gray-500">Google Reviews</p>
           </div>
           <div className="w-px h-8 bg-gray-200 hidden sm:block" />

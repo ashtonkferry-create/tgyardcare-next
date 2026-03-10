@@ -105,7 +105,6 @@ export function buildLocalBusinessSchema(): JsonLd {
     address: { ...ADDRESS },
     geo: { ...GEO },
     openingHoursSpecification: [...OPENING_HOURS],
-    aggregateRating: { ...AGGREGATE_RATING },
     paymentAccepted: [...BUSINESS.paymentAccepted],
     currenciesAccepted: BUSINESS.currenciesAccepted,
     hasOfferCatalog: {
@@ -317,7 +316,6 @@ export function buildLocationSchema(citySlug: string): JsonLd | null {
         unitCode: 'SMI',
       },
     },
-    aggregateRating: { ...AGGREGATE_RATING },
     parentOrganization: orgRef,
   };
 }
@@ -365,21 +363,32 @@ export function buildArticleSchema(props: ArticleProps): JsonLd {
 
 // ---------------------------------------------------------------------------
 // 10. Review (LocalBusiness with AggregateRating + individual reviews)
+// Uses the same @id as the global LocalBusiness so Google merges them.
 // ---------------------------------------------------------------------------
 
 export function buildReviewSchema(
   reviews: ReadonlyArray<ReviewEntry>
 ): JsonLd {
   const capped = reviews.slice(0, 15);
+  const itemReviewed = {
+    '@type': 'LocalBusiness',
+    '@id': SCHEMA_IDS.localBusiness,
+    name: BUSINESS.name,
+    url: BUSINESS.url,
+  };
+
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     '@id': SCHEMA_IDS.localBusiness,
     name: BUSINESS.name,
     url: BUSINESS.url,
+    image: BUSINESS.image,
+    telephone: BUSINESS.phone,
     aggregateRating: { ...AGGREGATE_RATING },
     review: capped.map((r) => ({
       '@type': 'Review',
+      itemReviewed,
       author: {
         '@type': 'Person',
         name: r.author,
