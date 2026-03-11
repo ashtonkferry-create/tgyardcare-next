@@ -73,6 +73,30 @@ export async function POST(req: NextRequest) {
       // Don't block user — lead is already saved
     }
 
+    // 3. Trigger n8n lead-capture workflow (Brevo contact creation, scoring, nurture)
+    const n8nWebhookUrl = process.env.N8N_LEAD_WEBHOOK_URL;
+    if (n8nWebhookUrl) {
+      try {
+        await fetch(n8nWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            email: data.email,
+            phone: data.phone,
+            address: data.address,
+            service: '',
+            source: 'contact_form',
+            notes: data.message,
+          }),
+        });
+      } catch (n8nErr) {
+        console.error('[contact] n8n webhook error:', n8nErr);
+        // Don't block user — lead is already saved and emails sent
+      }
+    }
+
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('[contact] Unhandled error:', err);

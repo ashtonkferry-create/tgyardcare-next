@@ -40,6 +40,32 @@ export async function POST(req: NextRequest) {
       console.error('[lead-notify] Edge function error:', error.message);
     }
 
+    // Trigger n8n lead-capture workflow (Brevo contact creation, scoring, nurture)
+    const n8nWebhookUrl = process.env.N8N_LEAD_WEBHOOK_URL;
+    if (n8nWebhookUrl) {
+      try {
+        const nameParts = (body.name || '').trim().split(/\s+/);
+        const firstName = nameParts[0] || body.name;
+        const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+        await fetch(n8nWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            email: body.email,
+            phone: body.phone,
+            address: body.address || '',
+            service: '',
+            source: 'quote_flow',
+            notes: body.message,
+          }),
+        });
+      } catch (n8nErr) {
+        console.error('[lead-notify] n8n webhook error:', n8nErr);
+      }
+    }
+
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('[lead-notify] Error:', err);
