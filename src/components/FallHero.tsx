@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Phone, Shield, Star, CheckCircle2, Leaf, ArrowRight, Zap } from 'lucide-react';
 import heroFallLeaves from '@/assets/hero-fall-leaves.jpg';
 import { SEASONAL_STATS, SITE_STATS, getSeasonLabel } from '@/lib/seasonalConfig';
+import { MobileValueChips } from '@/components/MobileValueStrip';
 
 function imgSrc(img: string | { src: string }): string {
   return typeof img === 'string' ? img : img.src;
@@ -86,10 +87,15 @@ export function FallHero() {
             </h1>
 
             {/* Value Prop Subhead */}
-            <p className="text-lg md:text-xl text-amber-100/90 mb-6 animate-fade-in leading-relaxed" style={{ animationDelay: '0.3s' }}>
+            <p className="text-lg md:text-xl text-amber-100/90 mb-4 animate-fade-in leading-relaxed" style={{ animationDelay: '0.3s' }}>
               Leaf removal, gutter cleaning, and aeration—done before the snow flies.
               <span className="block mt-1 text-amber-300 font-semibold">Same crew. Clear pricing. No leaf left behind.</span>
             </p>
+
+            {/* MOBILE: Compact trust chips */}
+            <div className="lg:hidden mb-4">
+              <MobileValueChips />
+            </div>
 
             {/* Value Props */}
             <ul className="space-y-3 mb-6 text-amber-100/80">
@@ -109,8 +115,8 @@ export function FallHero() {
               ))}
             </ul>
 
-            {/* Trust Chips - Gold Accent */}
-            <div className="flex flex-wrap gap-2 mb-6 animate-fade-in" style={{ animationDelay: '0.7s' }}>
+            {/* Trust Chips - Gold Accent — desktop only (mobile uses MobileValueChips above) */}
+            <div className="hidden lg:flex flex-wrap gap-2 mb-6 animate-fade-in" style={{ animationDelay: '0.7s' }}>
               {['80+ Google Reviews', '4.9★ Rating', 'Fully Insured'].map((chip) => (
                 <span
                   key={chip}
@@ -177,15 +183,15 @@ export function FallHero() {
 
               <div className="hidden sm:block w-px h-10 bg-amber-600/30" />
 
-              <div className="hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400 hover:scale-125 transition-transform" />
+                    <Star key={i} className="h-3.5 w-3.5 lg:h-4 lg:w-4 fill-amber-400 text-amber-400 hover:scale-125 transition-transform" />
                   ))}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-white font-bold text-sm leading-tight">{SITE_STATS.googleRating}/5</span>
-                  <span className="text-amber-300/50 text-xs">Google</span>
+                  <span className="text-white font-bold text-xs lg:text-sm leading-tight">{SITE_STATS.googleRating}/5</span>
+                  <span className="text-amber-300/50 text-[10px] lg:text-xs">Google</span>
                 </div>
               </div>
             </div>
