@@ -35,8 +35,8 @@
     { "path": "/api/cron/review-faq-miner",       "schedule": "0 10 * * 0"   },
     { "path": "/api/cron/gbp-audit",              "schedule": "0 8 * * 1"    },
     { "path": "/api/cron/blog-generator",          "schedule": "0 10 * * 5"   },
-    { "path": "/api/cron/seo-crawl",              "schedule": "0 */6 * * *"  },
-    { "path": "/api/cron/seo-heal",               "schedule": "30 */6 * * *" },
+    { "path": "/api/cron/seo-crawl",              "schedule": "0 3 * * *"    },
+    { "path": "/api/cron/seo-heal",               "schedule": "30 3 * * *"   },
     { "path": "/api/cron/seo-ping",               "schedule": "0 6 * * *"   },
     { "path": "/api/cron/seo-score",              "schedule": "0 7 * * *"   },
     { "path": "/api/cron/seo-report",             "schedule": "0 8 * * 1"   }
