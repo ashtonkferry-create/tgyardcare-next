@@ -65,13 +65,13 @@ export function MobileValueStrip({
 export function MobileValueChips({ className }: { className?: string }) {
   return (
     <div className={cn(
-      "flex flex-wrap gap-2",
+      "flex flex-nowrap gap-2 overflow-x-auto scrollbar-hide",
       className
     )}>
       {["80+ Google Reviews", "4.9★ Rating", "Fully Insured"].map((chip) => (
         <span
           key={chip}
-          className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white/90 px-3 py-1.5 rounded-full text-xs font-medium border border-white/20"
+          className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white/90 px-3 py-1.5 rounded-full text-xs font-medium border border-white/20 flex-shrink-0"
         >
           <Shield className="h-3 w-3 text-primary" />
           {chip}
