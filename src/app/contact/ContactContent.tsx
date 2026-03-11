@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { validateContactForm } from "@/lib/validation";
-import { supabase } from "@/integrations/supabase/client";
 import { ConciergeConfirmation } from "@/components/ConciergeConfirmation";
 import { getServiceTemplate } from "@/lib/serviceTemplates";
 
@@ -200,15 +199,36 @@ export default function ContactContent() {
     setErrors({});
     setIsSubmitting(true);
     try {
+      // Validate client-side first (shows inline errors)
       const validatedData = validateContactForm(formData);
-      const { data, error } = await supabase.functions.invoke('contact-form', { body: validatedData });
-      if (error) throw new Error(error.message || "Failed to submit form");
-      if (!data?.success) throw new Error("Failed to submit form");
+
+      // Try Next.js API route (bulletproof — no edge function dependency)
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validatedData),
+      });
+
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(json?.error ?? `Server error (${res.status})`);
+      }
+
       setSubmittedMessage(formData.message || selectedService?.message || '');
       setFormData({ name: "", email: "", phone: "", address: "", message: "" });
+      setCompletedFields(new Set());
       setShowUpsell(true);
     } catch (error) {
-      toast({ title: "Submission Error", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
+      const message = error instanceof Error ? error.message : "Please try again.";
+      // Show inline field error if it matches a known field name
+      const fieldNames = ['name', 'email', 'phone', 'address', 'message'] as const;
+      const matchedField = fieldNames.find(f => message.toLowerCase().includes(f));
+      if (matchedField) {
+        setErrors({ [matchedField]: message });
+      } else {
+        toast({ title: "Submission Error", description: message, variant: "destructive" });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -426,8 +446,14 @@ export default function ContactContent() {
                           className={`${fieldClass('message')} min-h-[140px] resize-none`}
                           aria-invalid={errors.message ? "true" : "false"}
                         />
-                        <p className={`text-xs mt-1.5 text-right ${formData.message.length > 1900 ? 'text-red-400' : 'text-white/25'}`}>
-                          {formData.message.length}/2000
+                        <p className={`text-xs mt-1.5 text-right ${
+                          formData.message.length > 1900 ? 'text-red-400'
+                          : formData.message.length > 0 && formData.message.length < 10 ? 'text-amber-400'
+                          : 'text-white/25'
+                        }`}>
+                          {formData.message.length > 0 && formData.message.length < 10
+                            ? `${10 - formData.message.length} more characters needed`
+                            : `${formData.message.length}/2000`}
                         </p>
                       </div>
                     </div>

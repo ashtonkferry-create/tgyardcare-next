@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useSeasonalTheme, Season } from '@/contexts/SeasonalThemeContext';
-import { supabase } from '@/integrations/supabase/client';
 import { ConciergeConfirmation } from '@/components/ConciergeConfirmation';
 import { validateContactForm } from '@/lib/validation';
 
@@ -326,12 +325,19 @@ export default function QuickQuoteDialog({
 
     try {
       const validatedData = validateContactForm(formData);
-      const { data, error } = await supabase.functions.invoke('contact-form', {
-        body: validatedData,
+
+      // Use Next.js API route — no edge function dependency
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validatedData),
       });
 
-      if (error) throw new Error(error.message || 'Failed to submit form');
-      if (!data?.success) throw new Error('Failed to submit form');
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(json?.error ?? `Server error (${res.status})`);
+      }
 
       setIsSuccess(true);
     } catch (error) {

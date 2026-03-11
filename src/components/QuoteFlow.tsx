@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Check, ChevronRight, ChevronLeft, Loader2, Calendar, Home, MapPin, Mail, Phone, User } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, Loader2, Calendar, Home, MapPin, Mail, Phone, User, AlertCircle } from 'lucide-react';
 import { ConciergeConfirmation } from '@/components/ConciergeConfirmation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { useServices } from '@/hooks/useServices';
 import { usePricingByService, useSeasonalModifier, formatPriceRange, formatPrice } from '@/hooks/usePricing';
 import { useLocations } from '@/hooks/useLocations';
 import { useSubmitLead, calculateLeadScore, type LeadInsert } from '@/hooks/useLeads';
+import { useToast } from '@/hooks/use-toast';
 
 // Step definitions
 const STEPS = [
@@ -93,6 +94,7 @@ export function QuoteFlow({ initialService, initialTier, onComplete, className =
   const { data: pricing } = usePricingByService(formData.serviceId, formData.locationId || undefined);
   const { data: seasonalModifier } = useSeasonalModifier(formData.serviceId);
   const submitLead = useSubmitLead();
+  const { toast } = useToast();
 
   // Calculate estimated price
   const calculatePrice = useCallback(() => {
@@ -176,7 +178,11 @@ export function QuoteFlow({ initialService, initialTier, onComplete, className =
     submitLead.mutate(leadData, {
       onSuccess: (data) => {
         goNext();
-        onComplete?.(data.id);
+        onComplete?.(data?.id ?? '');
+      },
+      onError: (error) => {
+        const message = error instanceof Error ? error.message : 'Failed to submit. Please try again.';
+        toast({ title: 'Submission Error', description: message, variant: 'destructive' });
       },
     });
   };
