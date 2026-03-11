@@ -55,20 +55,15 @@
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            { "name": "lead_id", "value": "={{$json.lead_id}}" },
-            { "name": "score", "value": "={{$json.score}}" },
-            { "name": "status", "value": "={{$json.status}}" },
-            { "name": "calculated_at", "value": "={{$json.calculated_at}}" }
-          ]
-        }
+        "specifyBody": "json",
+        "jsonBody": "={ \"lead_id\": \"{{ $json.lead_id }}\", \"score\": {{ $json.score }}, \"status\": \"{{ $json.status }}\", \"calculated_at\": \"{{ $json.calculated_at }}\" }"
       },
       "id": "upsert-scores",
       "name": "Upsert Lead Scores",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [660, 0]
+      "position": [660, 0],
+      "continueOnFail": true
     }
   ],
   "connections": {

@@ -43,29 +43,33 @@
       "name": "Post to Facebook",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [660, 300]
+      "position": [660, 300],
+      "continueOnFail": true
     },
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/social_posts?id=eq.{{$('Process Each Post').first().json.id}}",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/social_posts?id=eq.{{$json.id}}",
         "sendHeaders": true,
         "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
         "sendBody": true,
-        "bodyParameters": { "parameters": [{ "name": "status", "value": "published" }, { "name": "published_at", "value": "={{ new Date().toISOString() }}" }, { "name": "fb_post_id", "value": "={{$json.id}}" }] }
+        "specifyBody": "json",
+        "jsonBody": "={ \"status\": \"published\", \"published_at\": \"{{ new Date().toISOString() }}\" }"
       },
       "id": "update-status",
       "name": "Mark Published",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [880, 300]
+      "position": [880, 300],
+      "continueOnFail": true
     }
   ],
   "connections": {
     "Daily 10am CT": { "main": [[{ "node": "Fetch Scheduled Posts", "type": "main", "index": 0 }]] },
     "Fetch Scheduled Posts": { "main": [[{ "node": "Process Each Post", "type": "main", "index": 0 }]] },
     "Process Each Post": { "main": [[{ "node": "Post to Facebook", "type": "main", "index": 0 }]] },
-    "Post to Facebook": { "main": [[{ "node": "Mark Published", "type": "main", "index": 0 }]] }
+    "Post to Facebook": { "main": [[{ "node": "Mark Published", "type": "main", "index": 0 }]] },
+    "Mark Published": { "main": [[{ "node": "Process Each Post", "type": "main", "index": 0 }]] }
   },
   "settings": { "availableInMCP": true }
 }

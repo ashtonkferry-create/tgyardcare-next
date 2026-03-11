@@ -59,7 +59,8 @@
       "name": "Send via Brevo",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [660, 400]
+      "position": [660, 400],
+      "continueOnFail": true
     },
     {
       "parameters": {
@@ -69,7 +70,7 @@
         "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contact_email\": \"{{ $('Determine Email to Send').first().json.email }}\",\n  \"workflow_name\": \"welcome_series\",\n  \"email_type\": \"{{ $('Determine Email to Send').first().json.emailType }}\",\n  \"sequence_step\": {{ $('Determine Email to Send').first().json.emailNum }}\n}"
+        "jsonBody": "={\n  \"contact_email\": \"{{ $json.email }}\",\n  \"workflow_name\": \"welcome_series\",\n  \"email_type\": \"{{ $json.emailType }}\",\n  \"sequence_step\": {{ $json.emailNum }}\n}"
       },
       "id": "log-send",
       "name": "Log to email_sends",
@@ -85,7 +86,7 @@
         "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }, { "name": "Prefer", "value": "resolution=merge-duplicates" }] },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contact_email\": \"{{ $('Determine Email to Send').first().json.email }}\",\n  \"sequence_name\": \"welcome_series\",\n  \"current_step\": {{ $('Determine Email to Send').first().json.emailNum }},\n  \"status\": {{ $('Determine Email to Send').first().json.emailNum >= 5 ? '\"completed\"' : '\"active\"' }}\n}"
+        "jsonBody": "={\n  \"contact_email\": \"{{ $json.email }}\",\n  \"sequence_name\": \"welcome_series\",\n  \"current_step\": {{ $json.emailNum }},\n  \"status\": {{ $json.emailNum >= 5 ? '\"completed\"' : '\"active\"' }}\n}"
       },
       "id": "upsert-enrollment",
       "name": "Upsert Enrollment",

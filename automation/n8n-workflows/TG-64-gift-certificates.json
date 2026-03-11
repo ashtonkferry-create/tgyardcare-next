@@ -35,7 +35,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+              "value": "={{ $vars.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
@@ -84,7 +84,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ sender: { name: 'TotalGuard Yard Care', email: 'workelyhelp@gmail.com' }, to: [{ email: $json.recipient_email, name: $json.recipient_name }], subject: `You received a $${$json.amount} TotalGuard Yard Care Gift Certificate!`, htmlContent: `<h2>🎁 Gift Certificate — $${$json.amount}</h2><p>Hi ${$json.recipient_name},</p><p>${$json.purchaser_name} has sent you a TotalGuard Yard Care gift certificate!</p><p><strong>Your Code: ${$json.code}</strong></p><p>Message: ${$json.message}</p><p>Redeem at: <a href='${$vars.TG_SITE_URL}/get-quote'>${$vars.TG_SITE_URL}/get-quote</a></p><p>Expires: ${new Date($json.expires_at).toLocaleDateString()}</p>` }) }}"
+        "jsonBody": "={{ JSON.stringify({ sender: { name: 'TotalGuard Yard Care', email: 'totalguardllc@gmail.com' }, to: [{ email: $json.recipient_email, name: $json.recipient_name }], subject: `You received a $${$json.amount} TotalGuard Yard Care Gift Certificate!`, htmlContent: `<h2>🎁 Gift Certificate — $${$json.amount}</h2><p>Hi ${$json.recipient_name},</p><p>${$json.purchaser_name} has sent you a TotalGuard Yard Care gift certificate!</p><p><strong>Your Code: ${$json.code}</strong></p><p>Message: ${$json.message}</p><p>Redeem at: <a href='${$vars.TG_SITE_URL}/get-quote'>${$vars.TG_SITE_URL}/get-quote</a></p><p>Expires: ${new Date($json.expires_at).toLocaleDateString()}</p>` }) }}"
       },
       "id": "tg64-node-04",
       "name": "Email Gift Certificate",
