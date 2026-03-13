@@ -14,6 +14,8 @@ const GONE_PATTERNS = [
   /^\/wix-code-dev-tools(\/|$)/,
   /^\/_serverless(\/|$)/,
   /^\/window-cleaning$/,
+  /^\/blog\/tags(\/|$)/,
+  /^\/wix-/,
 ];
 
 // In-memory redirect cache (per edge instance, 5-min TTL)
@@ -124,6 +126,8 @@ export const config = {
     '/wix-code-dev-tools/:path*',
     '/_serverless/:path*',
     '/window-cleaning',
+    '/blog/tags/:path*',
+    '/wix-:path*',
     // Catch all public paths for dynamic redirects (excludes _next, api, admin)
     '/((?!_next|api|admin).*)',
   ],

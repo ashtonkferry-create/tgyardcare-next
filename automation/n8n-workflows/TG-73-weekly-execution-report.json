@@ -24,13 +24,13 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/automation_runs?select=workflow_name,status,created_at&created_at=gte.{{ $now.minus({days:7}).toISO() }}",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/automation_runs?select=workflow_name,status,created_at&created_at=gte.{{ new Date(Date.now()-7*24*60*60*1000).toISOString() }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+              "value": "={{ $vars.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
@@ -50,7 +50,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const runs = $json;\nconst total = runs.length;\nconst errors = runs.filter(r => r.status === 'error').length;\nconst errorRate = total > 0 ? ((errors / total) * 100).toFixed(1) : 0;\nconst byWorkflow = {};\nruns.forEach(r => {\n  if (!byWorkflow[r.workflow_name]) byWorkflow[r.workflow_name] = { total: 0, errors: 0 };\n  byWorkflow[r.workflow_name].total++;\n  if (r.status === 'error') byWorkflow[r.workflow_name].errors++;\n});\nreturn [{ json: { total_runs: total, error_count: errors, error_rate: parseFloat(errorRate), high_error_rate: parseFloat(errorRate) > 5, week_of: new Date().toLocaleDateString() } }];"
+        "jsCode": "const runs = $input.all().map(i => i.json);\nconst total = runs.length;\nconst errors = runs.filter(r => r.status === \"error\").length;\nconst errorRate = total > 0 ? ((errors / total) * 100).toFixed(1) : 0;\nconst byWorkflow = {};\nruns.forEach(r => {\n  if (!byWorkflow[r.workflow_name]) byWorkflow[r.workflow_name] = { total: 0, errors: 0 };\n  byWorkflow[r.workflow_name].total++;\n  if (r.status === \"error\") byWorkflow[r.workflow_name].errors++;\n});\nreturn [{ json: { total_runs: total, error_count: errors, error_rate: parseFloat(errorRate), high_error_rate: parseFloat(errorRate) > 5, week_of: new Date().toLocaleDateString() } }];"
       },
       "id": "tg73-node-03",
       "name": "Calculate Error Rate",
@@ -70,7 +70,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+              "value": "={{ $vars.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
@@ -144,7 +144,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ sender: { name: 'TotalGuard Automation', email: 'workelyhelp@gmail.com' }, to: [{ email: 'workelyhelp@gmail.com', name: 'TotalGuard Owner' }], subject: `TG Automation Alert: ${$json.error_rate}% error rate this week`, textContent: `Weekly Execution Report — Week of ${$json.week_of}\n\nTotal runs: ${$json.total_runs}\nErrors: ${$json.error_count}\nError rate: ${$json.error_rate}%\n\nThis exceeds the 5% threshold. Please review automation logs in the admin panel.` }) }}"
+        "jsonBody": "={{ JSON.stringify({ sender: { name: 'TotalGuard Automation', email: 'totalguardllc@gmail.com' }, to: [{ email: 'totalguardllc@gmail.com', name: 'TotalGuard Owner' }], subject: `TG Automation Alert: ${$json.error_rate}% error rate this week`, textContent: `Weekly Execution Report — Week of ${$json.week_of}\n\nTotal runs: ${$json.total_runs}\nErrors: ${$json.error_count}\nError rate: ${$json.error_rate}%\n\nThis exceeds the 5% threshold. Please review automation logs in the admin panel.` }) }}"
       },
       "id": "tg73-node-06",
       "name": "Email High Error Alert",

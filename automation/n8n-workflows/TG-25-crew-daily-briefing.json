@@ -3,7 +3,14 @@
   "nodes": [
     {
       "parameters": {
-        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 12 * * 1-6" }] }
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 12 * * 1-6"
+            }
+          ]
+        }
       },
       "id": "schedule",
       "name": "Daily 7am CT Mon-Sat",
@@ -27,18 +34,20 @@
       "name": "Fetch Today Jobs",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 200]
+      "position": [220, 200],
+      "continueOnFail": true
     },
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://api.openweathermap.org/data/2.5/weather?q=Madison,WI,US&appid={{$vars.TG_OPENWEATHER_API_KEY}}&units=imperial"
+        "url": "=https://api.openweathermap.org/data/2.5/weather?q=Madison,WI,US&appid={{$vars.OPENWEATHERMAP_API_KEY}}&units=imperial"
       },
       "id": "fetch-weather",
       "name": "Fetch Weather",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 400]
+      "position": [220, 400],
+      "continueOnFail": true
     },
     {
       "parameters": {
@@ -56,11 +65,12 @@
       "name": "Fetch Inventory",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 600]
+      "position": [220, 600],
+      "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "const jobs = $('Fetch Today Jobs').all().map(i => i.json);\nconst weather = $('Fetch Weather').first().json;\nconst inv = $('Fetch Inventory').first().json;\n\nconst forecast = weather.weather?.[0]?.description || 'Check weather app';\nconst temp = Math.round(weather.main?.temp || 0);\nconst wind = Math.round(weather.wind?.speed || 0);\n\nlet jobList = jobs.length > 0\n  ? jobs.map((j, i) => `${i+1}. ${j.parsed_service} @ ${j.parsed_address}`).join('\\n')\n  : 'No jobs scheduled yet — check Jobber';\n\nconst msg = `Good morning TG crew! ☀️\\n\\nToday's jobs:\\n${jobList}\\n\\nWeather: ${temp}°F, ${forecast}, wind ${wind}mph\\n\\nInventory: ${inv.yard_sign_count || '?'} signs, ${inv.door_hanger_count || '?'} hangers\\n\\n- TG System`;\n\nreturn [{ json: { message: msg } }];"
+        "jsCode": "const jobs = $('Fetch Today Jobs').all().map(i => i.json);\nconst weather = $('Fetch Weather').first().json;\nconst inv = $('Fetch Inventory').first().json;\n\nconst forecast = weather.weather?.[0]?.description || 'Check weather app';\nconst temp = Math.round(weather.main?.temp || 0);\nconst wind = Math.round(weather.wind?.speed || 0);\n\nlet jobList = jobs.length > 0\n  ? jobs.map((j, i) => `${i+1}. ${j.parsed_service} @ ${j.parsed_address}`).join('\n')\n  : 'No jobs scheduled yet - check Jobber';\n\nconst msg = `Good morning TG crew!\n\nToday's jobs:\n${jobList}\n\nWeather: ${temp}F, ${forecast}, wind ${wind}mph\n\nInventory: ${inv.yard_sign_count || '?'} signs, ${inv.door_hanger_count || '?'} hangers\n\n- TG System`;\n\nreturn [{ json: { message: msg } }];"
       },
       "id": "format-briefing",
       "name": "Format Briefing",
@@ -70,17 +80,35 @@
     },
     {
       "parameters": {
-        "operation": "send",
-        "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}",
-        "to": "={{$vars.TG_CREW_PHONE_NUMBERS}}",
-        "message": "={{$json.message}}"
+        "jsCode": "const msg = $json.message;\nconst phones = ($vars.TG_CREW_PHONE_NUMBERS || '').split(',').map(p => p.trim()).filter(Boolean);\nconst results = [];\nfor (const phone of phones) {\n  results.push({ json: { phone, message: msg } });\n}\nreturn results.length > 0 ? results : [{ json: { _skip: true, phone: '', message: '' } }];"
       },
+      "id": "split-phones",
+      "name": "Split Phone Numbers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
       "id": "sms-briefing",
       "name": "SMS Crew Briefing",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
-      "position": [660, 300],
-      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300],
+      "continueOnFail": true,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "api-key", "value": "={{$vars.TG_BREVO_API_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"sender\": \"TotalGrd\", \"recipient\": \"{{ $json.phone }}\", \"content\": \"{{ $json.message }}\" }"
+      }
     }
   ],
   "connections": {
@@ -88,7 +116,8 @@
     "Fetch Today Jobs": { "main": [[{ "node": "Format Briefing", "type": "main", "index": 0 }]] },
     "Fetch Weather": { "main": [[{ "node": "Format Briefing", "type": "main", "index": 0 }]] },
     "Fetch Inventory": { "main": [[{ "node": "Format Briefing", "type": "main", "index": 0 }]] },
-    "Format Briefing": { "main": [[{ "node": "SMS Crew Briefing", "type": "main", "index": 0 }]] }
+    "Format Briefing": { "main": [[{ "node": "Split Phone Numbers", "type": "main", "index": 0 }]] },
+    "Split Phone Numbers": { "main": [[{ "node": "SMS Crew Briefing", "type": "main", "index": 0 }]] }
   },
   "settings": { "availableInMCP": true }
 }

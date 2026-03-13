@@ -97,6 +97,7 @@ export function useSubmitLead() {
         .single();
 
       if (error) throw error;
+      if (!data) throw new Error('Lead created but no data returned — please try again.');
       return data as Lead;
     },
     onSuccess: () => {

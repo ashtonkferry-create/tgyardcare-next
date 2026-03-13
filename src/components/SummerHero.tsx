@@ -221,7 +221,7 @@ export function SummerHero() {
 
                 <div className="hidden sm:block w-px h-8 lg:h-10 bg-green-600/30" />
 
-                <div className="hidden sm:flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <div className="flex gap-0.5">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className="h-3.5 w-3.5 lg:h-4 lg:w-4 fill-yellow-400 text-yellow-400" />
@@ -229,7 +229,7 @@ export function SummerHero() {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-white font-bold text-xs lg:text-sm leading-tight">{SITE_STATS.googleRating}/5</span>
-                    <span className="text-green-400/60 text-[10px] lg:text-xs">80+ Reviews</span>
+                    <span className="text-green-400/60 text-[10px] lg:text-xs">Google</span>
                   </div>
                 </div>
               </div>

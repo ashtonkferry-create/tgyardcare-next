@@ -60,7 +60,11 @@ export const validateContactForm = (data: ContactFormData) => {
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new Error(error.errors[0].message);
+      // Zod v4 uses .issues; v3 used .errors — support both
+      const issues: Array<{ message: string }> | undefined =
+        (error as any).issues ?? (error as any).errors;
+      const firstMessage = issues?.[0]?.message;
+      throw new Error(firstMessage ?? 'Validation failed');
     }
     throw error;
   }

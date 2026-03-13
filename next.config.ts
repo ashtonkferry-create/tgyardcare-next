@@ -58,11 +58,9 @@ const nextConfig: NextConfig = {
       { source: "/seasonal-cleanup", destination: "/services/spring-cleanup", permanent: true },
       { source: "/testimonies", destination: "/reviews", permanent: true },
       { source: "/privacy-policy", destination: "/privacy", permanent: true },
-      { source: "/blog/tags/:path*", destination: "/blog", permanent: true },
-      // Additional old Wix URLs still getting GSC impressions
-      { source: "/window-cleaning", destination: "/services/gutter-cleaning", permanent: true },
-      { source: "/post/:path*", destination: "/blog", permanent: true },
-      { source: "/service-page/:path*", destination: "/services", permanent: true },
+      // /post/:path*, /service-page/:path*, /blog/tags/:path*, /window-cleaning
+      // are handled by middleware.ts as 410 Gone — do NOT add redirects here
+      // (next.config redirects override middleware and cause soft 404s)
     ];
   },
 };

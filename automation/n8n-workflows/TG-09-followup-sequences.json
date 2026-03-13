@@ -12,7 +12,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?status=not.eq.converted&select=id,first_name,email,phone,service,score,created_at,source",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?status=neq.converted&email=not.is.null&select=id,first_name,email,phone,service,lead_score,created_at,source",
         "sendHeaders": true,
         "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
       },
@@ -24,13 +24,26 @@
     },
     {
       "parameters": {
-        "jsCode": "const leads = $input.all().map(i => i.json);\nconst results = [];\nfor (const lead of leads) {\n  const days = Math.floor((Date.now() - new Date(lead.created_at)) / (1000*60*60*24));\n  const score = lead.score || 0;\n  let tier = score >= 70 ? 'hot' : score >= 40 ? 'warm' : 'cold';\n  let sendDay = false;\n  if (tier === 'hot' && [1,3,5].includes(days)) sendDay = true;\n  if (tier === 'warm' && [2,5,10].includes(days)) sendDay = true;\n  if (tier === 'cold' && [3,7,14,30].includes(days)) sendDay = true;\n  if (!sendDay) continue;\n  const subjects = { hot: [`Your TotalGuard quote is ready, ${lead.first_name}`, `Still thinking it over? We saved your spot`, `Final notice: lock in your lawn care rate`], warm: [`Madison lawn tips — from TotalGuard`, `How TotalGuard protects your lawn all season`, `Your neighbors are loving their TotalGuard service`], cold: [`Free lawn care tips from TotalGuard`, `Seasonal reminder from TotalGuard Yard Care`, `When you're ready, we're here`] };\n  const seqIdx = tier === 'hot' ? [1,3,5].indexOf(days) : tier === 'warm' ? [2,5,10].indexOf(days) : [3,7,14,30].indexOf(days);\n  const subject = subjects[tier][Math.min(seqIdx, subjects[tier].length-1)];\n  results.push({ json: { ...lead, tier, days, subject } });\n}\nreturn results;"
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/email_sends?workflow_name=eq.followup_sequence&select=contact_email,email_type,sent_at",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+      },
+      "id": "fetch-sent-history",
+      "name": "Fetch Sent History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "const leads = $('Fetch Active Leads').all().map(i => i.json);\nconst sentHistory = $('Fetch Sent History').all().map(i => i.json);\n\n// Build dedup set: \"email|email_type\"\nconst alreadySent = new Set();\nfor (const s of sentHistory) {\n  if (s.contact_email && s.email_type) {\n    alreadySent.add(s.contact_email + '|' + s.email_type);\n  }\n}\n\nconst results = [];\nfor (const lead of leads) {\n  if (!lead.email) continue;\n  const days = Math.floor((Date.now() - new Date(lead.created_at)) / (1000*60*60*24));\n  const score = lead.lead_score || 0;\n  let tier = score >= 70 ? 'hot' : score >= 40 ? 'warm' : 'cold';\n  let sendDay = false;\n  if (tier === 'hot' && [1,3,5].includes(days)) sendDay = true;\n  if (tier === 'warm' && [2,5,10].includes(days)) sendDay = true;\n  if (tier === 'cold' && [3,7,14,30].includes(days)) sendDay = true;\n  if (!sendDay) continue;\n\n  const emailType = 'followup_' + tier + '_day' + days;\n\n  // Dedup: skip if already sent this exact email to this lead\n  if (alreadySent.has(lead.email + '|' + emailType)) continue;\n\n  const subjects = {\n    hot: ['Your TotalGuard quote is ready, ' + lead.first_name, 'Still thinking it over? We saved your spot', 'Final notice: lock in your lawn care rate'],\n    warm: ['Madison lawn tips \\u2014 from TotalGuard', 'How TotalGuard protects your lawn all season', 'Your neighbors are loving their TotalGuard service'],\n    cold: ['Free lawn care tips from TotalGuard', 'Seasonal reminder from TotalGuard Yard Care', 'When you\\'re ready, we\\'re here']\n  };\n  const seqIdx = tier === 'hot' ? [1,3,5].indexOf(days) : tier === 'warm' ? [2,5,10].indexOf(days) : [3,7,14,30].indexOf(days);\n  const subject = subjects[tier][Math.min(seqIdx, subjects[tier].length-1)];\n  results.push({ json: { ...lead, tier, days, subject, emailType, seqStep: seqIdx + 1 } });\n}\nreturn results;"
       },
       "id": "filter-leads",
-      "name": "Filter Leads Due for Follow-up",
+      "name": "Filter and Dedup Leads",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 300]
+      "position": [440, 400]
     },
     {
       "parameters": {
@@ -46,7 +59,8 @@
       "name": "Send Follow-up Email",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [660, 300]
+      "position": [660, 400],
+      "continueOnFail": true
     },
     {
       "parameters": {
@@ -55,20 +69,40 @@
         "sendHeaders": true,
         "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
         "sendBody": true,
-        "bodyParameters": { "parameters": [{ "name": "lead_id", "value": "={{$('Filter Leads Due for Follow-up').first().json.id}}" }, { "name": "email_type", "value": "=followup_{{$('Filter Leads Due for Follow-up').first().json.tier}}_day{{$('Filter Leads Due for Follow-up').first().json.days}}" }, { "name": "sent_at", "value": "={{ new Date().toISOString() }}" }] }
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contact_email\": \"{{ $json.email }}\",\n  \"workflow_name\": \"followup_sequence\",\n  \"email_type\": \"{{ $json.emailType }}\",\n  \"sequence_step\": {{ $json.seqStep }}\n}"
       },
       "id": "log-send",
-      "name": "Log Follow-up",
+      "name": "Log to email_sends",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [880, 300]
+      "position": [880, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/sequence_enrollments?on_conflict=contact_email,sequence_name",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }, { "name": "Prefer", "value": "resolution=merge-duplicates" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contact_email\": \"{{ $json.email }}\",\n  \"sequence_name\": \"followup_sequence\",\n  \"current_step\": {{ $json.seqStep }},\n  \"status\": \"active\"\n}"
+      },
+      "id": "upsert-enrollment",
+      "name": "Upsert Enrollment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 400],
+      "continueOnFail": true
     }
   ],
   "connections": {
-    "Daily 10am CT": { "main": [[{ "node": "Fetch Active Leads", "type": "main", "index": 0 }]] },
-    "Fetch Active Leads": { "main": [[{ "node": "Filter Leads Due for Follow-up", "type": "main", "index": 0 }]] },
-    "Filter Leads Due for Follow-up": { "main": [[{ "node": "Send Follow-up Email", "type": "main", "index": 0 }]] },
-    "Send Follow-up Email": { "main": [[{ "node": "Log Follow-up", "type": "main", "index": 0 }]] }
+    "Daily 10am CT": { "main": [[{ "node": "Fetch Active Leads", "type": "main", "index": 0 }, { "node": "Fetch Sent History", "type": "main", "index": 0 }]] },
+    "Fetch Active Leads": { "main": [[{ "node": "Filter and Dedup Leads", "type": "main", "index": 0 }]] },
+    "Fetch Sent History": { "main": [[{ "node": "Filter and Dedup Leads", "type": "main", "index": 0 }]] },
+    "Filter and Dedup Leads": { "main": [[{ "node": "Send Follow-up Email", "type": "main", "index": 0 }]] },
+    "Send Follow-up Email": { "main": [[{ "node": "Log to email_sends", "type": "main", "index": 0 }]] },
+    "Log to email_sends": { "main": [[{ "node": "Upsert Enrollment", "type": "main", "index": 0 }]] }
   },
   "settings": { "availableInMCP": true }
 }
