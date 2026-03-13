@@ -1,0 +1,190 @@
+{
+  "campaign": "weather_triggered",
+  "workflow_id": "TG-56",
+  "template": "tg-urgency",
+  "total_emails": 5,
+  "description": "5 weather-triggered emails for TotalGuard Yard Care. These fire automatically based on weather data from OpenWeather API via TG-56. Covers freeze warnings, first snow, spring thaw, heat waves, and major storms.",
+  "emails": [
+    {
+      "id": "weather_1",
+      "email_number": 1,
+      "trigger": "freeze_warning",
+      "trigger_conditions": {
+        "forecast_min_temp_f": 32,
+        "days_ahead": 3,
+        "season": "fall",
+        "typical_date": "~October 8"
+      },
+      "template": "tg-urgency",
+      "alert_type": "weather",
+      "alert_color": "amber",
+      "alert_badge": "FREEZE WARNING",
+      "subject_a": "⚠️ Freeze warning for {{city}} — is your yard ready?",
+      "subject_b": "{{first_name}}, protect your yard before the freeze hits",
+      "preview_text": "Freeze expected {{weather_date}}. Last chance for fall prep.",
+      "headline": "Freeze Warning: Protect Your Yard Now",
+      "subheadline": "A hard freeze is headed for {{city}}. Here's what it means for your yard — and what to do about it.",
+      "body_html": "<p>Hey {{first_name}},</p><p>The first freeze of the season is expected to hit {{city}} on <strong>{{weather_date}}</strong>. If your yard isn't prepped, here's what's at stake:</p><h3>What a Freeze Does to an Unprepared Yard</h3><ul><li><strong>Kills tender plants and annuals</strong> — Any plant that hasn't been cut back or covered will likely die overnight. Hostas, impatiens, tomato plants, decorative grasses — all vulnerable.</li><li><strong>Damages exposed pipes and spigots</strong> — Outdoor faucets and irrigation lines that haven't been disconnected or drained can crack and burst. That's a $200-$500 repair you don't want in spring.</li><li><strong>Locks in debris that rots your grass</strong> — Leaves and organic matter frozen onto your lawn create a suffocating mat. By spring, you'll have dead patches, snow mold, and a lawn that takes months to recover.</li><li><strong>Clogs gutters with frozen debris</strong> — Wet leaves in gutters freeze solid, creating ice dams that can damage your fascia, soffit, and even your roof.</li></ul><h3>What to Do RIGHT NOW</h3><ol><li><strong>Get your fall cleanup done before the freeze</strong> — Clear all leaves, debris, and organic matter from your lawn, beds, and walkways</li><li><strong>Cover tender plants</strong> — Use frost cloth or burlap on anything you want to survive winter</li><li><strong>Disconnect garden hoses</strong> — Detach hoses from outdoor spigots and drain them completely</li><li><strong>Clean your gutters before ice forms</strong> — Once debris freezes in place, it's stuck until spring thaw — and the damage is already done</li></ol><h3>We Can Help — Emergency Fall Cleanup</h3><p>Our crew has <strong>emergency fall cleanup slots available this week</strong>. We'll clear your lawn, clean your beds, blow off hard surfaces, and get your property freeze-ready in one visit.</p><p>Don't wait until the ground is frozen. Once the freeze hits, it's too late to prevent the damage — you can only pay to fix it in spring.</p><p><strong>Protect your yard now. One booking, everything handled.</strong></p>",
+      "review": {
+        "text": "Vance is responsive and the work is well done. They took on a job that others would not. They are also very quick. They have lots of energy. Highly recommend.",
+        "name": "Barb Osborn",
+        "service": "Mulching & Weeding"
+      },
+      "cta_text": "Book Emergency Fall Cleanup →",
+      "cta_url": "https://tgyardcare.com/services/fall-cleanup",
+      "urgency_text": "Freeze expected {{weather_date}}. Limited emergency slots available.",
+      "personalization_tokens": ["first_name", "city", "weather_date"],
+      "goal": "Convert customers into emergency fall cleanup bookings before the first freeze by creating urgency around the real consequences of an unprepared yard"
+    },
+    {
+      "id": "weather_2",
+      "email_number": 2,
+      "trigger": "first_snow_forecast",
+      "trigger_conditions": {
+        "snowfall_inches": 2,
+        "days_ahead": 3,
+        "season": "late_fall_winter",
+        "typical_date": "~November 7"
+      },
+      "template": "tg-urgency",
+      "alert_type": "weather",
+      "alert_color": "amber",
+      "alert_badge": "SNOW INCOMING",
+      "subject_a": "❄️ Snow in the forecast — are you covered, {{first_name}}?",
+      "subject_b": "First snow forecast for {{city}}. Is your driveway covered?",
+      "preview_text": "Snow expected {{weather_date}}. If you don't have a snow contract, read this.",
+      "headline": "Snow Is Coming. Are You Covered?",
+      "subheadline": "{{city}} is about to get its first real snowfall. Your next move depends on one question.",
+      "body_html": "<p>Hey {{first_name}},</p><p>The first significant snowfall of the season is forecast for <strong>{{weather_date}}</strong> in {{city}}. Before it hits, there's one question that matters:</p><p><strong>Do you have a snow removal contract?</strong></p><h3>{{#if has_snow_contract}}You're Covered ✓{{/if}}{{#unless has_snow_contract}}You're Not Covered Yet{{/unless}}</h3>{{#if has_snow_contract}}<p>Good news — <strong>you're all set</strong>. Here's a reminder of how your snow plan works:</p><ul><li><strong>Automatic deployment at 2\"+ accumulation</strong> — You don't need to call, text, or do anything. We monitor conditions and our crew rolls out automatically.</li><li><strong>Driveway, walkways, and porch cleared</strong> — Every surface you need to safely access.</li><li><strong>Salt application included</strong> — We treat all cleared surfaces to prevent ice buildup and refreeze.</li><li><strong>Early morning priority</strong> — We aim to have you cleared before you need to leave for work.</li><li><strong>Same crew, every storm</strong> — Your team knows your property layout. No random contractors.</li></ul><p>Sit back and enjoy the snow from inside. We've got this.</p>{{/if}}{{#unless has_snow_contract}}<p>Here's what you need to know: <strong>emergency-only pricing kicks in after the first snowfall</strong>. That means a 50% premium over contract rates for every storm.</p><p>Let's break that down:</p><table style=\"width:100%; border-collapse:collapse; margin:16px 0;\"><tr style=\"border-bottom:2px solid #e0e0e0; font-weight:bold;\"><td style=\"padding:10px;\">Pricing</td><td style=\"padding:10px; text-align:right;\">Contract Rate</td><td style=\"padding:10px; text-align:right;\">Emergency Rate</td></tr><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:10px;\">Per-storm clearing</td><td style=\"padding:10px; text-align:right;\">Standard</td><td style=\"padding:10px; text-align:right;\"><strong>+50% premium</strong></td></tr><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:10px;\">Priority level</td><td style=\"padding:10px; text-align:right;\">Guaranteed</td><td style=\"padding:10px; text-align:right;\">As-available</td></tr><tr><td style=\"padding:10px;\">Response time</td><td style=\"padding:10px; text-align:right;\">Within hours</td><td style=\"padding:10px; text-align:right;\">No guarantee</td></tr></table><h3>What a Snow Contract Gets You</h3><ul><li><strong>Automatic deployment at 2\"+ snowfall</strong> — No calls, no texts, no waiting. We just show up.</li><li><strong>Driveway + walkways + porch</strong> — Full clearance of every surface you need.</li><li><strong>Salt included</strong> — Ice prevention on all cleared surfaces.</li><li><strong>Early morning priority</strong> — Cleared before you leave for work.</li><li><strong>Locked-in contract pricing</strong> — No surge, no emergency premiums, no surprises.</li><li><strong>Same crew, every storm</strong> — They know your property. Consistency matters when it's dark and snowing.</li></ul><p>Wisconsin winters average 50+ inches of snow. That's a lot of mornings spent shoveling in the dark, a lot of salt bags from the hardware store, and a lot of sore backs. Or — <strong>one contract, and it's all handled</strong>.</p><p>Sign up now while contract rates are still available. Once the snow flies, you're paying emergency rates — if we even have availability.</p>{{/unless}}",
+      "review": {
+        "text": "Very easy to schedule and dependable. Showed up on time and left the yard looking very clean. Worth every dollar.",
+        "name": "Carson Bloedow",
+        "service": "Lawn Care"
+      },
+      "cta_text_non_contract": "Sign Up Before It Snows →",
+      "cta_url_non_contract": "https://tgyardcare.com/services/snow-removal",
+      "cta_text_contract": "View Your Snow Plan →",
+      "cta_url_contract": "https://tgyardcare.com/dashboard",
+      "urgency_text": "Snow expected {{weather_date}}. Contract pricing ends at first snowfall.",
+      "personalization_tokens": ["first_name", "city", "weather_date", "has_snow_contract"],
+      "goal": "For non-contract holders: drive snow removal signups before first snowfall using price urgency. For contract holders: reassure them and reinforce the value of their plan."
+    },
+    {
+      "id": "weather_3",
+      "email_number": 3,
+      "trigger": "spring_thaw",
+      "trigger_conditions": {
+        "consecutive_days_above_40f": 5,
+        "snow_cover_melting": true,
+        "season": "early_spring",
+        "typical_date": "~March"
+      },
+      "template": "tg-urgency",
+      "alert_type": "limited",
+      "alert_color": "green",
+      "alert_badge": "SPRING IS HERE",
+      "subject_a": "🌱 The thaw is here — your yard needs attention NOW",
+      "subject_b": "{{first_name}}, winter is over. Here's what your yard needs.",
+      "preview_text": "Free yard assessment available. See what winter did and what to fix.",
+      "headline": "Winter's Over. Let's See the Damage.",
+      "subheadline": "The snow is melting and your yard is telling a story. Let's find out what winter left behind.",
+      "body_html": "<p>Hey {{first_name}},</p><p>The snow is finally melting in {{city}}, and what's underneath isn't always pretty. After months of freezing temperatures, ice, and heavy snow cover, every yard in the area is dealing with some version of the same problems.</p><h3>What Spring Thaw Reveals</h3><ul><li><strong>Snow mold</strong> — Those gray or pink fuzzy patches on your lawn? That's snow mold. It forms under prolonged snow cover and can kill grass if left untreated. You'll see it most in areas where snow drifted or piled up.</li><li><strong>Compacted soil</strong> — Months of frozen ground and heavy snow compress your soil. Compacted soil blocks water, air, and nutrients from reaching grass roots — which means weak, thin growth all spring and summer.</li><li><strong>Debris everywhere</strong> — Branches, leaves, litter, and organic matter that got buried under snow are now exposed. This debris smothers new growth and creates an ugly mess.</li><li><strong>Dead patches and bare spots</strong> — Areas where ice sat the longest, where salt runoff pooled, or where heavy foot traffic compressed the snow will show significant grass damage.</li><li><strong>Eroded beds and mulch displacement</strong> — Snowmelt runoff pushes mulch out of beds, erodes soil, and can expose root systems of perennials and shrubs.</li></ul><h3>Free Yard Walkthrough &amp; Assessment</h3><p>Here's what we're offering right now: a <strong>completely free yard walkthrough and assessment</strong>. No obligation, no pressure, no sales pitch.</p><p>One of our crew members will walk your property with you (or without you, if you're busy) and give you an honest breakdown of:</p><ul><li>What damage winter caused</li><li>What needs attention now vs. what can wait</li><li>Priority order for spring services</li><li>Honest cost estimates for everything</li></ul><h3>Spring Services Available Now</h3><ul><li><strong>Spring cleanup</strong> — Full debris removal, bed cleanup, lawn dethatching, first mow</li><li><strong>Aeration</strong> — Break up compacted soil so your lawn can breathe and absorb nutrients</li><li><strong>Overseeding</strong> — Fill in dead patches and bare spots with fresh seed matched to your lawn type</li><li><strong>Fertilization</strong> — First application of the season to kickstart strong, green growth</li><li><strong>Mulching</strong> — Replenish beds that lost coverage over winter</li></ul><p>Spring is the most important time of year for your yard. What you do in the next 2-3 weeks sets the tone for the entire growing season. <strong>Start with the free assessment and we'll tell you exactly what your yard needs.</strong></p>",
+      "review": {
+        "text": "I had them out for a spring clean-up—leaves, branches, lawn tune-up. No upsell garbage, just honest work. It's how service should be.",
+        "name": "Mauricio Roldan",
+        "service": "Spring Cleanup"
+      },
+      "cta_text": "Get Your Free Yard Assessment →",
+      "cta_url": "https://tgyardcare.com/services/spring-cleanup",
+      "urgency_text": "Free assessments available now through end of March. Spring cleanup slots are filling fast.",
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Drive free yard assessment bookings after spring thaw by educating customers on winter damage and positioning TotalGuard as the honest expert who will tell them exactly what they need"
+    },
+    {
+      "id": "weather_4",
+      "email_number": 4,
+      "trigger": "heat_wave",
+      "trigger_conditions": {
+        "consecutive_days_above_90f": 5,
+        "season": "summer",
+        "typical_months": "June-August"
+      },
+      "template": "tg-urgency",
+      "alert_type": "weather",
+      "alert_color": "amber",
+      "alert_badge": "HEAT WAVE ALERT",
+      "subject_a": "🌡️ Heat wave alert: protect your lawn this week",
+      "subject_b": "{{first_name}}, your lawn needs extra care in this heat",
+      "preview_text": "5+ days of 90°F ahead. Here's how to keep your lawn alive.",
+      "headline": "Heat Wave: Your Lawn Survival Guide",
+      "subheadline": "5+ days of 90°F+ temperatures are coming to {{city}}. Here's how to keep your lawn alive and thriving.",
+      "body_html": "<p>Hey {{first_name}},</p><p>{{city}} is about to get hit with a serious heat wave — <strong>5+ consecutive days at 90°F or above</strong>. Your lawn is going to feel it. Here's what you need to know to keep it alive and healthy through the worst of it.</p><h3>Your Lawn Survival Guide</h3><h4>1. Water Deeply, Early in the Morning</h4><p>Water your lawn <strong>before 8am</strong> — ideally between 5am and 7am. Watering during the heat of the day wastes water to evaporation and can actually scald grass blades. Water deeply (30-45 minutes per zone) rather than frequently. Deep watering encourages roots to grow down, making your lawn more drought-resistant.</p><p><strong>Never water in the evening.</strong> Wet grass overnight creates perfect conditions for fungal disease.</p><h4>2. Raise Your Mowing Height to 3.5\"+</h4><p>Taller grass shades its own roots, retains more moisture, and handles heat stress significantly better than short-cut grass. During a heat wave, <strong>never cut below 3.5 inches</strong>. If anything, let it grow a little longer than usual.</p>{{#if has_mowing_service}}<p><em>Good news — we automatically raise our mowing height during heat waves. Your lawn is already getting this benefit.</em></p>{{/if}}<h4>3. Don't Fertilize During Extreme Heat</h4><p>Fertilizer stimulates growth, and growth requires water and energy — two things your lawn can't spare during a heat wave. <strong>Hold off on any fertilizer applications until temperatures drop back below 85°F.</strong> Applying fertilizer in extreme heat can actually burn your lawn.</p><h4>4. Know the Signs of Heat Stress</h4><p>Watch for these warning signs that your lawn is struggling:</p><ul><li><strong>Blue-gray color</strong> — Healthy grass is green. When it turns blue-gray, it's losing moisture faster than it can absorb it.</li><li><strong>Footprints that stay visible</strong> — Walk across your lawn. If you can see your footprints 30 minutes later, the grass blades aren't springing back. That's dehydration.</li><li><strong>Wilting or curling blades</strong> — Grass blades that fold inward lengthwise are trying to conserve water. Time to increase irrigation.</li><li><strong>Brown patches appearing</strong> — If patches start turning brown, those areas are going dormant. They'll likely recover in fall, but the sooner you address watering, the less damage.</li></ul><h4>5. Stay Off the Lawn During Peak Heat</h4><p>Between 12pm and 4pm on 90°F+ days, avoid walking on your lawn if possible. Foot traffic on heat-stressed grass causes more damage than usual and can create lasting bare spots.</p>{{#unless has_mowing_service}}<h3>Want Us to Handle It?</h3><p>Our crew handles heat-wave lawn care so you don't have to worry about mowing height, timing, or technique. We adjust our approach based on current conditions — taller cuts, optimized schedules, and crew training specific to extreme heat care.</p><p>You focus on staying cool. We'll keep your lawn alive.</p>{{/unless}}",
+      "review": {
+        "text": "Very efficient. Get our job done in hot weather without problems.",
+        "name": "O W",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Learn More About Heat Protection →",
+      "cta_url": "https://tgyardcare.com/services/lawn-mowing",
+      "urgency_text": "Heat wave forecast: {{weather_date}} through {{weather_end_date}}. Protect your lawn now.",
+      "personalization_tokens": ["first_name", "city", "weather_date", "weather_end_date", "has_mowing_service"],
+      "goal": "Educate customers on heat wave lawn care, reinforce value for existing mowing customers, soft-sell mowing service to non-customers by positioning TotalGuard as the expert"
+    },
+    {
+      "id": "weather_5",
+      "email_number": 5,
+      "trigger": "major_storm",
+      "trigger_conditions": {
+        "wind_mph_above": 50,
+        "rainfall_inches_above": 2,
+        "hail_reported": true,
+        "tornado_warning": true,
+        "any_of_above": true,
+        "season": "any"
+      },
+      "template": "tg-urgency",
+      "alert_type": "weather",
+      "alert_color": "amber",
+      "alert_badge": "STORM DAMAGE",
+      "subject_a": "🌧️ Storm damage? We're here for you, {{first_name}}",
+      "subject_b": "Post-storm cleanup available — TotalGuard is standing by",
+      "preview_text": "Free storm damage assessment. Branch removal, cleanup, emergency service.",
+      "headline": "Storm Damage? We've Got You.",
+      "subheadline": "{{city}} just took a hit. If your property has damage, we're already mobilizing.",
+      "body_html": "<p>Hey {{first_name}},</p><p>We hope you and your family are safe after the storm that just hit {{city}}. When things calm down and you're able to get outside, here's what to check — and how we can help.</p><h3>Post-Storm Property Checklist</h3><ul><li><strong>Downed branches and limbs</strong> — Check your yard, roof, driveway, and walkways for fallen branches. Even small limbs can hide damage underneath — crushed plants, torn-up turf, cracked pavers.</li><li><strong>Damaged beds and landscaping</strong> — High winds and heavy rain can uproot plants, scatter mulch, erode soil, and flatten ornamental grasses and perennials. Check your beds closely.</li><li><strong>Standing water and flooding</strong> — If water is pooling in your yard, it could indicate drainage issues that need attention before the next rain. Prolonged standing water kills grass roots.</li><li><strong>Gutter overflow and blockages</strong> — Storms pack gutters with leaves, shingle grit, and debris. If your gutters overflowed during the storm, they need to be flushed before the next rainfall to prevent water damage to your home.</li><li><strong>Fence and structure damage</strong> — Check fence lines, retaining walls, and any outdoor structures for wind or impact damage.</li></ul><h3>What We Offer After a Storm</h3><ul><li><strong>Emergency branch removal</strong> — Downed limbs and tree debris cleared from your yard, driveway, and walkways. We haul everything away.</li><li><strong>Storm debris cleanup</strong> — Full property sweep to clear scattered debris, displaced mulch, and organic matter.</li><li><strong>Free yard damage assessment</strong> — We'll walk your property and give you an honest report of what needs repair, what can wait, and what it'll cost. No obligation.</li><li><strong>Gutter flush after heavy rain</strong> — Clear all debris from gutters and downspouts, flush lines, and verify proper drainage.</li><li><strong>Bed and landscaping repair</strong> — Replant, re-mulch, and restore beds damaged by wind, water, or fallen debris.</li></ul><h3>Fast Response — Usually Same Day or Next Day</h3><p>After a major storm, we know time matters. Downed branches are a safety hazard. Standing water breeds mosquitoes. Damaged beds get worse the longer they sit. <strong>We prioritize storm response and typically have a crew available same day or next day.</strong></p><p>If your property took a hit, don't try to handle it alone. Let us assess the damage, give you an honest breakdown, and get your property back to normal fast.</p><p><strong>Reply to this email, call us at (608) 535-6057, or click below to request cleanup.</strong></p>",
+      "review": {
+        "text": "Great service! They fit us in on short notice, did a fantastic job cleaning up our lawn, and were super honest and easy to work with. Highly recommend!",
+        "name": "Christina Kang",
+        "service": "Lawn Cleanup"
+      },
+      "cta_text": "Request Storm Damage Cleanup →",
+      "cta_url": "https://tgyardcare.com/services/fall-cleanup",
+      "urgency_text": "Storm response crews are standing by. Same-day and next-day slots available.",
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Position TotalGuard as the trusted first call after storm damage, drive emergency cleanup bookings with free assessment as the entry point"
+    }
+  ],
+  "metadata": {
+    "created": "2026-03-12",
+    "business": {
+      "name": "TotalGuard Yard Care",
+      "location": "Madison, WI",
+      "phone": "(608) 535-6057",
+      "email": "totalguardllc@gmail.com",
+      "website": "https://tgyardcare.com",
+      "google_review_link": "https://g.page/r/CRW5Dsg2JgwBEBM/review",
+      "cofounders": ["Vance Ferry", "Alex O'Donnell"]
+    },
+    "weather_api": "OpenWeather API",
+    "climate_context": {
+      "location": "Madison, WI",
+      "first_frost": "~October 8",
+      "first_snow": "~November 7",
+      "heat_wave_months": "June-August",
+      "spring_thaw": "~March",
+      "avg_annual_snowfall_inches": 50,
+      "snow_removal_trigger_inches": 2
+    },
+    "trigger_source": "TG-56 weather automation workflow"
+  }
+}

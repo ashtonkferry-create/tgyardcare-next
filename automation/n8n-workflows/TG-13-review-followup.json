@@ -10,7 +10,10 @@
       "position": [0, 300]
     },
     {
-      "parameters": { "amount": 1, "unit": "days" },
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      },
       "id": "wait-24h",
       "name": "Wait 24 Hours",
       "type": "n8n-nodes-base.wait",
@@ -22,7 +25,12 @@
         "method": "GET",
         "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/review_request_links?job_id=eq.{{$('Execute Workflow Trigger').first().json.job_id}}&select=id&limit=2",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+          ]
+        }
       },
       "id": "check-existing",
       "name": "Check Existing Requests",
@@ -32,7 +40,16 @@
     },
     {
       "parameters": {
-        "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" }, "conditions": [{ "leftValue": "={{$json.length}}", "rightValue": 2, "operator": { "type": "number", "operation": "lt" } }] }
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "leftValue": "={{$json.length}}",
+              "rightValue": 2,
+              "operator": { "type": "number", "operation": "lt" }
+            }
+          ]
+        }
       },
       "id": "under-limit",
       "name": "Under 2 Requests?",
@@ -41,36 +58,117 @@
       "position": [660, 300]
     },
     {
-      "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$('Execute Workflow Trigger').first().json.customer_phone}}", "message": "=Hi {{$('Execute Workflow Trigger').first().json.customer_first_name}}, thanks for choosing TotalGuard! If you loved our {{$('Execute Workflow Trigger').first().json.service}}, a quick Google review helps us serve more Madison neighbors like you: {{$vars.TG_GOOGLE_REVIEW_LINK}} — The TG Team" },
+      "parameters": {
+        "jsCode": "function buildEmailHtml(options) {\n  const { subject, headline, bodyHtml, reviewText, reviewerName, ctaText, ctaUrl, urgencyText, previewText } = options;\n  return `<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><title>${subject}</title></head><body style=\"margin:0;padding:0;background-color:#f5f5f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;\"><span style=\"display:none;max-height:0;overflow:hidden;\">${previewText || ''}</span><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f5f5f0;\"><tr><td align=\"center\" style=\"padding:20px;\"><table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);\"><tr><td style=\"background:#2D5A27;padding:20px 30px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"color:#ffffff;font-size:20px;font-weight:bold;\">TotalGuard Yard Care</td><td align=\"right\" style=\"color:#ffffff;font-size:14px;\"><a href=\"tel:6085356057\" style=\"color:#ffffff;text-decoration:none;\">(608) 535-6057</a></td></tr><tr><td colspan=\"2\" style=\"color:#C5A55A;font-size:12px;padding-top:4px;\">Madison's Most Trusted Yard Care</td></tr></table></td></tr><tr><td style=\"padding:30px 30px 10px;\"><h1 style=\"margin:0;color:#2D5A27;font-size:24px;\">${headline}</h1></td></tr><tr><td style=\"padding:10px 30px 20px;color:#1a1a1a;font-size:15px;line-height:1.6;\">${bodyHtml}</td></tr>${reviewText ? `<tr><td style=\"padding:0 30px 20px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"background:#f5f5f0;border-left:4px solid #2D5A27;padding:16px 20px;border-radius:0 6px 6px 0;\"><div style=\"color:#C5A55A;font-size:18px;margin-bottom:8px;\">★★★★★</div><div style=\"color:#333;font-style:italic;font-size:14px;margin-bottom:8px;\">\"${reviewText}\"</div><div style=\"color:#2D5A27;font-weight:bold;font-size:13px;\">— ${reviewerName}</div><div style=\"color:#888;font-size:11px;\">Verified Google Review</div></td></tr></table></td></tr>` : ''}${urgencyText ? `<tr><td style=\"padding:0 30px 20px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"background:#f0f8f0;border:2px solid #2D5A27;border-radius:8px;padding:16px 20px;text-align:center;\"><div style=\"color:#2D5A27;font-weight:bold;font-size:14px;\">${urgencyText}</div></td></tr></table></td></tr>` : ''}<tr><td style=\"padding:0 30px 20px;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"background:#2D5A27;border-radius:6px;padding:14px 32px;\"><a href=\"${ctaUrl}\" style=\"color:#ffffff;text-decoration:none;font-weight:bold;font-size:16px;display:inline-block;\">${ctaText}</a></td></tr></table></td></tr><tr><td style=\"padding:0 30px 20px;text-align:center;\"><div style=\"color:#555;font-size:13px;\">Prefer to talk? <a href=\"tel:6085356057\" style=\"color:#2D5A27;font-weight:bold;\">(608) 535-6057</a></div></td></tr><tr><td style=\"padding:10px 30px;text-align:center;border-top:1px solid #eee;\"><div style=\"color:#888;font-size:11px;\">✓ Licensed & Insured &nbsp; ✓ 4.9★ Google Rating &nbsp; ✓ 500+ Properties &nbsp; ✓ Satisfaction Guaranteed</div></td></tr><tr><td style=\"background:#1a1a1a;padding:24px 30px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"color:#ffffff;font-size:14px;font-weight:bold;\">TotalGuard Yard Care</td></tr><tr><td style=\"color:#aaa;font-size:12px;padding-top:6px;\">7610 Welton Dr, Madison, WI 53711</td></tr><tr><td style=\"color:#aaa;font-size:12px;padding-top:4px;\"><a href=\"tel:6085356057\" style=\"color:#C5A55A;\">(608) 535-6057</a> | <a href=\"mailto:totalguardllc@gmail.com\" style=\"color:#C5A55A;\">totalguardllc@gmail.com</a></td></tr><tr><td style=\"padding-top:10px;\"><a href=\"https://facebook.com/totalguardyardcare\" style=\"color:#C5A55A;font-size:12px;text-decoration:none;margin-right:10px;\">Facebook</a> <a href=\"https://instagram.com/totalguardyardcare\" style=\"color:#C5A55A;font-size:12px;text-decoration:none;margin-right:10px;\">Instagram</a> <a href=\"https://g.page/r/CRW5Dsg2JgwBEBM/review\" style=\"color:#C5A55A;font-size:12px;text-decoration:none;\">Google</a></td></tr><tr><td style=\"color:#666;font-size:10px;padding-top:10px;\">Serving Madison, Middleton, Waunakee, Monona, Sun Prairie, Fitchburg, Verona, McFarland, Cottage Grove, DeForest, Oregon & Stoughton</td></tr></table></td></tr></table></td></tr></table></body></html>`;\n}\n\nconst trigger = $('Execute Workflow Trigger').first().json;\nconst name = trigger.customer_first_name || 'there';\nconst service = trigger.service || 'yard care';\nconst reviewUrl = 'https://g.page/r/CRW5Dsg2JgwBEBM/review';\n\nconst subject = `How was your ${service} service, ${name}?`;\nconst body = `Hi ${name}, thanks for choosing TotalGuard for your ${service}! If you loved the results, a quick Google review helps us serve more Madison neighbors like you: ${reviewUrl} — The TotalGuard Team`;\n\nconst htmlBody = buildEmailHtml({\n  subject,\n  headline: `How did we do, ${name}?`,\n  bodyHtml: `<p>Hi ${name},</p><p>Thank you for choosing TotalGuard for your recent <strong>${service}</strong> service! We hope you're thrilled with the results.</p><p>If you have a moment, we'd truly appreciate a quick Google review. It only takes 30 seconds and helps other Madison homeowners find quality yard care.</p><p style=\"text-align:center;padding:10px 0;\"><span style=\"font-size:32px;\">\\u2B50\\u2B50\\u2B50\\u2B50\\u2B50</span></p><p><strong>Here's what other customers are saying:</strong></p><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:10px 0;\"><tr><td style=\"background:#f5f5f0;padding:12px 16px;border-radius:6px;margin-bottom:8px;\"><div style=\"color:#C5A55A;font-size:14px;\">★★★★★</div><div style=\"color:#333;font-style:italic;font-size:13px;margin-top:4px;\">\"Best lawn service in Madison. They show up on time, every time, and my yard has never looked better.\"</div><div style=\"color:#2D5A27;font-size:12px;margin-top:4px;font-weight:bold;\">— Sarah M.</div></td></tr></table><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:10px 0;\"><tr><td style=\"background:#f5f5f0;padding:12px 16px;border-radius:6px;margin-bottom:8px;\"><div style=\"color:#C5A55A;font-size:14px;\">★★★★★</div><div style=\"color:#333;font-style:italic;font-size:13px;margin-top:4px;\">\"Professional, reliable, and they actually care about doing quality work. Highly recommend!\"</div><div style=\"color:#2D5A27;font-size:12px;margin-top:4px;font-weight:bold;\">— Mike R.</div></td></tr></table><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:10px 0;\"><tr><td style=\"background:#f5f5f0;padding:12px 16px;border-radius:6px;\"><div style=\"color:#C5A55A;font-size:14px;\">★★★★★</div><div style=\"color:#333;font-style:italic;font-size:13px;margin-top:4px;\">\"Switched from another company and the difference is night and day. TotalGuard is the real deal.\"</div><div style=\"color:#2D5A27;font-size:12px;margin-top:4px;font-weight:bold;\">— Jennifer T.</div></td></tr></table>`,\n  ctaText: '\\u2B50 Leave a Google Review',\n  ctaUrl: reviewUrl,\n  urgencyText: 'It only takes 30 seconds — your review helps fellow Madison homeowners find trusted yard care!',\n  previewText: `Thanks for choosing TotalGuard, ${name}! We'd love to hear how your ${service} went.`\n});\n\nreturn [{ json: { ...trigger, subject, body, htmlBody } }];"
+      },
+      "id": "build-review-email",
+      "name": "Build Review Request Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 300]
+    },
+    {
       "id": "sms-review",
       "name": "SMS Review Request",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
-      "position": [880, 200],
-      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 200],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "api-key", "value": "={{$vars.TG_BREVO_API_KEY}}" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "sender", "value": "TotalGuard" },
+            { "name": "recipient", "value": "={{$('Execute Workflow Trigger').first().json.customer_phone}}" },
+            { "name": "content", "value": "=Hi {{$('Execute Workflow Trigger').first().json.customer_first_name}}, thanks for choosing TotalGuard! If you loved our {{$('Execute Workflow Trigger').first().json.service}}, a quick Google review helps us serve more Madison neighbors like you: {{$vars.TG_GOOGLE_REVIEW_LINK}} — The TG Team" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "api-key", "value": "={{$vars.TG_BREVO_API_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" }, \"to\": [{ \"email\": \"{{ $('Execute Workflow Trigger').first().json.customer_email }}\", \"name\": \"{{ $('Execute Workflow Trigger').first().json.customer_first_name }}\" }], \"subject\": \"{{ $json.subject }}\", \"htmlContent\": \"{{ $json.htmlBody }}\", \"textContent\": \"{{ $json.body }}\" }"
+      },
+      "id": "send-review-email",
+      "name": "Send Review Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 400],
+      "continueOnFail": true
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/review_request_links",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
         "sendBody": true,
-        "bodyParameters": { "parameters": [{ "name": "job_id", "value": "={{$('Execute Workflow Trigger').first().json.job_id}}" }, { "name": "customer_phone", "value": "={{$('Execute Workflow Trigger').first().json.customer_phone}}" }, { "name": "sent_at", "value": "={{ new Date().toISOString() }}" }, { "name": "channel", "value": "sms" }] }
+        "bodyParameters": {
+          "parameters": [
+            { "name": "job_id", "value": "={{$('Execute Workflow Trigger').first().json.job_id}}" },
+            { "name": "customer_phone", "value": "={{$('Execute Workflow Trigger').first().json.customer_phone}}" },
+            { "name": "sent_at", "value": "={{ new Date().toISOString() }}" },
+            { "name": "channel", "value": "sms_and_email" }
+          ]
+        }
       },
       "id": "log-request",
       "name": "Log Review Request",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1100, 200]
+      "position": [1320, 300]
     }
   ],
   "connections": {
-    "Execute Workflow Trigger": { "main": [[{ "node": "Wait 24 Hours", "type": "main", "index": 0 }]] },
-    "Wait 24 Hours": { "main": [[{ "node": "Check Existing Requests", "type": "main", "index": 0 }]] },
-    "Check Existing Requests": { "main": [[{ "node": "Under 2 Requests?", "type": "main", "index": 0 }]] },
-    "Under 2 Requests?": { "main": [[{ "node": "SMS Review Request", "type": "main", "index": 0 }], []] },
-    "SMS Review Request": { "main": [[{ "node": "Log Review Request", "type": "main", "index": 0 }]] }
+    "Execute Workflow Trigger": {
+      "main": [[{ "node": "Wait 24 Hours", "type": "main", "index": 0 }]]
+    },
+    "Wait 24 Hours": {
+      "main": [[{ "node": "Check Existing Requests", "type": "main", "index": 0 }]]
+    },
+    "Check Existing Requests": {
+      "main": [[{ "node": "Under 2 Requests?", "type": "main", "index": 0 }]]
+    },
+    "Under 2 Requests?": {
+      "main": [
+        [{ "node": "Build Review Request Email", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Build Review Request Email": {
+      "main": [[
+        { "node": "SMS Review Request", "type": "main", "index": 0 },
+        { "node": "Send Review Email", "type": "main", "index": 0 }
+      ]]
+    },
+    "SMS Review Request": {
+      "main": [[{ "node": "Log Review Request", "type": "main", "index": 0 }]]
+    },
+    "Send Review Email": {
+      "main": [[{ "node": "Log Review Request", "type": "main", "index": 0 }]]
+    }
   },
   "settings": { "availableInMCP": true }
 }

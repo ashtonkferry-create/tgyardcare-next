@@ -1,0 +1,85 @@
+{
+  "campaign": "review_request",
+  "workflow_ids": ["TG-13", "TG-18"],
+  "template": "tg-review",
+  "total_emails": 2,
+  "description": "2-email review request sequence for TotalGuard Yard Care. Email 1 sent 24-48hrs after service completion (TG-13). Email 2 sent 7 days after Email 1 if no review detected (TG-18). Uses tg-review.html template.",
+  "emails": [
+    {
+      "id": "review_1",
+      "email_number": 1,
+      "trigger": "service_completed",
+      "delay": "24-48 hours after service completion",
+      "template": "tg-review",
+      "subject_a": "Quick favor, {{first_name}}? (takes 30 seconds)",
+      "subject_b": "How did we do on your {{last_service}}, {{first_name}}?",
+      "preview_text": "Your honest review helps other {{city}} families find reliable yard care.",
+      "headline": "How Did We Do?",
+      "subheadline": "Your {{last_service}} is complete — and your opinion means everything to us.",
+      "body_html": "<p>Hey {{first_name}},</p><p>We just finished your <strong>{{last_service}}</strong> and hope you're loving the results!</p><p>If our crew exceeded your expectations, would you take <strong>30 seconds</strong> to share your experience on Google?</p><p>Here's why it matters: TotalGuard is a small, local company. We don't have a massive marketing budget or a national brand name. When someone in {{city}} searches for yard care, <strong>your review is what helps them find us</strong> — and trust us before they ever pick up the phone.</p><p>Every review from a real customer in {{city}} helps another family find a yard care company they can actually rely on. And honestly? Reading your words makes our entire week.</p><p><strong>It takes 30 seconds:</strong></p><ol><li>Tap the button below</li><li>Pick your stars</li><li>Write a sentence or two about your experience (or don't — stars alone help!)</li><li>Hit submit</li></ol><p>That's it. You'd be helping us more than you know.</p><h3>Here's What Your {{city}} Neighbors Are Saying</h3><blockquote style=\"background:#f8f8f8; padding:16px; border-left:4px solid #2d6a2e; border-radius:4px; margin:16px 0;\"><p style=\"margin:0 0 8px 0;\">\"If you want your yard done right, TotalGuard is the company to call. Professional, efficient, and the results speak for themselves.\"</p><p style=\"margin:0; font-weight:bold;\">— Maxi Schultz</p></blockquote><blockquote style=\"background:#f8f8f8; padding:16px; border-left:4px solid #2d6a2e; border-radius:4px; margin:16px 0;\"><p style=\"margin:0 0 8px 0;\">\"Total Guard Yard care exceeded my expectations with their professionalism and attention to detail. My yard has never looked better.\"</p><p style=\"margin:0; font-weight:bold;\">— Ian Fleck</p></blockquote><blockquote style=\"background:#f8f8f8; padding:16px; border-left:4px solid #2d6a2e; border-radius:4px; margin:16px 0;\"><p style=\"margin:0 0 8px 0;\">\"Outstanding service from start to finish. They did an A+ job on my lawn.\"</p><p style=\"margin:0; font-weight:bold;\">— Akshaj Arun</p></blockquote><p style=\"margin-top:24px; padding:16px; background:#fff8e1; border-left:4px solid #f9a825; border-radius:4px;\"><strong>Not satisfied with something?</strong> Please don't leave a review — just reply to this email and tell Vance directly. I'll personally make it right. No questions asked.</p>",
+      "review_showcase": [
+        {
+          "text": "If you want your yard done right, TotalGuard is the company to call. Professional, efficient, and the results speak for themselves.",
+          "name": "Maxi Schultz",
+          "service": "Lawn Care"
+        },
+        {
+          "text": "Total Guard Yard care exceeded my expectations with their professionalism and attention to detail. My yard has never looked better.",
+          "name": "Ian Fleck",
+          "service": "Lawn Care"
+        },
+        {
+          "text": "Outstanding service from start to finish. They did an A+ job on my lawn.",
+          "name": "Akshaj Arun",
+          "service": "Lawn Care"
+        }
+      ],
+      "cta_text": "★★★★★ Leave a Quick Review",
+      "cta_url": "https://g.page/r/CRW5Dsg2JgwBEBM/review",
+      "urgency_text": null,
+      "personalization_tokens": ["first_name", "city", "last_service"],
+      "goal": "Get a Google review from the customer within 48 hours of service while satisfaction is highest, using social proof and a low-friction ask with a safety valve for unhappy customers"
+    },
+    {
+      "id": "review_2",
+      "email_number": 2,
+      "trigger": "no_review_detected_7_days_after_email_1",
+      "delay": "7 days after review_1 if no new review detected",
+      "template": "tg-review",
+      "subject_a": "One more thing, {{first_name}}...",
+      "subject_b": "Your {{city}} neighbors would love to hear from you",
+      "preview_text": "We have 78+ reviews but yours would mean the most right now.",
+      "headline": "One Last Ask",
+      "subheadline": "We'll keep this short — we know you're busy.",
+      "body_html": "<p>Hey {{first_name}},</p><p>I know you're busy, and I promise this is the last time I'll ask.</p><p>We sent you a note last week about leaving a quick Google review, and I wanted to follow up one more time — because <strong>your review genuinely matters more than you might think</strong>.</p><p>Here's the truth: we have <strong>78+ reviews and a 4.9-star rating</strong>. That's incredible, and we're grateful for every single one. But the algorithm favors <em>recent</em> reviews. A review from you today carries more weight than a review from six months ago.</p><p>It literally takes 30 seconds:</p><ol><li><strong>Tap the button below</strong></li><li><strong>Pick your stars</strong> (even just a star rating helps — no words required)</li><li><strong>Write a sentence if you feel like it</strong></li><li><strong>Hit submit</strong></li></ol><p>That's it. Done. You'll have helped a local {{city}} business more than any ad or marketing campaign ever could.</p><p>Thank you, {{first_name}}. We appreciate you either way.</p><p>— Vance &amp; the TotalGuard crew</p>",
+      "cta_text": "★★★★★ It Takes 30 Seconds",
+      "cta_url": "https://g.page/r/CRW5Dsg2JgwBEBM/review",
+      "urgency_text": null,
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Final gentle nudge for a Google review, emphasizing simplicity and the impact of recent reviews on local search ranking"
+    }
+  ],
+  "metadata": {
+    "created": "2026-03-12",
+    "business": {
+      "name": "TotalGuard Yard Care",
+      "location": "Madison, WI",
+      "phone": "(608) 535-6057",
+      "email": "totalguardllc@gmail.com",
+      "website": "https://tgyardcare.com",
+      "google_review_link": "https://g.page/r/CRW5Dsg2JgwBEBM/review",
+      "cofounders": ["Vance Ferry", "Alex O'Donnell"]
+    },
+    "review_stats": {
+      "total_reviews": 78,
+      "average_rating": 4.9,
+      "platform": "Google Business Profile"
+    },
+    "sequence_logic": {
+      "email_1_trigger": "TG-13 fires 24-48hrs after service completion",
+      "email_2_trigger": "TG-18 fires 7 days after email_1 if no new Google review detected from that customer",
+      "max_sends_per_customer": "1 sequence per service completion, max 1 active sequence at a time",
+      "suppression": "Suppress if customer left a review in the last 30 days"
+    }
+  }
+}

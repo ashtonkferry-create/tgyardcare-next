@@ -1,0 +1,422 @@
+{
+  "campaign": "lead_followup",
+  "workflow_id": "TG-09",
+  "template": "tg-hero",
+  "total_emails": 12,
+  "description": "12-email lead follow-up sequence across 3 tiers (Hot/Warm/Cold). Hot leads get 3 emails on Days 1/3/5 focused on closing. Warm leads get 3 emails on Days 2/5/10 focused on differentiation and social proof. Cold leads get 4 emails on Days 3/7/14/30 focused on education, trust-building, and a graceful close.",
+  "tiers": {
+    "hot": {
+      "description": "High-scoring leads who recently requested a quote. Goal: close fast with urgency and trust signals.",
+      "email_ids": ["lead_hot_1", "lead_hot_2", "lead_hot_3"],
+      "scoring_criteria": "Lead score >= 70, quote requested within last 48 hours"
+    },
+    "warm": {
+      "description": "Leads showing interest but haven't committed. Goal: differentiate, build trust, create FOMO.",
+      "email_ids": ["lead_warm_1", "lead_warm_2", "lead_warm_3"],
+      "scoring_criteria": "Lead score 40-69, visited site or opened previous email"
+    },
+    "cold": {
+      "description": "Low-engagement leads in long consideration. Goal: educate, build authority, stay top of mind, close gracefully.",
+      "email_ids": ["lead_cold_1", "lead_cold_2", "lead_cold_3", "lead_cold_4"],
+      "scoring_criteria": "Lead score < 40, no recent engagement"
+    }
+  },
+  "emails": [
+    {
+      "id": "lead_hot_1",
+      "tier": "hot",
+      "email_number": 1,
+      "send_day": 1,
+      "template": "tg-hero",
+      "subject_a": "Your TotalGuard quote is ready, {{first_name}}",
+      "subject_b": "{{first_name}}, we just finished putting together your quote",
+      "preview_text": "Fair pricing, no surprises. Here's everything you need to know.",
+      "headline": "Your Quote Is Ready, {{first_name}}",
+      "subheadline": "Fair pricing, no hidden fees, and a team that shows up when they say they will.",
+      "body_html": "<p>Hey {{first_name}},</p><p>Thanks for reaching out to TotalGuard. We appreciate you trusting us with your yard, and we don't take that lightly.</p><p>We've put together your quote and it's ready for you to review. Here's what you can expect from us:</p><ul><li><strong>Flat-rate pricing</strong> &mdash; The number you see is the number you pay. No hidden fees, no surprise charges, no \"well, actually\" after the job is done.</li><li><strong>24-hour quote response</strong> &mdash; We got back to you fast because we respect your time. (Most of our quotes go out within 2 hours.)</li><li><strong>Same crew, every single visit</strong> &mdash; Your team learns your property, your preferences, and your standards. No random strangers showing up.</li><li><strong>100% satisfaction guarantee</strong> &mdash; If something isn't right, we come back and fix it. Period.</li></ul>{{#if requested_service}}<p>You mentioned you're interested in <strong>{{requested_service}}</strong> &mdash; that's one of our most popular services in {{city}}, and our crew has handled hundreds of properties just like yours across the Madison area.</p>{{/if}}<p>The numbers speak for themselves: <strong>4.9 stars on Google, 78+ verified reviews, and 500+ properties served</strong> across the Madison area. We're not the cheapest, and we're not the most expensive &mdash; we're the most reliable.</p><p>Click below to view your quote and lock in your spot on our schedule. If you have any questions at all, just reply to this email or give us a call. We're real people and we actually pick up the phone.</p>",
+      "review": {
+        "text": "Fastest quote I've ever received on a job, they went around my house once and gave me a great price almost instantly!",
+        "name": "Luke Field",
+        "service": "Lawn Care"
+      },
+      "cta_text": "View Your Quote & Book \u2192",
+      "cta_url": "https://tgyardcare.com/contact",
+      "secondary_cta": "Questions? Call (608) 535-6057",
+      "urgency_text": "Your dedicated crew is ready. Let's get your yard looking its best.",
+      "show_spotlight": false,
+      "personalization_tokens": ["first_name", "city", "requested_service"],
+      "goal": "Get the lead to open their quote and book. Emphasize trust, speed, and no-surprises pricing."
+    },
+    {
+      "id": "lead_hot_2",
+      "tier": "hot",
+      "email_number": 2,
+      "send_day": 3,
+      "template": "tg-hero",
+      "subject_a": "Quick question about your yard, {{first_name}}",
+      "subject_b": "Did you get a chance to look at your quote?",
+      "preview_text": "Just checking in \u2014 wanted to make sure everything made sense.",
+      "headline": "Quick Check-In, {{first_name}}",
+      "subheadline": "No pressure \u2014 just making sure you have everything you need.",
+      "body_html": "<p>Hey {{first_name}},</p><p>Just wanted to follow up on the quote we sent over. Did you have a chance to take a look?</p><p>If anything was unclear or you have questions about the pricing, the process, or what's included &mdash; I'm happy to walk through it. Seriously, no question is too small. We'd rather over-explain than leave you guessing.</p>{{#if requested_service}}<p><strong>Quick tip for your {{requested_service}}:</strong> This time of year in {{city}}, the best results come from getting on a regular schedule early. Properties that start service in the spring tend to look noticeably better by mid-summer compared to those that wait. Just something to keep in mind &mdash; no pressure either way.</p>{{/if}}<p>Here's what I want you to know: <strong>there's absolutely no obligation.</strong> We don't do high-pressure sales. We don't send pushy follow-ups. We just want to make sure you got the information you need to make the best decision for your yard.</p><p>If the timing isn't right, that's totally fine. But if you're ready to move forward, we can usually get you on the schedule within a few days.</p><p>Just hit reply or give us a call at <strong>(608) 535-6057</strong>. We're here to help.</p>",
+      "review": {
+        "text": "Showed up when they said they would, explained everything clearly, and didn't try to upsell anything. The work was done right.",
+        "name": "Zachary Butterfield",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Reply With Questions or Book Now \u2192",
+      "cta_url": "https://tgyardcare.com/contact",
+      "urgency_text": "No obligation. No pressure. Just honest yard care when you're ready.",
+      "show_spotlight": false,
+      "personalization_tokens": ["first_name", "city", "requested_service"],
+      "goal": "Casual, low-pressure check-in. Answer objections before they're raised. Position as helpful, not salesy."
+    },
+    {
+      "id": "lead_hot_3",
+      "tier": "hot",
+      "email_number": 3,
+      "send_day": 5,
+      "template": "tg-hero",
+      "subject_a": "Your TotalGuard quote expires Friday, {{first_name}}",
+      "subject_b": "Last chance to lock in your quote at this price",
+      "preview_text": "After Friday, we'll need to requote. Prices may change with seasonal demand.",
+      "headline": "Your Quote Expires Friday",
+      "subheadline": "Seasonal demand is picking up. We wanted to give you a heads up before pricing adjusts.",
+      "body_html": "<p>Hey {{first_name}},</p><p>Just a quick heads up &mdash; the quote we put together for you expires this Friday. After that, we'll need to requote, and with seasonal demand picking up across {{city}}, pricing may adjust.</p><p>This isn't a pressure tactic. It's just how the business works: as our schedule fills up, we have to adjust pricing to reflect the demand on our crews. Right now, we can still honor the original quote.</p><p><strong>Here's a reminder of what you'll get:</strong></p><ul><li>Same dedicated crew every visit &mdash; they'll learn your yard inside and out</li><li>Service confirmation text before every visit &mdash; no surprises</li><li>Before &amp; after photos so you can see the results</li><li>100% satisfaction guarantee &mdash; if it's not right, we come back</li><li>Direct line to the owners (Vance &amp; Alex) &mdash; not a call center</li></ul><p>We've served 500+ properties across Madison, Middleton, Waunakee, Monona, and the surrounding areas. Our 4.9-star rating on Google isn't an accident &mdash; it's what happens when you care about every single yard like it's your own.</p><p>If you're ready, click below to book at your current quote price. If you need a few more days, just reply and we'll see what we can do.</p>",
+      "review": {
+        "text": "Very professional and easy to work with. Communication was clear, pricing was fair, and the results were solid. Our lawn hasn't looked this clean in a long time.",
+        "name": "Peter Meyer",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Book Before Friday \u2192",
+      "cta_url": "https://tgyardcare.com/contact",
+      "urgency_text": "Quote expires {{expiry_date}}. After that, we'll need to requote at current rates.",
+      "show_spotlight": false,
+      "personalization_tokens": ["first_name", "city", "expiry_date"],
+      "goal": "Create gentle, real urgency. Not desperate \u2014 confident. Quote expiration is the lever."
+    },
+    {
+      "id": "lead_warm_1",
+      "tier": "warm",
+      "email_number": 4,
+      "send_day": 2,
+      "template": "tg-hero",
+      "subject_a": "Still thinking about your yard, {{first_name}}?",
+      "subject_b": "A few things about TotalGuard you might not know",
+      "preview_text": "Here's what makes us different from every other lawn company in {{city}}.",
+      "headline": "What Makes TotalGuard Different",
+      "subheadline": "We're not like every other lawn company. Here's why that matters for your yard.",
+      "body_html": "<p>Hey {{first_name}},</p><p>If you're still thinking about who to trust with your yard in {{city}}, we get it. There are a lot of options out there, and most of them sound the same.</p><p>So here's what actually makes TotalGuard different &mdash; not marketing fluff, but real things you'll notice from day one:</p><h3>Same Crew, Every Single Visit</h3><p>Most lawn companies send whoever is available. That means a different crew every time, none of whom know your property, your preferences, or your problem areas. At TotalGuard, <strong>you get the same dedicated team every visit</strong>. They learn your yard. They remember that you like the edges extra clean, or that the back corner needs extra attention. Consistency is how quality happens.</p><h3>Owner-Operated, Not a Franchise</h3><p>When you hire TotalGuard, you're working directly with Vance and Alex &mdash; the founders. We're not a franchise with a call center. If you have a question, you text us directly. If something isn't right, we personally make it right. That's a level of accountability a big company can never match.</p><h3>24-Hour Quote Response</h3><p>We know your time is valuable. When you reach out, you'll hear back within 24 hours &mdash; usually within 2. No waiting around for days wondering if someone got your message.</p><h3>100% Satisfaction Guarantee</h3><p>We stand behind every single job. If you're not happy with the results, we come back and fix it at no extra charge. No arguments, no excuses. We've served 500+ properties and maintained a 4.9-star Google rating because we take this seriously.</p><h3>Flat, Transparent Pricing</h3><p>The quote you get is the price you pay. We don't lowball to get in the door and then hit you with add-ons. What you see is what you get.</p><p>Still have questions? Just reply to this email. We're real people, and we'd love to help.</p>",
+      "review": {
+        "text": "We hired TotalGuard Yard Care after dealing with inconsistent service from other companies, and the difference was immediate.",
+        "name": "Will Johnson",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Get Your Free Quote \u2192",
+      "cta_url": "https://tgyardcare.com/contact",
+      "urgency_text": "Join 500+ Madison-area homeowners who switched to TotalGuard.",
+      "show_spotlight": false,
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Differentiate TotalGuard from competitors with specific, concrete advantages. Not 'we're the best' \u2014 'here's what's different.'"
+    },
+    {
+      "id": "lead_warm_2",
+      "tier": "warm",
+      "email_number": 5,
+      "send_day": 5,
+      "template": "tg-hero",
+      "subject_a": "Here's what your {{city}} neighbors are saying about us",
+      "subject_b": "{{first_name}}, 78 five-star reviews can't be wrong",
+      "preview_text": "Real reviews from real Madison-area homeowners.",
+      "headline": "Don't Take Our Word for It",
+      "subheadline": "Here's what real {{city}} homeowners are saying about TotalGuard.",
+      "body_html": "<p>Hey {{first_name}},</p><p>We could tell you all day that we're great at what we do. But honestly? The people who matter most are the ones who've already hired us.</p><p>Here's what your {{city}} neighbors are saying on Google:</p><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 20px 0;\"><tr><td style=\"padding: 16px 20px; background-color: #f9f9f6; border-left: 3px solid #C5A55A; border-radius: 0 4px 4px 0; margin-bottom: 12px;\"><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 16px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 8px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"TotalGuard Yard Care has been fantastic to work with. The lawn mowing and trimming are always done professionally.\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; Kaleb Dresen <span style=\"color: #888888; font-weight: 400;\">(Lawn Mowing &amp; Trimming)</span></p></td></tr></table><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 12px 0;\"><tr><td style=\"padding: 16px 20px; background-color: #f9f9f6; border-left: 3px solid #C5A55A; border-radius: 0 4px 4px 0; margin-bottom: 12px;\"><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 16px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 8px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"TotalGuard is the only company I trust with my gutters now. They cleaned mine in the pouring rain and still nailed the job. Zero leaves left, no mess on my siding. Respect.\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; Warren Williams <span style=\"color: #888888; font-weight: 400;\">(Gutter Cleaning)</span></p></td></tr></table><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 12px 0;\"><tr><td style=\"padding: 16px 20px; background-color: #f9f9f6; border-left: 3px solid #C5A55A; border-radius: 0 4px 4px 0; margin-bottom: 12px;\"><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 16px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 8px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"Vance and Alex did an excellent job of mulching our perennial beds, several located on fairly steep pitches. Very professional, careful attention to detail, good cleanup.\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; Matthew Wolff <span style=\"color: #888888; font-weight: 400;\">(Mulching)</span></p></td></tr></table><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 12px 0;\"><tr><td style=\"padding: 16px 20px; background-color: #f9f9f6; border-left: 3px solid #C5A55A; border-radius: 0 4px 4px 0;\"><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 16px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 8px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"I had them out for a spring clean-up &mdash; leaves, branches, lawn tune-up. No upsell garbage, just honest work. It's how service should be.\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; Mauricio Roldan <span style=\"color: #888888; font-weight: 400;\">(Spring Cleanup)</span></p></td></tr></table><p style=\"margin-top: 20px;\">That's <strong>4.9 stars across 78+ reviews</strong> on Google. Mowing, mulching, gutter cleaning, spring cleanups &mdash; whatever your yard needs, your neighbors trust us to get it done right.</p><p>Ready to see what we can do for your property?</p>",
+      "review": {
+        "text": "TotalGuard Yard Care has been fantastic to work with. The lawn mowing and trimming are always done professionally.",
+        "name": "Kaleb Dresen",
+        "service": "Lawn Mowing & Trimming"
+      },
+      "additional_reviews": [
+        {
+          "text": "TotalGuard is the only company I trust with my gutters now. They cleaned mine in the pouring rain and still nailed the job. Zero leaves left, no mess on my siding. Respect.",
+          "name": "Warren Williams",
+          "service": "Gutter Cleaning"
+        },
+        {
+          "text": "Vance and Alex did an excellent job of mulching our perennial beds, several located on fairly steep pitches. Very professional, careful attention to detail, good cleanup.",
+          "name": "Matthew Wolff",
+          "service": "Mulching"
+        },
+        {
+          "text": "I had them out for a spring clean-up \u2014 leaves, branches, lawn tune-up. No upsell garbage, just honest work. It's how service should be.",
+          "name": "Mauricio Roldan",
+          "service": "Spring Cleanup"
+        }
+      ],
+      "cta_text": "Join 500+ Happy Homeowners \u2192",
+      "cta_url": "https://tgyardcare.com/contact",
+      "urgency_text": "4.9\u2605 on Google \u2014 78+ verified reviews from your neighbors.",
+      "show_spotlight": false,
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Overwhelm with social proof. Multiple reviews across different services show breadth and consistency."
+    },
+    {
+      "id": "lead_warm_3",
+      "tier": "warm",
+      "email_number": 6,
+      "send_day": 10,
+      "template": "tg-hero",
+      "subject_a": "{{city}} {{seasonal_service}} spots are filling up",
+      "subject_b": "Just a heads up, {{first_name}} \u2014 our schedule is getting tight",
+      "preview_text": "We're booking into next week already. Wanted to make sure you didn't miss out.",
+      "headline": "Our {{city}} Schedule Is Filling Up",
+      "subheadline": "We run dedicated crews and can only serve so many properties per day. Just wanted to give you a heads up.",
+      "body_html": "<p>Hey {{first_name}},</p><p>Quick heads up &mdash; our {{seasonal_service}} schedule for {{city}} is starting to fill up, and I wanted to make sure you had a chance to get on the calendar before things get tight.</p><p>This isn't a fake urgency email. Here's the reality of how we operate:</p><ul><li><strong>We run dedicated crews</strong> &mdash; not a revolving door of random workers. That means each crew can only serve a fixed number of properties per day.</li><li><strong>We don't overbook</strong> &mdash; we'd rather turn away work than rush through a job. Every property gets our full attention.</li><li><strong>Seasonal demand is real</strong> &mdash; when the weather turns, everyone wants their yard done at the same time. Early birds get the best scheduling options.</li></ul><p>Right now, we still have openings for {{seasonal_service}} in the {{city}} area. But we're already booking into next week, and the windows are getting smaller.</p><p>If you've been thinking about getting your yard taken care of, now's a great time to lock in your spot. We'll match you with a dedicated crew, confirm your preferred scheduling window, and handle everything from there.</p><p>No commitment required to get a quote &mdash; just click below and we'll get back to you within 24 hours (usually much faster).</p>",
+      "review": {
+        "text": "Great service! They fit us in on short notice, did a fantastic job cleaning up our lawn, and were super honest and easy to work with. Highly recommend!",
+        "name": "Christina Kang",
+        "service": "Lawn Cleanup"
+      },
+      "cta_text": "Book Before Spots Fill \u2192",
+      "cta_url": "https://tgyardcare.com/contact",
+      "urgency_text": "Limited {{seasonal_service}} spots remaining for {{city}} this season.",
+      "show_spotlight": false,
+      "personalization_tokens": ["first_name", "city", "seasonal_service"],
+      "goal": "Real scarcity based on actual scheduling constraints. Not fake countdown timers \u2014 genuine crew capacity limits."
+    },
+    {
+      "id": "lead_cold_1",
+      "tier": "cold",
+      "email_number": 7,
+      "send_day": 3,
+      "template": "tg-hero",
+      "subject_a": "3 lawn care mistakes most {{city}} homeowners make",
+      "subject_b": "Free lawn care guide for {{city}} homeowners",
+      "preview_text": "Quick tips from a pro \u2014 whether you hire us or not.",
+      "headline": "3 Mistakes Most {{city}} Homeowners Make",
+      "subheadline": "Free advice from the pros \u2014 whether you hire us or not, your yard will thank you.",
+      "body_html": "<p>Hey {{first_name}},</p><p>We talk to hundreds of {{city}} homeowners every season, and the same three mistakes come up again and again. These are easy to fix, and your yard will look noticeably better within weeks &mdash; whether you hire us or not.</p><h3>Mistake #1: Mowing Too Short</h3><p>It's tempting to cut the grass really short so you don't have to mow as often. But in Wisconsin, <strong>scalping your lawn is one of the worst things you can do</strong>. Short grass exposes the soil to direct sunlight, which dries it out and gives weeds room to move in. The ideal mowing height for most Madison-area lawns is <strong>3 to 3.5 inches</strong>. Taller grass shades the soil, retains moisture, and naturally crowds out weeds.</p><h3>Mistake #2: Watering at the Wrong Time</h3><p>If you're watering your lawn in the evening, you're setting yourself up for fungal diseases. The grass stays wet all night, creating a breeding ground for problems. <strong>Water between 6am and 10am</strong> &mdash; early enough that the grass has time to dry before nightfall, but not so late that the midday sun evaporates everything before it soaks in. Aim for <strong>1 inch of water per week</strong>, including rainfall.</p><h3>Mistake #3: Ignoring Your Edges</h3><p>A freshly mowed lawn with messy edges looks worse than an overgrown lawn with clean edges. Seriously &mdash; <strong>edging is the single biggest visual impact per minute of work</strong>. Clean edges along sidewalks, driveways, and garden beds make the entire property look manicured and intentional. It's the difference between \"maintained\" and \"cared for.\"</p><p><strong>Bonus tip:</strong> Leave your grass clippings on the lawn after mowing. They break down quickly and return valuable nitrogen to the soil. It's free fertilizer, and it's better for your lawn than bagging.</p><p>Hope that helps, {{first_name}}. We genuinely love helping people take better care of their yards &mdash; it's why we got into this business.</p><p>If you ever want a hand with the heavy lifting, we're always here.</p>",
+      "review": {
+        "text": "TotalGuard Lawn Service has been nothing short of outstanding! From the very first interaction, their proactive communication and reliability stood out.",
+        "name": "Susan McBryde",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Want Us to Handle It? Get a Free Quote \u2192",
+      "cta_url": "https://tgyardcare.com/contact",
+      "urgency_text": "Free quotes, no obligation. We're here when you're ready.",
+      "show_spotlight": false,
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Pure value, no hard sell. Position TotalGuard as the generous expert. Build trust through giving, not asking."
+    },
+    {
+      "id": "lead_cold_2",
+      "tier": "cold",
+      "email_number": 8,
+      "send_day": 7,
+      "template": "tg-hero",
+      "subject_a": "Why 500+ {{city}} families trust TotalGuard",
+      "subject_b": "{{first_name}}, meet some of your neighbors",
+      "preview_text": "Real stories from real Madison-area homeowners.",
+      "headline": "Meet Your Neighbors",
+      "subheadline": "Real stories from real {{city}} homeowners who trust TotalGuard with their yards.",
+      "body_html": "<p>Hey {{first_name}},</p><p>Sometimes the best way to learn about a company is through the people who've already hired them. Here are a few stories from your {{city}} neighbors:</p><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 20px 0; background-color: #f9f9f6; border-radius: 6px;\"><tr><td style=\"padding: 24px;\"><h3 style=\"margin: 0 0 8px 0; color: #2D5A27; font-size: 16px;\">The Last-Minute Save</h3><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 14px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 10px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"TotalGuard came through when I needed help before a party. They squeezed me in, mowed, edged, and even cleaned up the walkway. Guests noticed &mdash; and asked who I hired!\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; Andrew Lai</p><p style=\"margin: 4px 0 0 0; color: #888888; font-size: 12px;\">Andrew needed his yard guest-ready in 48 hours. We fit him in, handled the mowing, edging, and walkway cleanup. His guests noticed &mdash; and one of them called us the next week.</p></td></tr></table><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 12px 0; background-color: #f9f9f6; border-radius: 6px;\"><tr><td style=\"padding: 24px;\"><h3 style=\"margin: 0 0 8px 0; color: #2D5A27; font-size: 16px;\">The Overgrown Comeback</h3><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 14px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 10px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"They tackled my overgrown lawn, bagged, and hauled away the clippings for a fair price. They delivered above what I really expected, my lawn looks so much better. Will work with them again.\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; Ka Mur</p><p style=\"margin: 4px 0 0 0; color: #888888; font-size: 12px;\">Ka Mur's lawn had gotten away from them. We brought it back with a deep mow, bagging, and full hauling. Fair price, dramatic results.</p></td></tr></table><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 12px 0; background-color: #f9f9f6; border-radius: 6px;\"><tr><td style=\"padding: 24px;\"><h3 style=\"margin: 0 0 8px 0; color: #2D5A27; font-size: 16px;\">The Neighbor Effect</h3><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 14px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 10px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"They handled a full mulch job plus weeding &mdash; looked so good I had to walk my neighbor through it. She hired them the next day.\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; Anderson See</p><p style=\"margin: 4px 0 0 0; color: #888888; font-size: 12px;\">Anderson's mulch and weeding job looked so good, his neighbor hired us the very next day. That's the kind of work we do &mdash; the kind that speaks for itself.</p></td></tr></table><p style=\"margin-top: 20px;\">These aren't cherry-picked testimonials. We have <strong>78+ five-star reviews on Google</strong> from homeowners across Madison, Middleton, Waunakee, Monona, Sun Prairie, and beyond. Every one of them trusted us with their yard, and every one of them is glad they did.</p><p>Your yard could be the next success story.</p>",
+      "review": {
+        "text": "TotalGuard came through when I needed help before a party. They squeezed me in, mowed, edged, and even cleaned up the walkway. Guests noticed \u2014 and asked who I hired!",
+        "name": "Andrew Lai",
+        "service": "Mowing & Edging & Cleanup"
+      },
+      "additional_reviews": [
+        {
+          "text": "They tackled my overgrown lawn, bagged, and hauled away the clippings for a fair price. They delivered above what I really expected, my lawn looks so much better. Will work with them again.",
+          "name": "Ka Mur",
+          "service": "Lawn Mowing & Hauling"
+        },
+        {
+          "text": "They handled a full mulch job plus weeding \u2014 looked so good I had to walk my neighbor through it. She hired them the next day.",
+          "name": "Anderson See",
+          "service": "Mulching & Weeding"
+        }
+      ],
+      "cta_text": "See What We Can Do for Your Yard \u2192",
+      "cta_url": "https://tgyardcare.com/contact",
+      "urgency_text": "500+ properties served. 4.9\u2605 on Google. Your neighbors trust us.",
+      "show_spotlight": true,
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Customer stories format with narrative structure. Show before/after transformation through real testimonials."
+    },
+    {
+      "id": "lead_cold_3",
+      "tier": "cold",
+      "email_number": 9,
+      "send_day": 14,
+      "template": "tg-hero",
+      "subject_a": "A little something for thinking it over, {{first_name}}",
+      "subject_b": "10% off your first TotalGuard service",
+      "preview_text": "No pressure. Just a thank you for considering us.",
+      "headline": "10% Off Your First Service",
+      "subheadline": "No gimmicks, no expiration countdown. Just a genuine thank you for considering TotalGuard.",
+      "body_html": "<p>Hey {{first_name}},</p><p>We know you've been thinking about your yard, and we know choosing a lawn care company isn't a decision you make lightly. You want someone reliable, honest, and good at what they do. We get it.</p><p>So here's a little something as a thank you for taking the time to consider us:</p><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 20px 0; background-color: #f0f8f0; border: 2px dashed #2D5A27; border-radius: 8px;\"><tr><td style=\"padding: 24px; text-align: center;\"><p style=\"margin: 0 0 4px 0; font-size: 14px; color: #555555; text-transform: uppercase; letter-spacing: 1px;\">Your Exclusive Offer</p><p style=\"margin: 0 0 8px 0; font-size: 32px; font-weight: 800; color: #2D5A27;\">10% OFF</p><p style=\"margin: 0; font-size: 16px; color: #333333;\">Your first TotalGuard service</p></td></tr></table><p><strong>No pressure. No fake countdown timer. No \"act now or lose it forever.\"</strong></p><p>This offer is here when you're ready. Whether that's tomorrow, next week, or next month &mdash; just mention this email when you book, and we'll take 10% off whatever service you need.</p><p><strong>Here's what you'll get, regardless of the discount:</strong></p><ul><li>Same dedicated crew every visit</li><li>24-hour quote response (usually 2 hours)</li><li>100% satisfaction guarantee</li><li>Direct access to the owners &mdash; no call centers</li><li>Before &amp; after photos of every job</li><li>4.9\u2605 Google rating across 78+ verified reviews</li></ul><p>We're not going anywhere. And neither is this offer. When the timing feels right, we'd love to show you why 500+ Madison-area families trust us with their yards.</p>",
+      "review": {
+        "text": "Great experience overall. They explained what needed to be done, gave an honest quote, and followed through. The yard looks neat and well maintained now.",
+        "name": "Carter Gebhard",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Claim Your 10% Off \u2192",
+      "cta_url": "https://tgyardcare.com/contact?offer=10off",
+      "urgency_text": "No expiration. No pressure. Just 10% off when you're ready.",
+      "show_spotlight": false,
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Acknowledge they're still deciding. Offer genuine goodwill discount without fake urgency. Authenticity wins cold leads."
+    },
+    {
+      "id": "lead_cold_4",
+      "tier": "cold",
+      "email_number": 10,
+      "send_day": 30,
+      "template": "tg-hero",
+      "subject_a": "We're here when you're ready, {{first_name}}",
+      "subject_b": "One last note from TotalGuard",
+      "preview_text": "No more emails unless you want them. But we'd love to help when the time is right.",
+      "headline": "We're Here When You're Ready",
+      "subheadline": "No more follow-ups. Just an open door whenever the timing is right.",
+      "body_html": "<p>Hey {{first_name}},</p><p>I'll keep this short, because I know your inbox is busy and the last thing you need is another company that won't stop emailing you.</p><p><strong>This is our last follow-up.</strong></p><p>We're not going to keep filling your inbox with reminders. You know who we are, you know what we do, and you'll reach out when the timing is right. We respect that.</p><p>But before we go, here's what we want you to remember about TotalGuard:</p><ul><li><strong>We're local.</strong> Madison-born, owner-operated by Vance and Alex. Not a franchise, not a call center.</li><li><strong>We're reliable.</strong> 4.9 stars on Google, 78+ reviews, 500+ properties served. Same crew every visit.</li><li><strong>We're honest.</strong> Flat pricing, no upsells, no hidden fees. The quote is the price.</li><li><strong>We guarantee our work.</strong> If it's not right, we come back. No questions asked.</li></ul><p>Whenever you're ready &mdash; whether it's next week, next month, or next spring &mdash; here's how to reach us:</p><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 16px 0; background-color: #f5f5f0; border-radius: 6px;\"><tr><td style=\"padding: 20px 24px;\"><p style=\"margin: 0 0 8px 0; font-size: 15px;\"><strong>Phone:</strong> <a href=\"tel:+16085356057\" style=\"color: #2D5A27; text-decoration: none;\">(608) 535-6057</a></p><p style=\"margin: 0 0 8px 0; font-size: 15px;\"><strong>Email:</strong> <a href=\"mailto:totalguardllc@gmail.com\" style=\"color: #2D5A27; text-decoration: none;\">totalguardllc@gmail.com</a></p><p style=\"margin: 0 0 8px 0; font-size: 15px;\"><strong>Website:</strong> <a href=\"https://tgyardcare.com\" style=\"color: #2D5A27; text-decoration: none;\">tgyardcare.com</a></p><p style=\"margin: 0; font-size: 15px;\"><strong>Get a Quote:</strong> <a href=\"https://tgyardcare.com/contact\" style=\"color: #2D5A27; text-decoration: none;\">tgyardcare.com/contact</a></p></td></tr></table><p><strong>One last thing:</strong> If you'd still like to hear from us occasionally with seasonal lawn care tips and advice (no sales pitches, just genuinely useful stuff), you can stay on our tips list below. Otherwise, we'll stop here.</p><p>Thanks for considering TotalGuard, {{first_name}}. We hope to work with you someday.</p><p>Take care,<br><strong>Vance &amp; Alex</strong><br>TotalGuard Yard Care</p>",
+      "review": {
+        "text": "If you want your yard done right, TotalGuard is the company to call. Professional, efficient, and the results speak for themselves.",
+        "name": "Maxi Schultz",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Get a Quote When Ready \u2192",
+      "cta_url": "https://tgyardcare.com/contact",
+      "secondary_cta_text": "Keep Me on the Tips List \u2192",
+      "secondary_cta_url": "https://tgyardcare.com/tips-subscribe",
+      "urgency_text": "No rush. We'll be here whenever you need us.",
+      "show_spotlight": false,
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Graceful close. Respect their decision. Leave the door open. Offer tips list opt-in to stay connected without being annoying."
+    },
+    {
+      "id": "lead_warm_2b",
+      "tier": "warm",
+      "email_number": 11,
+      "send_day": 5,
+      "template": "tg-hero",
+      "note": "ALTERNATE VERSION of lead_warm_2 — A/B test variant with different review set. Use when Email 5 (warm tier) needs rotation to prevent review fatigue.",
+      "subject_a": "Here's what your {{city}} neighbors are saying about us",
+      "subject_b": "{{first_name}}, 78 five-star reviews can't be wrong",
+      "preview_text": "Real reviews from real Madison-area homeowners.",
+      "headline": "Your Neighbors Already Trust Us",
+      "subheadline": "78+ five-star reviews from homeowners across the Madison area.",
+      "body_html": "<p>Hey {{first_name}},</p><p>When it comes to your yard, you want someone you can trust. And the best way to know if a company is legit? Ask the people who've already hired them.</p><p>Here's what homeowners in {{city}} and the surrounding areas are saying about TotalGuard:</p><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 20px 0;\"><tr><td style=\"padding: 16px 20px; background-color: #f9f9f6; border-left: 3px solid #C5A55A; border-radius: 0 4px 4px 0;\"><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 16px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 8px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"Very professional and easy to work with. Communication was clear, pricing was fair, and the results were solid. Our lawn hasn't looked this clean in a long time.\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; Peter Meyer <span style=\"color: #888888; font-weight: 400;\">(Lawn Care)</span></p></td></tr></table><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 12px 0;\"><tr><td style=\"padding: 16px 20px; background-color: #f9f9f6; border-left: 3px solid #C5A55A; border-radius: 0 4px 4px 0;\"><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 16px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 8px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"We've tried a few lawn services before, but TotalGuard stands out. Consistent quality, good communication, and no surprises. Exactly what we were looking for.\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; MicoBan <span style=\"color: #888888; font-weight: 400;\">(Lawn Care)</span></p></td></tr></table><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 12px 0;\"><tr><td style=\"padding: 16px 20px; background-color: #f9f9f6; border-left: 3px solid #C5A55A; border-radius: 0 4px 4px 0;\"><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 16px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 8px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"Vance is responsive and the work is well done. They took on a job that others would not. They are also very quick. They have lots of energy. Highly recommend.\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; Barb Osborn <span style=\"color: #888888; font-weight: 400;\">(Mulching &amp; Weeding)</span></p></td></tr></table><p style=\"margin-top: 20px;\"><strong>78+ five-star reviews. 500+ properties served. 4.9-star Google rating.</strong></p><p>These aren't paid testimonials or cherry-picked quotes. They're real reviews from real people in your area who needed reliable yard care and found it with TotalGuard.</p><p>Ready to be the next one?</p>",
+      "review": {
+        "text": "Very professional and easy to work with. Communication was clear, pricing was fair, and the results were solid. Our lawn hasn't looked this clean in a long time.",
+        "name": "Peter Meyer",
+        "service": "Lawn Care"
+      },
+      "additional_reviews": [
+        {
+          "text": "We've tried a few lawn services before, but TotalGuard stands out. Consistent quality, good communication, and no surprises. Exactly what we were looking for.",
+          "name": "MicoBan",
+          "service": "Lawn Care"
+        },
+        {
+          "text": "Vance is responsive and the work is well done. They took on a job that others would not. They are also very quick. They have lots of energy. Highly recommend.",
+          "name": "Barb Osborn",
+          "service": "Mulching & Weeding"
+        }
+      ],
+      "cta_text": "Join 500+ Happy Homeowners \u2192",
+      "cta_url": "https://tgyardcare.com/contact",
+      "urgency_text": "Your neighbors already trust us. See why.",
+      "show_spotlight": false,
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Alternate social proof email for rotation. Different reviews to prevent fatigue in leads who may have seen the primary warm-2."
+    },
+    {
+      "id": "lead_cold_2b",
+      "tier": "cold",
+      "email_number": 12,
+      "send_day": 7,
+      "template": "tg-hero",
+      "note": "ALTERNATE VERSION of lead_cold_2 — A/B test variant with different customer stories. Use for cold leads who need fresh social proof.",
+      "subject_a": "Why 500+ {{city}} families trust TotalGuard",
+      "subject_b": "{{first_name}}, meet some of your neighbors",
+      "preview_text": "Real stories from real Madison-area homeowners.",
+      "headline": "Real Yards, Real Results",
+      "subheadline": "See what TotalGuard has done for homeowners just like you across {{city}}.",
+      "body_html": "<p>Hey {{first_name}},</p><p>We've served over 500 properties across the Madison area, and every single one has a story. Here are a few of our favorites:</p><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 20px 0; background-color: #f9f9f6; border-radius: 6px;\"><tr><td style=\"padding: 24px;\"><h3 style=\"margin: 0 0 8px 0; color: #2D5A27; font-size: 16px;\">The Switcher</h3><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 14px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 10px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"We hired TotalGuard Yard Care after dealing with inconsistent service from other companies, and the difference was immediate.\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; Will Johnson</p><p style=\"margin: 4px 0 0 0; color: #888888; font-size: 12px;\">Will was tired of unreliable service. Different crews every time, inconsistent quality, missed appointments. After switching to TotalGuard, he got the same crew every visit and results he could count on.</p></td></tr></table><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 12px 0; background-color: #f9f9f6; border-radius: 6px;\"><tr><td style=\"padding: 24px;\"><h3 style=\"margin: 0 0 8px 0; color: #2D5A27; font-size: 16px;\">The Multi-Service Customer</h3><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 14px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 10px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"Was very happy with my services and have added on more services they offer. Vance and his partner are a A+ team. Job well done! I will continue to do business with them. Great job guys!\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; Kim Esser</p><p style=\"margin: 4px 0 0 0; color: #888888; font-size: 12px;\">Kim started with a single service and kept adding more. That's what happens when you find a team that actually delivers &mdash; you stop looking and start trusting.</p></td></tr></table><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin: 12px 0; background-color: #f9f9f6; border-radius: 6px;\"><tr><td style=\"padding: 24px;\"><h3 style=\"margin: 0 0 8px 0; color: #2D5A27; font-size: 16px;\">The No-BS Review</h3><p style=\"margin: 0 0 6px 0; color: #C5A55A; font-size: 14px; letter-spacing: 2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p><p style=\"margin: 0 0 10px 0; font-style: italic; color: #333333; font-size: 14px; line-height: 1.5;\">\"That's all I want in a yard care company. No BS. Just reliable service and fair pricing. Vance and the crew are solid.\"</p><p style=\"margin: 0; font-weight: 700; color: #1a1a1a; font-size: 13px;\">&mdash; Mason</p><p style=\"margin: 4px 0 0 0; color: #888888; font-size: 12px;\">Mason said it best. No BS. That's the TotalGuard standard &mdash; show up, do great work, charge fairly, and let the results speak.</p></td></tr></table><p style=\"margin-top: 20px;\">Every one of these homeowners started exactly where you are right now &mdash; looking for someone they could trust. They found us, and they stayed.</p><p><strong>4.9 stars. 78+ reviews. 500+ properties.</strong> Your yard deserves the same level of care.</p>",
+      "review": {
+        "text": "We hired TotalGuard Yard Care after dealing with inconsistent service from other companies, and the difference was immediate.",
+        "name": "Will Johnson",
+        "service": "Lawn Care"
+      },
+      "additional_reviews": [
+        {
+          "text": "Was very happy with my services and have added on more services they offer. Vance and his partner are a A+ team. Job well done! I will continue to do business with them. Great job guys!",
+          "name": "Kim Esser",
+          "service": "Multiple Services"
+        },
+        {
+          "text": "That's all I want in a yard care company. No BS. Just reliable service and fair pricing. Vance and the crew are solid.",
+          "name": "Mason",
+          "service": "Lawn Care"
+        }
+      ],
+      "cta_text": "See What We Can Do for Your Yard \u2192",
+      "cta_url": "https://tgyardcare.com/contact",
+      "urgency_text": "Real reviews. Real results. Your neighbors trust TotalGuard.",
+      "show_spotlight": false,
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Alternate customer stories for cold lead rotation. Different narratives to test which resonates."
+    }
+  ],
+  "metadata": {
+    "created": "2026-03-12",
+    "version": "1.0.0",
+    "business": {
+      "name": "TotalGuard Yard Care",
+      "location": "Madison, WI",
+      "phone": "(608) 535-6057",
+      "email": "totalguardllc@gmail.com",
+      "website": "https://tgyardcare.com",
+      "google_review_link": "https://g.page/r/CRW5Dsg2JgwBEBM/review",
+      "google_rating": 4.9,
+      "total_reviews": "78+",
+      "properties_served": "500+",
+      "cofounders": ["Vance Ferry", "Alex O'Donnell"],
+      "quote_response_time": "24 hours (typically 2 hours)",
+      "guarantees": ["100% satisfaction guarantee", "Same crew every visit", "Flat-rate pricing"]
+    },
+    "service_areas": [
+      "Madison", "Middleton", "Waunakee", "Monona", "Sun Prairie",
+      "Fitchburg", "Verona", "McFarland", "Cottage Grove", "DeForest",
+      "Oregon", "Stoughton"
+    ],
+    "seasonal_service_mapping": {
+      "spring": "Spring Cleanup & Fertilization",
+      "summer": "Lawn Mowing & Mulching",
+      "fall": "Leaf Removal & Gutter Cleaning",
+      "winter": "Snow Removal & Winter Prep"
+    },
+    "personalization_tokens_reference": {
+      "first_name": "Lead's first name",
+      "city": "Lead's city (from service area list)",
+      "requested_service": "Service the lead inquired about (hot tier only)",
+      "seasonal_service": "Current season's primary service offering",
+      "expiry_date": "Quote expiration date (hot tier email 3 only)"
+    },
+    "n8n_workflow_notes": {
+      "workflow_id": "TG-09",
+      "trigger": "New lead enters CRM or lead score changes",
+      "tier_assignment": "Based on lead score at time of entry",
+      "send_timing": "send_day is relative to lead creation date",
+      "ab_testing": "Randomly assign subject_a or subject_b per send",
+      "exit_conditions": [
+        "Lead books a service (mark as customer, move to welcome series TG-08)",
+        "Lead unsubscribes",
+        "Lead marks as spam",
+        "Sequence completes (cold tier day 30)"
+      ],
+      "tier_escalation": "If cold lead opens 2+ emails, promote to warm tier. If warm lead requests quote, promote to hot tier."
+    }
+  }
+}

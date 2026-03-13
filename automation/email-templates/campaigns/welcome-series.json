@@ -1,0 +1,159 @@
+{
+  "campaign": "welcome_series",
+  "workflow_id": "TG-08",
+  "template": "tg-welcome",
+  "total_emails": 5,
+  "description": "5-email welcome series for new TotalGuard Yard Care customers. Builds trust, educates, collects reviews, drives referrals, and cross-sells seasonal services.",
+  "emails": [
+    {
+      "id": "welcome_1",
+      "email_number": 1,
+      "send_day": 0,
+      "template": "tg-welcome",
+      "subject_a": "Welcome to TotalGuard, {{first_name}} — here's what happens next",
+      "subject_b": "You just made the best decision for your yard, {{first_name}}",
+      "preview_text": "Your dedicated crew is assigned and ready. Here's everything you need to know.",
+      "headline": "Welcome to the TotalGuard Family, {{first_name}}!",
+      "subheadline": "You're officially in good hands. Here's what to expect.",
+      "body_html": "<p>Hey {{first_name}},</p><p>Welcome aboard! We're genuinely excited to take care of your yard in {{city}}. At TotalGuard, you're not just another address on a route — you're family.</p><p>Here's exactly what happens next:</p><ul><li><strong>&#10004; Dedicated crew assigned within 24 hours</strong> — You'll have the same team every single visit so they learn your property inside and out.</li><li><strong>&#10004; Same crew, every visit</strong> — No random strangers showing up. Consistency is how we deliver quality.</li><li><strong>&#10004; Service confirmation text before every visit</strong> — You'll always know when we're coming. No surprises.</li><li><strong>&#10004; Before &amp; after photos</strong> — We document our work so you can see the difference, even if you're not home.</li></ul><p>We built TotalGuard because we believe yard care should be <strong>reliable, transparent, and personal</strong>. That means you can text us anytime, we show up when we say we will, and we never cut corners.</p><p>If you ever have a question, concern, or just want to say hey — reply to this email or text us directly. We're real people, and we actually read every message.</p><p>Welcome to the family. Your yard is about to look incredible.</p>",
+      "personal_message": "Hey {{first_name}} — it's Vance, one of the co-founders of TotalGuard. I just wanted to personally welcome you. Alex and I started this company because we got tired of seeing lawn care done halfway. Every customer matters to us, and I mean that. I read every single email that comes in, so if you ever need anything — seriously, anything — just hit reply. Talk soon.",
+      "review": {
+        "text": "TotalGuard Lawn Service has been nothing short of outstanding! From the very first interaction, their proactive communication and reliability stood out.",
+        "name": "Susan McBryde",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Save Our Number: (608) 535-6057",
+      "cta_url": "tel:6085356057",
+      "urgency_text": null,
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Build trust, set expectations, make the new customer feel special and confident in their decision"
+    },
+    {
+      "id": "welcome_2",
+      "email_number": 2,
+      "send_day": 7,
+      "template": "tg-welcome",
+      "subject_a": "The #1 mistake {{city}} homeowners make with their lawn",
+      "subject_b": "{{first_name}}, your neighbors are asking about your yard",
+      "preview_text": "3 pro tips that keep your lawn looking sharp between our visits.",
+      "headline": "Your Yard's Secret Weapon",
+      "subheadline": "3 pro tips most {{city}} homeowners don't know — plus a way to take your lawn to the next level.",
+      "body_html": "<p>Hey {{first_name}},</p><p>After a week of working with hundreds of yards across {{city}}, we've noticed the same mistakes come up again and again. Here are <strong>3 pro tips</strong> that'll keep your lawn looking sharp between our visits:</p><h3>1. Water Deep, Not Often</h3><p>Most people water their lawn a little bit every day. That's actually the worst thing you can do. It trains your grass roots to stay shallow and weak. Instead, water <strong>1-2 times per week for 30-45 minutes</strong> in the early morning (before 10am). Deep watering builds strong, drought-resistant roots that stay green all season.</p><h3>2. Never Cut More Than 1/3 of the Blade</h3><p>We see it all the time — someone skips a mowing and then scalps the lawn to \"catch up.\" That shocks the grass and invites weeds. The rule of thumb: <strong>never cut more than one-third of the grass blade height</strong> in a single mow. That's exactly what our crew does every visit.</p><h3>3. Skip the Store-Bought Chemicals</h3><p>Those bags of \"weed and feed\" from the hardware store? They're a shotgun approach that often does more harm than good. They can burn your lawn, kill beneficial organisms in your soil, and create chemical-resistant weeds. <strong>Professional-grade fertilization and targeted herbicide application</strong> is what actually works — and it's what we offer.</p><p>Speaking of which...</p><h3>Ready to Take Your Lawn to the Next Level?</h3><p>Our <strong>Fertilization &amp; Herbicide Program</strong> is the single biggest upgrade you can make to your yard. We use professional-grade products applied at the right time, in the right amounts, by trained technicians who know {{city}} soil conditions. The result? Thicker grass, fewer weeds, and a lawn that makes your neighbors jealous.</p><p>Most of our regular customers add this on — and the difference is dramatic within the first 4-6 weeks.</p>",
+      "personal_message": null,
+      "review": {
+        "text": "I recently purchased seasonal a round of herbicide treatment and I am beyond grateful for TotalGuard. They were very prompt on their response time, and did a great job killing my dandelions. Highly recommend.",
+        "name": "Nick Bauman",
+        "service": "Herbicide Treatment"
+      },
+      "cta_text": "Add Fertilization to My Plan \u2192",
+      "cta_url": "https://tgyardcare.com/services/fertilization",
+      "urgency_text": "Spring fertilization window closes {{end_of_month}}. Only limited application slots left in {{city}}.",
+      "personalization_tokens": ["first_name", "city", "end_of_month"],
+      "goal": "Position TotalGuard as the expert, educate with genuine value, soft-sell fertilization and herbicide program"
+    },
+    {
+      "id": "welcome_3",
+      "email_number": 3,
+      "send_day": 14,
+      "template": "tg-welcome",
+      "subject_a": "Quick favor, {{first_name}}? (takes 30 seconds)",
+      "subject_b": "{{first_name}}, how would you rate us? \u2605\u2605\u2605\u2605\u2605",
+      "preview_text": "Your honest review helps other {{city}} families find reliable yard care.",
+      "headline": "Your Opinion Means Everything to Us",
+      "subheadline": "A 30-second review helps more than you know.",
+      "body_html": "<p>Hey {{first_name}},</p><p>Can I ask you a quick favor? It takes about 30 seconds and it means the world to our small team.</p><p>If you've been happy with your service so far, <strong>would you leave us a quick Google review?</strong></p><p>Here's why it matters: Alex and I built TotalGuard from scratch — just two guys, a truck, and a commitment to doing things right. We don't have a big marketing budget. When someone in {{city}} searches for \"yard care near me,\" <strong>your review is what helps them find us</strong> instead of some faceless franchise.</p><p>Every single review helps another family in {{city}} find reliable, honest yard care. And honestly? It makes our day every time we read one.</p><p><strong>It takes 30 seconds:</strong></p><ol><li>Click the button below</li><li>Tap the stars</li><li>Write a sentence or two (or don't — stars alone help!)</li><li>Hit submit</li></ol><p>That's it. You'd be helping us more than you know.</p><p><strong>Here's what other {{city}} homeowners are saying:</strong></p><blockquote><p>\"If you want your yard done right, TotalGuard is the company to call. Professional, efficient, and the results speak for themselves.\"<br><strong>— Maxi Schultz</strong></p></blockquote><blockquote><p>\"That's all I want in a yard care company. No BS. Just reliable service and fair pricing. Vance and the crew are solid.\"<br><strong>— Mason</strong></p></blockquote><blockquote><p>\"Total Guard Yard care exceeded my expectations with their professionalism and attention to detail. My yard has never looked better.\"<br><strong>— Ian Fleck</strong></p></blockquote><p><em>Not satisfied with something? Don't leave a review — just reply to this email and tell me directly. I'll personally make it right. — Vance</em></p>",
+      "personal_message": null,
+      "review": {
+        "text": "If you want your yard done right, TotalGuard is the company to call. Professional, efficient, and the results speak for themselves.",
+        "name": "Maxi Schultz",
+        "service": "Lawn Care"
+      },
+      "additional_reviews": [
+        {
+          "text": "That's all I want in a yard care company. No BS. Just reliable service and fair pricing. Vance and the crew are solid.",
+          "name": "Mason",
+          "service": "Lawn Care"
+        },
+        {
+          "text": "Total Guard Yard care exceeded my expectations with their professionalism and attention to detail. My yard has never looked better.",
+          "name": "Ian Fleck",
+          "service": "Lawn Care"
+        }
+      ],
+      "cta_text": "\u2605\u2605\u2605\u2605\u2605 Leave a Quick Review",
+      "cta_url": "https://g.page/r/CRW5Dsg2JgwBEBM/review",
+      "urgency_text": null,
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Get a Google review from the customer using social proof and a genuine, low-pressure ask"
+    },
+    {
+      "id": "welcome_4",
+      "email_number": 4,
+      "send_day": 21,
+      "template": "tg-welcome",
+      "subject_a": "You've earned $25, {{first_name}} — here's how to claim it",
+      "subject_b": "Your neighbor wants what you have. ($25 for both of you)",
+      "preview_text": "Refer a friend \u2192 you both save $25. No limit on referrals.",
+      "headline": "Get $25. Give $25.",
+      "subheadline": "Your friends deserve a great yard too — and you deserve a reward for spreading the word.",
+      "body_html": "<p>Hey {{first_name}},</p><p>You know that feeling when a neighbor walks over and says <em>\"Your yard looks amazing — who do you use?\"</em></p><p>Now there's a reason to answer that question:</p><h3>The TotalGuard Referral Program</h3><p><strong>Here's how it works:</strong></p><ul><li><strong>You refer a friend or neighbor</strong> \u2192 They get <strong>$25 off their first service</strong></li><li><strong>They book with us</strong> \u2192 You get <strong>$25 off your next service</strong></li><li><strong>No limit on referrals</strong> \u2192 Refer as many people as you want</li></ul><p><strong>Let's do the math:</strong></p><table style=\"width:100%; border-collapse:collapse; margin:16px 0;\"><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:8px;\">Refer 1 neighbor</td><td style=\"padding:8px; text-align:right;\"><strong>Save $25</strong></td></tr><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:8px;\">Refer 3 neighbors</td><td style=\"padding:8px; text-align:right;\"><strong>Save $75</strong></td></tr><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:8px;\">Refer 5 neighbors</td><td style=\"padding:8px; text-align:right;\"><strong>Save $125</strong></td></tr><tr><td style=\"padding:8px;\">Refer 10 neighbors</td><td style=\"padding:8px; text-align:right;\"><strong>Save $250</strong></td></tr></table><p>Some of our customers have literally gotten free services just by telling their neighbors about us. No gimmicks — just real savings.</p><h3>Easy Way to Share</h3><p>Just copy and send this to anyone who could use reliable yard care:</p><blockquote style=\"background:#f5f5f5; padding:16px; border-left:4px solid #2d6a2e; border-radius:4px;\"><p><em>\"Hey! I've been using TotalGuard Yard Care and they're seriously the best. Same crew every time, great communication, fair prices. Use my referral and you'll get $25 off your first service: <strong>tgyardcare.com/referral</strong>\"</em></p></blockquote><p>That's it — send it via text, email, Nextdoor, whatever works. When they mention your name at booking, you both save.</p>",
+      "personal_message": null,
+      "review": {
+        "text": "They handled a full mulch job plus weeding\u2014looked so good I had to walk my neighbor through it. She hired them the next day.",
+        "name": "Anderson See",
+        "service": "Mulching & Weeding"
+      },
+      "cta_text": "Share With a Neighbor \u2192",
+      "cta_url": "https://tgyardcare.com/referral",
+      "urgency_text": "Refer before {{end_of_month}} and BOTH of you get an extra $10 bonus.",
+      "personalization_tokens": ["first_name", "city", "end_of_month"],
+      "goal": "Drive referrals by making the program dead simple and showing the math on savings"
+    },
+    {
+      "id": "welcome_5",
+      "email_number": 5,
+      "send_day": 30,
+      "template": "tg-welcome",
+      "subject_a": "{{first_name}}, your yard is ready for the next level",
+      "subject_b": "What 73% of our {{city}} customers add after their first month",
+      "preview_text": "Most popular add-on this season. Here's why your neighbors love it.",
+      "headline": "Your Yard's Next Chapter",
+      "subheadline": "You've been with us a month — here's how to get even more out of your yard.",
+      "body_html": "<p>Hey {{first_name}},</p><p>It's been about a month since you joined the TotalGuard family, and we hope your yard is looking better than ever. But here's the thing — <strong>most of our {{city}} customers don't stop at mowing</strong>.</p><p>In fact, <strong>73% of our regular customers add at least one seasonal service</strong> within their first two months. Here's what's trending right now:</p><h3>This Season's Most Popular Add-On: {{seasonal_service}}</h3><p>Here's why your neighbors are adding it:</p><ul><li><strong>Instant curb appeal boost</strong> — Visitors and neighbors notice the difference immediately</li><li><strong>Protects your investment</strong> — Regular {{seasonal_service}} prevents costly damage and keeps your property value high</li><li><strong>Set it and forget it</strong> — We handle everything. Same crew, same quality, zero hassle</li><li><strong>Saves you money long-term</strong> — Preventive care is always cheaper than emergency fixes</li></ul><h3>Before &amp; After: What {{seasonal_service}} Looks Like</h3><p>Picture your yard right now. Now imagine the beds freshly edged, the surfaces clean, everything trimmed and polished. That's what {{seasonal_service}} does — it takes a good yard and makes it <em>great</em>. The kind of yard where you actually want to spend time outside.</p><h3>Special Offer: 10% Off This Month</h3><p>Because you've been with us for a month and we want to keep your yard looking its best, we're offering <strong>10% off {{seasonal_service}}</strong> when you add it this month. No strings attached — just our way of saying thanks for being a TotalGuard customer.</p><p>Just click below and we'll get you on the schedule. Same crew, same great service, one more thing off your plate.</p>",
+      "personal_message": null,
+      "review": {
+        "text": "Was very happy with my services and have added on more services they offer. Vance and his partner are a A+ team. Job well done! I will continue to do business with them. Great job guys!",
+        "name": "Kim Esser",
+        "service": "Multiple Services"
+      },
+      "cta_text": "Add {{seasonal_service}} \u2014 Save 10% \u2192",
+      "cta_url": "https://tgyardcare.com/services",
+      "urgency_text": "This month only: add {{seasonal_service}} and save 10%.",
+      "personalization_tokens": ["first_name", "city", "seasonal_service"],
+      "goal": "Cross-sell seasonal service with social proof, benefit-driven copy, and a 10% discount incentive"
+    }
+  ],
+  "metadata": {
+    "created": "2026-03-12",
+    "business": {
+      "name": "TotalGuard Yard Care",
+      "location": "Madison, WI",
+      "phone": "(608) 535-6057",
+      "email": "totalguardllc@gmail.com",
+      "website": "https://tgyardcare.com",
+      "google_review_link": "https://g.page/r/CRW5Dsg2JgwBEBM/review",
+      "cofounders": ["Vance Ferry", "Alex O'Donnell"]
+    },
+    "referral_program": {
+      "referrer_discount": "$25 off any service",
+      "referee_discount": "$25 off first service",
+      "limit": "unlimited"
+    },
+    "seasonal_service_mapping": {
+      "spring": "Fertilization & Spring Cleanup",
+      "summer": "Mulching & Garden Bed Maintenance",
+      "fall": "Leaf Removal & Gutter Cleaning",
+      "winter": "Snow Removal & Winter Prep"
+    }
+  }
+}

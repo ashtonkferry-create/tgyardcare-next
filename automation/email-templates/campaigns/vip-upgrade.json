@@ -1,0 +1,92 @@
+{
+  "campaign": "vip_upgrade",
+  "workflow_id": "TG-12",
+  "template": "tg-hero",
+  "total_emails": 2,
+  "description": "2-email VIP upgrade sequence for TotalGuard Yard Care. Email 1 notifies the customer of VIP status and perks. Email 2 gives VIP-exclusive early access to seasonal deals. Sent via TG-12 when customer qualifies for VIP tier.",
+  "emails": [
+    {
+      "id": "vip_1",
+      "email_number": 1,
+      "trigger": "customer_qualifies_for_vip",
+      "trigger_conditions": {
+        "min_services": 3,
+        "or_min_lifetime_value": 500,
+        "or_min_tenure_months": 6
+      },
+      "template": "tg-hero",
+      "subject_a": "{{first_name}}, you've earned VIP status with TotalGuard",
+      "subject_b": "Welcome to the inner circle, {{first_name}}",
+      "preview_text": "Priority scheduling, dedicated crew, and exclusive perks — you've earned it.",
+      "headline": "You've Earned VIP Status, {{first_name}}.",
+      "subheadline": "You're one of our most valued customers. Here's what that means for you.",
+      "body_html": "<p>Hey {{first_name}},</p><p>I wanted to take a moment to personally recognize you for something.</p><p>You're one of our most valued customers, {{first_name}}. You've trusted us with multiple services, you've stuck with us, and you've been the kind of customer that makes us love what we do. <strong>That trust means everything to our small team.</strong></p><p>So I want to make sure you know exactly what that means for you going forward.</p><h3>Your VIP Perks</h3><ul><li><strong>Priority scheduling</strong> — You get first pick of time slots. When the schedule is tight, when weather delays push things back, when everyone is scrambling for the same week — <strong>you move to the front of the line</strong>. Period. No exceptions.</li><li><strong>Dedicated crew</strong> — The same team, every single visit. They know your property inside and out. They know where the tricky spots are, how you like the edges cut, which beds need extra attention. <strong>Consistency is how we deliver quality</strong>, and you get the best of it.</li><li><strong>Referral rewards — $25 off per referral, no limit</strong> — For every friend, neighbor, or family member you refer to TotalGuard: they get $25 off their first service, and you get $25 off your next service. Refer 5 people? That's $125 in savings. Refer 10? You're getting services for free. <strong>There is no cap.</strong></li><li><strong>First access to seasonal deals</strong> — Before we open any seasonal promotion to the public, you see it first. VIP customers get a 2-week head start on every deal, every new service launch, and every limited-availability offer.</li><li><strong>Direct line to Vance</strong> — You don't go through a form or wait in a queue. Reply to any email, text us anytime, call directly. I read every message and I respond personally. <strong>You have a direct line to ownership.</strong></li></ul><p>{{first_name}}, this isn't a marketing gimmick. This is us saying: <strong>you matter to us, and we want to treat you accordingly</strong>.</p><h3>Spread the Word — Earn $25 Every Time</h3><p>You know the quality of our work better than almost anyone. When your neighbors ask who takes care of your yard — and they will — here's what's in it for both of you:</p><table style=\"width:100%; border-collapse:collapse; margin:16px 0;\"><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:10px;\">You refer a neighbor</td><td style=\"padding:10px; text-align:right;\"><strong>You get $25 off</strong></td></tr><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:10px;\">They book with us</td><td style=\"padding:10px; text-align:right;\"><strong>They get $25 off</strong></td></tr><tr><td style=\"padding:10px;\">No limit on referrals</td><td style=\"padding:10px; text-align:right;\"><strong>Unlimited savings</strong></td></tr></table><p>Just tell them to mention your name when they book. That's it.</p><p>Thank you for trusting us with your property, {{first_name}}. We don't take it lightly, and we're going to keep earning that trust every single visit.</p><p>— Vance &amp; the TotalGuard crew</p>",
+      "review": {
+        "text": "Was very happy with my services and have added on more services they offer. Vance and his partner are a A+ team. Job well done! I will continue to do business with them. Great job guys!",
+        "name": "Kim Esser",
+        "service": "Multiple Services"
+      },
+      "cta_text": "Refer a Neighbor — Earn $25 →",
+      "cta_url": "https://tgyardcare.com/referral",
+      "urgency_text": "Know someone who needs reliable yard care? Share the love and you both save $25.",
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Recognize VIP customers, make them feel valued, reinforce all the perks they've earned, and drive referrals as the primary CTA"
+    },
+    {
+      "id": "vip_2",
+      "email_number": 2,
+      "trigger": "seasonal_offer_launch",
+      "trigger_conditions": {
+        "customer_is_vip": true,
+        "seasonal_offer_active": true,
+        "days_before_public_launch": 14
+      },
+      "template": "tg-hero",
+      "subject_a": "VIP exclusive: early access to {{seasonal_offer}}",
+      "subject_b": "{{first_name}}, this deal is for our VIPs only",
+      "preview_text": "Before we open this to everyone — you get first pick.",
+      "headline": "VIP Early Access: {{seasonal_offer}}",
+      "subheadline": "This deal goes public in 2 weeks. You're seeing it first.",
+      "body_html": "<p>Hey {{first_name}},</p><p>Remember that VIP status we talked about? <strong>Here's it in action.</strong></p><p>We're about to launch our <strong>{{seasonal_offer}}</strong> to all customers — but as a VIP, you get it <strong>2 full weeks before everyone else</strong>. That means first pick of dates, guaranteed availability, and the best scheduling slots.</p><h3>What's Included: {{seasonal_offer}}</h3><p>{{seasonal_offer_description}}</p><h3>Why VIP Early Access Matters</h3><p>Here's what happens when we launch a seasonal deal to the public:</p><ul><li><strong>Week 1</strong> — Our schedule fills up fast. The most popular dates and time slots are gone within days.</li><li><strong>Week 2</strong> — Remaining slots get tight. Customers start getting pushed to later dates or less convenient times.</li><li><strong>Week 3+</strong> — We're often at capacity. New requests go on a waitlist.</li></ul><p>But you? <strong>You're booking before any of that happens.</strong> You get the date you want, the time you want, and the crew you know. No scrambling, no waitlist, no compromise.</p><h3>Your VIP Deal</h3><ul><li><strong>First pick of scheduling</strong> — Choose your preferred date before the public launch</li><li><strong>Same dedicated crew</strong> — The team that already knows your property</li><li><strong>Priority completion</strong> — Your job gets done before the rush hits</li><li><strong>VIP pricing</strong> — {{seasonal_offer_vip_price}}</li></ul><p>This offer is available to VIP customers only until <strong>{{public_launch_date}}</strong>. After that, it opens to everyone and scheduling gets significantly tighter.</p><p>You've earned this access, {{first_name}}. Take advantage of it.</p><p>— Vance &amp; the TotalGuard crew</p>",
+      "review": {
+        "text": "Vance has been doing a good job on my lawn for the last several years. Good worker.",
+        "name": "Patricia Ellingson",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Claim Your VIP Deal →",
+      "cta_url": "https://tgyardcare.com/services",
+      "urgency_text": "VIP early access ends {{public_launch_date}}. After that, it's first-come, first-served with everyone else.",
+      "personalization_tokens": ["first_name", "city", "seasonal_offer", "seasonal_offer_description", "seasonal_offer_vip_price", "public_launch_date"],
+      "goal": "Drive early seasonal bookings from VIP customers by leveraging exclusivity, scarcity, and the tangible benefit of booking before the public rush"
+    }
+  ],
+  "metadata": {
+    "created": "2026-03-12",
+    "business": {
+      "name": "TotalGuard Yard Care",
+      "location": "Madison, WI",
+      "phone": "(608) 535-6057",
+      "email": "totalguardllc@gmail.com",
+      "website": "https://tgyardcare.com",
+      "google_review_link": "https://g.page/r/CRW5Dsg2JgwBEBM/review",
+      "cofounders": ["Vance Ferry", "Alex O'Donnell"]
+    },
+    "referral_program": {
+      "referrer_discount": "$25 off any service",
+      "referee_discount": "$25 off first service",
+      "limit": "unlimited"
+    },
+    "vip_criteria": {
+      "min_active_services": 3,
+      "or_min_lifetime_value": 500,
+      "or_min_tenure_months": 6,
+      "description": "Customer qualifies for VIP if they meet ANY of the above thresholds"
+    },
+    "seasonal_offer_examples": {
+      "spring": "Spring Cleanup + Aeration Bundle",
+      "summer": "Full-Season Mowing + Fertilization Package",
+      "fall": "Fall Cleanup + Gutter Cleaning Bundle",
+      "winter": "Snow Removal Season Contract"
+    }
+  }
+}

@@ -1,0 +1,486 @@
+{
+  "campaign": "the_yard_report",
+  "workflow_id": "TG-10",
+  "template": "tg-educational",
+  "total_emails": 12,
+  "description": "Monthly newsletter — 'The Yard Report' — sent the 1st Tuesday of every month. Seasonal tips, local Madison events, customer spotlights, and offers tailored to what homeowners need that month.",
+  "emails": [
+    {
+      "id": "yard_report_01",
+      "email_number": 1,
+      "month": "January",
+      "send_date": "first_tuesday",
+      "subject_a": "Winter survival guide for your Madison yard",
+      "subject_b": "{{first_name}}, 3 things killing your yard right now (and how to stop them)",
+      "preview_text": "Salt damage, frozen grass, ice dams — here's how to protect your yard this winter.",
+      "newsletter_badge": true,
+      "headline": "The Yard Report: Winter Survival Guide",
+      "intro_text": "Happy New Year, {{first_name}}! January in Madison means sub-zero temps, heavy snow, and hidden threats to your yard. Most homeowners don't think about their lawn in winter — but what you do (and don't do) right now determines how your yard looks in April. Here are three things to watch for this month.",
+      "content_html": "<h3>1. Protect Your Evergreens from Road Salt Spray</h3><p>If you have evergreens, arborvitae, or boxwoods within 30 feet of a road or driveway, they're getting hit with salt spray every time a plow or car drives by. Salt pulls moisture out of needles and leaves, causing brown, dead patches that don't recover. <strong>The fix:</strong> Rinse exposed evergreens with plain water during any mid-winter thaw (when temps hit 35°F+). Even one good rinse can prevent major damage. If you haven't already, consider burlap screens for your most exposed shrubs.</p><h3>2. Stop Walking on Frozen Grass</h3><p>We get it — shortcuts across the lawn save 30 seconds. But frozen grass blades are brittle. When you walk on them, the blades snap at the crown, creating dead footpaths that show up as brown streaks in spring. <strong>The rule:</strong> If there's frost on the grass, stay on the sidewalk. This goes for pets too — try to keep the dog's path to a consistent trail rather than letting them roam the entire yard.</p><h3>3. Check Your Gutters for Ice Dams</h3><p>Look up at your roofline after a heavy snow. See thick ridges of ice along the edge? That's an ice dam, and it means water is backing up under your shingles. Beyond roof damage, ice dams cause massive icicles that can rip gutters right off the fascia. <strong>What to do:</strong> If you see ice dam formation, don't hack at it with a hammer (you'll damage the gutters). Use a roof rake to clear snow from the first 3-4 feet of your roof edge, or call a professional. And if your gutters need attention this spring, that's exactly what we're here for.</p>",
+      "spotlight": {
+        "show": false,
+        "name": null,
+        "city": null,
+        "story": null
+      },
+      "offer": {
+        "show": true,
+        "headline": "Early Bird Spring Cleanup — 15% Off",
+        "text": "Spring is closer than you think. Book your spring cleanup before March 1 and save 15%. You'll lock in your preferred date, get the same crew you know, and be the first yard on the block to look sharp when the snow melts. Early bookers always get the best time slots.",
+        "cta_text": "Book Spring Cleanup — Save 15%",
+        "cta_url": "https://tgyardcare.com/services/spring-cleanup"
+      },
+      "local": {
+        "show": true,
+        "headline": "Around Madison This Month",
+        "text": "Bundle up and head to the <strong>Dane County Farmers' Market Winter Market</strong> at the Monona Terrace (Saturdays through April). Also worth checking out: if you're into ice fishing, the lakes are frozen solid — grab a spot on Mendota or Monona before the February crowds."
+      },
+      "review": {
+        "text": "TotalGuard is hands-down the best yard care service I've ever used. Reliable, professional, and they actually care about doing a great job. My lawn has never looked better.",
+        "name": "David Harter"
+      },
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Provide genuine winter yard care value, plant the seed for spring cleanup early booking"
+    },
+    {
+      "id": "yard_report_02",
+      "email_number": 2,
+      "month": "February",
+      "send_date": "first_tuesday",
+      "subject_a": "Spring is closer than you think — here's your prep checklist",
+      "subject_b": "{{first_name}}, start planning now and your April yard will thank you",
+      "preview_text": "Soil pH, tool prep, and the spring tasks you should schedule right now.",
+      "newsletter_badge": true,
+      "headline": "The Yard Report: Spring Is Closer Than You Think",
+      "intro_text": "Hey {{first_name}} — February feels like the dead of winter, but experienced Madison gardeners know: this is planning season. The homeowners who have the best-looking yards in May are the ones who start prepping in February. Here's your checklist.",
+      "content_html": "<h3>1. Plan Your Spring Yard Tasks Now</h3><p>Don't wait for the snow to melt to figure out what needs doing. Walk your property on the next mild day and take stock: <strong>Are there areas where the lawn looks thin?</strong> Those need overseeding in April. <strong>Did any bushes get damaged by ice?</strong> Flag them for trimming. <strong>Are your garden beds overgrown from last fall?</strong> That's a spring cleanup priority. Write it all down now so you're not scrambling in April when every lawn care company in Madison is booked solid.</p><h3>2. Test Your Soil pH</h3><p>Wisconsin soil tends to run slightly acidic, especially in areas with lots of oak trees. You can grab a soil test kit from the Dane County UW-Extension office for about $20 — it's the single best investment you can make for your lawn. <strong>Why it matters:</strong> If your soil pH is off, fertilizer literally doesn't work. Grass can't absorb nutrients outside the 6.0-7.0 range. A soil test tells you exactly what amendments to apply, so you're not throwing money at products that won't help. We factor soil conditions into every fertilization plan we build.</p><h3>3. Prep Your Tools (or Better Yet, Let Us Handle It)</h3><p>If you do any DIY yard work, February is the month to sharpen mower blades, change the oil, replace spark plugs, and clean out the garage. Dull mower blades tear grass instead of cutting it, which stresses the lawn and invites disease. <strong>Pro tip:</strong> A sharp blade makes a clean cut that heals fast. A dull blade leaves ragged edges that turn brown. If you're not sure when your blades were last sharpened — they need sharpening.</p>",
+      "spotlight": {
+        "show": false,
+        "name": null,
+        "city": null,
+        "story": null
+      },
+      "offer": {
+        "show": true,
+        "headline": "Spring Cleanup Booking Is Open — Save 15%",
+        "text": "Our spring cleanup slots are filling fast. Book before March 1 and save 15% — plus you'll get priority scheduling so your yard is one of the first in {{city}} to get cleaned up. Same crew, same quality, better price.",
+        "cta_text": "Lock In Spring Cleanup — 15% Off",
+        "cta_url": "https://tgyardcare.com/services/spring-cleanup"
+      },
+      "local": {
+        "show": true,
+        "headline": "Around Madison This Month",
+        "text": "Cabin fever? Check out <strong>Dane County events</strong> this month — the winter farmers market continues at Monona Terrace, and if you're up for a drive, the <strong>Wisconsin Dells Flake Out Festival</strong> is always a good time. Spring will be here before you know it."
+      },
+      "review": {
+        "text": "TotalGuard did an amazing spring cleanup on our property. They were thorough, on time, and left everything looking perfect. Already booked them for the full season.",
+        "name": "Mauricio Roldan"
+      },
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Build anticipation for spring, push early booking with urgency (March 1 deadline)"
+    },
+    {
+      "id": "yard_report_03",
+      "email_number": 3,
+      "month": "March",
+      "send_date": "first_tuesday",
+      "subject_a": "Spring awakening — when to start what in your Madison yard",
+      "subject_b": "{{first_name}}, the timing on these 3 spring tasks is everything",
+      "preview_text": "First raking, first mow, early weed prevention — get the timing right and your lawn wins.",
+      "newsletter_badge": true,
+      "headline": "The Yard Report: Spring Awakening",
+      "intro_text": "It's March, {{first_name}} — and in Madison, that means anything from 55°F and sunny to 8 inches of wet snow. But the ground is starting to thaw, and your yard is waking up whether you're ready or not. Here's how to make the most of it.",
+      "content_html": "<h3>1. When to Start Raking (Hint: Not Yet)</h3><p>We know the urge to get out there on the first warm day. But raking too early does more harm than good. <strong>Wait until the ground is firm and the grass is no longer saturated.</strong> Walking on soggy soil compacts it, which suffocates roots and creates drainage problems all season. In the Madison area, that usually means mid-to-late March depending on the year. A good test: if your footprints leave impressions in the lawn, it's too wet. Wait a few more days.</p><h3>2. First Mow Timing for Wisconsin</h3><p>Your first mow should happen when the grass has actively started growing — typically when it reaches 3.5-4 inches. In south-central Wisconsin, that's usually late March to mid-April depending on sun exposure and soil temperature. <strong>Set your mower to 3 inches for the first cut.</strong> This removes the dead tips from winter without scalping the new growth. After the first mow, keep your height at 3-3.5 inches all season — taller grass shades out weeds and retains moisture better.</p><h3>3. Early Weed Prevention Is Everything</h3><p>Here's a truth most homeowners learn the hard way: <strong>weed prevention is 10x more effective than weed removal.</strong> Pre-emergent herbicide needs to go down before soil temps hit 55°F consistently — that's usually late March to early April in Madison. Miss that window and you're fighting crabgrass, dandelions, and clover all summer. This is one of those services where professional application makes a huge difference, because timing and dosage are everything.</p>",
+      "spotlight": {
+        "show": false,
+        "name": null,
+        "city": null,
+        "story": null
+      },
+      "offer": {
+        "show": true,
+        "headline": "Spring Package: Cleanup + Mowing + Fertilization",
+        "text": "Start the season right with our spring package — full spring cleanup, weekly mowing, and a professional fertilization program tailored to your soil. Bundle all three and save vs. booking individually. This is our most popular package for a reason: it covers everything your yard needs from March through June.",
+        "cta_text": "Get the Spring Package →",
+        "cta_url": "https://tgyardcare.com/services"
+      },
+      "local": {
+        "show": true,
+        "headline": "Around Madison This Month",
+        "text": "The <strong>Dane County Farmers' Market</strong> moves back outdoors to the Capitol Square in April — but March is the month to start planning your garden. Seed starting season is here. Also, keep an eye on the Arboretum trails as the spring thaw reveals some beautiful early wildflowers."
+      },
+      "review": {
+        "text": "Great company to work with! They're always on time, do excellent work, and are easy to communicate with. Highly recommend TotalGuard to anyone in the Madison area.",
+        "name": "Max Rucker"
+      },
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Educate on spring timing, drive spring package bundle sales"
+    },
+    {
+      "id": "yard_report_04",
+      "email_number": 4,
+      "month": "April",
+      "send_date": "first_tuesday",
+      "subject_a": "Growing season kickoff — mowing, watering, and weed control",
+      "subject_b": "{{first_name}}, your April lawn care cheat sheet is here",
+      "preview_text": "Mowing height, watering schedule, and when to hit weeds hard. Your April playbook.",
+      "newsletter_badge": true,
+      "headline": "The Yard Report: Growing Season Kickoff",
+      "intro_text": "April in Madison means the growing season is officially ON, {{first_name}}. Your grass is pushing new growth, weeds are germinating, and every decision you make this month ripples through the entire summer. Here's how to get it right from the start.",
+      "content_html": "<h3>1. Mowing Height: 3-3.5 Inches — No Exceptions</h3><p>This is the single most impactful thing you can do for your lawn, and most people get it wrong. <strong>Set your mower to 3-3.5 inches and leave it there.</strong> Taller grass shades the soil (which prevents weed seeds from germinating), retains moisture longer (less watering), and develops deeper roots (better drought resistance). Cutting short might look \"clean\" for a day, but it stresses the plant and opens the door for weeds. Every single lawn we maintain is cut at this height — it's the foundation of a healthy yard.</p><h3>2. Watering Schedule: Start Smart</h3><p>April in Wisconsin usually provides enough rain that you don't need supplemental watering. But if we hit a dry stretch (7+ days without rain), water <strong>early morning (6-9am), twice per week, for 30-45 minutes per zone.</strong> Morning watering lets blades dry before evening, which prevents fungal disease. Evening watering is the #1 cause of brown patch and dollar spot in Madison lawns. If you have an irrigation system, now's the time to get it started up and tested.</p><h3>3. When to Apply Herbicide</h3><p>If you didn't get pre-emergent down in late March, there's still a window in early April — but it's closing fast. Soil temperatures are climbing, and once they hit 55°F consistently, crabgrass starts germinating. For existing weeds like dandelions and clover that are already up, <strong>post-emergent herbicide is most effective when the weeds are actively growing but haven't gone to seed.</strong> That's right now. Our herbicide program uses professional-grade products applied at exactly the right time — it's one of our most popular add-on services.</p>",
+      "spotlight": {
+        "show": false,
+        "name": null,
+        "city": null,
+        "story": null
+      },
+      "offer": {
+        "show": true,
+        "headline": "Add Fertilization to Any Mowing Plan — Save 10%",
+        "text": "Already on a mowing plan? Add our professional fertilization program this month and save 10%. It's the easiest way to level up your lawn — same crew handles everything, and you'll see thicker, greener grass within 4-6 weeks. No contracts, no commitments beyond the season.",
+        "cta_text": "Add Fertilization — Save 10%",
+        "cta_url": "https://tgyardcare.com/services/fertilization"
+      },
+      "local": {
+        "show": true,
+        "headline": "Around Madison This Month",
+        "text": "The <strong>UW-Madison Arboretum</strong> is putting on a show right now — trillium, bluebells, and spring ephemerals are blooming across the woodland trails. It's one of the best free things to do in Madison. Also, the Capitol Square Farmers' Market returns on April 12 — mark your calendar."
+      },
+      "review": {
+        "text": "I recently purchased a round of herbicide treatment and I am beyond grateful for TotalGuard. They were very prompt on their response time, and did a great job killing my dandelions. Highly recommend.",
+        "name": "Nick Bauman"
+      },
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Establish authority on spring lawn care fundamentals, upsell fertilization add-on"
+    },
+    {
+      "id": "yard_report_05",
+      "email_number": 5,
+      "month": "May",
+      "send_date": "first_tuesday",
+      "subject_a": "Peak spring — mulch, garden beds, and trimming tips",
+      "subject_b": "{{first_name}}, May is make-or-break month for curb appeal",
+      "preview_text": "Mulch timing, garden bed prep, and when to trim bushes. The May playbook for Madison yards.",
+      "newsletter_badge": true,
+      "headline": "The Yard Report: Peak Spring",
+      "intro_text": "May is the month where Madison yards go from \"waking up\" to \"full send,\" {{first_name}}. Everything is growing fast, colors are popping, and this is your window to do the work that makes your property look incredible all summer. Here's where to focus.",
+      "content_html": "<h3>1. Mulch Application Timing</h3><p>May is the sweet spot for mulching in Wisconsin. The soil has warmed up enough that mulch won't trap cold moisture against plant roots, and the growing season is underway so you can see what's alive and what didn't make it through winter. <strong>Apply 2-3 inches of hardwood mulch around beds, trees, and shrubs.</strong> Don't pile it against trunks or stems — keep a 2-3 inch gap around the base of every plant. Volcano mulching (piling mulch high against tree trunks) is the most common landscaping mistake we see, and it slowly kills trees by trapping moisture against the bark.</p><h3>2. Garden Bed Prep</h3><p>Before you plant anything new, get your beds cleaned out and edged. Pull any winter debris, cut back dead perennials to the ground (if you haven't already), and edge along sidewalks and driveways for clean lines. <strong>Clean edges are the #1 thing that makes a yard look professionally maintained</strong> — even if everything else is average, crisp bed edges make the whole property look sharp. After edging, lay down mulch, then plant. Doing it in this order saves you from mulching twice.</p><h3>3. Bush Trimming After Spring Bloom</h3><p>If you have spring-flowering shrubs (lilacs, forsythia, rhododendron), <strong>wait until they finish blooming before trimming.</strong> These plants set their flower buds the previous year, so trimming before they bloom means cutting off this year's flowers. Once the blooms fade, you've got a 2-3 week window to shape them without affecting next year's display. For non-flowering shrubs and hedges, May is perfect timing for the first trim of the season.</p>",
+      "spotlight": {
+        "show": false,
+        "name": null,
+        "city": null,
+        "story": null
+      },
+      "offer": {
+        "show": true,
+        "headline": "Mulching + Garden Bed Bundle",
+        "text": "Get your beds cleaned, edged, and mulched in one visit. Our mulching and garden bed bundle covers everything: debris removal, bed edging, weed pulling, and fresh hardwood mulch application. One crew, one visit, total transformation. Ask for a free estimate.",
+        "cta_text": "Get a Free Mulching Estimate",
+        "cta_url": "https://tgyardcare.com/services/mulching"
+      },
+      "local": {
+        "show": true,
+        "headline": "Around Madison This Month",
+        "text": "It's <strong>Brat Fest</strong> weekend at the end of May — the world's largest brat festival, right here in Madison. If you're hosting a Memorial Day cookout, now's the time to get your yard guest-ready. Nothing like having the neighbors over when your beds are freshly mulched and the lawn is dialed in."
+      },
+      "review": {
+        "text": "TotalGuard did an incredible job on our mulching project. They were professional, fast, and the results speak for themselves. Our beds have never looked this good.",
+        "name": "Matthew Wolff"
+      },
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Drive mulching and garden bed bundle sales during peak spring demand"
+    },
+    {
+      "id": "yard_report_06",
+      "email_number": 6,
+      "month": "June",
+      "send_date": "first_tuesday",
+      "subject_a": "Summer mode — how to keep your lawn alive in the heat",
+      "subject_b": "{{first_name}}, your lawn is about to get stressed (here's the fix)",
+      "preview_text": "Deep watering, heat stress signs, and how to mow smart when it's 90°F.",
+      "newsletter_badge": true,
+      "headline": "The Yard Report: Summer Mode",
+      "intro_text": "June in Madison means 85°F days, humidity, and thunderstorms that dump 2 inches in 20 minutes. Your lawn handles all of it fine — if you know what to do. Here's your summer survival playbook, {{first_name}}.",
+      "content_html": "<h3>1. Deep Watering vs. Frequent Watering</h3><p>This is the hill we will die on: <strong>water deeply and infrequently.</strong> Two to three times per week, 30-45 minutes per zone, early morning. That's it. Daily light watering is the worst thing you can do — it trains grass roots to stay in the top inch of soil, making your lawn completely dependent on irrigation and the first to brown out during a dry spell. Deep watering pushes roots down 4-6 inches, creating a drought-resistant lawn that stays green when your neighbor's lawn turns brown. <strong>Total weekly target: 1-1.5 inches of water</strong> (including rainfall). Set out a tuna can to measure.</p><h3>2. Heat Stress Signs to Watch For</h3><p>Your lawn will tell you when it's struggling — you just need to know what to look for. <strong>Footprinting:</strong> Walk across your lawn. If the grass doesn't spring back within a few seconds and you can see your footprints, it's drought-stressed and needs water immediately. <strong>Blue-gray color:</strong> Healthy grass is bright green. When it starts turning dull blue-gray, it's conserving moisture and needs a deep soak. <strong>Wilting blades:</strong> Grass that folds in half lengthwise is desperate for water. Don't panic — a good deep watering will bring it back within 24-48 hours.</p><h3>3. Mowing in the Heat</h3><p>During hot spells (90°F+), <strong>raise your mowing height by half an inch</strong> to 3.5-4 inches. The extra leaf blade shades the soil, reducing evaporation and keeping root zones cooler. Never mow during the heat of the day — it stresses the grass and is miserable for whoever's pushing the mower. Our crews adjust mowing height based on conditions, which is one of those small details that separates professional care from DIY.</p>",
+      "spotlight": {
+        "show": false,
+        "name": null,
+        "city": null,
+        "story": null
+      },
+      "offer": {
+        "show": true,
+        "headline": "Referral Blitz Preview — Double Rewards Coming in July",
+        "text": "Heads up: in July, we're doubling our referral rewards. Instead of $25 for you and $25 for your friend, it'll be <strong>$50 each</strong> — all month long. Start thinking about which neighbors could use reliable yard care. More details coming soon.",
+        "cta_text": "Learn About Our Referral Program",
+        "cta_url": "https://tgyardcare.com/referral"
+      },
+      "local": {
+        "show": true,
+        "headline": "Around Madison This Month",
+        "text": "The <strong>Dane County Fair</strong> kicks off later this month, and <strong>Concerts on the Square</strong> is back at the Capitol — Wednesday evenings, free, bring a blanket and a picnic. It's one of the best things about living in Madison, and the perfect excuse to enjoy a summer evening outdoors."
+      },
+      "review": {
+        "text": "Very efficient. Get our job done in hot weather without problems.",
+        "name": "O W"
+      },
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Provide high-value summer care education, tease July referral blitz to build anticipation"
+    },
+    {
+      "id": "yard_report_07",
+      "email_number": 7,
+      "month": "July",
+      "send_date": "first_tuesday",
+      "subject_a": "Midsummer check-in + double referral rewards are LIVE",
+      "subject_b": "{{first_name}}, $50 for you and $50 for your neighbor — July only",
+      "preview_text": "Brown patch prevention, irrigation tips, and the referral blitz is here — $50 each, all July.",
+      "newsletter_badge": true,
+      "headline": "The Yard Report: Midsummer Check-In",
+      "intro_text": "We're in the thick of it, {{first_name}}. July in Madison is hot, humid, and full of outdoor living. Your lawn is working overtime right now — here's how to keep it looking great. Plus, our DOUBLE REFERRAL BLITZ is officially live.",
+      "content_html": "<h3>1. Brown Patch Prevention</h3><p>Brown patch is a fungal disease that thrives in hot, humid conditions — exactly what July in Madison delivers. You'll see irregular brown circles in your lawn, ranging from a few inches to several feet across. <strong>Prevention is all about moisture management:</strong> Water in the early morning (before 9am) so blades dry completely before evening. Never water at night — that's like rolling out a welcome mat for fungus. Avoid high-nitrogen fertilizer in summer, as it pushes soft growth that's vulnerable to disease. If you spot brown patch, stop watering for a few days and let the area dry out. Most cases resolve on their own once conditions change.</p><h3>2. Irrigation Timing Matters</h3><p>July is when water bills spike and lawns still go brown. The problem is almost always timing, not volume. <strong>The only time to water is 5am-9am.</strong> This gives grass enough moisture to handle the day's heat while ensuring blades dry before evening. Mid-day watering evaporates before it reaches roots — you're literally watering the air. Evening watering sits on the blades all night and breeds disease. Set your irrigation timer once and forget it. If you don't have irrigation, a simple hose timer ($15 at the hardware store) is one of the best investments you'll make.</p><h3>3. When to Skip Mowing</h3><p>During extreme heat or drought, your lawn may go semi-dormant — growth slows dramatically and the color fades. <strong>This is normal and healthy.</strong> Don't force-feed it with fertilizer or drown it with water trying to keep it green. If your grass hasn't grown noticeably since the last mow, skip it. Mowing dormant grass adds stress for no benefit. It'll bounce back when conditions improve. Our crews monitor this and adjust schedules accordingly — if your lawn doesn't need a mow, we don't mow just to bill you.</p>",
+      "spotlight": {
+        "show": false,
+        "name": null,
+        "city": null,
+        "story": null
+      },
+      "offer": {
+        "show": true,
+        "headline": "🔥 MIDSUMMER REFERRAL BLITZ — $50 for You, $50 for Them",
+        "text": "All July, referral rewards are DOUBLED. Normally it's $25 each — this month it's <strong>$50 off for you (any service) and $50 off their first service.</strong> No limit on referrals. Refer 3 neighbors = $150 in savings for you. Just have them mention your name when they book. Share the love, save some money.",
+        "cta_text": "Share TotalGuard — Earn $50 Per Referral",
+        "cta_url": "https://tgyardcare.com/referral"
+      },
+      "local": {
+        "show": true,
+        "headline": "Around Madison This Month",
+        "text": "Happy Fourth of July! If you're hosting a cookout this weekend, I hope your yard is looking sharp. Beyond the fireworks, July is prime time for enjoying Madison's lakes — kayaking on Wingra, paddleboarding on Mendota, or just soaking up the sun at B.B. Clarke Beach."
+      },
+      "review": {
+        "text": "Had TotalGuard get the yard ready for a big party. They went above and beyond — edging, mulching, trimming, the whole nine yards. Everyone commented on how great the yard looked. Will absolutely use them again.",
+        "name": "Andrew Lai"
+      },
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Provide midsummer lawn care value, aggressively push double referral blitz"
+    },
+    {
+      "id": "yard_report_08",
+      "email_number": 8,
+      "month": "August",
+      "send_date": "first_tuesday",
+      "subject_a": "Fall prep starts now — the August to-do list for your yard",
+      "subject_b": "{{first_name}}, the #1 fall lawn task has a September deadline",
+      "preview_text": "Aeration timing, overseeding prep, and why August decisions shape your fall yard.",
+      "newsletter_badge": true,
+      "headline": "The Yard Report: Fall Prep Starts Now",
+      "intro_text": "August feels like the middle of summer, {{first_name}}, but smart homeowners know this is when fall prep begins. The decisions you make in August determine whether your yard thrives or struggles through autumn. Let's get you set up.",
+      "content_html": "<h3>1. Aeration Timing — Book It Now for September</h3><p>Core aeration is the single most impactful thing you can do for a Wisconsin lawn, and <strong>September is the ideal window.</strong> Aeration punches small plugs out of your soil, relieving compaction and letting water, air, and nutrients reach the root zone. The reason September is perfect: cool-season grasses (what we have in Madison) enter their strongest growth period in early fall. Aerate then, and the grass fills in the holes within 2-3 weeks. Aerate in summer, and the heat stress makes recovery slow. <strong>Book now</strong> — September aeration slots fill up fast because everyone who knows lawn care knows this is the time.</p><h3>2. Overseeding Prep</h3><p>If you have thin or bare patches, overseeding after aeration is the move. But the seed needs good soil contact to germinate, which is why it pairs perfectly with aeration — the seeds fall into the holes and get direct contact with soil. <strong>Before September:</strong> Start mowing slightly lower (2.5-3 inches) in the areas you plan to overseed. This reduces competition from existing grass and lets sunlight reach the new seedlings. Keep those areas well-watered — new seed needs consistent moisture for 2-3 weeks to establish.</p><h3>3. Start Reducing Watering</h3><p>As August progresses and nighttime temps start dropping, your lawn needs less water. Begin tapering back to once a week, then let natural rainfall take over by mid-September. Overwatering in late summer encourages shallow roots and fungal disease heading into fall. <strong>Let the lawn toughen up a bit</strong> — slightly drier conditions in late August push roots deeper as they search for moisture, which sets the lawn up for a stronger fall and winter.</p>",
+      "spotlight": {
+        "show": false,
+        "name": null,
+        "city": null,
+        "story": null
+      },
+      "offer": {
+        "show": true,
+        "headline": "Fall Prep Early Booking — Save on Aeration + Overseeding",
+        "text": "September aeration slots are already filling up. Book your aeration now (with optional overseeding) and save with our early booking discount. You'll get priority scheduling and the best time slots. Don't wait until September and risk getting pushed to late October when results aren't as strong.",
+        "cta_text": "Book Fall Aeration Now",
+        "cta_url": "https://tgyardcare.com/services/aeration"
+      },
+      "local": {
+        "show": true,
+        "headline": "Around Madison This Month",
+        "text": "Back-to-school season is here — good luck to all the UW families. If you're looking for one last summer hurrah, the <strong>Wisconsin State Fair</strong> runs through mid-August in West Allis, and Madison's own Orton Park Festival is a great neighborhood event. Soak up the last of summer."
+      },
+      "review": {
+        "text": "TotalGuard has been maintaining our property for two seasons now. Consistent quality every single time. They're reliable, communicative, and do excellent work. Couldn't ask for more.",
+        "name": "Barb Osborn"
+      },
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Drive early aeration bookings before September rush, establish fall prep urgency"
+    },
+    {
+      "id": "yard_report_09",
+      "email_number": 9,
+      "month": "September",
+      "send_date": "first_tuesday",
+      "subject_a": "The critical month — aeration, leaves, and gutters",
+      "subject_b": "{{first_name}}, September is the most important month for your yard",
+      "preview_text": "Aeration timing is NOW. Plus: leaf management starts and gutter prep before fall storms.",
+      "newsletter_badge": true,
+      "headline": "The Yard Report: The Critical Month",
+      "intro_text": "This is it, {{first_name}}. Ask any lawn care professional and they'll tell you: September is the most important month of the year for your yard. The work you do right now determines whether your lawn comes back strong next spring or limps through winter. Here's what to prioritize.",
+      "content_html": "<h3>1. Aeration Timing Is NOW</h3><p>If you only do one thing for your lawn this year, <strong>do it this month.</strong> Core aeration in September takes advantage of the strongest growth period for Wisconsin cool-season grasses. The soil is still warm, nighttime temps are cooling, and the grass is entering its fall growth surge — the perfect storm for recovery and thickening. <strong>Pair it with overseeding</strong> if you have any thin areas, and those patches will be filled in before the first frost. Aeration also breaks up the soil compaction that builds up all summer from foot traffic, mowing, and rainfall. We're booking September aeration right now — and every year, people who wait until October wish they'd done it sooner.</p><h3>2. Leaf Management Starts Earlier Than You Think</h3><p>The first leaves start falling in September, and if you wait until they pile up in October, you're already behind. <strong>A thick layer of leaves smothers grass, blocks sunlight, and creates a wet mat that breeds fungal disease and invites pests.</strong> You don't need full cleanups yet — just keep on top of it. Mulch-mow light leaf cover (the chopped leaves actually feed the soil). Once accumulation gets heavy, it's time for professional removal. We offer both one-time cleanups and recurring leaf management through November.</p><h3>3. Gutter Prep Before Fall Storms</h3><p>September storms can dump serious rain, and if your gutters are clogged from summer debris, that water overflows and erodes your beds, stains your siding, and pools around your foundation. <strong>Get your gutters cleaned before leaf drop peaks.</strong> A clean gutter system channels water away from your property and prevents ice dam formation in winter. And if you're tired of cleaning gutters twice a year, ask us about gutter guard installation — it's a one-time investment that eliminates the problem permanently.</p>",
+      "spotlight": {
+        "show": false,
+        "name": null,
+        "city": null,
+        "story": null
+      },
+      "offer": {
+        "show": true,
+        "headline": "Fall Bundle — Cleanup + Leaf Removal + Gutters — Save $150",
+        "text": "Our most popular fall package: full fall cleanup, 3 leaf removal visits, and gutter cleaning — bundled together, you save $150 vs. booking each separately. One crew handles everything so your property is completely set for winter. This bundle sells out every year.",
+        "cta_text": "Get the Fall Bundle — Save $150",
+        "cta_url": "https://tgyardcare.com/services/fall-cleanup"
+      },
+      "local": {
+        "show": true,
+        "headline": "Around Madison This Month",
+        "text": "The <strong>Madison Marathon</strong> takes over the city later this month — great energy, worth spectating even if you're not running. And the fall colors are starting to peek through, especially along the Arboretum trails and around Devil's Lake. Peak color is usually mid-October, but September sunsets over the lakes are unbeatable."
+      },
+      "review": {
+        "text": "TotalGuard handles our mowing, gutter cleaning, and fall cleanup. They're a one-stop shop and the quality is consistent across every service. Highly recommend.",
+        "name": "Bryce"
+      },
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Drive aeration bookings and fall bundle sales during the highest-impact month"
+    },
+    {
+      "id": "yard_report_10",
+      "email_number": 10,
+      "month": "October",
+      "send_date": "first_tuesday",
+      "subject_a": "Fall crunch time — final mow, leaves, and winter prep",
+      "subject_b": "{{first_name}}, do these 3 things before the first freeze",
+      "preview_text": "Final mow height, leaf removal timing, and winterizing your irrigation. The October checklist.",
+      "newsletter_badge": true,
+      "headline": "The Yard Report: Fall Crunch Time",
+      "intro_text": "October in Madison means peak fall color, pumpkin everything, and a ticking clock, {{first_name}}. The first hard freeze is coming — usually late October to early November — and there's a short list of things you need to handle before it arrives.",
+      "content_html": "<h3>1. Final Mow Height — Go Lower</h3><p>All season we've been mowing at 3-3.5 inches. For the <strong>last 2-3 mows of the season, gradually lower the height to 2-2.5 inches.</strong> Here's why: tall grass going into winter folds over on itself, creating a mat that traps moisture and invites snow mold — a nasty fungal disease that leaves ugly dead patches in spring. Shorter grass going into dormancy stands upright, dries faster after rain and snowmelt, and resists matting. Don't cut it all at once (remember the one-third rule) — lower it incrementally over your final few mows.</p><h3>2. Leaf Removal Timing</h3><p>Peak leaf fall in the Madison area is usually mid-to-late October, and this is when it gets real. <strong>Don't let a thick leaf layer sit on your lawn for more than a week.</strong> Under that blanket, the grass is suffocating, turning yellow, and becoming susceptible to disease. Light coverage can be mulch-mowed — the chopped leaves decompose and feed the soil. But once you can't see the grass beneath the leaves, it's time for a full removal. We do both one-time cleanups and weekly leaf removal through November.</p><h3>3. Winterize Your Irrigation</h3><p>If you have an in-ground irrigation system, <strong>get it blown out before the first hard freeze.</strong> Water left in the lines expands when it freezes, cracking pipes and fittings. A professional blowout takes 30 minutes and costs a fraction of what a burst line repair costs in spring. Most Madison irrigation companies book up fast in October, so don't wait. Even if you DIY your lawn care, this is one job worth paying a professional for — the compressed air requirements are beyond what a shop compressor can handle.</p>",
+      "spotlight": {
+        "show": false,
+        "name": null,
+        "city": null,
+        "story": null
+      },
+      "offer": {
+        "show": true,
+        "headline": "Snow Removal Contract — Lock In Last Year's Rate",
+        "text": "Winter is coming, and snow removal rates are going up 20% after October 31. Lock in last year's pricing by signing up before the deadline. Our snow removal includes driveway, sidewalks, and walkways — and we're out there early so you can get to work on time. Don't get caught scrambling after the first snowfall.",
+        "cta_text": "Lock In Snow Removal Rate — Expires Oct 31",
+        "cta_url": "https://tgyardcare.com/services/snow-removal"
+      },
+      "local": {
+        "show": true,
+        "headline": "Around Madison This Month",
+        "text": "Peak fall color is HERE — drive out to <strong>Devil's Lake State Park</strong> for some of the best foliage in the state, or take a walk through the Arboretum closer to home. The pumpkin patches are in full swing (Eugster's Farm Market and Treinen Farm are local favorites), and Halloween events are everywhere."
+      },
+      "review": {
+        "text": "Had TotalGuard do a gutter cleaning and they were fantastic. Showed up on time, did a thorough job, and cleaned up after themselves. Already scheduled them for the fall cleanup too.",
+        "name": "Warren Williams"
+      },
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Drive snow removal contract sign-ups before Oct 31 rate increase deadline"
+    },
+    {
+      "id": "yard_report_11",
+      "email_number": 11,
+      "month": "November",
+      "send_date": "first_tuesday",
+      "subject_a": "Winterize everything — the final yard checklist",
+      "subject_b": "{{first_name}}, 3 things to do before the snow flies",
+      "preview_text": "Final leaf cleanup, gutter guard benefits, and protecting your hardscaping from freeze-thaw.",
+      "newsletter_badge": true,
+      "headline": "The Yard Report: Winterize Everything",
+      "intro_text": "November in Madison means the yard season is winding down, {{first_name}}, but there's still important work to do. The difference between a smooth spring startup and an expensive spring repair job often comes down to what you do (or don't do) right now.",
+      "content_html": "<h3>1. Final Leaf Cleanup — Don't Skip This</h3><p>If there are still leaves on your lawn, <strong>get them off before the first lasting snow.</strong> Leaves trapped under snow for months create a soggy, matted layer that kills grass, breeds fungal disease, and gives insects a cozy winter home right next to your lawn. We see it every spring — homeowners who skipped November leaf removal spend twice as much on spring repair. A final, thorough cleanup now saves you money and headaches in April. Our crews are still running leaf removal through mid-November.</p><h3>2. The Case for Gutter Guards</h3><p>You've had your gutters cleaned this fall (right?). Now ask yourself: do you want to do this every single year? <strong>Gutter guards are a one-time installation that keeps debris out while letting water flow through.</strong> No more climbing ladders, no more overflowing gutters in a rainstorm, no more ice dam risk from clogged systems. The math is simple: if you're paying for gutter cleaning twice a year, gutter guards pay for themselves in 3-4 years — and then they keep working for decades. We install micro-mesh guards that handle everything from pine needles to shingle grit.</p><h3>3. Protecting Your Hardscaping</h3><p>If you have a patio, retaining wall, or any stone/paver work, <strong>November is the time to seal and protect it.</strong> Freeze-thaw cycles are brutal on hardscaping — water seeps into tiny cracks, freezes, expands, and slowly breaks apart the material. Sealing pavers and stone creates a barrier that prevents water infiltration. Also, <strong>avoid using rock salt on pavers</strong> — it degrades the surface and stains. Use calcium chloride or sand for traction instead. If you have hardscaping that needs repair or sealing before winter, now is your last window.</p>",
+      "spotlight": {
+        "show": false,
+        "name": null,
+        "city": null,
+        "story": null
+      },
+      "offer": {
+        "show": true,
+        "headline": "Gutter Guard Installation — Never Clean Gutters Again",
+        "text": "Tired of seasonal gutter cleaning? Our micro-mesh gutter guards keep debris out permanently while letting water flow freely. One installation, years of protection. Schedule a free estimate and we'll measure your home before the snow makes it impossible.",
+        "cta_text": "Get a Free Gutter Guard Estimate",
+        "cta_url": "https://tgyardcare.com/services/gutter-guards"
+      },
+      "local": {
+        "show": true,
+        "headline": "Around Madison This Month",
+        "text": "Thanksgiving is around the corner — if you're hosting, make sure your walkways and entry are clean and safe. After turkey day, the holiday season kicks off with the <strong>Madison Holiday Market</strong> on the Capitol Square and festive events across Dane County. Time to shift from yard mode to cozy mode."
+      },
+      "review": {
+        "text": "TotalGuard installed gutter guards on our entire home. The installation was clean, fast, and professional. Haven't thought about gutters since — which is exactly the point.",
+        "name": "Carla Romano"
+      },
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Drive gutter guard installation sales, final leaf cleanup urgency"
+    },
+    {
+      "id": "yard_report_12",
+      "email_number": 12,
+      "month": "December",
+      "send_date": "first_tuesday",
+      "subject_a": "Season in review + a gift idea for the homeowner who has everything",
+      "subject_b": "{{first_name}}, your 2026 yard recap + a holiday surprise",
+      "preview_text": "Winter protection tips, snow mold prevention, and TotalGuard gift certificates are here.",
+      "newsletter_badge": true,
+      "headline": "The Yard Report: Season in Review",
+      "intro_text": "What a year it's been, {{first_name}}. From the spring thaw to the first snow, your yard went through a lot — and so did we. December is for resting, reflecting, and setting up next year to be even better. Here's your winter wrap-up.",
+      "content_html": "<h3>1. Winter Yard Protection</h3><p>Your yard is dormant, but it's not invincible. <strong>Avoid piling heavy snow from shoveling onto the same spot every time</strong> — concentrated snow piles take longer to melt in spring and can smother grass underneath for weeks, creating dead patches. Spread snow piles when possible. If you have young trees, wrap the trunks with tree guards to prevent rabbit and vole damage — these critters chew bark under the snow line all winter, and you won't notice until spring when the tree fails to leaf out.</p><h3>2. Snow Mold Prevention</h3><p>Snow mold is a fungal disease that develops under snow cover on lawns that went into winter too long, too wet, or covered in debris. <strong>If you followed our advice — final mow at 2-2.5 inches, leaves removed, no excessive fall fertilizer — you're in great shape.</strong> If you spot circular patches of matted, pinkish-gray or white-gray grass when the snow melts in spring, that's snow mold. The good news: most cases recover on their own with gentle raking and time. The best prevention is everything you already did this fall.</p><h3>3. Plan Next Year</h3><p>December is the perfect time to think about what you want for your yard in 2027. <strong>Did you wish your beds had more color?</strong> Plan to add perennials or annuals in May. <strong>Did leaf removal overwhelm you?</strong> Consider our recurring fall package. <strong>Has your lawn been thinning?</strong> Put aeration and overseeding on the September calendar now. We start booking spring services in January, and early bookers always get the best rates and preferred scheduling.</p>",
+      "spotlight": {
+        "show": false,
+        "name": null,
+        "city": null,
+        "story": null
+      },
+      "offer": {
+        "show": true,
+        "headline": "TotalGuard Gift Certificates — Give the Gift of a Perfect Yard",
+        "text": "Know someone who could use a professional yard care service? Our gift certificates are available in any amount and can be applied to any service we offer. It's the perfect holiday gift for the homeowner who has everything — except free weekends. Available now through the end of the year.",
+        "cta_text": "Buy a Gift Certificate",
+        "cta_url": "https://tgyardcare.com/gift"
+      },
+      "local": {
+        "show": true,
+        "headline": "Around Madison This Month",
+        "text": "Happy holidays from the TotalGuard family! If you haven't already, check out the <strong>State Street holiday lights</strong> and the Capitol Christmas tree. The <strong>Madison Children's Museum Holiday Open House</strong> is great for families, and the Overture Center has shows running through New Year's. Enjoy the season."
+      },
+      "review": {
+        "text": "Consistently great job every time! TotalGuard is reliable, fairly priced, and always does quality work. We've been with them all year and couldn't be happier.",
+        "name": "Tim Davis"
+      },
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Year-end goodwill, gift certificate sales, plant the seed for early 2027 booking"
+    }
+  ],
+  "metadata": {
+    "created": "2026-03-12",
+    "campaign_type": "monthly_newsletter",
+    "send_schedule": "first_tuesday_of_month",
+    "business": {
+      "name": "TotalGuard Yard Care",
+      "location": "Madison, WI",
+      "phone": "(608) 535-6057",
+      "email": "totalguardllc@gmail.com",
+      "website": "https://tgyardcare.com",
+      "google_review_link": "https://g.page/r/CRW5Dsg2JgwBEBM/review",
+      "cofounders": ["Vance Ferry", "Alex O'Donnell"],
+      "rating": "4.9★",
+      "review_count": "78+"
+    },
+    "service_areas": [
+      "Madison", "Middleton", "Sun Prairie", "Fitchburg",
+      "Verona", "Waunakee", "DeForest", "Cottage Grove",
+      "McFarland", "Monona", "Stoughton", "Oregon"
+    ],
+    "services": [
+      "Mowing", "Fertilization", "Aeration", "Herbicide",
+      "Weeding", "Mulching", "Garden Beds", "Bush Trimming",
+      "Hardscaping", "Spring Cleanup", "Fall Cleanup",
+      "Leaf Removal", "Gutter Cleaning", "Gutter Guards",
+      "Snow Removal"
+    ],
+    "referral_program": {
+      "referrer_discount": "$25 off any service",
+      "referee_discount": "$25 off first service",
+      "limit": "unlimited"
+    }
+  }
+}

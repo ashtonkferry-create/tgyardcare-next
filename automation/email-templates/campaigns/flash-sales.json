@@ -1,0 +1,350 @@
+{
+  "campaign": "flash_sales",
+  "workflow_id": "TG-11",
+  "total_emails": 12,
+  "description": "4 flash sale campaigns × 3 emails each (Announcement, Reminder, Last Call). Time-sensitive offers with escalating urgency. Spring Early Bird, Midsummer Referral Blitz, Fall Bundle Blowout, Snow Rate Lock.",
+  "flash_sales": [
+    {
+      "id": "flash_spring_early_bird",
+      "name": "Spring Early Bird",
+      "offer": "15% off spring cleanup if booked before March 1",
+      "emails": [
+        {
+          "id": "spring_early_bird_1",
+          "email_number": 1,
+          "type": "announcement",
+          "template": "tg-hero",
+          "send_date": "2027-01-15",
+          "subject_a": "15% off spring cleanup — early bird exclusive",
+          "subject_b": "{{first_name}}, save 15% on spring cleanup (limited time)",
+          "preview_text": "Book before March 1 and save 15%. Same crew, preferred dates, zero hassle.",
+          "headline": "Spring Cleanup: 15% Off for Early Birds",
+          "subheadline": "Book before March 1 and lock in the best price, the best dates, and the same crew you trust.",
+          "body_html": "<p>Hey {{first_name}},</p><p>Spring is still a few months away, but here's what we know from running hundreds of cleanups every year: <strong>the homeowners who book early get the best experience.</strong></p><p>That's why we're offering our early bird deal right now:</p><h3>15% Off Spring Cleanup — Book Before March 1</h3><p>Here's what's included in a TotalGuard spring cleanup:</p><ul><li><strong>Full yard debris removal</strong> — branches, dead leaves, winter litter, all of it gone</li><li><strong>Garden bed cleanout</strong> — dead plants cut back, debris cleared, beds prepped for the growing season</li><li><strong>Lawn dethatching</strong> — removing the matted dead grass that suffocates new growth</li><li><strong>Edging</strong> — crisp, clean lines along beds, sidewalks, and driveways</li><li><strong>First mow of the season</strong> — we dial in the perfect height to kickstart healthy growth</li></ul><h3>Why Book Now?</h3><p>Besides saving 15%, early bookers get three real advantages:</p><ol><li><strong>Preferred scheduling</strong> — Pick the exact week you want. By March, the best dates are gone.</li><li><strong>Same crew guarantee</strong> — The team that knows your property will be the ones who show up.</li><li><strong>First on the block</strong> — While your neighbors are still looking at brown yards in April, yours will already be cleaned up and growing strong.</li></ol><p>Every year, we get calls in late March from homeowners who waited too long and can't get on the schedule until May. Don't be that person.</p><p><strong>This offer expires March 1.</strong> After that, pricing goes back to standard rates and scheduling is first-come, first-served.</p>",
+          "review": {
+            "text": "TotalGuard did an amazing spring cleanup on our property. They were thorough, on time, and left everything looking perfect. Already booked them for the full season.",
+            "name": "Mauricio Roldan"
+          },
+          "cta_text": "Book Spring Cleanup — Save 15%",
+          "cta_url": "https://tgyardcare.com/services/spring-cleanup",
+          "urgency_text": null,
+          "alert_badge": null,
+          "personalization_tokens": ["first_name", "city"],
+          "goal": "Announce early bird offer, drive initial wave of spring cleanup bookings"
+        },
+        {
+          "id": "spring_early_bird_2",
+          "email_number": 2,
+          "type": "reminder",
+          "template": "tg-hero",
+          "send_date": "2027-02-10",
+          "subject_a": "Early bird reminder: 15% off ends March 1",
+          "subject_b": "{{first_name}}, 18 days left for spring cleanup savings",
+          "preview_text": "87 spring cleanups already booked. Preferred dates are going fast.",
+          "headline": "Spring Cleanup Spots Are Filling Up",
+          "subheadline": "87 cleanups booked so far. The best dates in {{city}} are going fast.",
+          "body_html": "<p>Hey {{first_name}},</p><p>Quick update on our spring early bird: <strong>87 spring cleanups have been booked so far</strong>, and we're starting to fill up our preferred weeks in April.</p><p>Here's the reality: our crews can only handle so many properties per week. When the schedule fills, new bookings get pushed to later dates — sometimes weeks later. And the 15% discount? That's gone after March 1, period.</p><h3>What Your Neighbors Are Saying</h3><p>We asked a few of our early bookers why they locked in their spot:</p><ul><li><em>\"I learned the hard way last year — waited until March and couldn't get on the schedule until mid-April.\"</em></li><li><em>\"15% off is real money. Plus I got my exact preferred week.\"</em></li><li><em>\"I just don't want to think about it. Booked it, done, one less thing on my plate.\"</em></li></ul><p>If you've been meaning to book, now's the time. <strong>18 days left at 15% off.</strong></p><h3>What's Included (Reminder)</h3><ul><li>Full yard debris removal</li><li>Garden bed cleanout and prep</li><li>Lawn dethatching</li><li>Edging — beds, sidewalks, driveways</li><li>First mow of the season</li></ul><p>Same crew. Same quality. 15% less.</p>",
+          "review": {
+            "text": "Excellent service from start to finish. TotalGuard cleaned up our entire property and it looked brand new. Prompt, professional, and worth every penny.",
+            "name": "Christina Kang"
+          },
+          "cta_text": "Book Now — 18 Days Left at 15% Off",
+          "cta_url": "https://tgyardcare.com/services/spring-cleanup",
+          "urgency_text": "15% off expires March 1. 87 cleanups already booked — preferred dates going fast.",
+          "alert_badge": null,
+          "personalization_tokens": ["first_name", "city"],
+          "goal": "Create urgency with social proof and scarcity, push fence-sitters to book"
+        },
+        {
+          "id": "spring_early_bird_3",
+          "email_number": 3,
+          "type": "last_call",
+          "template": "tg-urgency",
+          "send_date": "2027-02-28",
+          "subject_a": "⏰ 15% off spring cleanup ends TONIGHT",
+          "subject_b": "{{first_name}}, this is it — early bird pricing gone at midnight",
+          "preview_text": "After tonight, spring cleanup goes back to full price. Last chance.",
+          "headline": "Early Bird Pricing Ends Tonight",
+          "subheadline": "After midnight, the 15% discount is gone and scheduling is first-come, first-served.",
+          "body_html": "<p>{{first_name}},</p><p>This is the last email about this — because after tonight, the offer is done.</p><p><strong>15% off spring cleanup expires at midnight.</strong></p><p>Tomorrow morning, pricing goes back to standard rates. And the schedule? First-come, first-served with no guaranteed dates.</p><p>If you've been thinking about it, this is the moment. It takes 2 minutes to book:</p><ol><li>Click the button below</li><li>Pick your preferred week</li><li>Done — you're locked in at 15% off with your preferred date</li></ol><p>We've booked 120+ spring cleanups already this season. Once we're full, we're full.</p><p><strong>After tonight, this offer is gone. No extensions, no exceptions.</strong></p>",
+          "review": {
+            "text": "Great company to work with! They're always on time, do excellent work, and are easy to communicate with. Highly recommend TotalGuard to anyone in the Madison area.",
+            "name": "Max Rucker"
+          },
+          "cta_text": "Book Now — Offer Ends Tonight",
+          "cta_url": "https://tgyardcare.com/services/spring-cleanup",
+          "urgency_text": "OFFER ENDS AT MIDNIGHT — No extensions.",
+          "alert_badge": "EXPIRES TONIGHT",
+          "personalization_tokens": ["first_name"],
+          "goal": "Final conversion push with maximum urgency — short, direct, no fluff"
+        }
+      ]
+    },
+    {
+      "id": "flash_midsummer_referral",
+      "name": "Midsummer Referral Blitz",
+      "offer": "Double referral rewards — $50 for referrer (any service), $50 off referee's first service — July only",
+      "emails": [
+        {
+          "id": "referral_blitz_1",
+          "email_number": 1,
+          "type": "announcement",
+          "template": "tg-hero",
+          "send_date": "2027-07-01",
+          "subject_a": "$50 for you. $50 for them. July only.",
+          "subject_b": "{{first_name}}, double referral rewards start NOW",
+          "preview_text": "Normally $25 each — this month it's $50. No limit. Refer everyone.",
+          "headline": "$50 for You. $50 for Them.",
+          "subheadline": "Our referral rewards just doubled — for July only. No limit on referrals.",
+          "body_html": "<p>Hey {{first_name}},</p><p>You know our referral program? The one where you and your friend each get $25? We just doubled it. <strong>For the entire month of July:</strong></p><h3>The Midsummer Referral Blitz</h3><ul><li><strong>You refer someone</strong> → They get <strong>$50 off their first service</strong></li><li><strong>They book</strong> → You get <strong>$50 off your next service</strong> (any service)</li><li><strong>No limit</strong> → Refer as many people as you want</li></ul><p>Normally this is $25 each. This month? Doubled. Here's why: July is our busiest month, and the best way we grow is through customers like you telling their neighbors. So we're making it worth your while.</p><h3>Let's Talk Numbers</h3><table style=\"width:100%; border-collapse:collapse; margin:16px 0;\"><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:10px;\">Refer 1 neighbor</td><td style=\"padding:10px; text-align:right;\"><strong>You save $50</strong></td></tr><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:10px;\">Refer 3 neighbors</td><td style=\"padding:10px; text-align:right;\"><strong>You save $150</strong></td></tr><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:10px;\">Refer 5 neighbors</td><td style=\"padding:10px; text-align:right;\"><strong>You save $250</strong></td></tr><tr><td style=\"padding:10px;\">Refer 10 neighbors</td><td style=\"padding:10px; text-align:right;\"><strong>You save $500</strong></td></tr></table><p>Some of our top referrers have literally paid for an entire season of yard care just by telling people about us. No gimmicks — just real savings for real recommendations.</p><h3>How to Refer</h3><p>Easy — just have your friend mention your name when they call or book online. That's it. We track everything on our end.</p><p><strong>Or share this ready-to-send message:</strong></p><blockquote style=\"background:#f5f5f5; padding:16px; border-left:4px solid #2d6a2e; border-radius:4px;\"><p><em>\"Hey! I use TotalGuard Yard Care and they're seriously the best. Same crew every time, great communication, fair prices. Right now they're running a special — if you sign up this month, you'll get $50 off your first service. Just mention my name when you book: tgyardcare.com or (608) 535-6057\"</em></p></blockquote><p>Copy, paste, send. That's $50 in your pocket for every person who books.</p>",
+          "review": {
+            "text": "They handled a full mulch job plus weeding — looked so good I had to walk my neighbor through it. She hired them the next day.",
+            "name": "Anderson See"
+          },
+          "cta_text": "Share TotalGuard — Earn $50 Per Referral",
+          "cta_url": "https://tgyardcare.com/referral",
+          "urgency_text": "Double rewards all July — no limit on referrals.",
+          "alert_badge": null,
+          "personalization_tokens": ["first_name"],
+          "goal": "Launch referral blitz, make sharing dead simple with copy-paste text"
+        },
+        {
+          "id": "referral_blitz_2",
+          "email_number": 2,
+          "type": "reminder",
+          "template": "tg-hero",
+          "send_date": "2027-07-15",
+          "subject_a": "You've got 2 weeks left to earn $50 per referral",
+          "subject_b": "{{first_name}}, halfway through the referral blitz — have you shared yet?",
+          "preview_text": "16 days left for double referral rewards. Refer 3 = save $150.",
+          "headline": "Halfway Through — Have You Shared Yet?",
+          "subheadline": "16 days left for double referral rewards. The math is hard to ignore.",
+          "body_html": "<p>Hey {{first_name}},</p><p>We're at the halfway point of our Midsummer Referral Blitz, and the results have been amazing — dozens of new customers signed up this month because people like you spread the word.</p><p><strong>But there's still 16 days left, and we want to make sure you don't miss out.</strong></p><h3>Quick Recap</h3><ul><li>You refer someone → <strong>$50 off your next service</strong></li><li>They book → <strong>$50 off their first service</strong></li><li>No limit → <strong>Refer everyone you know</strong></li></ul><h3>The Simple Math</h3><p>Think about your street. Your cul-de-sac. Your coworkers who complain about their lawn guy. Your friend who's been doing it themselves and hates every minute of it.</p><p><strong>Refer 3 people this month = $150 in savings for you.</strong></p><p>That's real money off real services. Some customers have already referred 4-5 people this month. One customer in Sun Prairie referred 7 neighbors and has enough credit to cover their next two mowing visits.</p><h3>Not Sure What to Say?</h3><p>Just forward this email. Or text them this:</p><blockquote style=\"background:#f5f5f5; padding:16px; border-left:4px solid #2d6a2e; border-radius:4px;\"><p><em>\"My yard care company is running a deal — $50 off your first service if you sign up in July. They're called TotalGuard and they're legit. Same crew every time, great communication. (608) 535-6057 or tgyardcare.com — just mention my name.\"</em></p></blockquote><p>16 days. $50 per referral. No limit. Go.</p>",
+          "review": {
+            "text": "Had TotalGuard get the yard ready for a big party. They went above and beyond — edging, mulching, trimming, the whole nine yards. Everyone commented on how great the yard looked.",
+            "name": "Andrew Lai"
+          },
+          "cta_text": "Share & Earn $50 Per Referral",
+          "cta_url": "https://tgyardcare.com/referral",
+          "urgency_text": "16 days left — double rewards end July 31.",
+          "alert_badge": null,
+          "personalization_tokens": ["first_name"],
+          "goal": "Mid-campaign push with social proof from early referrers, re-share the copy-paste text"
+        },
+        {
+          "id": "referral_blitz_3",
+          "email_number": 3,
+          "type": "last_call",
+          "template": "tg-urgency",
+          "send_date": "2027-07-28",
+          "subject_a": "⏰ Double referral rewards end July 31",
+          "subject_b": "{{first_name}}, 3 days left for $50 per referral",
+          "preview_text": "After July 31, referral rewards go back to $25. 3 days left.",
+          "headline": "3 Days Left for Double Referrals",
+          "subheadline": "After July 31, it goes back to $25 each. This is your last shot at $50.",
+          "body_html": "<p>{{first_name}},</p><p><strong>3 days.</strong> That's how long double referral rewards last.</p><p>After July 31, the referral bonus drops back to $25. Right now, it's $50 for you and $50 for them. For every single person you refer.</p><p>If you've been meaning to share — <strong>this is it.</strong></p><h3>Quick Share Text (Copy & Send)</h3><blockquote style=\"background:#f5f5f5; padding:16px; border-left:4px solid #2d6a2e; border-radius:4px;\"><p><em>\"Hey — last chance to get $50 off yard care. My company TotalGuard is running a deal through July 31 only. They're the best I've ever used — same crew, great communication, fair prices. Call (608) 535-6057 or visit tgyardcare.com and mention my name.\"</em></p></blockquote><p>Send it to 5 people right now. Even if one books, that's $50 off your next service.</p><p><strong>July 31. Then it's over.</strong></p>",
+          "review": {
+            "text": "Great, reliable service. My neighbors and I all use TotalGuard now. Honestly the best yard care company in Madison.",
+            "name": "Elon Mcclernan"
+          },
+          "cta_text": "Share Now — 3 Days Left",
+          "cta_url": "https://tgyardcare.com/referral",
+          "urgency_text": "Double referral rewards end July 31. No extensions.",
+          "alert_badge": "ENDS JULY 31",
+          "personalization_tokens": ["first_name"],
+          "goal": "Final push — short, direct, easy-to-share text message included"
+        }
+      ]
+    },
+    {
+      "id": "flash_fall_bundle",
+      "name": "Fall Bundle Blowout",
+      "offer": "Fall cleanup + 3 leaf removal visits + gutter cleaning — save $150 vs individual pricing",
+      "emails": [
+        {
+          "id": "fall_bundle_1",
+          "email_number": 1,
+          "type": "announcement",
+          "template": "tg-hero",
+          "send_date": "2027-09-01",
+          "subject_a": "Fall cleanup + leaf removal + gutters = save $150",
+          "subject_b": "{{first_name}}, the fall bundle is here — save $150 on 3 services",
+          "preview_text": "Bundle fall cleanup, 3 leaf removals, and gutter cleaning. Save $150 vs. booking separately.",
+          "headline": "The Fall Bundle Is Here — Save $150",
+          "subheadline": "Three essential fall services. One crew. One price. $150 in savings.",
+          "body_html": "<p>Hey {{first_name}},</p><p>Fall in Madison is beautiful — but it's also the season that demands the most from your yard. Between leaf mountains, gutter clogs, and end-of-season cleanup, there's a lot to handle. That's why we built <strong>The Fall Bundle:</strong></p><h3>What's Included</h3><h4>1. Full Fall Cleanup</h4><ul><li>Complete yard debris removal</li><li>Garden bed cleanout — dead annuals removed, perennials cut back</li><li>Final edging for clean lines heading into winter</li><li>Final mow at winterizing height (2-2.5\")</li></ul><h4>2. Three Leaf Removal Visits</h4><ul><li>Scheduled across October and November during peak leaf fall</li><li>Full removal from lawn, beds, walkways, and driveways</li><li>Leaves hauled away — no bags for you to deal with</li><li>Timing adjusted based on actual leaf fall (not a rigid calendar)</li></ul><h4>3. Gutter Cleaning</h4><ul><li>All gutters and downspouts cleared of debris</li><li>Downspouts flushed to confirm flow</li><li>Visual inspection for damage or issues</li><li>Debris removed from property (not dumped in your beds)</li></ul><h3>The Math</h3><table style=\"width:100%; border-collapse:collapse; margin:16px 0;\"><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:10px;\">Fall Cleanup (individual)</td><td style=\"padding:10px; text-align:right;\">$$</td></tr><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:10px;\">3× Leaf Removal (individual)</td><td style=\"padding:10px; text-align:right;\">$$</td></tr><tr style=\"border-bottom:1px solid #e0e0e0;\"><td style=\"padding:10px;\">Gutter Cleaning (individual)</td><td style=\"padding:10px; text-align:right;\">$$</td></tr><tr style=\"border-bottom:2px solid #2d6a2e;\"><td style=\"padding:10px;\"><strong>Fall Bundle Price</strong></td><td style=\"padding:10px; text-align:right;\"><strong>Save $150</strong></td></tr></table><p>Same crew handles everything. One point of contact. No coordinating three different companies. Your property goes into winter in perfect shape.</p><p><strong>This bundle is available through September 30.</strong> We run it every year, and it sells out every year. Don't wait until the leaves are falling to book — by then, the schedule is packed.</p>",
+          "review": {
+            "text": "TotalGuard handles our mowing, gutter cleaning, and fall cleanup. They're a one-stop shop and the quality is consistent across every service. Highly recommend.",
+            "name": "Bryce"
+          },
+          "cta_text": "Get the Fall Bundle — Save $150",
+          "cta_url": "https://tgyardcare.com/services/fall-cleanup",
+          "urgency_text": "Available through September 30. Limited spots.",
+          "alert_badge": null,
+          "personalization_tokens": ["first_name", "city"],
+          "goal": "Launch fall bundle with detailed breakdown of what's included and the savings math"
+        },
+        {
+          "id": "fall_bundle_2",
+          "email_number": 2,
+          "type": "reminder",
+          "template": "tg-hero",
+          "send_date": "2027-09-20",
+          "subject_a": "{{city}} fall bundles are going fast",
+          "subject_b": "{{first_name}}, fall bundle spots in {{city}} are almost gone",
+          "preview_text": "Most {{city}} fall bundle slots are booked. 10 days left to save $150.",
+          "headline": "Fall Bundles Are Going Fast in {{city}}",
+          "subheadline": "We've booked the majority of our fall bundle slots. 10 days left at this price.",
+          "body_html": "<p>Hey {{first_name}},</p><p>Quick update: our fall bundles are selling faster than last year. <strong>Most of our {{city}} crew slots for October are already booked.</strong></p><p>Here's what's happening: homeowners across Dane County are locking in their fall coverage because they know what happens when you wait — the leaves pile up, the gutters overflow, and by the time you call, every yard care company in Madison is booked through Thanksgiving.</p><h3>What You Get (Reminder)</h3><ul><li><strong>Full fall cleanup</strong> — debris, bed cleanout, final edging, winterizing mow</li><li><strong>3 leaf removal visits</strong> — timed to actual leaf fall, hauled away completely</li><li><strong>Gutter cleaning</strong> — gutters, downspouts, debris removed from property</li><li><strong>$150 savings</strong> vs. booking each service individually</li></ul><h3>What Customers Are Saying</h3><blockquote><p>\"I used to try to handle fall cleanup myself. Renting a leaf vacuum, climbing ladders for gutters, spending entire weekends... Now TotalGuard handles all of it in one bundle. Best decision I've made.\"</p></blockquote><p><strong>10 days left at bundle pricing. After September 30, these services are only available at individual rates.</strong></p>",
+          "review": {
+            "text": "Had TotalGuard do a gutter cleaning and they were fantastic. Showed up on time, did a thorough job, and cleaned up after themselves. Already scheduled them for the fall cleanup too.",
+            "name": "Warren Williams"
+          },
+          "cta_text": "Book the Fall Bundle — 10 Days Left",
+          "cta_url": "https://tgyardcare.com/services/fall-cleanup",
+          "urgency_text": "Most {{city}} slots booked. Bundle pricing ends September 30.",
+          "alert_badge": null,
+          "personalization_tokens": ["first_name", "city"],
+          "goal": "Drive urgency with scarcity (slots filling) and social proof"
+        },
+        {
+          "id": "fall_bundle_3",
+          "email_number": 3,
+          "type": "last_call",
+          "template": "tg-urgency",
+          "send_date": "2027-09-28",
+          "subject_a": "⏰ Fall bundle ends in 3 days",
+          "subject_b": "{{first_name}}, fall bundle disappears October 1",
+          "preview_text": "After October 1, fall services go back to individual pricing. 3 days left to save $150.",
+          "headline": "Fall Bundle Disappears October 1",
+          "subheadline": "3 days left. After that, fall cleanup, leaf removal, and gutters are individual price only.",
+          "body_html": "<p>{{first_name}},</p><p><strong>3 days.</strong> That's all that's left for the fall bundle.</p><p>After October 1:</p><ul><li>Fall cleanup → individual price</li><li>Leaf removal → individual price per visit</li><li>Gutter cleaning → individual price</li><li>Total cost → <strong>$150 more</strong> than the bundle</li></ul><p>The leaves are starting to fall. The gutters are collecting debris right now. October storms are coming.</p><p>Book the bundle today and your entire fall is handled. One crew. One price. Three services. Done.</p><p><strong>October 1. Then it's gone.</strong></p>",
+          "review": {
+            "text": "TotalGuard has been maintaining our property for two seasons now. Consistent quality every single time. They're reliable, communicative, and do excellent work.",
+            "name": "Barb Osborn"
+          },
+          "cta_text": "Get the Fall Bundle — Ends in 3 Days",
+          "cta_url": "https://tgyardcare.com/services/fall-cleanup",
+          "urgency_text": "Bundle pricing ends October 1. No extensions.",
+          "alert_badge": "ENDS OCT 1",
+          "personalization_tokens": ["first_name"],
+          "goal": "Final conversion push — short, direct, clear math on what they lose"
+        }
+      ]
+    },
+    {
+      "id": "flash_snow_rate_lock",
+      "name": "Snow Rate Lock",
+      "offer": "Lock in last year's snow removal rate — after Oct 31, rates increase 20%",
+      "emails": [
+        {
+          "id": "snow_rate_lock_1",
+          "email_number": 1,
+          "type": "announcement",
+          "template": "tg-hero",
+          "send_date": "2027-10-15",
+          "subject_a": "Snow removal at last year's rate — but only until Oct 31",
+          "subject_b": "{{first_name}}, lock in snow removal before rates go up 20%",
+          "preview_text": "After Oct 31, snow removal rates increase 20%. Lock in last year's price now.",
+          "headline": "Lock In Your Snow Removal Rate",
+          "subheadline": "Sign up before October 31 and keep last year's pricing. After that, rates go up 20%.",
+          "body_html": "<p>Hey {{first_name}},</p><p>Winter is coming to Madison. And every year, the same thing happens: the first big snowfall hits, everyone scrambles to find a snow removal company, and prices spike because demand is through the roof.</p><p>We don't want that for you. That's why we're offering our rate lock:</p><h3>Snow Removal Rate Lock — Through October 31</h3><p><strong>Sign up before October 31 and you'll keep last year's rate for the entire winter season.</strong> After October 31, our snow removal rates increase 20% — no exceptions.</p><h3>What's Included in TotalGuard Snow Removal</h3><ul><li><strong>Driveway clearing</strong> — plowed or blown, edge to edge</li><li><strong>Sidewalk clearing</strong> — front, side, and any connecting walks</li><li><strong>Walkway to front door</strong> — so you can actually get to your house</li><li><strong>Ice management</strong> — salt or ice melt application on all cleared surfaces</li><li><strong>Early morning service</strong> — we're out before you need to leave for work</li><li><strong>Storm-based response</strong> — we come as often as needed, whenever it snows</li></ul><h3>Why Lock In Now?</h3><ol><li><strong>Save 20%</strong> — That's the rate increase after October 31. On a full winter of service, that's serious money.</li><li><strong>Guaranteed coverage</strong> — We cap the number of properties we service to ensure quality. Once we're full, we stop accepting new customers. If you're not signed up before the first snow, you may not get in at all.</li><li><strong>Peace of mind</strong> — No more watching the weather forecast with dread. When it snows, we show up. Period.</li></ol><p>Madison averages 51 inches of snow per year. Last winter we had 17 plowable events. That's 17 mornings where you either wake up early to shovel, or you wake up to a cleared driveway because TotalGuard already handled it.</p><p><strong>Rate lock expires October 31. After that, it's 20% more.</strong></p>",
+          "review": {
+            "text": "TotalGuard's snow removal service is a lifesaver. They're always out early, the driveway is clean before I leave for work, and they're consistent all winter. Worth every penny.",
+            "name": "Carson Bloedow"
+          },
+          "cta_text": "Lock In Last Year's Rate",
+          "cta_url": "https://tgyardcare.com/services/snow-removal",
+          "urgency_text": "Rate lock expires October 31. After that, prices increase 20%.",
+          "alert_badge": null,
+          "personalization_tokens": ["first_name", "city"],
+          "goal": "Announce rate lock, establish value of snow removal, make the math clear on 20% increase"
+        },
+        {
+          "id": "snow_rate_lock_2",
+          "email_number": 2,
+          "type": "reminder",
+          "template": "tg-hero",
+          "send_date": "2027-10-25",
+          "subject_a": "Snow rate lock expires in 6 days, {{first_name}}",
+          "subject_b": "{{first_name}}, first snow could hit any day — are you covered?",
+          "preview_text": "6 days until snow removal rates go up 20%. Madison's first snow averages Nov 4.",
+          "headline": "6 Days to Lock Your Snow Rate",
+          "subheadline": "After October 31, rates increase 20%. And Madison's first snow averages November 4.",
+          "body_html": "<p>Hey {{first_name}},</p><p>Let me share a number with you: <strong>November 4.</strong></p><p>That's the average date of Madison's first measurable snowfall. Which means in 6 days, when our rate lock expires, <strong>you could be less than a week away from needing snow removal.</strong></p><p>Here's what happens every year without fail:</p><ol><li>October: \"I'll sign up soon.\"</li><li>November 1: Rates go up 20%.</li><li>November 5: First snow hits.</li><li>November 6: Inbox full of emails from people scrambling to find coverage.</li><li>November 7: We're full. Waitlist only.</li></ol><p><strong>Don't be step 4.</strong></p><h3>The Weather Is Already Turning</h3><p>Nighttime temps are dipping into the 30s. The long-range forecast shows our first potential snow event in the next 2-3 weeks. This isn't hypothetical — winter is on the doorstep.</p><h3>What You're Locking In</h3><ul><li>Full winter snow removal — driveway, sidewalks, walkways</li><li>Ice management on all cleared surfaces</li><li>Early morning service — cleared before your commute</li><li>All at <strong>last year's rate</strong> — 20% less than what it costs after Oct 31</li></ul><p><strong>6 days, {{first_name}}. After October 31, the price goes up and we start filling to capacity.</strong></p>",
+          "review": {
+            "text": "TotalGuard is hands-down the best yard care service I've ever used. Reliable, professional, and they actually care about doing a great job. My lawn has never looked better.",
+            "name": "David Harter"
+          },
+          "cta_text": "Lock In Your Rate — 6 Days Left",
+          "cta_url": "https://tgyardcare.com/services/snow-removal",
+          "urgency_text": "Rate lock expires October 31. First snow averages November 4 in Madison.",
+          "alert_badge": null,
+          "personalization_tokens": ["first_name", "city"],
+          "goal": "Create urgency with weather data and the inevitable first-snow scramble narrative"
+        },
+        {
+          "id": "snow_rate_lock_3",
+          "email_number": 3,
+          "type": "last_call",
+          "template": "tg-urgency",
+          "send_date": "2027-10-30",
+          "subject_a": "⏰ Snow removal rates increase 20% TOMORROW",
+          "subject_b": "{{first_name}}, tomorrow your snow removal costs 20% more",
+          "preview_text": "After midnight tomorrow, snow removal rates go up 20%. This is your last chance.",
+          "headline": "Rates Go Up 20% Tomorrow",
+          "subheadline": "After midnight October 31, the rate lock is gone. No exceptions. No extensions.",
+          "body_html": "<p>{{first_name}},</p><p><strong>Tomorrow at midnight, snow removal rates increase 20%.</strong></p><p>This is not a soft deadline. This is not a \"we might extend it\" situation. At 12:01am on November 1, the price goes up for everyone who hasn't signed up.</p><p>And here's the thing: <strong>first snow in Madison averages November 4.</strong> That's potentially days away.</p><p>Two options:</p><ol><li><strong>Lock in now</strong> — last year's rate, guaranteed coverage all winter, cleared before your commute every time it snows.</li><li><strong>Wait</strong> — pay 20% more (if we still have spots), scramble when the first storm hits, hope someone's available.</li></ol><p>It takes 2 minutes to sign up. Click below, lock in your rate, and never think about snow removal again this winter.</p><p><strong>Tomorrow. 20% more. No exceptions.</strong></p>",
+          "review": {
+            "text": "Signed up for snow removal last winter and it was the best decision. TotalGuard was out before 7am every single time. Driveway clean, sidewalk clear, salt down. Couldn't ask for more.",
+            "name": "Cooper Brakmanis"
+          },
+          "cta_text": "Lock In Your Rate — Last Chance",
+          "cta_url": "https://tgyardcare.com/services/snow-removal",
+          "urgency_text": "RATES INCREASE 20% AT MIDNIGHT TOMORROW. No extensions.",
+          "alert_badge": "RATE INCREASE TOMORROW",
+          "personalization_tokens": ["first_name"],
+          "goal": "Maximum urgency — tomorrow is real, the weather data backs it up, this is final"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "created": "2026-03-12",
+    "campaign_type": "flash_sales",
+    "total_campaigns": 4,
+    "emails_per_campaign": 3,
+    "email_sequence": ["announcement", "reminder", "last_call"],
+    "templates_used": {
+      "announcement": "tg-hero",
+      "reminder": "tg-hero",
+      "last_call": "tg-urgency"
+    },
+    "business": {
+      "name": "TotalGuard Yard Care",
+      "location": "Madison, WI",
+      "phone": "(608) 535-6057",
+      "email": "totalguardllc@gmail.com",
+      "website": "https://tgyardcare.com",
+      "google_review_link": "https://g.page/r/CRW5Dsg2JgwBEBM/review",
+      "cofounders": ["Vance Ferry", "Alex O'Donnell"],
+      "rating": "4.9★",
+      "review_count": "78+"
+    },
+    "service_areas": [
+      "Madison", "Middleton", "Sun Prairie", "Fitchburg",
+      "Verona", "Waunakee", "DeForest", "Cottage Grove",
+      "McFarland", "Monona", "Stoughton", "Oregon"
+    ],
+    "referral_program": {
+      "standard": {
+        "referrer_discount": "$25 off any service",
+        "referee_discount": "$25 off first service"
+      },
+      "blitz_july": {
+        "referrer_discount": "$50 off any service",
+        "referee_discount": "$50 off first service"
+      }
+    }
+  }
+}

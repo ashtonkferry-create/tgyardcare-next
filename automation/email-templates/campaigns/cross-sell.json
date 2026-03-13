@@ -1,0 +1,166 @@
+{
+  "campaign": "cross_sell_engine",
+  "workflow_id": "TG-10",
+  "template": "tg-hero",
+  "total_emails": 6,
+  "description": "6-email cross-sell engine for TotalGuard Yard Care. Each email targets customers who have one service and pushes a related upsell based on their current service mix.",
+  "emails": [
+    {
+      "id": "crosssell_1",
+      "email_number": 1,
+      "trigger": "has_mowing_only",
+      "template": "tg-hero",
+      "subject_a": "Your lawn is mowed perfectly. Now make it the thickest on the block.",
+      "subject_b": "{{first_name}}, the secret to the greenest lawn in {{city}}",
+      "preview_text": "Mowing is only half the equation. Here's what separates a nice lawn from the best lawn on the street.",
+      "headline": "You've Got the Mowing Down. Now Let's Make It Championship-Level.",
+      "subheadline": "The difference between a nice lawn and the lawn everyone on your street talks about? Fertilization.",
+      "body_html": "<p>Hey {{first_name}},</p><p>Your lawn looks great every week. Our crew makes sure of that. But here's something most homeowners don't realize: <strong>mowing alone won't give you that thick, deep-green, championship-level lawn</strong>.</p><p>Think of it this way — mowing is like getting a haircut. It keeps things neat. But fertilization? That's the nutrition. It's what builds density, deepens color, and makes your grass so thick that weeds literally can't compete.</p><p>Our fertilization program is specifically calibrated for Wisconsin soil conditions:</p><ul><li><strong>4-6 seasonal applications</strong> timed to your lawn's growth cycle</li><li><strong>Professional-grade granular fertilizer</strong> — not the generic stuff from the hardware store</li><li><strong>Custom blend for your soil type</strong> — Madison clay soil needs different ratios than sandy soil</li><li><strong>Weed suppression built in</strong> — each application includes targeted pre-emergent or post-emergent herbicide</li></ul><p>The results speak for themselves. Within 4-6 weeks of the first application, you'll notice thicker growth, richer color, and fewer bare spots. By the end of the season, you won't believe it's the same lawn.</p><p>Most of our mowing customers add fertilization within their first season. The ones who do? They're the yards that get compliments from the neighbors.</p><p><strong>Your lawn is already well-maintained. Let's make it the one everyone on your street talks about.</strong></p>",
+      "review": {
+        "text": "I recently purchased seasonal a round of herbicide treatment and I am beyond grateful for TotalGuard. They were very prompt on their response time, and did a great job killing my dandelions. Highly recommend.",
+        "name": "Nick Bauman",
+        "service": "Herbicide Treatment"
+      },
+      "cta_text": "Add Fertilization \u2192",
+      "cta_url": "https://tgyardcare.com/services/fertilization",
+      "urgency_text": "Spring fertilization slots are filling fast in {{city}}. Lock in your spot before the season starts.",
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Convert mowing-only customers to mowing + fertilization by framing fertilization as the missing piece for a truly great lawn"
+    },
+    {
+      "id": "crosssell_2",
+      "email_number": 2,
+      "trigger": "has_mowing_and_fertilization",
+      "template": "tg-hero",
+      "subject_a": "You're 90% there. Aeration is the missing piece.",
+      "subject_b": "Why your {{city}} neighbors' lawns look better (hint: they aerate)",
+      "preview_text": "Your lawn care is dialed in. One more step takes it from great to magazine-cover worthy.",
+      "headline": "You're 90% There. Here's the Final Piece.",
+      "subheadline": "Mowing + fertilization is a killer combo. But compacted soil is quietly holding your lawn back.",
+      "body_html": "<p>Hey {{first_name}},</p><p>You're doing almost everything right. Weekly mowing keeps things sharp. Fertilization feeds the roots. But there's one thing silently working against you: <strong>compacted soil</strong>.</p><p>Here's what's happening beneath the surface. Every time someone walks across your lawn, every time it rains, every time the mower rolls over it — the soil gets a little more compressed. Over time, that compaction creates a barrier that blocks water, oxygen, and nutrients from reaching your grass roots.</p><p>Translation: <strong>you're paying for fertilizer that can't fully penetrate the soil</strong>.</p><p>That's where core aeration comes in.</p><h3>What Core Aeration Does</h3><ul><li><strong>Pulls small plugs of soil</strong> out of your lawn, creating channels for air, water, and nutrients</li><li><strong>Breaks up thatch buildup</strong> — that spongy layer between the grass and soil that suffocates roots</li><li><strong>Supercharges your fertilization</strong> — nutrients go deeper, roots grow stronger, grass gets thicker</li><li><strong>Reduces water runoff</strong> — your lawn absorbs more water instead of letting it sheet off the surface</li></ul><p>The best time to aerate in Wisconsin is early fall, when the soil is still warm but the heat stress is gone. One annual aeration combined with your current mowing and fertilization program is the difference between a good lawn and a <strong>magazine-cover lawn</strong>.</p><p>We're not exaggerating — customers who add aeration consistently have the densest, greenest yards in their neighborhoods. The science is simple: when roots can breathe, everything above ground thrives.</p><p><strong>You've already invested in mowing and fertilization. Aeration is how you unlock the full return on that investment.</strong></p>",
+      "review": {
+        "text": "Totalguard did an awesome job. You can really tell they care about the quality of their work\u2014everything was done right.",
+        "name": "ethan trybulec",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Add Fall Aeration \u2192",
+      "cta_url": "https://tgyardcare.com/services/aeration",
+      "urgency_text": "Fall aeration window is September\u2013October. Limited slots available in {{city}}.",
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Convert mowing+fertilization customers to add aeration by explaining the science of soil compaction and positioning aeration as the final unlock"
+    },
+    {
+      "id": "crosssell_3",
+      "email_number": 3,
+      "trigger": "has_any_summer_service",
+      "template": "tg-hero",
+      "subject_a": "You invested all summer. Don't let fall undo it in 2 weeks.",
+      "subject_b": "{{first_name}}, protect your summer investment",
+      "preview_text": "Leaves on grass = dead spots by spring. Clogged gutters = water damage. One booking handles both.",
+      "headline": "Don't Let Fall Undo Everything You Built This Summer.",
+      "subheadline": "One booking. Two problems solved. Your yard and your home, protected.",
+      "body_html": "<p>Hey {{first_name}},</p><p>You put in the work this summer. Your lawn looks incredible, your property is dialed in, and you can actually enjoy your yard. But here's the thing most {{city}} homeowners learn the hard way: <strong>fall can undo months of progress in just a couple of weeks</strong>.</p><p>Here's what happens when you skip fall maintenance:</p><ul><li><strong>Leaves smother your grass</strong> — A thick layer of wet leaves blocks sunlight and traps moisture, creating the perfect conditions for fungal disease and dead patches that won't recover until late spring</li><li><strong>Gutters overflow</strong> — Clogged gutters push water against your fascia, soffit, and foundation. One bad rainstorm with packed gutters can cause hundreds of dollars in water damage</li><li><strong>Debris compacts</strong> — Leaves, sticks, and organic matter pack down over winter, creating a suffocating mat that your grass has to fight through in spring</li></ul><h3>The Fall Bundle: Cleanup + Gutter Cleaning</h3><p>We created this bundle specifically because these two services go hand-in-hand. When we're already on your property clearing leaves and debris, cleaning the gutters at the same time saves you money and ensures nothing falls through the cracks.</p><p><strong>What's included:</strong></p><ul><li>Complete leaf removal from lawn, beds, and walkways</li><li>Debris cleanup and haul-away</li><li>Full gutter cleanout — downspouts flushed and cleared</li><li>Quick inspection for any gutter damage or blockages</li><li>Final blow-off of all hard surfaces</li></ul><p>You invested all summer in making your property look great. <strong>The fall bundle is how you protect that investment and set yourself up for a strong spring.</strong></p>",
+      "review": {
+        "text": "Called for a gutter cleaning and ended up hiring them for mowing too. These guys are punctual, friendly, and very detail-oriented. My gutters used to overflow \u2014 now they drain perfectly. Worth every penny.",
+        "name": "Bryce",
+        "service": "Gutter Cleaning & Mowing"
+      },
+      "cta_text": "Book the Fall Bundle \u2192",
+      "cta_url": "https://tgyardcare.com/services/fall-cleanup",
+      "urgency_text": "Fall cleanup slots fill fast once leaves start dropping. Book now to lock in your preferred date.",
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Cross-sell fall cleanup + gutter cleaning bundle to any summer service customer by framing it as protecting their existing investment"
+    },
+    {
+      "id": "crosssell_4",
+      "email_number": 4,
+      "trigger": "has_any_fall_service",
+      "template": "tg-hero",
+      "subject_a": "You trusted us with fall. Let us handle winter too.",
+      "subject_b": "Same crew, now clearing your driveway at 5am",
+      "preview_text": "Same reliability you already trust. Now applied to snow removal. Triggered at 2\"+ snowfall.",
+      "headline": "Same Crew. Same Reliability. Now for Winter.",
+      "subheadline": "You already know we show up on time and do the work right. Snow removal is no different.",
+      "body_html": "<p>Hey {{first_name}},</p><p>You've seen how we operate. We show up when we say we will, we do the work right, and we don't leave until the job is done. Your fall cleanup proved that.</p><p>So here's a simple question: <strong>do you really want to set your alarm for 5am every time it snows, bundle up in the freezing cold, and spend 45 minutes shoveling your driveway before work?</strong></p><p>We didn't think so.</p><h3>TotalGuard Snow Removal</h3><p>It's the same crew you already know and trust, with the same level of reliability and attention to detail — just applied to Wisconsin winters.</p><p><strong>Here's how it works:</strong></p><ul><li><strong>Triggered at 2\"+ snowfall</strong> — We monitor conditions and deploy automatically. You don't have to call, text, or do anything</li><li><strong>Driveway + walkways + porch</strong> — Full clearance of all surfaces you need to access safely</li><li><strong>Salt included</strong> — We don't just push snow around. We treat surfaces to prevent ice buildup</li><li><strong>Early morning priority</strong> — Cleared before you need to leave for work</li><li><strong>Same crew, every storm</strong> — No random contractors. Your team knows your property layout</li></ul><h3>Why Our Customers Love It</h3><p>The number one thing we hear from snow removal customers: <strong>\"I can't believe I used to do this myself.\"</strong> There's something deeply satisfying about waking up after a big snowstorm, looking out the window, and seeing your driveway already cleared and salted.</p><p>No bundling up. No frozen fingers. No being late to work. No throwing out your back. Just a clean driveway, every single time.</p><p><strong>You already trust us with your yard. Let us take winter off your plate too.</strong></p>",
+      "review": {
+        "text": "That's all I want in a yard care company. No BS. Just reliable service and fair pricing. Vance and the crew are solid.",
+        "name": "Mason",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Add Snow Removal \u2192",
+      "cta_url": "https://tgyardcare.com/services/snow-removal",
+      "urgency_text": "Snow removal contracts fill up before the first snowfall. Don't wait until you're already buried.",
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Cross-sell snow removal to fall service customers by leveraging existing trust and framing it as the obvious next step"
+    },
+    {
+      "id": "crosssell_5",
+      "email_number": 5,
+      "trigger": "has_snow_only",
+      "template": "tg-hero",
+      "subject_a": "Your driveway was perfect all winter. Imagine your whole yard like that.",
+      "subject_b": "Spring is here, {{first_name}} \u2014 let's do your yard next",
+      "preview_text": "We kept your driveway clear all winter. Now let us bring that same reliability to your entire yard.",
+      "headline": "Your Driveway Was Perfect All Winter. Now Imagine Your Whole Yard.",
+      "subheadline": "Same crew, same reliability. One call, entire season handled.",
+      "body_html": "<p>Hey {{first_name}},</p><p>All winter long, you woke up to a cleared driveway. No alarm clocks at 5am, no shoveling in the dark, no throwing salt in the wind. Just clean surfaces, every single storm.</p><p>Now spring is here. And your yard? It needs the same kind of attention.</p><p>After a Wisconsin winter, every yard in {{city}} looks rough. The snow compacted everything, leaves from fall are decomposing into the soil, and there's debris everywhere. <strong>Spring cleanup is the reset button your yard needs.</strong></p><h3>The Spring Package</h3><p>We built this specifically for customers like you who already know what TotalGuard reliability looks like — and want it applied to their entire property, year-round.</p><p><strong>Spring Cleanup includes:</strong></p><ul><li>Full debris removal — branches, leaves, and winter waste cleared from lawn, beds, and walkways</li><li>Lawn dethatching and first mow of the season</li><li>Bed edging and cleanup</li><li>Hard surface blow-off</li><li>Assessment of any winter damage to landscaping</li></ul><p><strong>Weekly Mowing includes:</strong></p><ul><li>Consistent weekly schedule — same day, same crew</li><li>Mow, edge, trim, and blow-off every visit</li><li>Height adjusted for seasonal growth patterns</li><li>Before &amp; after photos so you always know the work was done right</li></ul><p>You already know we show up on time. You already know we don't cut corners. You already know the crew by name. <strong>The only thing left is letting us take care of the rest of your property.</strong></p><p>One call. Entire season. Handled.</p>",
+      "review": {
+        "text": "We hired TotalGuard Yard Care after dealing with inconsistent service from other companies, and the difference was immediate.",
+        "name": "Will Johnson",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Book Spring Package \u2192",
+      "cta_url": "https://tgyardcare.com/services/spring-cleanup",
+      "urgency_text": "Spring cleanup slots are limited — our schedule fills up fast once the snow melts. Book now to get your preferred date.",
+      "personalization_tokens": ["first_name", "city"],
+      "goal": "Convert snow-only customers into year-round customers by leveraging the trust built during winter and presenting the spring package as the natural next step"
+    },
+    {
+      "id": "crosssell_6",
+      "email_number": 6,
+      "trigger": "has_3_plus_services",
+      "template": "tg-hero",
+      "subject_a": "{{first_name}}, you're one of our top customers. Here's what that means.",
+      "subject_b": "VIP status unlocked \u2014 exclusive perks inside",
+      "preview_text": "You're using 3+ services. That makes you a TotalGuard VIP. Here's what you've earned.",
+      "headline": "{{first_name}}, You've Earned VIP Status.",
+      "subheadline": "You're one of our top customers in {{city}}. Here's what that means for you.",
+      "body_html": "<p>Hey {{first_name}},</p><p>I wanted to take a minute to personally recognize you. You're not just a customer \u2014 <strong>you're one of our most valued clients in all of {{city}}</strong>.</p><p>With {{service_count}} active services, you've trusted us with more of your property than most. And that trust is something we take seriously. You're the kind of customer that makes us love what we do.</p><p>So we want to make sure you're getting treated accordingly.</p><h3>Your VIP Perks</h3><ul><li><strong>Priority scheduling</strong> \u2014 When weather delays hit or the schedule gets tight, VIP customers get moved to the front of the line. Period.</li><li><strong>Dedicated crew</strong> \u2014 Your crew knows your property inside and out. Same faces, every visit. They know where the tricky spots are, how you like things done, and they take personal pride in your yard.</li><li><strong>Direct line to ownership</strong> \u2014 You have Vance's direct number. If anything ever needs attention, you skip the queue and go straight to the top.</li><li><strong>First access to new services</strong> \u2014 When we launch something new (and we've got some exciting things coming), you'll be the first to know and the first to get it.</li></ul><h3>One More Thing: The Referral Program</h3><p>Here's something a lot of our VIP customers love: the <strong>TotalGuard Referral Program</strong>.</p><p>For every friend, neighbor, or family member you refer:</p><ul><li><strong>They get $25 off</strong> their first service</li><li><strong>You get $25 off</strong> your next service</li><li><strong>No limit</strong> \u2014 refer 10 people, save $250</li></ul><p>Some of our VIP customers have literally gotten entire services for free just from referrals. You know the quality of our work better than anyone. When you recommend us, your friends and neighbors get the same experience you have \u2014 and you get rewarded for it.</p><p>{{first_name}}, thank you for trusting us with your property. We don't take it lightly, and we're going to keep earning that trust every single visit.</p><p>\u2014 Vance &amp; the TotalGuard crew</p>",
+      "review": {
+        "text": "Was very happy with my services and have added on more services they offer. Vance and his partner are a A+ team. Job well done! I will continue to do business with them. Great job guys!",
+        "name": "Kim Esser",
+        "service": "Multiple Services"
+      },
+      "cta_text": "Share With a Neighbor \u2014 Earn $25 \u2192",
+      "cta_url": "https://tgyardcare.com/referral",
+      "urgency_text": "Know someone who needs reliable yard care? Share the love and save $25 on your next service.",
+      "personalization_tokens": ["first_name", "city", "service_count"],
+      "goal": "Recognize and reward multi-service VIP customers, drive referrals by leveraging their high satisfaction and deep trust"
+    }
+  ],
+  "metadata": {
+    "created": "2026-03-12",
+    "business": {
+      "name": "TotalGuard Yard Care",
+      "location": "Madison, WI",
+      "phone": "(608) 535-6057",
+      "email": "totalguardllc@gmail.com",
+      "website": "https://tgyardcare.com",
+      "google_review_link": "https://g.page/r/CRW5Dsg2JgwBEBM/review",
+      "cofounders": ["Vance Ferry", "Alex O'Donnell"]
+    },
+    "referral_program": {
+      "referrer_discount": "$25 off any service",
+      "referee_discount": "$25 off first service",
+      "limit": "unlimited"
+    },
+    "cross_sell_paths": {
+      "mowing_only": "Fertilization",
+      "mowing_fertilization": "Aeration",
+      "any_summer": "Fall Cleanup + Gutter Cleaning",
+      "any_fall": "Snow Removal",
+      "snow_only": "Spring Cleanup + Mowing",
+      "multi_service": "VIP Recognition + Referral Push"
+    }
+  }
+}

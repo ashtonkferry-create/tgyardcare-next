@@ -1,0 +1,150 @@
+{
+  "campaign": "reengagement_ladder",
+  "workflow_id": "TG-11",
+  "template": "tg-hero",
+  "total_emails": 4,
+  "description": "4-email re-engagement ladder for TotalGuard Yard Care. Progressively escalates from warm reconnection to breakup email over 90-365 days of inactivity.",
+  "emails": [
+    {
+      "id": "reengage_1",
+      "email_number": 1,
+      "trigger": "90_days_inactive",
+      "template": "tg-hero",
+      "subject_a": "We miss your yard, {{first_name}}",
+      "subject_b": "It's been a while \u2014 is your yard getting the care it deserves?",
+      "preview_text": "It's been a few months since we last took care of your yard. We'd love to come back.",
+      "headline": "We Miss Your Yard, {{first_name}}.",
+      "subheadline": "It's been a while. We just wanted to check in.",
+      "body_html": "<p>Hey {{first_name}},</p><p>We noticed it's been a few months since we last took care of your yard in {{city}}, and we just wanted to reach out.</p><p>No sales pitch. No pressure. Just a genuine check-in from a team that genuinely enjoyed working on your property.</p><p>We remember your yard. We remember the details \u2014 the spots that needed extra attention, the way you liked things done. Our crew takes pride in every property they work on, and yours was no exception.</p><p>A lot has happened since we last visited:</p><ul><li><strong>We've added new services</strong> \u2014 including gutter guards, hardscaping, and expanded fall/spring cleanup packages</li><li><strong>We've grown our team</strong> \u2014 same ownership, same standards, but more availability for the properties we care about most</li><li><strong>Same crew, same quality</strong> \u2014 The crew that worked your property is still here and still doing incredible work</li></ul><p>If you've been handling things yourself, we totally respect that. If you've been meaning to call but life got in the way \u2014 we get it. Either way, we're here when you need us.</p><p>Your yard deserves consistent care, and we'd love to be the ones providing it again. No contracts, no commitments \u2014 just great work, every time.</p><p>We hope to see your property on our route again soon.</p><p>\u2014 The TotalGuard Crew</p>",
+      "review": {
+        "text": "We've tried a few lawn services before, but TotalGuard stands out. Consistent quality, good communication, and no surprises. Exactly what we were looking for.",
+        "name": "MicoBan",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Book Your Next Service \u2192",
+      "cta_url": "https://tgyardcare.com/book",
+      "urgency_text": null,
+      "offer": null,
+      "personalization_tokens": ["first_name", "city", "last_service_name", "last_service_date"],
+      "goal": "Warm reconnection with zero pressure. Remind them of the relationship and quality. No discount \u2014 just genuine outreach to reactivate dormant customers."
+    },
+    {
+      "id": "reengage_2",
+      "email_number": 2,
+      "trigger": "120_days_inactive",
+      "template": "tg-hero",
+      "subject_a": "10% off to welcome you back, {{first_name}}",
+      "subject_b": "We saved your spot \u2014 and a 10% discount",
+      "preview_text": "It's been 4 months. We'd love to have you back \u2014 and we're putting 10% off on the table to prove it.",
+      "headline": "We'd Love to Have You Back.",
+      "subheadline": "10% off your most-used service. Because we mean it.",
+      "body_html": "<p>Hey {{first_name}},</p><p>It's been about four months now, and we wanted to reach out one more time \u2014 this time with something concrete to show you we're serious about earning your business back.</p><p><strong>We're offering you 10% off {{last_service_name}}</strong> \u2014 the service you used most when you were with us. No strings attached. No annual contract. Just a discount as our way of saying \"we'd really love to see you again.\"</p><h3>Here's What You're Missing This Season</h3><p>While you've been away, your {{city}} neighbors have been keeping busy with us:</p><ul><li><strong>{{seasonal_highlight_1}}</strong> \u2014 The most popular service this month</li><li><strong>New before &amp; after photos</strong> from properties right in your neighborhood</li><li><strong>78+ five-star Google reviews</strong> \u2014 and counting</li></ul><p>We're not saying this to make you feel like you're missing out (okay, maybe a little). But the truth is, consistent yard care compounds. The longer a yard goes without professional attention, the more work it takes to get it back to where it was.</p><p>The good news? We know your property. We know what it needs. And we can have a crew out there fast.</p><h3>What Other Customers Are Saying</h3><p>Since you've been away, our reputation has only gotten stronger. Homeowners across {{city}} keep choosing TotalGuard because we actually show up, do great work, and treat every yard like it's our own.</p><p><strong>Your 10% discount is valid for the next 14 days.</strong> Just click below and we'll get you on the schedule.</p><p>We'd genuinely love to have you back, {{first_name}}.</p><p>\u2014 The TotalGuard Team</p>",
+      "review": {
+        "text": "They showed up early, worked fast, and left the place looking amazing. I've used other services before, but these guys are different.",
+        "name": "blake nelson",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Claim Your 10% Off \u2192",
+      "cta_url": "https://tgyardcare.com/book?offer=welcome-back-10",
+      "urgency_text": "Offer expires in 14 days.",
+      "offer": {
+        "type": "percentage",
+        "amount": 10,
+        "applies_to": "most_used_service",
+        "expiry_days": 14
+      },
+      "personalization_tokens": ["first_name", "city", "last_service_name", "seasonal_highlight_1"],
+      "goal": "Re-engage with a tangible 10% offer on their most-used service. Create soft urgency with 14-day expiry. Show social proof growth since they left."
+    },
+    {
+      "id": "reengage_3",
+      "email_number": 3,
+      "trigger": "180_days_inactive",
+      "template": "tg-hero",
+      "subject_a": "$25 off + a personal note from our owner",
+      "subject_b": "{{first_name}}, Vance from TotalGuard here",
+      "preview_text": "This one's personal. Vance, co-founder of TotalGuard, is reaching out directly with a $25 credit.",
+      "headline": "A Personal Note from Vance",
+      "subheadline": "This isn't a marketing email. This is me, reaching out directly.",
+      "body_html": "<p>Hey {{first_name}},</p><p>This is Vance \u2014 one of the co-founders of TotalGuard Yard Care. I'm writing this myself, not a marketing team.</p><p>I noticed you haven't booked with us in about six months, and I wanted to reach out personally. Not with a generic \"we miss you\" email, but with a real message from someone who actually cares about your experience.</p><p>When Alex and I started TotalGuard, we made a promise: every single customer matters. That hasn't changed. Whether you've been with us for two years or two months, losing your business bothers me.</p><p>So I have to ask: <strong>did we drop the ball somewhere?</strong></p><p>If something wasn't right \u2014 a service that didn't meet your expectations, a crew member who didn't represent us well, a price that felt off \u2014 I want to know. Seriously. Reply to this email and tell me directly. I read every single reply and I'll personally make sure it's addressed.</p><p>If it was just life getting busy or priorities shifting, I completely understand. No judgment at all. But I want you to know: <strong>your spot is still here</strong>. Your crew still remembers your property. And we'd love to take care of it again.</p><p>To back that up, I'm putting <strong>$25 off your next service</strong> into your account. No expiration gimmicks \u2014 it's good for 30 days because I want to give you real time to think about it, not pressure you.</p><p>Whether you come back or not, I appreciate the time you spent with us. The crew genuinely misses working on your yard \u2014 they ask about properties that drop off the route.</p><p>I hope to hear from you.</p><p>\u2014 Vance Ferry<br>Co-founder, TotalGuard Yard Care<br><a href=\"tel:+16085356057\" style=\"color: #2D5A27; font-weight: 600;\">(608) 535-6057</a> \u2014 text me anytime</p>",
+      "review": {
+        "text": "Vance and Alex from TotalGuard Lawn Care are the real deal.",
+        "name": "Leia Schneeberger",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Use Your $25 Credit \u2192",
+      "cta_url": "https://tgyardcare.com/book?offer=personal-25",
+      "urgency_text": "This $25 credit expires in 30 days.",
+      "offer": {
+        "type": "fixed",
+        "amount": 25,
+        "applies_to": "any_service",
+        "expiry_days": 30
+      },
+      "personalization_tokens": ["first_name", "city", "last_service_name", "last_service_date"],
+      "goal": "Personal, owner-written outreach. $25 credit with 30-day expiry. Invite honest feedback. Make it feel human and authentic, not corporate."
+    },
+    {
+      "id": "reengage_4",
+      "email_number": 4,
+      "trigger": "365_days_inactive",
+      "template": "tg-urgency",
+      "alert_type": "deadline",
+      "alert_color": "#C0392B",
+      "alert_badge_text": "FINAL NOTICE",
+      "subject_a": "Is this goodbye, {{first_name}}?",
+      "subject_b": "We're about to close your file, {{first_name}}",
+      "preview_text": "It's been a year. We're closing your active customer file in 7 days. One last offer inside.",
+      "headline": "Is This Goodbye?",
+      "subheadline": "It's been a year, {{first_name}}. We wanted to give you one last chance before we close your file.",
+      "stakes_html": "<p>We're not going to pretend this is easy to send. You were one of our customers in {{city}}, and losing you genuinely stings.</p><p>It's been a full year since we last took care of your property. We've sent a few emails, we've reached out \u2014 and we respect that you haven't come back. <strong>If you've found someone else, no hard feelings.</strong> Honestly. We hope they're treating your yard the way it deserves.</p><p>But if there's even a small part of you that's been meaning to call\u2026 if life just got busy and this fell off your radar\u2026 <strong>this is your last chance</strong>.</p><p>After 7 days, we'll remove you from our active customer list. That means:</p><ul style=\"margin: 12px 0;\"><li>Your priority scheduling status will be removed</li><li>Your crew assignment will be released</li><li>Your property notes and preferences will be archived</li><li>You'll need to go through the new customer process if you come back later</li></ul><p>We don't want that. And we're guessing you might not either.</p>",
+      "urgency_label": "FILE CLOSES IN",
+      "urgency_display": "7 Days",
+      "benefits_html": "&#10003; 20% off your next service \u2014 our biggest discount ever<br>&#10003; Same crew reassigned to your property immediately<br>&#10003; All your property notes and preferences restored<br>&#10003; Priority scheduling reactivated<br>&#10003; No contracts \u2014 just one service to start",
+      "review": {
+        "text": "I was pretty skeptical at first but I trusted the process and my lawn actually looked really good. Good job boys.",
+        "name": "Emma Currie",
+        "service": "Lawn Care"
+      },
+      "cta_text": "Give Us One More Chance \u2014 20% Off \u2192",
+      "cta_url": "https://tgyardcare.com/book?offer=comeback-20",
+      "cta_text_alt": "Claim My 20% Before It Expires",
+      "urgency_text": "After 7 days, we'll remove you from our active customer list.",
+      "offer": {
+        "type": "percentage",
+        "amount": 20,
+        "applies_to": "any_service",
+        "expiry_days": 7
+      },
+      "personalization_tokens": ["first_name", "city", "last_service_name", "last_service_date"],
+      "goal": "Authentic breakup email. 20% off as final gesture. Real consequences (file closure). Works because it's honest, not manipulative. Prominent unsubscribe respected."
+    }
+  ],
+  "metadata": {
+    "created": "2026-03-12",
+    "business": {
+      "name": "TotalGuard Yard Care",
+      "location": "Madison, WI",
+      "phone": "(608) 535-6057",
+      "email": "totalguardllc@gmail.com",
+      "website": "https://tgyardcare.com",
+      "google_review_link": "https://g.page/r/CRW5Dsg2JgwBEBM/review",
+      "cofounders": ["Vance Ferry", "Alex O'Donnell"]
+    },
+    "referral_program": {
+      "referrer_discount": "$25 off any service",
+      "referee_discount": "$25 off first service",
+      "limit": "unlimited"
+    },
+    "reengagement_ladder": {
+      "day_90": "Warm reconnection, no discount",
+      "day_120": "10% off most-used service, 14-day expiry",
+      "day_180": "$25 credit, personal note from Vance, 30-day expiry",
+      "day_365": "Breakup email, 20% off, 7-day file closure deadline"
+    },
+    "template_mapping": {
+      "emails_1_to_3": "tg-hero",
+      "email_4_breakup": "tg-urgency"
+    }
+  }
+}
