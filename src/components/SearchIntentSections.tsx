@@ -244,7 +244,7 @@ export function LocalFAQSection({
   const defaultFaqs: LocalFAQ[] = [
     {
       question: `How much does lawn care cost in ${cityName}?`,
-      answer: `Most ${cityName} residential properties pay $40-$80 per mowing visit depending on lot size. Full-service seasonal packages range from $150-$400/month and include mowing, edging, trimming, and blowing.`
+      answer: `Most ${cityName} residential properties pay $40-$80 per mowing visit depending on lot size. Full-service seasonal packages range from $150-$400/month and include mowing, trimming, and blowing.`
     },
     {
       question: `Do you provide service throughout ${cityName}?`,
@@ -256,7 +256,7 @@ export function LocalFAQSection({
     },
     {
       question: `What's included in your ${cityName} lawn mowing service?`,
-      answer: `Every visit includes mowing to the proper height (3-3.5"), edging along driveways and sidewalks, trimming around obstacles, and blowing all clippings off hard surfaces. Completion time for most properties: 30-45 minutes.`
+      answer: `Every visit includes mowing to the proper height (3-3.5"), trimming around obstacles, and blowing all clippings off hard surfaces. Completion time for most properties: 30-45 minutes.`
     },
     {
       question: `Do you work in bad weather?`,

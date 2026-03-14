@@ -68,7 +68,7 @@ const serviceCategories = [
     title: "Lawn Care & Maintenance",
     description: "Keep your Madison lawn healthy, green, and professionally maintained all season long.",
     services: [
-      { icon: Scissors, title: "Lawn Mowing", slug: "mowing", description: "Weekly mowing with edging and blowing. Same crew every visit, consistent quality.", image: mowingImage },
+      { icon: Scissors, title: "Lawn Mowing", slug: "mowing", description: "Weekly mowing with trimming and blowing. Same crew every visit, consistent quality.", image: mowingImage },
       { icon: SprayCan, title: "Herbicide Treatment", slug: "herbicide", description: "Targeted weed control with visible results in 7-14 days. Documentation provided.", image: herbicideImage },
       { icon: Sprout, title: "Fertilization", slug: "fertilization", description: "4-6 seasonal applications timed to Wisconsin growing cycles for optimal lawn health.", image: fertilizationImage },
       { icon: CircleDot, title: "Aeration", slug: "aeration", description: "Core aeration reduces compaction and improves water absorption. Fall or spring service.", image: aerationImage },

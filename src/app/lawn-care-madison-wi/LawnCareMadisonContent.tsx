@@ -51,7 +51,7 @@ const faqs = [
   },
   {
     question: "What's included in your Madison lawn mowing service?",
-    answer: "Every visit includes precision mowing with professional stripes, edging along all sidewalks and driveways, string trimming around obstacles, and blowing clippings off all hard surfaces. We also rotate mowing patterns to prevent ruts."
+    answer: "Every visit includes precision mowing with professional stripes, string trimming around all obstacles, and blowing clippings off all hard surfaces. We also rotate mowing patterns to prevent ruts."
   },
   {
     question: "Do you offer one-time mowing or only contracts?",

@@ -65,7 +65,7 @@ const seasonalBg = {
 } as const;
 
 const allServices = [
-  { icon: Scissors, title: "Lawn Mowing", description: "Weekly service, same crew assigned. Mowing, edging, and blowing—completed in under 45 minutes.", path: "/services/mowing", image: mowingImage, category: "lawn" },
+  { icon: Scissors, title: "Lawn Mowing", description: "Weekly service, same crew assigned. Mowing, trimming, and blowing—completed in under 45 minutes.", path: "/services/mowing", image: mowingImage, category: "lawn" },
   { icon: SprayCan, title: "Herbicide Treatment", description: "Targeted weed elimination with visible results in 7-14 days. We document what was treated.", path: "/services/herbicide", image: herbicideImage, category: "lawn" },
   { icon: Leaf, title: "Weeding", description: "Hand-pulled weeds, roots removed. Chemical-free option available for beds near edibles.", path: "/services/weeding", image: weedingImage, category: "beds" },
   { icon: Trees, title: "Mulching", description: "2-3\" depth, edges defined, old mulch removed if needed. One-visit installation.", path: "/services/mulching", image: mulchingImage, category: "beds" },

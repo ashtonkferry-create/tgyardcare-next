@@ -57,7 +57,7 @@ function imgSrc(img: string | { src: string }): string {
 const baseServices = [{
   icon: Scissors,
   title: "Lawn Mowing",
-  description: "Same crew, same day, every week. Mowing, edging, blowing—done in under 45 minutes.",
+  description: "Same crew, same day, every week. Mowing, trimming, and blowing—done in under 45 minutes.",
   path: "/services/mowing",
   image: imgSrc(mowingImage)
 }, {
@@ -421,7 +421,7 @@ export default function HomeContent() {
               </div>
               <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
                 <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                <span><strong className="text-gray-900">4-week result:</strong> Weekly mowing + edging + debris removal</span>
+                <span><strong className="text-gray-900">4-week result:</strong> Weekly mowing + trimming + debris removal</span>
               </div>
             </motion.div>
 

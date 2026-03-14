@@ -43,7 +43,7 @@ export default function SunPrairieContent() {
         { question: `How much does lawn care cost in ${cityName}?`, answer: `Most ${cityName} residential properties pay $40-$80 per mowing visit depending on lot size. Full-service seasonal packages range from $150-$400/month.` },
         { question: `Do you provide service throughout ${cityName}?`, answer: `Yes, we service all neighborhoods in ${cityName} and surrounding areas with crews familiar with local conditions.` },
         { question: `How quickly can you start service in ${cityName}?`, answer: `Most new customers can be scheduled within 3-5 business days. During peak season, book 1-2 weeks ahead.` },
-        { question: `What's included in lawn mowing service?`, answer: `Every visit includes mowing, edging along driveways, trimming around obstacles, and blowing clippings off hard surfaces.` }
+        { question: `What's included in lawn mowing service?`, answer: `Every visit includes mowing, trimming around obstacles, and blowing clippings off hard surfaces.` }
       ]} />
       <BreadcrumbSchema items={[
         { name: "Home", url: "https://totalguardyardcare.com" },

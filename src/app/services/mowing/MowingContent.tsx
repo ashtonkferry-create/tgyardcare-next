@@ -136,7 +136,7 @@ export default function MowingContent() {
         solutionPoints={[
           "Professional mowing that creates golf-course-quality stripes using commercial-grade equipment",
           "Optimal mowing height for your grass type ensuring healthy growth and lush appearance",
-          "Precise edging along sidewalks and driveways included with every visit",
+          "Precision edging available as an add-on service",
           "Thorough cleanup\—you're left with nothing but a beautiful lawn",
           "Reliable weekly or bi-weekly service you can actually count on"
         ]}
@@ -159,7 +159,6 @@ export default function MowingContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 max-w-5xl mx-auto">
             {[
               { title: "Precision Mowing", desc: "Consistent height with professional striping patterns that make your lawn look like a golf course" },
-              { title: "Clean Edging", desc: "Crisp lines along all sidewalks, driveways, and landscape borders" },
               { title: "String Trimming", desc: "Detail work around fences, trees, mailboxes, and hard-to-reach areas" },
               { title: "Surface Blowing", desc: "All clippings blown off driveways, sidewalks, and patios\—no mess left behind" },
               { title: "Height Adjustment", desc: "We raise or lower cutting height based on season and weather conditions" },
