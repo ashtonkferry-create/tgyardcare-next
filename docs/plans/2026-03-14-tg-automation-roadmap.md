@@ -32,53 +32,72 @@
 
 **Plan confirmed:** You are on **Core at $39/month** (annual commitment).
 
-**What Core includes:**
+**What Core includes (verified from Settings → Emails & Text Messages, 2026-03-14):**
 - ✅ Book and schedule jobs online
 - ✅ Send professional quotes
-- ✅ Send invoices + receive online payments (clients pay through Jobber Client Hub)
+- ✅ Send invoices + receive online payments (Jobber Payments — client pays via link)
+- ✅ **Visit reminders** — available on Core (no plan restriction shown)
+- ✅ **Job follow-up** — available on Core with toggle
 - ✅ App marketplace access
 - ❌ NO Zapier
 - ❌ NO Automatic Payments (auto-charge saved card — Connect+ only)
-- ❌ NO pre-visit reminders (Connect+ only)
 - ❌ NO invoice follow-up reminders (Connect+ only)
+- ❌ NO quote follow-up (Grow only)
+- ❌ NO booking confirmation for requests (Connect+ only)
 - ❌ NO API access (Grow only)
 
 **Critical:** Before building any workflow, check this table. Building n8n automation for something Jobber already handles = double messages to customers.
 
-### What Jobber Core Sends AUTOMATICALLY (no setup needed)
+### What Jobber Core Sends AUTOMATICALLY (verified from actual settings)
 
-| Event | Jobber Does It? | Method | Notes |
+| Event | Jobber Does It? | Plan | Notes |
 |---|---|---|---|
-| Online booking request confirmation | ✅ AUTO | Email | Fires when client submits your booking form |
-| Quote delivery to client | Manual send → auto delivery | Email (+ optional SMS) | You click Send; Jobber delivers |
-| Quote approval confirmation to client | ✅ AUTO | Email | Fires the instant client approves in Client Hub |
-| Post-job follow-up / thank you | ✅ AUTO (toggle) | Email or SMS | **Toggle in Settings → Job Follow-ups. CHECK IF THIS IS ON.** If on, do NOT build a duplicate in n8n. |
-| Payment receipt | ✅ AUTO (Jobber Payments) | Email | Fires when client pays online through Client Hub |
-| Signed document confirmation | ✅ AUTO | Email | Fires when a document is signed |
+| Booking request confirmation | ✅ AUTO | Connect+ only | NOT on Core |
+| Assessment reminder | ✅ AUTO | Connect+ only | NOT on Core |
+| New quote | Manual send | Core ✅ | You click Send |
+| Quote approval confirmation | ✅ AUTO | Core ✅ | Fires when client approves |
+| Quote follow-up | ✅ AUTO | Grow only | NOT on Core |
+| Job booking confirmation | ✅ AUTO | Connect+ only | NOT on Core |
+| **Visit reminder** | ✅ AUTO | **Core ✅** | **DO NOT build pre-visit reminder in n8n** |
+| **Job follow-up / feedback** | ✅ AUTO (toggle) | **Core ✅** | **"Send a follow-up after closing a job" toggle — see action below** |
+| New invoice | Manual send | Core ✅ | You send it |
+| **Invoice follow-up (overdue)** | ✅ AUTO | Connect+ only | **NOT on Core → BUILD TG-84** |
+| Payment receipt | ✅ AUTO | Core ✅ | Fires when client pays online |
+| Signed document copy | Manual send | Core ✅ | — |
 
 ### Online Payments vs. Automatic Payments — Important Distinction
 
 | Feature | Core Has It? | What It Does |
 |---|---|---|
-| **Jobber Payments** (online payments) | ✅ YES | Client clicks link in their invoice, pays manually. Jobber auto-sends receipt. |
+| **Jobber Payments** (online payments) | ✅ YES | Client clicks link in invoice, pays manually. Jobber auto-sends receipt. |
 | **Automatic Payments** (auto-charge) | ❌ NO — Connect+ only | Jobber auto-charges a saved card on recurring jobs without client action. |
 
-**"Automated billing"** on Core = Jobber creates the invoice and the client pays online. Jobber does NOT auto-charge anyone's card on Core. TG-84 and TG-89 fire for all customers — no auto-payment filter needed.
+**TG-84 and TG-89 fire for all customers** — no auto-payment filter needed on Core.
 
 ### What Jobber Core Does NOT Do (Build These in N8N)
 
 | Automation | Jobber Core Does It? | Build in N8N? |
 |---|---|---|
-| Pre-visit reminders (day before) | ❌ NO — Connect+ only | ✅ BUILD (add to TG-88) |
 | Overdue invoice follow-up | ❌ NO — Connect+ only | ✅ BUILD TG-84 |
 | Quote follow-up (unanswered quotes) | ❌ NO — Grow only | ✅ BUILD TG-83 |
-| Google review request | ❌ NO — $39/mo add-on | ✅ HAVE TG-18 |
+| Google review request | ❌ NO — separate add-on | ✅ HAVE TG-18 |
 | On My Way SMS | ❌ NO | ✅ BUILD TG-88 |
 | Two-way SMS inbox | ❌ NO — Grow only | ✅ HAVE TG-76 |
-| Invoice delivery (branded Brevo email) | Jobber sends plain invoice link only | ✅ BUILD TG-89 |
+| Invoice delivery (branded Brevo email) | Jobber sends plain invoice link | ✅ BUILD TG-89 |
 | Upsell / cross-sell emails | ❌ NO | ✅ HAVE TG-10 |
-| Loyalty / NPS / review sequences | ❌ NO | ✅ HAVE TG-60, TG-61 |
+| Loyalty / NPS sequences | ❌ NO | ✅ HAVE TG-60, TG-61 |
 | Missed call AI fallback | ❌ NO | ✅ BUILD TG-85 |
+
+### CRITICAL: Job Follow-Up Toggle — Action Required
+
+Jobber Core has a **"Send a follow-up after closing a job"** toggle (Settings → Emails & Text Messages → Job follow-up).
+
+**You must check this right now:**
+
+- If **ON**: Jobber sends a post-job feedback email to every customer. TG-18 (review request, 24hr delay) is safe — different timing. But any n8n "job complete thank you" workflow would be a duplicate.
+- If **OFF**: Jobber sends nothing after job close. N8N owns the entire post-job communication flow.
+
+**This one toggle changes whether ~5 workflows are duplicates or necessary.**
 
 ### TG-05 — The Only Jobber Integration Path (No Zapier, No API)
 
@@ -94,19 +113,14 @@ TG-05 must watch `notification@txn.getjobber.com` emails at the correct TotalGua
 | Invoice paid online | "Payment received from [name]" | → TG-65 (upsell) + TG-34 (referral check) |
 | Receipt sent | "Receipt for [name]" | Log only — Jobber already sent receipt |
 
-### Critical Action Before Building
-
-**Check right now:** Jobber → Settings → Emails and Text Messages → Job Follow-ups.
-
-- If **ON**: Jobber sends post-job message. TG-18 (review request) waits 24hr — safe. Any "job complete thank you" workflow in n8n would duplicate. Leave it to Jobber.
-- If **OFF**: Jobber sends nothing after job completion. N8N owns entire post-job flow.
-
 ### What Upgrading Would Unlock
 
 | Plan | Monthly Cost | Key Unlocks | Worth It When |
 |---|---|---|---|
-| Connect ($119/mo) | +$80/mo | Zapier (structured Jobber events → n8n, replaces fragile email parsing), Automatic Payments, pre-visit reminders, invoice reminders, QuickBooks | TG-05 breaks repeatedly OR want auto-charge on recurring jobs |
+| Connect ($119/mo) | +$80/mo | Zapier (replaces fragile IMAP parsing with clean webhook), Automatic Payments, invoice reminders, booking confirmations, QuickBooks | TG-05 breaks repeatedly OR want auto-charge on recurring jobs |
 | Grow ($199/mo) | +$160/mo | Full GraphQL API + real-time webhooks, custom automations builder | Revenue >$15k/mo |
+
+**Recommendation:** Stay Core. Visit reminders and job follow-up are already handled. Re-evaluate Connect at $8k MRR.
 
 **Recommendation:** Stay Core. Email parsing works when pointed at the right inbox. Re-evaluate Connect at $8k MRR.
 
