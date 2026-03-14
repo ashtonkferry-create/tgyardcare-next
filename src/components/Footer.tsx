@@ -484,6 +484,10 @@ export default function Footer({
                 Privacy
               </Link>
               <span className={`text-[11px] ${t.dimText}`}>&middot;</span>
+              <Link href="/terms" className={`text-[11px] ${t.dimText} hover:text-white/60 transition-colors`}>
+                Terms
+              </Link>
+              <span className={`text-[11px] ${t.dimText}`}>&middot;</span>
               <Link href="/contact" className={`text-[11px] ${t.dimText} hover:text-white/60 transition-colors`}>
                 Contact
               </Link>
