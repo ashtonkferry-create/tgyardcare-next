@@ -4,14 +4,22 @@
     {
       "parameters": {
         "rule": {
-          "interval": [{ "triggerAtHour": 14, "triggerAtMinute": 0 }]
+          "interval": [
+            {
+              "triggerAtHour": 14,
+              "triggerAtMinute": 0
+            }
+          ]
         }
       },
       "id": "tg87-trigger",
       "name": "Daily 9 AM CT",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 0]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
@@ -20,8 +28,10 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_ANON_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SERVICE_KEY" }
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            }
           ]
         }
       },
@@ -29,7 +39,10 @@
       "name": "Find Expiring Plans",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 0]
+      "position": [
+        220,
+        0
+      ]
     },
     {
       "parameters": {
@@ -39,13 +52,30 @@
       "name": "Determine Reminders",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 0]
+      "position": [
+        440,
+        0
+      ]
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
-          "conditions": [{ "id": "hr", "leftValue": "={{ $json.has_results }}", "rightValue": true, "operator": { "type": "boolean", "operation": "equals" } }],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "hr",
+              "leftValue": "={{ $json.has_results }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
           "combinator": "and"
         }
       },
@@ -53,7 +83,10 @@
       "name": "Any Reminders?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [660, 0]
+      "position": [
+        660,
+        0
+      ]
     },
     {
       "parameters": {
@@ -62,8 +95,14 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "api-key", "value": "BREVO_API_KEY" },
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "api-key",
+              "value": "BREVO_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -74,7 +113,10 @@
       "name": "Send Renewal Email",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [880, -100],
+      "position": [
+        880,
+        -100
+      ],
       "continueOnFail": true
     },
     {
@@ -84,10 +126,18 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_ANON_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SERVICE_KEY" },
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Prefer", "value": "return=minimal" }
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
           ]
         },
         "sendBody": true,
@@ -98,29 +148,72 @@
       "name": "Mark Reminder Sent",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1100, -100],
+      "position": [
+        1100,
+        -100
+      ],
       "continueOnFail": true
     }
   ],
   "connections": {
     "Daily 9 AM CT": {
-      "main": [[{ "node": "Find Expiring Plans", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Find Expiring Plans",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Find Expiring Plans": {
-      "main": [[{ "node": "Determine Reminders", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Determine Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Determine Reminders": {
-      "main": [[{ "node": "Any Reminders?", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Any Reminders?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Any Reminders?": {
       "main": [
-        [{ "node": "Send Renewal Email", "type": "main", "index": 0 }],
+        [
+          {
+            "node": "Send Renewal Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
         []
       ]
     },
     "Send Renewal Email": {
-      "main": [[{ "node": "Mark Reminder Sent", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Mark Reminder Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "settings": { "executionOrder": "v1" }
+  "settings": {
+    "executionOrder": "v1"
+  }
 }

@@ -7,7 +7,10 @@
       "name": "When Called",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
-      "position": [0, 0]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
@@ -17,7 +20,10 @@
       "name": "Extract Data",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 0]
+      "position": [
+        220,
+        0
+      ]
     },
     {
       "parameters": {
@@ -26,8 +32,10 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_ANON_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SERVICE_KEY" }
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            }
           ]
         }
       },
@@ -35,7 +43,10 @@
       "name": "Get Lead",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 0]
+      "position": [
+        440,
+        0
+      ]
     },
     {
       "parameters": {
@@ -44,8 +55,10 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_ANON_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SERVICE_KEY" }
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            }
           ]
         }
       },
@@ -53,7 +66,10 @@
       "name": "Get Plans",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 200]
+      "position": [
+        440,
+        200
+      ]
     },
     {
       "parameters": {
@@ -63,7 +79,10 @@
       "name": "Match Plan",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [660, 0]
+      "position": [
+        660,
+        0
+      ]
     },
     {
       "parameters": {
@@ -72,10 +91,18 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_ANON_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SERVICE_KEY" },
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Prefer", "value": "return=representation" }
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
           ]
         },
         "sendBody": true,
@@ -86,7 +113,10 @@
       "name": "Create Subscription",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [880, 0],
+      "position": [
+        880,
+        0
+      ],
       "continueOnFail": true
     },
     {
@@ -96,8 +126,14 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "api-key", "value": "BREVO_API_KEY" },
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "api-key",
+              "value": "BREVO_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -108,31 +144,87 @@
       "name": "Send Welcome Email",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1100, 0],
+      "position": [
+        1100,
+        0
+      ],
       "continueOnFail": true
     }
   ],
   "connections": {
     "When Called": {
-      "main": [[{ "node": "Extract Data", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Extract Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Extract Data": {
       "main": [
-        [{ "node": "Get Lead", "type": "main", "index": 0 }, { "node": "Get Plans", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Get Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Plans",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Get Lead": {
-      "main": [[{ "node": "Match Plan", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Match Plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Get Plans": {
-      "main": [[{ "node": "Match Plan", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Match Plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Match Plan": {
-      "main": [[{ "node": "Create Subscription", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Create Subscription",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Create Subscription": {
-      "main": [[{ "node": "Send Welcome Email", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Send Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "settings": { "executionOrder": "v1" }
+  "settings": {
+    "executionOrder": "v1"
+  }
 }
