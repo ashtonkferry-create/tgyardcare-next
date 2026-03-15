@@ -25,7 +25,7 @@
 **Goal**: Build 9 n8n workflows (TG-83 through TG-91) that automate revenue-generating customer communication: quote follow-ups, invoice collections, missed call capture, plan enrollment/renewal, on-my-way SMS, invoice delivery, fertilizer schedule reminders, and abandoned quote recovery.
 **Impact**: Recover 10-20% lost leads, increase quote-to-close 15-25%, enable recurring revenue
 **Status**: Complete ✓ (2026-03-15)
-**Plans:** 8 plans
+**Plans:** 9 plans
 
 Plans:
 - [x] 01-01-PLAN.md -- Database migrations + fertilizer schedule seeding
@@ -36,6 +36,7 @@ Plans:
 - [x] 01-06-PLAN.md -- TG-84 Invoice Collections + TG-91 Abandoned Quote
 - [x] 01-07-PLAN.md -- TG-86 Plan Enrollment + TG-87 Renewal Reminder
 - [x] 01-08-PLAN.md -- TG-90 Fertilizer Schedule Engine
+- [x] 01-09-PLAN.md -- Brevo Email Marketing System (HTML templates, campaign strategy, Twilio→Brevo SMS migration)
 
 ## Phase 2: CRM Unification
 **Goal**: Build 10 workflows that unify all CRM communication — webhook router, integrated SMS/email, auto-dispatch, territory assignment, bonus calculator, payment installments.
