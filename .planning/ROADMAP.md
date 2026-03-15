@@ -28,14 +28,15 @@
 **Plans:** 8 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- Database migrations + fertilizer schedule seeding
-- [ ] 01-02-PLAN.md -- TG-05 extension (new routes, $vars fix, poll frequency reduction)
+- [x] 01-01-PLAN.md -- Database migrations + fertilizer schedule seeding
+- [x] 01-02-PLAN.md -- TG-05 extension (new routes, $vars fix, poll frequency reduction)
 - [ ] 01-03-PLAN.md -- TG-88 On My Way SMS + TG-89 Invoice Delivery
 - [ ] 01-04-PLAN.md -- TG-85 Missed Call AI Capture
 - [ ] 01-05-PLAN.md -- TG-83 Quote Follow-up Sequence
 - [ ] 01-06-PLAN.md -- TG-84 Invoice Collections + TG-91 Abandoned Quote
 - [ ] 01-07-PLAN.md -- TG-86 Plan Enrollment + TG-87 Renewal Reminder
 - [ ] 01-08-PLAN.md -- TG-90 Fertilizer Schedule Engine
+- [x] 01-09-PLAN.md -- Brevo Email Marketing System (HTML templates, campaign strategy, Twilio→Brevo SMS migration)
 
 ## Phase 2: CRM Unification
 **Goal**: Build 10 workflows that unify all CRM communication — webhook router, integrated SMS/email, auto-dispatch, territory assignment, bonus calculator, payment installments.

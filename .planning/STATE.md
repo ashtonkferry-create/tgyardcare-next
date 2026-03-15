@@ -9,11 +9,11 @@
 ## Current Position
 
 Phase: 1 of 4 (Revenue Engine)
-Plan: 2 of 8 complete
+Plan: 3 of 9 complete (01-01 ✓, 01-02 ✓, 01-09 ✓)
 Status: In progress
-Last activity: 2026-03-15 -- Completed 01-02-PLAN.md (TG-05 extended with 4 new event routes + sub-workflow stubs)
+Last activity: 2026-03-15 -- Completed 01-09-PLAN.md (Brevo email marketing system — 6 HTML templates, 10 campaigns, 27 Twilio→Brevo SMS migrations)
 
-Progress: [==------] 2/8 plans (25%)
+Progress: [===-----] 3/9 plans (33%)
 
 Executing Milestone 2: Close Every Gap Against TTW
 - Phase 0 (Fix Existing): PLANNING -- ready to execute
@@ -47,8 +47,10 @@ Executing Milestone 2: Close Every Gap Against TTW
 1. Execute 01-03 through 01-08 plans (Phase 1 Revenue Engine Wave 1-4)
 2. After sub-workflows created, backfill TG-05 workflowId fields and activate
 3. Execute Phase 0 plan (12 configuration tasks) -- still pending
+4. Vance: Add Cloudflare DNS records for Brevo domain auth (see automation/docs/brevo-setup-guide.md)
+5. Vance: Set TG_BREVO_API_KEY in n8n instance (Settings → Variables)
 
 ## Session Continuity
-Last session: 2026-03-15T04:50Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-03-15T17:00Z
+Stopped at: Completed 01-09-PLAN.md (Brevo email marketing)
 Resume file: None
