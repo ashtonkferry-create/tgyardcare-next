@@ -53,8 +53,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
-            { "name": "Authorization", "value": "Bearer sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
             { "name": "Content-Type", "value": "application/json" },
             { "name": "Prefer", "value": "return=representation" }
           ]
@@ -77,8 +77,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
-            { "name": "Authorization", "value": "Bearer sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" }
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" }
           ]
         }
       },
@@ -127,8 +127,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
-            { "name": "Authorization", "value": "Bearer sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
             { "name": "Content-Type", "value": "application/json" },
             { "name": "Prefer", "value": "return=representation" }
           ]
@@ -151,8 +151,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
-            { "name": "Authorization", "value": "Bearer sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },
@@ -194,8 +194,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
-            { "name": "Authorization", "value": "Bearer sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
             { "name": "Content-Type", "value": "application/json" },
             { "name": "Prefer", "value": "return=minimal" }
           ]
@@ -240,8 +240,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
-            { "name": "Authorization", "value": "Bearer sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
             { "name": "Content-Type", "value": "application/json" },
             { "name": "Prefer", "value": "return=minimal" }
           ]
