@@ -1,0 +1,328 @@
+{
+  "name": "TG-85-missed-call-capture",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tg85-missed-call",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "tg85-webhook",
+      "name": "Quo Call Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "tg85-missed-call"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\n// n8n webhook v2 wraps POST body under .body\nconst payload = raw.body || raw;\nconst callData = (payload.data && payload.data.object) ? payload.data.object : payload;\nconst answeredAt = callData.answeredAt;\nconst isMissed = (answeredAt === null || answeredAt === undefined || answeredAt === '');\nconst fromPhone = ((callData.from && callData.from.phoneNumber) || '').replace(/[^\\d+]/g, '');\nconst callerName = (callData.from && callData.from.name) ? callData.from.name : '';\nconst callId = callData.id || ('call_' + Date.now());\nconst direction = callData.direction || 'incoming';\n\nreturn [\n{\n  json: {\n    is_missed: isMissed,\n    call_id: callId,\n    from_phone: fromPhone,\n    to_phone: '+16085356057',\n    caller_name: callerName,\n    direction: direction,\n    answered_at: answeredAt\n  }\n}];"
+      },
+      "id": "tg85-parse",
+      "name": "Parse Quo Webhook",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "missed-check",
+              "leftValue": "={{ $json.is_missed }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg85-if-missed",
+      "name": "Is Missed Call?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/missed_calls",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "Authorization", "value": "Bearer sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"call_sid\": \"{{ $json.call_id }}\",\n  \"from_phone\": \"{{ $json.from_phone }}\",\n  \"to_phone\": \"{{ $json.to_phone }}\",\n  \"caller_name\": \"{{ $json.caller_name }}\",\n  \"call_status\": \"missed\"\n}"
+      },
+      "id": "tg85-log-missed",
+      "name": "Log Missed Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, -100],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads?phone=eq.{{ $('Parse Quo Webhook').item.json.from_phone }}&select=id,first_name,last_name",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "Authorization", "value": "Bearer sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" }
+          ]
+        }
+      },
+      "id": "tg85-check-lead",
+      "name": "Check Existing Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, -100],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const leads = $input.first().json;\nconst parsed = $('Parse Quo Webhook').first().json;\nconst isArray = Array.isArray(leads);\nconst hasLead = isArray ? leads.length > 0 : !!(leads && leads.id);\nconst lead = isArray ? leads[0] : leads;\n\nreturn [{\n  json: {\n    has_lead: hasLead,\n    lead_id: hasLead ? lead.id : null,\n    customer_name: hasLead ? (lead.first_name + ' ' + (lead.last_name || '')).trim() : (parsed.caller_name || 'Unknown Caller'),\n    from_phone: parsed.from_phone,\n    call_id: parsed.call_id\n  }\n}];"
+      },
+      "id": "tg85-process-lead",
+      "name": "Process Lead Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, -100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "lead-exists",
+              "leftValue": "={{ $json.has_lead }}",
+              "rightValue": false,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg85-if-new-lead",
+      "name": "Need New Lead?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1320, -100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "Authorization", "value": "Bearer sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $('Process Lead Result').item.json.from_phone }}\",\n  \"first_name\": \"{{ $('Parse Quo Webhook').item.json.caller_name ? $('Parse Quo Webhook').item.json.caller_name.split(' ')[0] : 'Unknown' }}\",\n  \"last_name\": \"{{ $('Parse Quo Webhook').item.json.caller_name ? $('Parse Quo Webhook').item.json.caller_name.split(' ').slice(1).join(' ') : '' }}\",\n  \"source\": \"phone\",\n  \"status\": \"new\",\n  \"lead_score\": 30,\n  \"lead_tier\": \"standard\"\n}"
+      },
+      "id": "tg85-create-lead",
+      "name": "Create New Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, -200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/rpc/can_send_sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "Authorization", "value": "Bearer sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"p_phone\": \"{{ $('Process Lead Result').item.json.from_phone }}\"}"
+      },
+      "id": "tg85-check-consent",
+      "name": "Check SMS Consent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1760, -100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "consent-check",
+              "leftValue": "={{ $json }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg85-if-consent",
+      "name": "Has SMS Consent?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1980, -100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_sends",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "Authorization", "value": "Bearer sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $('Process Lead Result').item.json.from_phone }}\",\n  \"workflow_name\": \"TG-85-missed-call-capture\",\n  \"message_body\": \"TotalGuard Yard Care missed your call. We handle lawn mowing, fertilization, aeration, overseeding, weed control, mulching, pruning, leaf & snow removal across Madison, WI. Reply with your address for a free estimate \\u2014 we schedule within 24 hours, guaranteed.\",\n  \"status\": \"pending\"\n}"
+      },
+      "id": "tg85-log-sms",
+      "name": "Log SMS Send",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2200, -200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openphone.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "46e776af8aefc195e39235f4567e5e73ee211e979b01b1d980e9af3345a8b255" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content\": \"TotalGuard Yard Care missed your call. We handle lawn mowing, fertilization, aeration, overseeding, weed control, mulching, pruning, leaf & snow removal across Madison, WI. Reply with your address for a free estimate \\u2014 we schedule within 24 hours, guaranteed.\",\n  \"from\": \"+16085356057\",\n  \"to\": [\"{{ $('Process Lead Result').item.json.from_phone }}\"]\n}"
+      },
+      "id": "tg85-send-sms",
+      "name": "Send Auto-Reply via Quo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2420, -200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/missed_calls?call_sid=eq.{{ $('Process Lead Result').item.json.call_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "Authorization", "value": "Bearer sb_secret_QlNjUO_5qHPcZRbdoCqZ3w_w72F3OQ3" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"sms_sent_at\": \"{{ $now.toISO() }}\", \"lead_created\": true}"
+      },
+      "id": "tg85-update-missed",
+      "name": "Update Missed Call Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2640, -200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": { "respondWith": "text", "responseBody": "OK" },
+      "id": "tg85-respond-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2860, -200]
+    },
+    {
+      "parameters": { "respondWith": "text", "responseBody": "OK - not a missed call" },
+      "id": "tg85-respond-skip",
+      "name": "Respond Skip",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [660, 100]
+    }
+  ],
+  "connections": {
+    "Quo Call Webhook": {
+      "main": [[{ "node": "Parse Quo Webhook", "type": "main", "index": 0 }]]
+    },
+    "Parse Quo Webhook": {
+      "main": [[{ "node": "Is Missed Call?", "type": "main", "index": 0 }]]
+    },
+    "Is Missed Call?": {
+      "main": [
+        [{ "node": "Log Missed Call", "type": "main", "index": 0 }],
+        [{ "node": "Respond Skip", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Missed Call": {
+      "main": [[{ "node": "Check Existing Lead", "type": "main", "index": 0 }]]
+    },
+    "Check Existing Lead": {
+      "main": [[{ "node": "Process Lead Result", "type": "main", "index": 0 }]]
+    },
+    "Process Lead Result": {
+      "main": [[{ "node": "Need New Lead?", "type": "main", "index": 0 }]]
+    },
+    "Need New Lead?": {
+      "main": [
+        [{ "node": "Create New Lead", "type": "main", "index": 0 }],
+        [{ "node": "Check SMS Consent", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create New Lead": {
+      "main": [[{ "node": "Check SMS Consent", "type": "main", "index": 0 }]]
+    },
+    "Check SMS Consent": {
+      "main": [[{ "node": "Has SMS Consent?", "type": "main", "index": 0 }]]
+    },
+    "Has SMS Consent?": {
+      "main": [
+        [{ "node": "Log SMS Send", "type": "main", "index": 0 }],
+        [{ "node": "Respond OK", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log SMS Send": {
+      "main": [[{ "node": "Send Auto-Reply via Quo", "type": "main", "index": 0 }]]
+    },
+    "Send Auto-Reply via Quo": {
+      "main": [[{ "node": "Update Missed Call Record", "type": "main", "index": 0 }]]
+    },
+    "Update Missed Call Record": {
+      "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}
