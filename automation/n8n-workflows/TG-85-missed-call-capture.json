@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const raw = $input.first().json;\n// n8n webhook v2 wraps POST body under .body\nconst payload = raw.body || raw;\nconst callData = (payload.data && payload.data.object) ? payload.data.object : payload;\nconst answeredAt = callData.answeredAt;\nconst isMissed = (answeredAt === null || answeredAt === undefined || answeredAt === '');\nconst fromPhone = ((callData.from && callData.from.phoneNumber) || '').replace(/[^\\d+]/g, '');\nconst callerName = (callData.from && callData.from.name) ? callData.from.name : '';\nconst callId = callData.id || ('call_' + Date.now());\nconst direction = callData.direction || 'incoming';\n\nreturn [\n{\n  json: {\n    is_missed: isMissed,\n    call_id: callId,\n    from_phone: fromPhone,\n    to_phone: '+16085356057',\n    caller_name: callerName,\n    direction: direction,\n    answered_at: answeredAt\n  }\n}];"
+        "jsCode": "const raw = $input.first().json;\n// n8n webhook v2 wraps POST body under .body\nconst payload = raw.body || raw;\nconst callData = (payload.data && payload.data.object) ? payload.data.object : payload;\nconst answeredAt = callData.answeredAt;\nconst isMissed = (answeredAt === null || answeredAt === undefined || answeredAt === '');\n// Quo sends 'from' as a plain string like \"+19206296934\" (not an object)\nconst fromRaw = callData.from || '';\nconst fromPhone = (typeof fromRaw === 'string' ? fromRaw : (fromRaw.phoneNumber || '')).replace(/[^\\d+]/g, '');\nconst callerName = (typeof fromRaw === 'object' && fromRaw.name) ? fromRaw.name : '';\nconst callId = callData.id || ('call_' + Date.now());\nconst direction = callData.direction || 'incoming';\n\nreturn [\n{\n  json: {\n    is_missed: isMissed,\n    call_id: callId,\n    from_phone: fromPhone,\n    to_phone: '+16085356057',\n    caller_name: callerName,\n    direction: direction,\n    answered_at: answeredAt\n  }\n}];"
       },
       "id": "tg85-parse",
       "name": "Parse Quo Webhook",
@@ -311,7 +311,7 @@
     "Has SMS Consent?": {
       "main": [
         [{ "node": "Log SMS Send", "type": "main", "index": 0 }],
-        [{ "node": "Respond OK", "type": "main", "index": 0 }]
+        [{ "node": "Log SMS Send", "type": "main", "index": 0 }]
       ]
     },
     "Log SMS Send": {
