@@ -216,6 +216,68 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-email-t1",
+              "leftValue": "={{ $('Extract Quote Data').item.json.customer_email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg83-if-email-t1",
+      "name": "Has Email T1?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "BREVO_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $('Extract Quote Data').item.json.customer_email }}\", \"name\": \"{{ $('Extract Quote Data').item.json.customer_name || 'Valued Customer' }}\" }],\n  \"subject\": \"Following up on your TotalGuard estimate\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }},</p><p>Just checking in on the {{ $('Extract Quote Data').item.json.service || '' }} estimate we sent over. Any questions? We're happy to walk through it.</p><p>Reply to this email or call us at <strong>608-535-6057</strong> and we'll get you taken care of.</p><p>Best,<br>The TotalGuard Team</p><p style='color:#888;font-size:12px;'>TotalGuard Yard Care LLC | Madison, WI</p></div>\"\n}"
+      },
+      "id": "tg83-email-fallback-t1",
+      "name": "Send Email Fallback T1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        0
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_sends",
         "sendHeaders": true,
@@ -621,6 +683,68 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-email-t3",
+              "leftValue": "={{ $('Extract Quote Data').item.json.customer_email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg83-if-email-t3",
+      "name": "Has Email T3?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        5280,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "BREVO_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $('Extract Quote Data').item.json.customer_email }}\", \"name\": \"{{ $('Extract Quote Data').item.json.customer_name || 'Valued Customer' }}\" }],\n  \"subject\": \"Last chance — your TotalGuard estimate is expiring\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }},</p><p>This is our last follow-up on your {{ $('Extract Quote Data').item.json.service || '' }} estimate. We'd love to help with your project -- this estimate is expiring soon.</p><p>To confirm or ask questions, simply reply to this email or call us at <strong>608-535-6057</strong>.</p><p>We hope to hear from you!</p><p>The TotalGuard Team</p><p style='color:#888;font-size:12px;'>TotalGuard Yard Care LLC | Madison, WI</p></div>\"\n}"
+      },
+      "id": "tg83-email-fallback-t3",
+      "name": "Send Email Fallback T3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5500,
+        -200
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_sends",
         "sendHeaders": true,
@@ -714,8 +838,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        5500,
-        -200
+        5720,
+        -300
       ],
       "continueOnFail": true
     },
@@ -734,15 +858,28 @@
     },
     {
       "parameters": {
-        "jsCode": "return [{ json: { status: 'no_consent_exit', reason: 'customer_has_no_sms_consent' } }];"
+        "jsCode": "return [{ json: { status: 'no_consent_no_email_exit', reason: 'customer_has_no_sms_consent_and_no_email' } }];"
       },
       "id": "tg83-no-consent-exit",
-      "name": "Exit - No Consent",
+      "name": "Exit - No Consent No Email",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1980,
-        100
+        2200,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { status: 'no_consent_no_email_exit_t3', reason: 'customer_has_no_sms_consent_and_no_email_t3' } }];"
+      },
+      "id": "tg83-no-consent-exit-t3",
+      "name": "Exit - No Consent No Email T3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5500,
+        0
       ]
     }
   ],
@@ -853,7 +990,36 @@
         ],
         [
           {
-            "node": "Exit - No Consent",
+            "node": "Has Email T1?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Email T1?": {
+      "main": [
+        [
+          {
+            "node": "Send Email Fallback T1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Exit - No Consent No Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Fallback T1": {
+      "main": [
+        [
+          {
+            "node": "Mark Day 2 Sent",
             "type": "main",
             "index": 0
           }
@@ -1039,7 +1205,36 @@
         ],
         [
           {
-            "node": "Exit - No Consent",
+            "node": "Has Email T3?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Email T3?": {
+      "main": [
+        [
+          {
+            "node": "Send Email Fallback T3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Exit - No Consent No Email T3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Fallback T3": {
+      "main": [
+        [
+          {
+            "node": "Mark Expired",
             "type": "main",
             "index": 0
           }

@@ -115,13 +115,56 @@
     },
     {
       "parameters": {
-        "jsCode": "return [{ json: { status: 'no_sms_consent', phone: $('When Called by TG-05').item.json.customer_phone } }];"
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "has-email-tg88",
+              "leftValue": "={{ $('When Called by TG-05').item.json.customer_email }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEquals" }
+            }
+          ],
+          "combinator": "and"
+        }
       },
-      "id": "tg88-no-consent",
-      "name": "No Consent - Skip",
-      "type": "n8n-nodes-base.code",
+      "id": "tg88-if-email",
+      "name": "Has Email?",
+      "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [660, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/smtp/email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "api-key", "value": "BREVO_API_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $('When Called by TG-05').item.json.customer_email }}\", \"name\": \"{{ $('When Called by TG-05').item.json.customer_name || 'Valued Customer' }}\" }],\n  \"subject\": \"TotalGuard is on the way\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('When Called by TG-05').item.json.customer_name || 'there' }},</p><p>We're heading to your property now. We'll be there shortly.</p><p>Questions? Call <strong>608-535-6057</strong>.</p><p>The TotalGuard Team</p></div>\"\n}"
+      },
+      "id": "tg88-email-fallback",
+      "name": "Send On My Way Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 100],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { status: 'no_sms_consent_no_email', phone: $('When Called by TG-05').item.json.customer_phone } }];"
+      },
+      "id": "tg88-no-consent",
+      "name": "No Consent No Email - Skip",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 300]
     }
   ],
   "connections": {
@@ -134,7 +177,7 @@
     "Has SMS Consent?": {
       "main": [
         [{ "node": "Log SMS Send", "type": "main", "index": 0 }],
-        [{ "node": "No Consent - Skip", "type": "main", "index": 0 }]
+        [{ "node": "Has Email?", "type": "main", "index": 0 }]
       ]
     },
     "Log SMS Send": {
@@ -142,7 +185,14 @@
     },
     "Send On My Way SMS": {
       "main": [[{ "node": "Update Send Status", "type": "main", "index": 0 }]]
+    },
+    "Has Email?": {
+      "main": [
+        [{ "node": "Send On My Way Email", "type": "main", "index": 0 }],
+        [{ "node": "No Consent No Email - Skip", "type": "main", "index": 0 }]
+      ]
     }
   },
-  "settings": { "executionOrder": "v1" }
+  "settings": { "executionOrder": "v1" },
+  "id": "2IB0qFPgBm0YxNtP"
 }

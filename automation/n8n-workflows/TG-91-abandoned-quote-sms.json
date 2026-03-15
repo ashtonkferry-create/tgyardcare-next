@@ -30,7 +30,7 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "api-key", "value": "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" },
+            { "name": "api-key", "value": "BREVO_API_KEY" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },
