@@ -218,7 +218,7 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Authorization", "value": "46e776af8aefc195e39235f4567e5e73ee211e979b01b1d980e9af3345a8b255" },
+            { "name": "Authorization", "value": "QUO_API_KEY" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },
