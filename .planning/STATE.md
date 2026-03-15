@@ -9,15 +9,15 @@
 ## Current Position
 
 Phase: 1 of 4 (Revenue Engine)
-Plan: 5 of 8 complete
+Plan: 6 of 8 complete
 Status: In progress
-Last activity: 2026-03-15 -- Completed 01-05-PLAN.md (TG-83 Quote Follow-up Sequence)
+Last activity: 2026-03-15 -- Completed 01-06-PLAN.md (TG-84 Invoice Collections + TG-91 Abandoned Quote SMS)
 
-Progress: [=====---] 5/8 plans (63%)
+Progress: [======--] 6/8 plans (75%)
 
 Executing Milestone 2: Close Every Gap Against TTW
 - Phase 0 (Fix Existing): PLANNING -- ready to execute
-- Phase 1 (Revenue Engine): EXECUTING -- 01-01 COMPLETE, 01-02 COMPLETE, 01-03 COMPLETE, 01-04 COMPLETE, 01-05 COMPLETE, 01-06 through 01-08 pending
+- Phase 1 (Revenue Engine): EXECUTING -- 01-01 COMPLETE, 01-02 COMPLETE, 01-03 COMPLETE, 01-04 COMPLETE, 01-05 COMPLETE, 01-06 COMPLETE, 01-07 through 01-08 pending
 - Phase 2 (CRM Unification): Not started
 - Phase 3 (SEO Domination): Not started
 - Phase 4 (Intelligence Layer): Not started
@@ -47,23 +47,25 @@ Executing Milestone 2: Close Every Gap Against TTW
 - TG-89 Workflow ID: 3gQKfREf9c9cyE0w (Invoice Delivery SMS+Email)
 - Quo Phone Number ID: PNjxXAkfhr (+16085356057)
 - TG-83 Workflow ID: 9m2sID72Fz1PF0HY (Quote Follow-up Sequence)
+- TG-84 Workflow ID: 63t7K6gAdW1aPupP (Invoice Collections Sequence)
+- TG-91 Workflow ID: 0qSgxknCY9LTcKBU (Abandoned Quote SMS - ACTIVE)
 
 ## Blockers
 - GBP API quota approval pending since 2026-03-08 (Google manual review)
 - Several API keys need Vance to create accounts (Facebook, OpenWeatherMap, etc.)
 - Jobber OAuth handshake needs manual browser flow
-- TG-05 inactive until TG-84/86 are created and IDs backfilled (TG-83 now done)
+- TG-05 inactive until TG-86 is created and ID backfilled (TG-83 and TG-84 now done)
 - Twilio credentials need to be added to n8n for SMS sending to work
 - OpenPhone webhook for call.completed needs manual registration in dashboard
 
 ## Next Actions
-1. Execute 01-06 through 01-08 plans (Phase 1 Revenue Engine Wave 3-4)
+1. Execute 01-07 through 01-08 plans (Phase 1 Revenue Engine Wave 4)
 2. Register OpenPhone webhook in dashboard: URL=https://tgyardcare.app.n8n.cloud/webhook/tg85-missed-call, event=call.completed
-3. After TG-84/86 created, backfill TG-05 workflowId fields and activate
+3. After TG-86 created, backfill TG-05 workflowId and activate (TG-83/84 done)
 4. Add Twilio credentials to n8n (manual -- Vance)
 5. Execute Phase 0 plan (12 configuration tasks) -- still pending
 
 ## Session Continuity
-Last session: 2026-03-15T05:15Z
-Stopped at: Completed 01-05-PLAN.md
+Last session: 2026-03-15T05:17Z
+Stopped at: Completed 01-06-PLAN.md
 Resume file: None
