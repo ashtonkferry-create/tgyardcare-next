@@ -46,7 +46,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const results = $input.first().json;\nif (!Array.isArray(results) || results.length === 0) {\n  return { json: { has_results: false, count: 0 } };\n}\nreturn results.map(r => ({ json: { ...r, has_results: true } }));"
+        "jsCode": "const allItems = $input.all();\nif (!allItems || allItems.length === 0) {\n  return [{ json: { has_results: false, count: 0 } }];\n}\nreturn allItems.map(item => ({ json: { ...item.json, has_results: true } }));"
       },
       "id": "tg90-split",
       "name": "Split Results",
@@ -200,7 +200,7 @@
       ],
       "credentials": {
         "twilioApi": {
-          "id": "TG_TWILIO",
+          "id": "Qd6M2hA9hDWRKGPR",
           "name": "TG - Twilio"
         }
       },
@@ -215,7 +215,7 @@
           "parameters": [
             {
               "name": "api-key",
-              "value": "BREVO_API_KEY"
+              "value": "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"
             },
             {
               "name": "Content-Type",

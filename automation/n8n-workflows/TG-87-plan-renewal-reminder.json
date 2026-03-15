@@ -46,7 +46,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const results = $input.first().json;\nif (!Array.isArray(results) || results.length === 0) {\n  return { json: { has_results: false } };\n}\n\nconst now = new Date();\nconst output = [];\n\nfor (const sub of results) {\n  const endDate = new Date(sub.end_date);\n  const daysUntil = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));\n  const lead = sub.leads || {};\n  const name = ((lead.first_name || '') + ' ' + (lead.last_name || '')).trim();\n  const phone = lead.phone || '';\n  const email = lead.email || '';\n  \n  let reminder_type = null;\n  if (daysUntil <= 3 && !sub.renewal_reminder_3d_sent) reminder_type = '3d';\n  else if (daysUntil <= 14 && !sub.renewal_reminder_14d_sent) reminder_type = '14d';\n  else if (daysUntil <= 30 && !sub.renewal_reminder_30d_sent) reminder_type = '30d';\n  \n  if (reminder_type) {\n    output.push({\n      json: {\n        has_results: true,\n        sub_id: sub.id,\n        customer_name: name,\n        customer_phone: phone,\n        customer_email: email,\n        end_date: sub.end_date,\n        days_until: daysUntil,\n        reminder_type\n      }\n    });\n  }\n}\n\nif (output.length === 0) return { json: { has_results: false } };\nreturn output;"
+        "jsCode": "const allItems = .all();\nif (!allItems || allItems.length === 0) {\n  return [{ json: { has_results: false } }];\n}\nconst now = new Date();\nconst output = [];\nfor (const item of allItems) {\n  const sub = item.json;\n  const endDate = new Date(sub.end_date);\n  const daysUntil = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));\n  const lead = sub.leads || {};\n  const name = ((lead.first_name || '') + ' ' + (lead.last_name || '')).trim();\n  const phone = lead.phone || '';\n  const email = lead.email || '';\n  let reminder_type = null;\n  if (daysUntil <= 3 && !sub.renewal_reminder_3d_sent) reminder_type = '3d';\n  else if (daysUntil <= 14 && !sub.renewal_reminder_14d_sent) reminder_type = '14d';\n  else if (daysUntil <= 30 && !sub.renewal_reminder_30d_sent) reminder_type = '30d';\n  if (reminder_type) {\n    output.push({ json: { has_results: true, sub_id: sub.id, customer_name: name, customer_phone: phone, customer_email: email, end_date: sub.end_date, days_until: daysUntil, reminder_type } });\n  }\n}\nif (output.length === 0) return [{ json: { has_results: false } }];\nreturn output;"
       },
       "id": "tg87-process",
       "name": "Determine Reminders",
@@ -97,7 +97,7 @@
           "parameters": [
             {
               "name": "api-key",
-              "value": "BREVO_API_KEY"
+              "value": "BREVO_API_KEY_REDACTED"
             },
             {
               "name": "Content-Type",
