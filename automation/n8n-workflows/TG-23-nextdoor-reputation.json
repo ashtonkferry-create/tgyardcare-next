@@ -75,26 +75,46 @@
       ]
     },
     {
-      "parameters": {
-        "operation": "send",
-        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
-        "to": "={{ $vars.TG_OWNER_PHONE }}",
-        "message": "=TotalGuard Weekly Reminder: Log your Nextdoor mentions for the week of {{ $json.week_of }}. Visit the admin panel to record mentions and recommendations: {{ $json.admin_link }}"
-      },
       "id": "tg23-sms-owner-reminder",
       "name": "SMS Owner Weekly Reminder",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         660,
         0
       ],
       "continueOnFail": true,
-      "credentials": {
-        "twilioApi": {
-          "id": "tg-twilio-cred",
-          "name": "TotalGuard Twilio"
-        }
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{ $vars.TG_OWNER_PHONE }}"
+            },
+            {
+              "name": "content",
+              "value": "=TotalGuard Weekly Reminder: Log your Nextdoor mentions for the week of {{ $json.week_of }}. Visit the admin panel to record mentions and recommendations: {{ $json.admin_link }}"
+            }
+          ]
+        },
+        "options": {}
       }
     },
     {

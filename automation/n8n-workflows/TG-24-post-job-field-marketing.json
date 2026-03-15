@@ -7,7 +7,10 @@
       "name": "Execute Workflow Trigger",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
-      "position": [0, 300]
+      "position": [
+        0,
+        300
+      ]
     },
     {
       "parameters": {
@@ -17,7 +20,10 @@
       "name": "Prepare Task Data",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 300]
+      "position": [
+        220,
+        300
+      ]
     },
     {
       "parameters": {
@@ -26,20 +32,47 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
-            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
-            { "name": "job_id", "value": "={{$json.job_id}}" },
-            { "name": "job_address", "value": "={{$json.address}}" },
-            { "name": "yard_sign_required", "value": "true" },
-            { "name": "door_hanger_target", "value": "5" },
-            { "name": "due_at", "value": "={{$json.due_at}}" },
-            { "name": "status", "value": "pending" }
+            {
+              "name": "job_id",
+              "value": "={{$json.job_id}}"
+            },
+            {
+              "name": "job_address",
+              "value": "={{$json.address}}"
+            },
+            {
+              "name": "yard_sign_required",
+              "value": "true"
+            },
+            {
+              "name": "door_hanger_target",
+              "value": "5"
+            },
+            {
+              "name": "due_at",
+              "value": "={{$json.due_at}}"
+            },
+            {
+              "name": "status",
+              "value": "pending"
+            }
           ]
         }
       },
@@ -47,27 +80,91 @@
       "name": "Create Field Marketing Task",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 300]
+      "position": [
+        440,
+        300
+      ]
     },
     {
-      "parameters": {
-        "operation": "send",
-        "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}",
-        "to": "={{$vars.TG_CREW_PHONE_NUMBERS}}",
-        "message": "=Job done at {{$node['Prepare Task Data'].json.address}}! Field tasks: yard sign + 5 door hangers to neighbors. Reply DONE when complete. - TG System"
-      },
       "id": "sms-crew",
       "name": "SMS Crew",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
-      "position": [660, 300],
-      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{$vars.TG_CREW_PHONE_NUMBERS}}"
+            },
+            {
+              "name": "content",
+              "value": "=Job done at {{$node['Prepare Task Data'].json.address}}! Field tasks: yard sign + 5 door hangers to neighbors. Reply DONE when complete. - TG System"
+            }
+          ]
+        },
+        "options": {}
+      }
     }
   ],
   "connections": {
-    "Execute Workflow Trigger": { "main": [[{ "node": "Prepare Task Data", "type": "main", "index": 0 }]] },
-    "Prepare Task Data": { "main": [[{ "node": "Create Field Marketing Task", "type": "main", "index": 0 }]] },
-    "Create Field Marketing Task": { "main": [[{ "node": "SMS Crew", "type": "main", "index": 0 }]] }
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare Task Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Task Data": {
+      "main": [
+        [
+          {
+            "node": "Create Field Marketing Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Field Marketing Task": {
+      "main": [
+        [
+          {
+            "node": "SMS Crew",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "availableInMCP": true }
+  "settings": {
+    "availableInMCP": true
+  }
 }

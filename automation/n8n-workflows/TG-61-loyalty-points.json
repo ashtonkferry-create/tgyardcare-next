@@ -1,13 +1,228 @@
 {
   "name": "TG-61-loyalty-points",
   "nodes": [
-    { "parameters": {}, "id": "trigger", "name": "Execute Workflow Trigger", "type": "n8n-nodes-base.executeWorkflowTrigger", "typeVersion": 1, "position": [0, 300] },
-    { "parameters": { "jsCode": "// Called after job payment with customer_id, job_amount, service_type\nconst { customer_id, job_amount, service_type, customer_email, customer_name, customer_phone } = $input.first().json;\n\n// Points: 1 point per dollar spent, bonus for certain services\nconst basePoints = Math.floor(job_amount || 0);\nconst bonusMultipliers = {\n  'hardscaping': 2.0,\n  'spring-cleanup': 1.5,\n  'fall-cleanup': 1.5,\n  'gutter-cleaning': 1.25\n};\nconst multiplier = bonusMultipliers[service_type] || 1.0;\nconst points_earned = Math.floor(basePoints * multiplier);\n\nreturn [{ json: { customer_id, customer_email, customer_name, customer_phone, points_earned, job_amount, service_type, multiplier, earned_at: new Date().toISOString() } }];" }, "id": "calculate-points", "name": "Calculate Points Earned", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [220, 300] },
-    { "parameters": { "method": "POST", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/loyalty_transactions", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] }, "sendBody": true, "bodyParameters": { "parameters": [{ "name": "customer_id", "value": "={{$json.customer_id}}" }, { "name": "points", "value": "={{$json.points_earned}}" }, { "name": "transaction_type", "value": "earn" }, { "name": "description", "value": "={{$json.service_type}} service — {{$json.points_earned}} pts ({{$json.multiplier}}x)" }, { "name": "created_at", "value": "={{$json.earned_at}}" }] } }, "id": "log-points", "name": "Log Points Transaction", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [440, 300] },
-    { "parameters": { "method": "GET", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/loyalty_transactions?customer_id=eq.{{$('Calculate Points Earned').first().json.customer_id}}&select=points,transaction_type", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] } }, "id": "get-balance", "name": "Get Total Balance", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [660, 300] },
-    { "parameters": { "jsCode": "const transactions = $input.all().map(i => i.json);\nconst balance = transactions.reduce((sum, t) => sum + (t.transaction_type === 'earn' ? t.points : -t.points), 0);\nconst customer = $('Calculate Points Earned').first().json;\nreturn [{ json: { ...customer, total_balance: balance } }];" }, "id": "calc-balance", "name": "Calculate Balance", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [880, 300] },
-    { "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$json.customer_phone}}", "message": "=Hi {{$json.customer_name}}! You earned {{$json.points_earned}} TotalGuard loyalty points today. Balance: {{$json.total_balance}} pts. 500 pts = $25 off your next service! - TotalGuard" }, "id": "notify-customer", "name": "Notify Customer", "type": "n8n-nodes-base.twilio", "typeVersion": 1, "position": [1100, 300], "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } } }
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Called after job payment with customer_id, job_amount, service_type\nconst { customer_id, job_amount, service_type, customer_email, customer_name, customer_phone } = $input.first().json;\n\n// Points: 1 point per dollar spent, bonus for certain services\nconst basePoints = Math.floor(job_amount || 0);\nconst bonusMultipliers = {\n  'hardscaping': 2.0,\n  'spring-cleanup': 1.5,\n  'fall-cleanup': 1.5,\n  'gutter-cleaning': 1.25\n};\nconst multiplier = bonusMultipliers[service_type] || 1.0;\nconst points_earned = Math.floor(basePoints * multiplier);\n\nreturn [{ json: { customer_id, customer_email, customer_name, customer_phone, points_earned, job_amount, service_type, multiplier, earned_at: new Date().toISOString() } }];"
+      },
+      "id": "calculate-points",
+      "name": "Calculate Points Earned",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/loyalty_transactions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "customer_id",
+              "value": "={{$json.customer_id}}"
+            },
+            {
+              "name": "points",
+              "value": "={{$json.points_earned}}"
+            },
+            {
+              "name": "transaction_type",
+              "value": "earn"
+            },
+            {
+              "name": "description",
+              "value": "={{$json.service_type}} service — {{$json.points_earned}} pts ({{$json.multiplier}}x)"
+            },
+            {
+              "name": "created_at",
+              "value": "={{$json.earned_at}}"
+            }
+          ]
+        }
+      },
+      "id": "log-points",
+      "name": "Log Points Transaction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/loyalty_transactions?customer_id=eq.{{$('Calculate Points Earned').first().json.customer_id}}&select=points,transaction_type",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        }
+      },
+      "id": "get-balance",
+      "name": "Get Total Balance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const transactions = $input.all().map(i => i.json);\nconst balance = transactions.reduce((sum, t) => sum + (t.transaction_type === 'earn' ? t.points : -t.points), 0);\nconst customer = $('Calculate Points Earned').first().json;\nreturn [{ json: { ...customer, total_balance: balance } }];"
+      },
+      "id": "calc-balance",
+      "name": "Calculate Balance",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "id": "notify-customer",
+      "name": "Notify Customer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        300
+      ],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{$json.customer_phone}}"
+            },
+            {
+              "name": "content",
+              "value": "=Hi {{$json.customer_name}}! You earned {{$json.points_earned}} TotalGuard loyalty points today. Balance: {{$json.total_balance}} pts. 500 pts = $25 off your next service! - TotalGuard"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
   ],
-  "connections": { "Execute Workflow Trigger": { "main": [[{ "node": "Calculate Points Earned", "type": "main", "index": 0 }]] }, "Calculate Points Earned": { "main": [[{ "node": "Log Points Transaction", "type": "main", "index": 0 }]] }, "Log Points Transaction": { "main": [[{ "node": "Get Total Balance", "type": "main", "index": 0 }]] }, "Get Total Balance": { "main": [[{ "node": "Calculate Balance", "type": "main", "index": 0 }]] }, "Calculate Balance": { "main": [[{ "node": "Notify Customer", "type": "main", "index": 0 }]] } },
-  "settings": { "availableInMCP": true }
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Calculate Points Earned",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Points Earned": {
+      "main": [
+        [
+          {
+            "node": "Log Points Transaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Points Transaction": {
+      "main": [
+        [
+          {
+            "node": "Get Total Balance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Total Balance": {
+      "main": [
+        [
+          {
+            "node": "Calculate Balance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Balance": {
+      "main": [
+        [
+          {
+            "node": "Notify Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
 }

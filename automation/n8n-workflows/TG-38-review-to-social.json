@@ -151,28 +151,46 @@
       "continueOnFail": true
     },
     {
-      "parameters": {
-        "resource": "message",
-        "operation": "send",
-        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
-        "to": "={{ $vars.TG_OWNER_PHONE }}",
-        "body": "=TG: New 5-star review from {{ $('Normalize Review Data').first().json.reviewerName }} is ready as a social post draft. Approve it at tgyardcare.com/admin/social"
-      },
       "id": "sms-owner-review",
       "name": "SMS Owner - Review Post Ready",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         1100,
         200
       ],
-      "credentials": {
-        "twilioApi": {
-          "id": "twilio-creds",
-          "name": "Twilio API"
-        }
-      },
-      "continueOnFail": true
+      "continueOnFail": true,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{ $vars.TG_OWNER_PHONE }}"
+            },
+            {
+              "name": "content"
+            }
+          ]
+        },
+        "options": {}
+      }
     },
     {
       "parameters": {

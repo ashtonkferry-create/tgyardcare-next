@@ -2,12 +2,24 @@
   "name": "TG-36-content-calendar-generator",
   "nodes": [
     {
-      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 1 * * 1" }] } },
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 1 * * 1"
+            }
+          ]
+        }
+      },
       "id": "schedule",
       "name": "Weekly Sunday 8pm CT",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 300]
+      "position": [
+        0,
+        300
+      ]
     },
     {
       "parameters": {
@@ -17,37 +29,151 @@
       "name": "Generate 7-Day Content",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 300]
+      "position": [
+        220,
+        300
+      ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/social_posts",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
         "sendBody": true,
-        "bodyParameters": { "parameters": [{ "name": "content", "value": "={{$json.content}}" }, { "name": "type", "value": "={{$json.type}}" }, { "name": "service", "value": "={{$json.service}}" }, { "name": "scheduled_for", "value": "={{$json.scheduled_for}}" }, { "name": "status", "value": "draft" }, { "name": "platform", "value": "facebook" }] }
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{$json.content}}"
+            },
+            {
+              "name": "type",
+              "value": "={{$json.type}}"
+            },
+            {
+              "name": "service",
+              "value": "={{$json.service}}"
+            },
+            {
+              "name": "scheduled_for",
+              "value": "={{$json.scheduled_for}}"
+            },
+            {
+              "name": "status",
+              "value": "draft"
+            },
+            {
+              "name": "platform",
+              "value": "facebook"
+            }
+          ]
+        }
       },
       "id": "insert-posts",
       "name": "Insert Draft Posts",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 300]
+      "position": [
+        440,
+        300
+      ]
     },
     {
-      "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$vars.TG_OWNER_PHONE}}", "message": "TG: Next week's social content calendar (7 posts) generated as drafts. Review and approve at tgyardcare.com/admin - TG System" },
       "id": "sms-owner",
       "name": "SMS Owner",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
-      "position": [660, 300],
-      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{$vars.TG_OWNER_PHONE}}"
+            },
+            {
+              "name": "content",
+              "value": "TG: Next week's social content calendar (7 posts) generated as drafts. Review and approve at tgyardcare.com/admin - TG System"
+            }
+          ]
+        },
+        "options": {}
+      }
     }
   ],
   "connections": {
-    "Weekly Sunday 8pm CT": { "main": [[{ "node": "Generate 7-Day Content", "type": "main", "index": 0 }]] },
-    "Generate 7-Day Content": { "main": [[{ "node": "Insert Draft Posts", "type": "main", "index": 0 }]] },
-    "Insert Draft Posts": { "main": [[{ "node": "SMS Owner", "type": "main", "index": 0 }]] }
+    "Weekly Sunday 8pm CT": {
+      "main": [
+        [
+          {
+            "node": "Generate 7-Day Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate 7-Day Content": {
+      "main": [
+        [
+          {
+            "node": "Insert Draft Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Draft Posts": {
+      "main": [
+        [
+          {
+            "node": "SMS Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "availableInMCP": true }
+  "settings": {
+    "availableInMCP": true
+  }
 }

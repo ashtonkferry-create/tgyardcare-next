@@ -1,13 +1,236 @@
 {
   "name": "TG-80-daily-marketing-briefing",
   "nodes": [
-    { "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 12 * * 1-5" }] } }, "id": "schedule", "name": "Weekdays 7am CT", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 300] },
-    { "parameters": { "method": "GET", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?select=id,status,source,created_at&created_at=gte.{{ new Date(Date.now()-86400000).toISOString() }}", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] } }, "id": "fetch-leads", "name": "Fetch Yesterday Leads", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [220, 200] },
-    { "parameters": { "method": "GET", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/reviews?select=id,rating,source,created_at&created_at=gte.{{ new Date(Date.now()-86400000).toISOString() }}", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] } }, "id": "fetch-reviews", "name": "Fetch New Reviews", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [220, 350] },
-    { "parameters": { "method": "GET", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/keyword_rankings?select=keyword,position,checked_at&order=checked_at.desc&limit=5", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] } }, "id": "fetch-rankings", "name": "Fetch Top Rankings", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [220, 500] },
-    { "parameters": { "jsCode": "const leads = $('Fetch Yesterday Leads').all().map(i => i.json);\nconst reviews = $('Fetch New Reviews').all().map(i => i.json);\nconst rankings = $('Fetch Top Rankings').all().map(i => i.json);\n\nconst newLeads = leads.filter(l => l.status === 'new').length;\nconst totalLeads = leads.length;\nconst newReviews = reviews.length;\nconst avgRating = reviews.length ? (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1) : 'N/A';\nconst topKeyword = rankings[0] ? `${rankings[0].keyword} (#${rankings[0].position})` : 'No data';\n\nconst briefing = `TG Daily Briefing ${new Date().toLocaleDateString()}:\\n\\n` +\n  `📋 Leads: ${newLeads} new / ${totalLeads} total\\n` +\n  `⭐ Reviews: ${newReviews} new (avg ${avgRating}★)\\n` +\n  `📈 Top keyword: ${topKeyword}\\n\\n` +\n  `Text /leads, /revenue, or /status for more.`;\n\nreturn [{ json: { briefing, new_leads: newLeads, new_reviews: newReviews } }];" }, "id": "build-briefing", "name": "Build Daily Briefing", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [440, 350] },
-    { "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$vars.TG_OWNER_PHONE}}", "message": "={{$json.briefing}}" }, "id": "sms-briefing", "name": "SMS Daily Briefing", "type": "n8n-nodes-base.twilio", "typeVersion": 1, "position": [660, 350], "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } } }
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 12 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Weekdays 7am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?select=id,status,source,created_at&created_at=gte.{{ new Date(Date.now()-86400000).toISOString() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-leads",
+      "name": "Fetch Yesterday Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/reviews?select=id,rating,source,created_at&created_at=gte.{{ new Date(Date.now()-86400000).toISOString() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-reviews",
+      "name": "Fetch New Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/keyword_rankings?select=keyword,position,checked_at&order=checked_at.desc&limit=5",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-rankings",
+      "name": "Fetch Top Rankings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const leads = $('Fetch Yesterday Leads').all().map(i => i.json);\nconst reviews = $('Fetch New Reviews').all().map(i => i.json);\nconst rankings = $('Fetch Top Rankings').all().map(i => i.json);\n\nconst newLeads = leads.filter(l => l.status === 'new').length;\nconst totalLeads = leads.length;\nconst newReviews = reviews.length;\nconst avgRating = reviews.length ? (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1) : 'N/A';\nconst topKeyword = rankings[0] ? `${rankings[0].keyword} (#${rankings[0].position})` : 'No data';\n\nconst briefing = `TG Daily Briefing ${new Date().toLocaleDateString()}:\\n\\n` +\n  `📋 Leads: ${newLeads} new / ${totalLeads} total\\n` +\n  `⭐ Reviews: ${newReviews} new (avg ${avgRating}★)\\n` +\n  `📈 Top keyword: ${topKeyword}\\n\\n` +\n  `Text /leads, /revenue, or /status for more.`;\n\nreturn [{ json: { briefing, new_leads: newLeads, new_reviews: newReviews } }];"
+      },
+      "id": "build-briefing",
+      "name": "Build Daily Briefing",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        350
+      ]
+    },
+    {
+      "id": "sms-briefing",
+      "name": "SMS Daily Briefing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        350
+      ],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{$vars.TG_OWNER_PHONE}}"
+            },
+            {
+              "name": "content",
+              "value": "={{$json.briefing}}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
   ],
-  "connections": { "Weekdays 7am CT": { "main": [[{ "node": "Fetch Yesterday Leads", "type": "main", "index": 0 }], [{ "node": "Fetch New Reviews", "type": "main", "index": 0 }], [{ "node": "Fetch Top Rankings", "type": "main", "index": 0 }]] }, "Fetch Yesterday Leads": { "main": [[{ "node": "Build Daily Briefing", "type": "main", "index": 0 }]] }, "Fetch New Reviews": { "main": [[{ "node": "Build Daily Briefing", "type": "main", "index": 0 }]] }, "Fetch Top Rankings": { "main": [[{ "node": "Build Daily Briefing", "type": "main", "index": 0 }]] }, "Build Daily Briefing": { "main": [[{ "node": "SMS Daily Briefing", "type": "main", "index": 0 }]] } },
-  "settings": { "availableInMCP": true }
+  "connections": {
+    "Weekdays 7am CT": {
+      "main": [
+        [
+          {
+            "node": "Fetch Yesterday Leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch New Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch Top Rankings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Yesterday Leads": {
+      "main": [
+        [
+          {
+            "node": "Build Daily Briefing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch New Reviews": {
+      "main": [
+        [
+          {
+            "node": "Build Daily Briefing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Top Rankings": {
+      "main": [
+        [
+          {
+            "node": "Build Daily Briefing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Daily Briefing": {
+      "main": [
+        [
+          {
+            "node": "SMS Daily Briefing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
 }

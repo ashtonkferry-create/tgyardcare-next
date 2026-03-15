@@ -223,28 +223,46 @@
       "continueOnFail": true
     },
     {
-      "parameters": {
-        "resource": "message",
-        "operation": "send",
-        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
-        "to": "={{ $vars.TG_OWNER_PHONE }}",
-        "body": "=TG: Weekly competitor content analysis ready ({{ $('Parse Analysis Result').first().json.postCount }} posts analyzed). View full report at tgyardcare.com/admin/competitors"
-      },
       "id": "sms-owner-analysis",
       "name": "SMS Owner - Analysis Ready",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         1540,
         200
       ],
-      "credentials": {
-        "twilioApi": {
-          "id": "twilio-creds",
-          "name": "Twilio API"
-        }
-      },
-      "continueOnFail": true
+      "continueOnFail": true,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{ $vars.TG_OWNER_PHONE }}"
+            },
+            {
+              "name": "content"
+            }
+          ]
+        },
+        "options": {}
+      }
     },
     {
       "parameters": {

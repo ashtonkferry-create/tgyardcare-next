@@ -2,25 +2,51 @@
   "name": "TG-27-compliance-check",
   "nodes": [
     {
-      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 1 * * *" }] } },
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 1 * * *"
+            }
+          ]
+        }
+      },
       "id": "schedule",
       "name": "Daily 8pm CT",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 300]
+      "position": [
+        0,
+        300
+      ]
     },
     {
       "parameters": {
         "method": "GET",
         "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/field_marketing_tasks?created_at=gte.{{ new Date().toISOString().split('T')[0] }}&select=id,status",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        }
       },
       "id": "fetch-tasks",
       "name": "Fetch Today Tasks",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 300]
+      "position": [
+        220,
+        300
+      ]
     },
     {
       "parameters": {
@@ -30,38 +56,154 @@
       "name": "Calculate Compliance",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 300]
+      "position": [
+        440,
+        300
+      ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/daily_compliance",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
         "sendBody": true,
-        "bodyParameters": { "parameters": [{ "name": "date", "value": "={{$json.date}}" }, { "name": "total_tasks", "value": "={{$json.total}}" }, { "name": "completed_tasks", "value": "={{$json.completed}}" }, { "name": "compliance_pct", "value": "={{$json.percent}}" }] }
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "date",
+              "value": "={{$json.date}}"
+            },
+            {
+              "name": "total_tasks",
+              "value": "={{$json.total}}"
+            },
+            {
+              "name": "completed_tasks",
+              "value": "={{$json.completed}}"
+            },
+            {
+              "name": "compliance_pct",
+              "value": "={{$json.percent}}"
+            }
+          ]
+        }
       },
       "id": "insert-record",
       "name": "Insert Compliance Record",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [660, 300]
+      "position": [
+        660,
+        300
+      ]
     },
     {
-      "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$vars.TG_OWNER_PHONE}}", "message": "={{$node['Calculate Compliance'].json.message}}" },
       "id": "sms-owner",
       "name": "SMS Owner Report",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
-      "position": [880, 300],
-      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        300
+      ],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{$vars.TG_OWNER_PHONE}}"
+            },
+            {
+              "name": "content",
+              "value": "={{$node['Calculate Compliance'].json.message}}"
+            }
+          ]
+        },
+        "options": {}
+      }
     }
   ],
   "connections": {
-    "Daily 8pm CT": { "main": [[{ "node": "Fetch Today Tasks", "type": "main", "index": 0 }]] },
-    "Fetch Today Tasks": { "main": [[{ "node": "Calculate Compliance", "type": "main", "index": 0 }]] },
-    "Calculate Compliance": { "main": [[{ "node": "Insert Compliance Record", "type": "main", "index": 0 }]] },
-    "Insert Compliance Record": { "main": [[{ "node": "SMS Owner Report", "type": "main", "index": 0 }]] }
+    "Daily 8pm CT": {
+      "main": [
+        [
+          {
+            "node": "Fetch Today Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Today Tasks": {
+      "main": [
+        [
+          {
+            "node": "Calculate Compliance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Compliance": {
+      "main": [
+        [
+          {
+            "node": "Insert Compliance Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Compliance Record": {
+      "main": [
+        [
+          {
+            "node": "SMS Owner Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "availableInMCP": true }
+  "settings": {
+    "availableInMCP": true
+  }
 }

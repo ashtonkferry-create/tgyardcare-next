@@ -1,14 +1,267 @@
 {
   "name": "TG-56-weather-campaign-trigger",
   "nodes": [
-    { "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 7 * * *" }] } }, "id": "schedule", "name": "Daily 7am CT", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 300] },
-    { "parameters": { "method": "GET", "url": "=https://api.openweathermap.org/data/2.5/weather?q=Madison,WI,US&appid={{$vars.TG_OPENWEATHER_API_KEY}}&units=imperial" }, "id": "fetch-weather", "name": "Fetch Madison Weather", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [220, 300] },
-    { "parameters": { "jsCode": "const w = $input.first().json;\nconst temp = w.main?.temp || 50;\nconst condition = w.weather?.[0]?.main || 'Clear';\nconst windSpeed = w.wind?.speed || 0;\nconst snow = w.snow?.['1h'] || 0;\nconst rain = w.rain?.['1h'] || 0;\n\nlet campaign = null;\nif (snow > 0.5 || (temp < 32 && condition.includes('Snow'))) {\n  campaign = { type: 'snow_emergency', message: 'Snow emergency! Book TotalGuard snow removal now — crews mobilizing for Madison.', service: 'snow-removal' };\n} else if (temp > 90) {\n  campaign = { type: 'heat_wave', message: 'Heat wave alert! Protect your lawn — TotalGuard summer care keeps it green all season.', service: 'lawn-mowing' };\n} else if (rain > 0.5) {\n  campaign = { type: 'post_rain', message: 'After the rain, your lawn is ready to thrive! Schedule TotalGuard mowing while growth is peak.', service: 'lawn-mowing' };\n} else if (temp > 50 && temp < 70 && condition === 'Clear') {\n  campaign = { type: 'perfect_day', message: 'Perfect yard care weather in Madison! Get a free TotalGuard estimate today.', service: 'lawn-mowing' };\n}\n\nreturn [{ json: { temp, condition, windSpeed, snow, rain, campaign, should_send: campaign !== null, checked_at: new Date().toISOString() } }];" }, "id": "analyze-weather", "name": "Analyze Weather & Select Campaign", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [440, 300] },
-    { "parameters": { "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" }, "conditions": [{ "leftValue": "={{$json.should_send}}", "rightValue": true, "operator": { "type": "boolean", "operation": "true" } }], "combinator": "and" } }, "id": "should-campaign", "name": "Weather Campaign Needed?", "type": "n8n-nodes-base.if", "typeVersion": 2, "position": [660, 300] },
-    { "parameters": { "method": "GET", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/customers?select=id,first_name,phone,sms_consent&sms_consent=eq.true&tier=neq.churned&limit=200", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] } }, "id": "fetch-customers", "name": "Fetch SMS-Consented Customers", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [880, 200] },
-    { "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$json.phone}}", "message": "=Hi {{$json.first_name}}! {{$('Analyze Weather & Select Campaign').first().json.campaign.message}} Reply STOP to opt out. - TotalGuard Yard Care" }, "id": "send-sms", "name": "Send Weather SMS", "type": "n8n-nodes-base.twilio", "typeVersion": 1, "position": [1100, 200], "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } } },
-    { "parameters": { "method": "POST", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/seo_intelligence_log", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] }, "sendBody": true, "bodyParameters": { "parameters": [{ "name": "event_type", "value": "weather_campaign_skipped" }, { "name": "notes", "value": "=No campaign needed. Temp: {{$('Analyze Weather & Select Campaign').first().json.temp}}F, {{$('Analyze Weather & Select Campaign').first().json.condition}}" }, { "name": "logged_at", "value": "={{ new Date().toISOString() }}" }] } }, "id": "log-skip", "name": "Log No Campaign", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [880, 400] }
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily 7am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.openweathermap.org/data/2.5/weather?q=Madison,WI,US&appid={{$vars.TG_OPENWEATHER_API_KEY}}&units=imperial"
+      },
+      "id": "fetch-weather",
+      "name": "Fetch Madison Weather",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const w = $input.first().json;\nconst temp = w.main?.temp || 50;\nconst condition = w.weather?.[0]?.main || 'Clear';\nconst windSpeed = w.wind?.speed || 0;\nconst snow = w.snow?.['1h'] || 0;\nconst rain = w.rain?.['1h'] || 0;\n\nlet campaign = null;\nif (snow > 0.5 || (temp < 32 && condition.includes('Snow'))) {\n  campaign = { type: 'snow_emergency', message: 'Snow emergency! Book TotalGuard snow removal now — crews mobilizing for Madison.', service: 'snow-removal' };\n} else if (temp > 90) {\n  campaign = { type: 'heat_wave', message: 'Heat wave alert! Protect your lawn — TotalGuard summer care keeps it green all season.', service: 'lawn-mowing' };\n} else if (rain > 0.5) {\n  campaign = { type: 'post_rain', message: 'After the rain, your lawn is ready to thrive! Schedule TotalGuard mowing while growth is peak.', service: 'lawn-mowing' };\n} else if (temp > 50 && temp < 70 && condition === 'Clear') {\n  campaign = { type: 'perfect_day', message: 'Perfect yard care weather in Madison! Get a free TotalGuard estimate today.', service: 'lawn-mowing' };\n}\n\nreturn [{ json: { temp, condition, windSpeed, snow, rain, campaign, should_send: campaign !== null, checked_at: new Date().toISOString() } }];"
+      },
+      "id": "analyze-weather",
+      "name": "Analyze Weather & Select Campaign",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{$json.should_send}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "should-campaign",
+      "name": "Weather Campaign Needed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/customers?select=id,first_name,phone,sms_consent&sms_consent=eq.true&tier=neq.churned&limit=200",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-customers",
+      "name": "Fetch SMS-Consented Customers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        200
+      ]
+    },
+    {
+      "id": "send-sms",
+      "name": "Send Weather SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        200
+      ],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{$json.phone}}"
+            },
+            {
+              "name": "content",
+              "value": "=Hi {{$json.first_name}}! {{$('Analyze Weather & Select Campaign').first().json.campaign.message}} Reply STOP to opt out. - TotalGuard Yard Care"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/seo_intelligence_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "event_type",
+              "value": "weather_campaign_skipped"
+            },
+            {
+              "name": "notes",
+              "value": "=No campaign needed. Temp: {{$('Analyze Weather & Select Campaign').first().json.temp}}F, {{$('Analyze Weather & Select Campaign').first().json.condition}}"
+            },
+            {
+              "name": "logged_at",
+              "value": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "id": "log-skip",
+      "name": "Log No Campaign",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        400
+      ]
+    }
   ],
-  "connections": { "Daily 7am CT": { "main": [[{ "node": "Fetch Madison Weather", "type": "main", "index": 0 }]] }, "Fetch Madison Weather": { "main": [[{ "node": "Analyze Weather & Select Campaign", "type": "main", "index": 0 }]] }, "Analyze Weather & Select Campaign": { "main": [[{ "node": "Weather Campaign Needed?", "type": "main", "index": 0 }]] }, "Weather Campaign Needed?": { "main": [[{ "node": "Fetch SMS-Consented Customers", "type": "main", "index": 0 }], [{ "node": "Log No Campaign", "type": "main", "index": 0 }]] }, "Fetch SMS-Consented Customers": { "main": [[{ "node": "Send Weather SMS", "type": "main", "index": 0 }]] } },
-  "settings": { "availableInMCP": true }
+  "connections": {
+    "Daily 7am CT": {
+      "main": [
+        [
+          {
+            "node": "Fetch Madison Weather",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Madison Weather": {
+      "main": [
+        [
+          {
+            "node": "Analyze Weather & Select Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Weather & Select Campaign": {
+      "main": [
+        [
+          {
+            "node": "Weather Campaign Needed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weather Campaign Needed?": {
+      "main": [
+        [
+          {
+            "node": "Fetch SMS-Consented Customers",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log No Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch SMS-Consented Customers": {
+      "main": [
+        [
+          {
+            "node": "Send Weather SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
 }
