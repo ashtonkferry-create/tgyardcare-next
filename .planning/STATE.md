@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Transform tgyardcare.com into a billion-dollar brand experience that converts at 3-5x current rates while protecting existing SEO rankings and lead flow.
-**Current focus:** Phase 3 COMPLETE (including gap closure) — ready for Phase 4
+**Current focus:** Phase 4 Intelligence Layer — in progress
 
 ## Current Position
 
-Phase: 3 of 4 (SEO Domination) — COMPLETE (with gap closure)
-Plan: 6 of 6 complete (5 original + 1 gap closure)
-Status: Phase 3 complete, all gaps closed
-Last activity: 2026-03-16 — Completed 03-06-PLAN.md (Gap Closure)
+Phase: 4 of 4 (Intelligence Layer) — In progress
+Plan: 1 of 12 complete
+Status: In progress
+Last activity: 2026-03-16 — Completed 04-01-PLAN.md (Intelligence Layer Schema)
 
-Progress: [=====================] 21/21 plans
+Progress: [=======================-----------] 22/33 plans
 
 Executing Milestone 2: CRM Unification
 - Phase 0 (Fix Existing): Ready to execute
@@ -32,7 +32,8 @@ Executing Milestone 2: CRM Unification
   - 03-04: DONE — TG-98 + TG-99 + TG-101 SEO intelligence workflows [wave 2]
   - 03-05: DONE — TG-102 weekly SEO summary (pending deploy) [wave 3]
   - 03-06: DONE — Gap closure: TG-97/TG-102 schema fix, opportunity+staleness counts, 15 cities verified [wave 4]
-- Phase 4: Not started
+- Phase 4 (Intelligence Layer): In progress (1/12 plans)
+  - 04-01: DONE — Migration 072 (5 new tables + 4 table extensions + RLS) [wave 1]
 
 Parallel: Milestone 3 (Billionaire Brand Transformation)
 - Phase 5-9: Not started
@@ -40,8 +41,8 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure)
-- Last plan duration: ~8 minutes (03-06 gap closure)
+- Total plans completed: 22 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 1 Phase 4)
+- Last plan duration: ~4 minutes (04-01 intelligence schema)
 - Total execution time: N/A
 
 *Updated after each plan completion*
@@ -120,6 +121,10 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 - [Phase 3-06]: TG-102 now aggregates all 4 data sources: rank drops, content gaps, ranking opportunities (pos 4-20), stale content (180+ days)
 - [Phase 3-06]: seo_target_cities verified: 15 active WI cities (all 12 required + Cross Plains, Mount Horeb, Windsor)
 - [Phase 3-06]: TG-96 pagination gap accepted as low-risk for <100 page site
+- [Phase 4-01]: Migration 072 applied — 5 new tables (intelligence_reports, intelligence_metrics, ab_test_sends, google_ads_daily, google_ads_alerts)
+- [Phase 4-01]: intelligence_reports.report_type CHECK expanded to 8 types (includes learning_report, what_got_smarter for later plans)
+- [Phase 4-01]: ab_tests extended with channel/min_sends_per_variant/auto_winner/winner columns
+- [Phase 4-01]: email_sends and sms_sends extended with ab_test_id/ab_variant_id for A/B tracking
 
 ### Pending Todos
 
@@ -147,5 +152,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 03-06-PLAN.md (Gap Closure) — Phase 3 fully verified, all gaps closed
+Stopped at: Completed 04-01-PLAN.md (Intelligence Layer Schema) — Phase 4 started
 Resume file: None
