@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-general-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['var(--font-clash-display)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

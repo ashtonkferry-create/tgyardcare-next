@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
@@ -8,10 +8,18 @@ import { GlobalSchema } from '@/components/GlobalSchema';
 import { NavigationSchema } from '@/components/schemas/NavigationSchema';
 import { AutoSchema } from '@/components/schemas/AutoSchema';
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
+const clashDisplay = localFont({
+  src: './fonts/ClashDisplay-Variable.woff2',
+  variable: '--font-clash-display',
   display: 'swap',
+  weight: '200 700',
+});
+
+const generalSans = localFont({
+  src: './fonts/GeneralSans-Variable.woff2',
+  variable: '--font-general-sans',
+  display: 'swap',
+  weight: '200 700',
 });
 
 export const metadata: Metadata = {
@@ -86,13 +94,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${clashDisplay.variable} ${generalSans.variable}`}>
       <head>
         <link rel="alternate" type="application/rss+xml" title="TotalGuard Yard Care Blog" href="/blog/feed.xml" />
         <GlobalSchema />
         <NavigationSchema />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <AutoSchema />
         <Providers>{children}</Providers>
         <Analytics />
