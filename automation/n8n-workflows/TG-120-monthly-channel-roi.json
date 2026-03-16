@@ -1,0 +1,335 @@
+{
+  "name": "TG-120-monthly-channel-roi",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 13 1 * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "1st of Month 8am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate previous month date range\nconst now = new Date();\nconst reportDate = now.toISOString().split('T')[0];\n\nconst prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);\nconst prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);\n\nconst fmt = (d) => d.toISOString().split('T')[0];\nconst monthLabel = prevMonthStart.toLocaleString('en-US', { month: 'long', year: 'numeric' });\n\nreturn [{ json: {\n  reportDate,\n  monthStart: fmt(prevMonthStart),\n  monthEnd: fmt(prevMonthEnd),\n  monthLabel,\n  nowIso: now.toISOString()\n} }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Month Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/revenue_attribution",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,lead_id,revenue,lead_source,service_type,attributed_at"
+            },
+            {
+              "name": "and",
+              "value": "=(attributed_at.gte.{{ $json.monthStart }},attributed_at.lte.{{ $json.monthEnd }})"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-revenue",
+      "name": "Fetch Revenue by Source",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 140]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_ads_daily",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "report_date,spend,clicks,impressions,conversions,campaign_name"
+            },
+            {
+              "name": "and",
+              "value": "=(report_date.gte.{{ $('Calculate Month Range').first().json.monthStart }},report_date.lte.{{ $('Calculate Month Range').first().json.monthEnd }})"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-ads",
+      "name": "Fetch Google Ads Spend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 340]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,source,status,created_at"
+            },
+            {
+              "name": "and",
+              "value": "=(created_at.gte.{{ $('Calculate Month Range').first().json.monthStart }},created_at.lte.{{ $('Calculate Month Range').first().json.monthEnd }})"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-leads",
+      "name": "Fetch Leads by Source",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 540]
+    },
+    {
+      "parameters": {
+        "mode": "wait",
+        "options": {}
+      },
+      "id": "wait-rev-ads",
+      "name": "Wait Revenue+Ads",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [700, 240]
+    },
+    {
+      "parameters": {
+        "mode": "wait",
+        "options": {}
+      },
+      "id": "wait-all",
+      "name": "Wait All Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [920, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate ROI by marketing channel\nconst dates = $('Calculate Month Range').first().json;\nconst revenueRaw = $('Fetch Revenue by Source').first().json;\nconst adsRaw = $('Fetch Google Ads Spend').first().json;\nconst leadsRaw = $('Fetch Leads by Source').first().json;\n\nconst revenue = Array.isArray(revenueRaw.body) ? revenueRaw.body : (Array.isArray(revenueRaw) ? revenueRaw : []);\nconst ads = Array.isArray(adsRaw.body) ? adsRaw.body : (Array.isArray(adsRaw) ? adsRaw : []);\nconst leads = Array.isArray(leadsRaw.body) ? leadsRaw.body : (Array.isArray(leadsRaw) ? leadsRaw : []);\n\n// Canonical channel mapping\nfunction normalizeChannel(src) {\n  if (!src) return 'unknown';\n  const s = src.toLowerCase().trim();\n  if (s.includes('google') && (s.includes('ad') || s.includes('paid') || s.includes('cpc'))) return 'google_ads';\n  if (s.includes('google') || s.includes('organic')) return 'google_organic';\n  if (s.includes('referral') || s.includes('refer')) return 'referral';\n  if (s.includes('nextdoor')) return 'nextdoor';\n  if (s.includes('facebook') || s.includes('fb') || s.includes('meta')) return 'facebook';\n  if (s.includes('yard') || s.includes('sign')) return 'yard_sign';\n  if (s.includes('direct') || s.includes('phone') || s.includes('walk')) return 'direct';\n  return s;\n}\n\n// Aggregate revenue by channel\nconst channels = {};\nconst channelOrder = ['google_organic', 'google_ads', 'referral', 'direct', 'nextdoor', 'facebook', 'yard_sign'];\nfor (const ch of channelOrder) {\n  channels[ch] = { revenue: 0, jobs: 0, leads: 0, bookedLeads: 0, cost: 0 };\n}\n\nfor (const r of revenue) {\n  const ch = normalizeChannel(r.lead_source);\n  if (!channels[ch]) channels[ch] = { revenue: 0, jobs: 0, leads: 0, bookedLeads: 0, cost: 0 };\n  channels[ch].revenue += parseFloat(r.revenue) || 0;\n  channels[ch].jobs += 1;\n}\n\n// Aggregate ad spend\nlet totalAdSpend = 0;\nfor (const a of ads) {\n  const spend = parseFloat(a.spend) || 0;\n  totalAdSpend += spend;\n}\nif (channels['google_ads']) channels['google_ads'].cost = totalAdSpend;\n\n// Aggregate leads by channel\nfor (const l of leads) {\n  const ch = normalizeChannel(l.source);\n  if (!channels[ch]) channels[ch] = { revenue: 0, jobs: 0, leads: 0, bookedLeads: 0, cost: 0 };\n  channels[ch].leads += 1;\n  if (l.status === 'booked' || l.status === 'completed') {\n    channels[ch].bookedLeads += 1;\n  }\n}\n\n// Calculate per-channel metrics\nconst fmt = (n, d) => Number(n).toLocaleString('en-US', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });\nconst channelResults = [];\nlet totalRevenue = 0;\nlet totalLeads = 0;\nlet totalCost = 0;\n\nfor (const [ch, data] of Object.entries(channels)) {\n  const roi = data.cost > 0 ? Math.round(((data.revenue - data.cost) / data.cost) * 10000) / 100 : (data.revenue > 0 ? Infinity : 0);\n  const costPerLead = data.leads > 0 && data.cost > 0 ? Math.round((data.cost / data.leads) * 100) / 100 : 0;\n  const conversionRate = data.leads > 0 ? Math.round((data.bookedLeads / data.leads) * 10000) / 100 : 0;\n  \n  totalRevenue += data.revenue;\n  totalLeads += data.leads;\n  totalCost += data.cost;\n  \n  channelResults.push({\n    channel: ch,\n    revenue: Math.round(data.revenue * 100) / 100,\n    cost: Math.round(data.cost * 100) / 100,\n    roi_pct: roi === Infinity ? 999 : roi,\n    leads: data.leads,\n    booked: data.bookedLeads,\n    jobs: data.jobs,\n    cost_per_lead: costPerLead,\n    conversion_rate: conversionRate\n  });\n}\n\nchannelResults.sort((a, b) => b.revenue - a.revenue);\n\n// Overall ROI\nconst overallROI = totalCost > 0 ? Math.round(((totalRevenue - totalCost) / totalCost) * 100) : (totalRevenue > 0 ? 999 : 0);\n\n// Build sections for TG-118\nconst topMetrics = [\n  { label: 'Total Revenue', value: '$' + fmt(totalRevenue, 2), change: '' },\n  { label: 'Total Ad Spend', value: '$' + fmt(totalCost, 2), change: '' },\n  { label: 'Overall ROI', value: overallROI + '%', change: '' },\n  { label: 'Total Leads', value: fmt(totalLeads), change: '' }\n];\n\nconst tableHeaders = ['Channel', 'Revenue', 'Cost', 'ROI %', 'Leads', 'Cost/Lead', 'Conv Rate'];\nconst tableRows = channelResults.map(c => [\n  c.channel.replace(/_/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase()),\n  '$' + fmt(c.revenue, 2),\n  c.cost > 0 ? '$' + fmt(c.cost, 2) : '$0',\n  c.roi_pct >= 999 ? 'organic' : c.roi_pct + '%',\n  c.leads.toString(),\n  c.cost_per_lead > 0 ? '$' + fmt(c.cost_per_lead, 2) : '$0',\n  c.conversion_rate + '%'\n]);\n\nconst highlights = [];\nconst topChannel = channelResults[0];\nif (topChannel && topChannel.revenue > 0) {\n  highlights.push('Top channel: ' + topChannel.channel.replace(/_/g, ' ') + ' with $' + fmt(topChannel.revenue, 2) + ' revenue');\n}\nconst paidChannels = channelResults.filter(c => c.cost > 0);\nif (paidChannels.length > 0) {\n  const bestPaidROI = paidChannels.sort((a, b) => b.roi_pct - a.roi_pct)[0];\n  highlights.push('Best paid ROI: ' + bestPaidROI.channel.replace(/_/g, ' ') + ' at ' + bestPaidROI.roi_pct + '% return');\n}\nconst organicChannels = channelResults.filter(c => c.cost === 0 && c.revenue > 0);\nif (organicChannels.length > 0) {\n  const organicRev = organicChannels.reduce((s, c) => s + c.revenue, 0);\n  highlights.push('Organic channels generated $' + fmt(organicRev, 2) + ' at zero cost');\n}\nif (highlights.length === 0) {\n  highlights.push('Channel ROI analysis active \\u2014 data will populate as revenue flows in');\n}\n\nconst actions = [];\nif (paidChannels.length > 0) {\n  const worstPaid = paidChannels.sort((a, b) => a.roi_pct - b.roi_pct)[0];\n  if (worstPaid.roi_pct < 100) {\n    actions.push('Review ' + worstPaid.channel.replace(/_/g, ' ') + ' spend \\u2014 ROI at ' + worstPaid.roi_pct + '% is below breakeven');\n  }\n}\nif (organicChannels.length > 0) {\n  const topOrganic = organicChannels.sort((a, b) => b.revenue - a.revenue)[0];\n  actions.push('Invest more in ' + topOrganic.channel.replace(/_/g, ' ') + ' \\u2014 highest organic ROI at $' + fmt(topOrganic.revenue, 2));\n}\nconst zeroLeadChannels = channelResults.filter(c => c.leads === 0 && channelOrder.includes(c.channel));\nif (zeroLeadChannels.length > 0) {\n  actions.push('No leads from: ' + zeroLeadChannels.map(c => c.channel.replace(/_/g, ' ')).join(', ') + ' \\u2014 evaluate if these channels are worth pursuing');\n}\nif (actions.length === 0) {\n  actions.push('All channels performing within expected ranges \\u2014 continue current strategy');\n}\n\nconst sections = [\n  { type: 'metrics', title: 'Channel ROI Overview', items: topMetrics },\n  { type: 'table', title: 'ROI by Channel', headers: tableHeaders, rows: tableRows },\n  { type: 'highlights', title: 'Key Insights', items: highlights },\n  { type: 'actions', title: 'Recommended Actions', items: actions }\n];\n\nreturn [{ json: {\n  report_title: 'Monthly Channel ROI',\n  report_subtitle: dates.monthLabel + ' | TotalGuard Marketing Intelligence',\n  sections,\n  storePayload: {\n    report_type: 'channel_roi',\n    report_date: dates.reportDate,\n    report_data: {\n      month: dates.monthLabel,\n      total_revenue: Math.round(totalRevenue * 100) / 100,\n      total_cost: Math.round(totalCost * 100) / 100,\n      overall_roi_pct: overallROI,\n      total_leads: totalLeads,\n      channels: channelResults,\n      highlights,\n      actions\n    },\n    generated_by: 'TG-120'\n  }\n} }];"
+      },
+      "id": "build-report",
+      "name": "Build Channel ROI Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1160, 380]
+    },
+    {
+      "parameters": {
+        "workflowId": "rOeTPPi2kW6thURB",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "report_title": "={{ $json.report_title }}",
+            "report_subtitle": "={{ $json.report_subtitle }}",
+            "sections": "={{ JSON.stringify($json.sections) }}"
+          }
+        }
+      },
+      "id": "call-tg118",
+      "name": "Build HTML via TG-118",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1400, 380]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "to_email": "totalguardllc@gmail.com",
+            "subject": "={{ $('Build Channel ROI Report').first().json.report_title + ' — ' + $('Calculate Month Range').first().json.monthLabel }}",
+            "html_body": "={{ $json.html }}",
+            "workflow_name": "TG-120",
+            "email_type": "channel_roi_report"
+          }
+        }
+      },
+      "id": "call-tg95",
+      "name": "Send Email via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1640, 380]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Build Channel ROI Report').first().json.storePayload) }}"
+      },
+      "id": "store-report",
+      "name": "Store to Intelligence Reports",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1880, 380]
+    }
+  ],
+  "connections": {
+    "1st of Month 8am CT": {
+      "main": [
+        [{ "node": "Calculate Month Range", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Month Range": {
+      "main": [
+        [
+          { "node": "Fetch Revenue by Source", "type": "main", "index": 0 },
+          { "node": "Fetch Google Ads Spend", "type": "main", "index": 0 },
+          { "node": "Fetch Leads by Source", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Revenue by Source": {
+      "main": [
+        [{ "node": "Wait Revenue+Ads", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Google Ads Spend": {
+      "main": [
+        [{ "node": "Wait Revenue+Ads", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait Revenue+Ads": {
+      "main": [
+        [{ "node": "Wait All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Leads by Source": {
+      "main": [
+        [{ "node": "Wait All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait All Data": {
+      "main": [
+        [{ "node": "Build Channel ROI Report", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Channel ROI Report": {
+      "main": [
+        [{ "node": "Build HTML via TG-118", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build HTML via TG-118": {
+      "main": [
+        [{ "node": "Send Email via TG-95", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Email via TG-95": {
+      "main": [
+        [{ "node": "Store to Intelligence Reports", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  },
+  "tags": [
+    { "name": "intelligence" },
+    { "name": "monthly-report" },
+    { "name": "phase-4" }
+  ],
+  "pinData": {},
+  "staticData": null
+}

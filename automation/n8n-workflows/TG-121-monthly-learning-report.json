@@ -1,0 +1,347 @@
+{
+  "name": "TG-121-monthly-learning-report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 1 * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "1st of Month 9am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate previous month range (runs 1 hour after TG-119/120)\nconst now = new Date();\nconst reportDate = now.toISOString().split('T')[0];\n\nconst prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);\nconst prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);\n\nconst fmt = (d) => d.toISOString().split('T')[0];\nconst monthLabel = prevMonthStart.toLocaleString('en-US', { month: 'long', year: 'numeric' });\n\nreturn [{ json: {\n  reportDate,\n  monthStart: fmt(prevMonthStart),\n  monthEnd: fmt(prevMonthEnd),\n  monthLabel,\n  nowIso: now.toISOString()\n} }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Month Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "report_type,report_date,report_data,generated_by"
+            },
+            {
+              "name": "and",
+              "value": "=(report_date.gte.{{ $json.monthStart }},report_date.lte.{{ $json.reportDate }})"
+            },
+            {
+              "name": "order",
+              "value": "report_date.desc"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-reports",
+      "name": "Fetch Monthly Sub-Reports",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 140]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_tests",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,test_name,channel,winner,status,variant_a_name,variant_b_name,updated_at"
+            },
+            {
+              "name": "and",
+              "value": "=(status.eq.completed,updated_at.gte.{{ $('Calculate Month Range').first().json.monthStart }},updated_at.lte.{{ $('Calculate Month Range').first().json.reportDate }})"
+            },
+            {
+              "name": "order",
+              "value": "updated_at.desc"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-ab-winners",
+      "name": "Fetch A/B Test Winners",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 340]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/anomaly_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,metric_name,severity,detected_at,deviation_pct"
+            },
+            {
+              "name": "and",
+              "value": "=(detected_at.gte.{{ $('Calculate Month Range').first().json.monthStart }},detected_at.lte.{{ $('Calculate Month Range').first().json.reportDate }})"
+            },
+            {
+              "name": "order",
+              "value": "detected_at.desc"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-anomalies",
+      "name": "Fetch Anomalies Detected",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 540]
+    },
+    {
+      "parameters": {
+        "mode": "wait",
+        "options": {}
+      },
+      "id": "wait-1",
+      "name": "Wait Reports+AB",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [700, 240]
+    },
+    {
+      "parameters": {
+        "mode": "wait",
+        "options": {}
+      },
+      "id": "wait-all",
+      "name": "Wait All Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [920, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Assemble \"What The System Learned This Month\" digest\nconst dates = $('Calculate Month Range').first().json;\nconst reportsRaw = $('Fetch Monthly Sub-Reports').first().json;\nconst winnersRaw = $('Fetch A/B Test Winners').first().json;\nconst anomaliesRaw = $('Fetch Anomalies Detected').first().json;\n\nconst reports = Array.isArray(reportsRaw.body) ? reportsRaw.body : (Array.isArray(reportsRaw) ? reportsRaw : []);\nconst winners = Array.isArray(winnersRaw.body) ? winnersRaw.body : (Array.isArray(winnersRaw) ? winnersRaw : []);\nconst anomalies = Array.isArray(anomaliesRaw.body) ? anomaliesRaw.body : (Array.isArray(anomaliesRaw) ? anomaliesRaw : []);\n\n// Parse sub-reports by type\nconst reportsByType = {};\nfor (const r of reports) {\n  if (!reportsByType[r.report_type]) reportsByType[r.report_type] = [];\n  reportsByType[r.report_type].push(r.report_data || {});\n}\n\n// --- Extract from TG-119 monthly_trend ---\nconst trendReports = reportsByType['monthly_trend'] || [];\nconst latestTrend = trendReports[0] || {};\nconst kpisTracked = latestTrend.kpis_tracked || 0;\nconst topGainers = latestTrend.top_gainers || [];\nconst topDecliners = latestTrend.top_decliners || [];\n\n// --- Extract from TG-120 channel_roi ---\nconst roiReports = reportsByType['channel_roi'] || [];\nconst latestROI = roiReports[0] || {};\nconst totalRevenue = latestROI.total_revenue || 0;\nconst totalCost = latestROI.total_cost || 0;\nconst overallROI = latestROI.overall_roi_pct || 0;\nconst channelData = latestROI.channels || [];\n\n// --- Extract weekly sub-reports ---\nconst weeklyRevenueReports = reportsByType['revenue_attribution'] || [];\nconst weeklyAdReports = reportsByType['ad_performance'] || [];\nconst weeklyAbReports = reportsByType['ab_test_results'] || [];\nconst weeklySmartReports = reportsByType['what_got_smarter'] || [];\n\nconst fmt = (n, d) => {\n  if (n === undefined || n === null) return '\\u2014';\n  return Number(n).toLocaleString('en-US', { maximumFractionDigits: d || 0 });\n};\n\n// --- Top-level metrics ---\nconst topMetrics = [\n  { label: 'A/B Tests Completed', value: fmt(winners.length), change: '' },\n  { label: 'Anomalies Caught', value: fmt(anomalies.length), change: '' },\n  { label: 'Monthly Revenue', value: totalRevenue > 0 ? '$' + fmt(totalRevenue, 2) : '\\u2014', change: overallROI > 0 ? overallROI + '% ROI' : '' },\n  { label: 'Reports Generated', value: fmt(reports.length), change: '' }\n];\n\n// --- Section 1: A/B Tests Completed ---\nconst abHighlights = [];\nif (winners.length > 0) {\n  for (const w of winners) {\n    const winnerName = w.winner === 'a' ? (w.variant_a_name || 'Variant A') : (w.winner === 'b' ? (w.variant_b_name || 'Variant B') : (w.winner || 'TBD'));\n    abHighlights.push(`\"${w.test_name}\" \\u2014 Winner: ${winnerName} (${w.channel || 'unknown'} channel)`);\n  }\n} else {\n  abHighlights.push('No A/B tests completed this month \\u2014 consider launching new experiments');\n}\n\n// --- Section 2: Revenue Trends ---\nconst revenueHighlights = [];\nif (totalRevenue > 0) {\n  revenueHighlights.push('Total monthly revenue: $' + fmt(totalRevenue, 2));\n  if (totalCost > 0) {\n    revenueHighlights.push('Marketing spend: $' + fmt(totalCost, 2) + ' (ROI: ' + overallROI + '%)');\n  }\n  // Top channel\n  if (channelData.length > 0) {\n    const sorted = [...channelData].sort((a, b) => (b.revenue || 0) - (a.revenue || 0));\n    if (sorted[0] && sorted[0].revenue > 0) {\n      revenueHighlights.push('Top channel: ' + (sorted[0].channel || 'unknown').replace(/_/g, ' ') + ' ($' + fmt(sorted[0].revenue, 2) + ')');\n    }\n  }\n} else {\n  revenueHighlights.push('Revenue tracking building baseline \\u2014 ensure TG-107 daily sync is running');\n}\n\n// --- Section 3: KPI Trends ---\nconst trendHighlights = [];\nif (topGainers.length > 0) {\n  for (const g of topGainers.slice(0, 2)) {\n    trendHighlights.push('Improved: ' + (g.metric || '').replace(/_/g, ' ') + ' +' + (g.changePct || 0) + '%');\n  }\n}\nif (topDecliners.length > 0) {\n  for (const d of topDecliners.slice(0, 2)) {\n    trendHighlights.push('Declined: ' + (d.metric || '').replace(/_/g, ' ') + ' ' + (d.changePct || 0) + '%');\n  }\n}\nif (trendHighlights.length === 0) {\n  trendHighlights.push('KPI trending active \\u2014 month-over-month comparisons accumulating');\n}\n\n// --- Section 4: Anomalies ---\nconst anomalyHighlights = [];\nif (anomalies.length > 0) {\n  // Group by severity\n  const critical = anomalies.filter(a => a.severity === 'critical');\n  const warnings = anomalies.filter(a => a.severity === 'warning');\n  anomalyHighlights.push(anomalies.length + ' anomal' + (anomalies.length === 1 ? 'y' : 'ies') + ' detected (' + critical.length + ' critical, ' + warnings.length + ' warnings)');\n  // Show top 3\n  for (const a of anomalies.slice(0, 3)) {\n    anomalyHighlights.push((a.severity || 'info') + ': ' + (a.metric_name || 'unknown').replace(/_/g, ' ') + ' deviated ' + (a.deviation_pct || 0) + '%');\n  }\n} else {\n  anomalyHighlights.push('No anomalies detected \\u2014 all KPIs within expected ranges');\n}\n\n// --- Section 5: Intelligence System Health ---\nconst healthHighlights = [];\nhealthHighlights.push(reports.length + ' intelligence reports generated this month');\nhealthHighlights.push(Object.keys(reportsByType).length + ' report types active: ' + Object.keys(reportsByType).join(', '));\nif (weeklySmartReports.length > 0) {\n  healthHighlights.push(weeklySmartReports.length + ' weekly \"What Got Smarter\" digests delivered');\n}\nhealthHighlights.push('All monthly workflows (TG-119, TG-120, TG-121) operational');\n\n// --- Actions ---\nconst actions = [];\nif (winners.length === 0) {\n  actions.push('Launch new A/B tests \\u2014 no experiments completed this month');\n}\nif (topDecliners.length > 0 && topDecliners[0].absChange > 20) {\n  actions.push('Investigate ' + topDecliners[0].metric.replace(/_/g, ' ') + ' decline (' + topDecliners[0].changePct + '%)');\n}\nif (anomalies.length > 5) {\n  actions.push('High anomaly count (' + anomalies.length + ') \\u2014 review alerting thresholds or investigate systemic issue');\n}\nif (totalRevenue === 0) {\n  actions.push('No revenue tracked \\u2014 verify TG-107 revenue sync and revenue_attribution table');\n}\nif (actions.length === 0) {\n  actions.push('Intelligence system healthy \\u2014 continue monitoring and iterating on experiments');\n}\n\n// --- Build TG-118 sections ---\nconst sections = [\n  { type: 'metrics', title: 'Monthly Intelligence Summary', items: topMetrics },\n  { type: 'highlights', title: 'A/B Tests Completed', items: abHighlights },\n  { type: 'highlights', title: 'Revenue & Channel Insights', items: revenueHighlights },\n  { type: 'highlights', title: 'KPI Trends', items: trendHighlights },\n  { type: 'highlights', title: 'Anomalies Caught', items: anomalyHighlights },\n  { type: 'highlights', title: 'System Health', items: healthHighlights },\n  { type: 'actions', title: 'Actions for Next Month', items: actions }\n];\n\nreturn [{ json: {\n  report_title: 'What The System Learned This Month',\n  report_subtitle: dates.monthLabel + ' | TotalGuard Monthly Intelligence Digest',\n  sections,\n  storePayload: {\n    report_type: 'learning_report',\n    report_date: dates.reportDate,\n    report_data: {\n      month: dates.monthLabel,\n      ab_tests_completed: winners.length,\n      ab_test_winners: winners.map(w => ({ name: w.test_name, channel: w.channel, winner: w.winner })),\n      anomalies_detected: anomalies.length,\n      anomalies_critical: anomalies.filter(a => a.severity === 'critical').length,\n      total_revenue: totalRevenue,\n      total_cost: totalCost,\n      overall_roi_pct: overallROI,\n      kpis_tracked: kpisTracked,\n      top_gainers: topGainers.slice(0, 3),\n      top_decliners: topDecliners.slice(0, 3),\n      reports_generated: reports.length,\n      report_types: Object.keys(reportsByType),\n      weekly_digests: weeklySmartReports.length\n    },\n    generated_by: 'TG-121'\n  }\n} }];"
+      },
+      "id": "build-report",
+      "name": "Build Learning Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1160, 380]
+    },
+    {
+      "parameters": {
+        "workflowId": "rOeTPPi2kW6thURB",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "report_title": "={{ $json.report_title }}",
+            "report_subtitle": "={{ $json.report_subtitle }}",
+            "sections": "={{ JSON.stringify($json.sections) }}"
+          }
+        }
+      },
+      "id": "call-tg118",
+      "name": "Build HTML via TG-118",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1400, 380]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "to_email": "totalguardllc@gmail.com",
+            "subject": "={{ $('Build Learning Report').first().json.report_title + ' — ' + $('Calculate Month Range').first().json.monthLabel }}",
+            "html_body": "={{ $json.html }}",
+            "workflow_name": "TG-121",
+            "email_type": "monthly_learning_report"
+          }
+        }
+      },
+      "id": "call-tg95",
+      "name": "Send Email via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1640, 380]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Build Learning Report').first().json.storePayload) }}"
+      },
+      "id": "store-report",
+      "name": "Store to Intelligence Reports",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1880, 380]
+    }
+  ],
+  "connections": {
+    "1st of Month 9am CT": {
+      "main": [
+        [{ "node": "Calculate Month Range", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Month Range": {
+      "main": [
+        [
+          { "node": "Fetch Monthly Sub-Reports", "type": "main", "index": 0 },
+          { "node": "Fetch A/B Test Winners", "type": "main", "index": 0 },
+          { "node": "Fetch Anomalies Detected", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Monthly Sub-Reports": {
+      "main": [
+        [{ "node": "Wait Reports+AB", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch A/B Test Winners": {
+      "main": [
+        [{ "node": "Wait Reports+AB", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait Reports+AB": {
+      "main": [
+        [{ "node": "Wait All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Anomalies Detected": {
+      "main": [
+        [{ "node": "Wait All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait All Data": {
+      "main": [
+        [{ "node": "Build Learning Report", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Learning Report": {
+      "main": [
+        [{ "node": "Build HTML via TG-118", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build HTML via TG-118": {
+      "main": [
+        [{ "node": "Send Email via TG-95", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Email via TG-95": {
+      "main": [
+        [{ "node": "Store to Intelligence Reports", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  },
+  "tags": [
+    { "name": "intelligence" },
+    { "name": "monthly-report" },
+    { "name": "phase-4" }
+  ],
+  "pinData": {},
+  "staticData": null
+}
