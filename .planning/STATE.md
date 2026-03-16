@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Transform tgyardcare.com into a billion-dollar brand experience that converts at 3-5x current rates while protecting existing SEO rankings and lead flow.
-**Current focus:** Phase 4 Intelligence Layer — in progress
+**Current focus:** Phase 4 Intelligence Layer — COMPLETE
 
 ## Current Position
 
-Phase: 4 of 4 (Intelligence Layer) — In progress
-Plan: 10 of 12 complete
-Status: In progress
-Last activity: 2026-03-16 — Completed 04-11-PLAN.md (A/B test integration into TG-83/84/85/91 + TG-94/95 logging)
+Phase: 4 of 4 (Intelligence Layer) — COMPLETE
+Plan: 12 of 12 complete
+Status: Phase complete
+Last activity: 2026-03-16 — Completed 04-12-PLAN.md (TG-66/67 retirement + Phase 4 verification)
 
-Progress: [==============================---] 31/33 plans
+Progress: [█████████████████████████████████] 33/33 plans
 
 Executing Milestone 2: CRM Unification
 - Phase 0 (Fix Existing): Ready to execute
@@ -32,7 +32,7 @@ Executing Milestone 2: CRM Unification
   - 03-04: DONE — TG-98 + TG-99 + TG-101 SEO intelligence workflows [wave 2]
   - 03-05: DONE — TG-102 weekly SEO summary (pending deploy) [wave 3]
   - 03-06: DONE — Gap closure: TG-97/TG-102 schema fix, opportunity+staleness counts, 15 cities verified [wave 4]
-- Phase 4 (Intelligence Layer): In progress (10/12 plans)
+- Phase 4 (Intelligence Layer): COMPLETE (12/12 plans, all 5 waves)
   - 04-01: DONE — Migration 072 (5 new tables + 4 table extensions + RLS) [wave 1]
   - 04-02: DONE — TG-113 (GHL1BUPFZL8Ic6Bc) critical alert router + TG-105 (6qhihK1RPUzwk2pd) A/B test router [wave 1]
   - 04-03: DONE — TG-107 revenue sync daily + TG-108 KPI daily snapshot (13 metrics) [wave 1]
@@ -44,6 +44,7 @@ Executing Milestone 2: CRM Unification
   - 04-09: DONE — TG-119 monthly trends + TG-120 channel ROI + TG-121 monthly learning report [wave 4]
   - 04-10: DONE — TG-122 A/B seed manager + TG-123 workflow health + TG-124 lead recalibrator + TG-125 dashboard updater [wave 5]
   - 04-11: DONE — A/B test integration into TG-83/84/85/91 + TG-94/95 A/B logging [wave 5]
+  - 04-12: DONE — TG-66 (XyvUD8qA2E9YkTzR) + TG-67 (cANzgpQQBTfEiGek) retired, Phase 4 verified [wave 5 COMPLETE]
 
 Parallel: Milestone 3 (Billionaire Brand Transformation)
 - Phase 5-9: Not started
@@ -51,8 +52,8 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 31 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 10 Phase 4)
-- Last plan duration: ~4 minutes (04-11 A/B test integration into 6 workflows)
+- Total plans completed: 33 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 12 Phase 4)
+- Last plan duration: ~4 minutes (04-12 TG-66/67 retirement + Phase 4 verification)
 - Total execution time: N/A
 
 *Updated after each plan completion*
@@ -182,6 +183,9 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 - [Phase 4-10]: TG-123 workflow health: Monday 7 AM CT, fetches 250 n8n executions, alerts >10% error rate
 - [Phase 4-10]: TG-124 lead score recalibrator: 1st of month 8 AM CT, analysis-only (no auto-changes), 5-tier comparison
 - [Phase 4-10]: TG-125 dashboard updater: daily 10 AM CT, refreshes 7d/30d rolling averages + active counts
+- [Phase 4-12]: TG-66 deactivated on n8n (XyvUD8qA2E9YkTzR) — replaced by TG-108/110/125
+- [Phase 4-12]: TG-67 deactivated on n8n (cANzgpQQBTfEiGek) — replaced by TG-117
+- [Phase 4-12]: Phase 4 verified: 21 new + 6 modified + 2 retired = 29 total changes; 6 deployed, 15+6 pending n8n deploy
 
 ### Pending Todos
 
@@ -209,5 +213,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 04-09-PLAN.md (TG-119 + TG-120 + TG-121 Monthly Reports) — Wave 4 in progress
+Stopped at: Completed 04-12-PLAN.md — Phase 4 Intelligence Layer COMPLETE (all 12 plans, 5 waves)
 Resume file: None
+Next: Batch deploy 21 pending n8n workflows, then Phase 5+ (Billionaire Brand Transformation)
