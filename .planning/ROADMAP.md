@@ -93,6 +93,16 @@ Plans:
 - [x] 04-11-PLAN.md -- Modify TG-83/84/85/91 for A/B testing + TG-94/95 A/B logging [wave 5]
 - [x] 04-12-PLAN.md -- Retire TG-66/67 + Full Phase 4 Verification [wave 5]
 
+## Phase 4.1: M2 Integration Fixes (INSERTED — Gap Closure)
+**Goal**: Fix 6 critical cross-phase integration issues found by milestone audit: workflow ID placeholders in local JSONs, column/parameter name mismatches against live Supabase schema, missing ab_test_variants.content column, and TG-95 email logging gap.
+**Impact**: All E2E flows pass, local JSON matches live state, A/B testing fully functional
+**Status**: Complete
+**Plans:** 1 plan
+**Gap Closure**: Closes W1, W2, S1, S2, S3, S4, D2 from M2-MILESTONE-AUDIT.md
+
+Plans:
+- [x] 04.1-01-PLAN.md -- Fix all 7 integration issues (workflowIds, column names, RPC params, schema, logging)
+
 </details>
 
 ---
@@ -196,6 +206,7 @@ Plans:
 | 2. CRM Unification | M2 | 5/5 | Complete | 2026-03-16 |
 | 3. SEO Domination | M2 | 6/6 | Complete | 2026-03-16 |
 | 4. Intelligence Layer | M2 | 12/12 | Complete | 2026-03-16 |
+| 4.1 M2 Integration Fixes | M2 | 1/1 | Complete | 2026-03-16 |
 | 5. Safety Nets & Foundation | M3 | 0/? | Not started | - |
 | 6. Brand Transformation | M3 | 0/? | Not started | - |
 | 7. Conversion Features | M3 | 0/? | Not started | - |
