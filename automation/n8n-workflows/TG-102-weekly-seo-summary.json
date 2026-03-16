@@ -1,0 +1,360 @@
+{
+  "name": "TG-102-weekly-seo-summary",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 13 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Monday 8am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate date ranges for this week vs last week\n// GSC has ~2 day data lag\nconst now = new Date();\nconst lagDays = 2;\n\n// This week: 7 days ending 2 days ago\nconst thisWeekEnd = new Date(now.getTime() - lagDays * 24 * 60 * 60 * 1000);\nconst thisWeekStart = new Date(thisWeekEnd.getTime() - 7 * 24 * 60 * 60 * 1000);\n\n// Last week: 7 days before this week\nconst lastWeekEnd = new Date(thisWeekStart.getTime());\nconst lastWeekStart = new Date(lastWeekEnd.getTime() - 7 * 24 * 60 * 60 * 1000);\n\nconst fmt = (d) => d.toISOString().split('T')[0];\nconst reportDate = fmt(now);\nconst weekLabel = fmt(thisWeekStart) + ' to ' + fmt(thisWeekEnd);\n\nreturn [{ json: {\n  thisWeekStart: fmt(thisWeekStart),\n  thisWeekEnd: fmt(thisWeekEnd),\n  lastWeekStart: fmt(lastWeekStart),\n  lastWeekEnd: fmt(lastWeekEnd),\n  reportDate,\n  weekLabel\n}}];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Date Ranges",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://searchconsole.googleapis.com/v1/sites/https%3A%2F%2Ftgyardcare.com/searchAnalytics/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ startDate: $json.thisWeekStart, endDate: $json.thisWeekEnd, dimensions: ['query'], rowLimit: 500 }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "gsc-this-week-queries",
+      "name": "Fetch This Week Queries",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://searchconsole.googleapis.com/v1/sites/https%3A%2F%2Ftgyardcare.com/searchAnalytics/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ startDate: $json.lastWeekStart, endDate: $json.lastWeekEnd, dimensions: ['query'], rowLimit: 500 }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "gsc-last-week-queries",
+      "name": "Fetch Last Week Queries",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://searchconsole.googleapis.com/v1/sites/https%3A%2F%2Ftgyardcare.com/searchAnalytics/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ startDate: $('Calculate Date Ranges').item.json.thisWeekStart, endDate: $('Calculate Date Ranges').item.json.thisWeekEnd, dimensions: ['page'], rowLimit: 100 }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "gsc-this-week-pages",
+      "name": "Fetch This Week Pages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seo_content_gaps?select=id&status=eq.new",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Prefer",
+              "value": "count=exact"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "get-content-gaps",
+      "name": "Get Content Gaps Count",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 100]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seo_weekly_reports?select=*&report_type=eq.rank_drop_alert&report_date=eq.' + $('Calculate Date Ranges').item.json.reportDate + '&order=created_at.desc' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "get-rank-alerts",
+      "name": "Get Recent Rank Drop Alerts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compile weekly SEO summary from all data sources\nconst calcDates = $('Calculate Date Ranges').first().json;\nconst thisWeekRaw = $('Fetch This Week Queries').first().json;\nconst lastWeekRaw = $('Fetch Last Week Queries').first().json;\nconst thisWeekPages = $('Fetch This Week Pages').first().json;\nconst gapsRaw = $('Get Content Gaps Count').first().json;\nconst alertsRaw = $('Get Recent Rank Drop Alerts').first().json;\n\n// Parse GSC query data\nconst thisWeekQueries = (thisWeekRaw.body?.rows || thisWeekRaw.rows || []);\nconst lastWeekQueries = (lastWeekRaw.body?.rows || lastWeekRaw.rows || []);\nconst pages = (thisWeekPages.body?.rows || thisWeekPages.rows || []);\n\n// Parse content gaps count from content-range header\nconst gapsHeaders = gapsRaw.headers || {};\nconst contentRange = gapsHeaders['content-range'] || '';\nconst gapCountMatch = contentRange.match(/\\/(\\d+)/);\nconst contentGapCount = gapCountMatch ? parseInt(gapCountMatch[1]) : (Array.isArray(gapsRaw.body) ? gapsRaw.body.length : 0);\n\n// Parse rank drop alerts\nconst rankAlerts = Array.isArray(alertsRaw.body) ? alertsRaw.body : [];\n\n// Build query lookup maps: query -> {clicks, impressions, position}\nconst thisMap = {};\nfor (const row of thisWeekQueries) {\n  const q = row.keys?.[0] || row.query || '';\n  thisMap[q] = { clicks: row.clicks || 0, impressions: row.impressions || 0, position: row.position || 0 };\n}\n\nconst lastMap = {};\nfor (const row of lastWeekQueries) {\n  const q = row.keys?.[0] || row.query || '';\n  lastMap[q] = { clicks: row.clicks || 0, impressions: row.impressions || 0, position: row.position || 0 };\n}\n\n// Compute all queries from both weeks\nconst allQueries = new Set([...Object.keys(thisMap), ...Object.keys(lastMap)]);\n\n// New keywords (in this week, not in last week)\nconst newKeywords = [];\nfor (const q of Object.keys(thisMap)) {\n  if (!lastMap[q]) newKeywords.push({ query: q, ...thisMap[q] });\n}\nnewKeywords.sort((a, b) => b.clicks - a.clicks);\n\n// Lost keywords (in last week, not in this week)\nconst lostKeywords = [];\nfor (const q of Object.keys(lastMap)) {\n  if (!thisMap[q]) lostKeywords.push({ query: q, ...lastMap[q] });\n}\nlostKeywords.sort((a, b) => b.clicks - a.clicks);\n\n// Gainers and losers (present in both weeks)\nconst movers = [];\nfor (const q of allQueries) {\n  if (thisMap[q] && lastMap[q]) {\n    const clickDiff = thisMap[q].clicks - lastMap[q].clicks;\n    const posDiff = lastMap[q].position - thisMap[q].position; // positive = improved\n    movers.push({\n      query: q,\n      thisClicks: thisMap[q].clicks,\n      lastClicks: lastMap[q].clicks,\n      clickChange: clickDiff,\n      thisPosition: Math.round(thisMap[q].position * 10) / 10,\n      lastPosition: Math.round(lastMap[q].position * 10) / 10,\n      positionChange: Math.round(posDiff * 10) / 10\n    });\n  }\n}\n\nconst gainers = movers.filter(m => m.clickChange > 0).sort((a, b) => b.clickChange - a.clickChange).slice(0, 10);\nconst losers = movers.filter(m => m.clickChange < 0).sort((a, b) => a.clickChange - b.clickChange).slice(0, 10);\n\n// Overall stats\nconst thisWeekTotalClicks = Object.values(thisMap).reduce((s, v) => s + v.clicks, 0);\nconst lastWeekTotalClicks = Object.values(lastMap).reduce((s, v) => s + v.clicks, 0);\nconst thisWeekTotalImpressions = Object.values(thisMap).reduce((s, v) => s + v.impressions, 0);\nconst lastWeekTotalImpressions = Object.values(lastMap).reduce((s, v) => s + v.impressions, 0);\nconst clickChange = thisWeekTotalClicks - lastWeekTotalClicks;\nconst clickChangeStr = (clickChange >= 0 ? '+' : '') + clickChange;\nconst impressionChange = thisWeekTotalImpressions - lastWeekTotalImpressions;\nconst avgPosition = thisWeekQueries.length > 0\n  ? Math.round(thisWeekQueries.reduce((s, r) => s + (r.position || 0), 0) / thisWeekQueries.length * 10) / 10\n  : 0;\n\n// Top pages by clicks\nconst topPages = pages\n  .map(p => ({ page: (p.keys?.[0] || p.page || '').replace('https://tgyardcare.com', ''), clicks: p.clicks || 0, impressions: p.impressions || 0 }))\n  .sort((a, b) => b.clicks - a.clicks)\n  .slice(0, 10);\n\nreturn [{ json: {\n  reportDate: calcDates.reportDate,\n  weekLabel: calcDates.weekLabel,\n  totalClicks: thisWeekTotalClicks,\n  lastWeekClicks: lastWeekTotalClicks,\n  clickChange,\n  clickChangeStr,\n  totalImpressions: thisWeekTotalImpressions,\n  lastWeekImpressions: lastWeekTotalImpressions,\n  impressionChange,\n  avgPosition,\n  totalQueries: thisWeekQueries.length,\n  gainersCount: gainers.length,\n  losersCount: losers.length,\n  newKeywordsCount: newKeywords.length,\n  lostKeywordsCount: lostKeywords.length,\n  contentGapCount,\n  rankAlertCount: rankAlerts.length,\n  gainers,\n  losers,\n  newKeywords: newKeywords.slice(0, 10),\n  lostKeywords: lostKeywords.slice(0, 10),\n  topPages,\n  rankAlerts: rankAlerts.slice(0, 5)\n}}];"
+      },
+      "id": "compile-summary",
+      "name": "Compile Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seo_weekly_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ report_date: $json.reportDate, report_type: 'weekly_summary', data: { week_label: $json.weekLabel, total_clicks: $json.totalClicks, last_week_clicks: $json.lastWeekClicks, click_change: $json.clickChange, total_impressions: $json.totalImpressions, last_week_impressions: $json.lastWeekImpressions, impression_change: $json.impressionChange, avg_position: $json.avgPosition, total_queries: $json.totalQueries, gainers_count: $json.gainersCount, losers_count: $json.losersCount, new_keywords_count: $json.newKeywordsCount, lost_keywords_count: $json.lostKeywordsCount, content_gap_count: $json.contentGapCount, rank_alert_count: $json.rankAlertCount, top_gainers: $json.gainers, top_losers: $json.losers, new_keywords: $json.newKeywords, lost_keywords: $json.lostKeywords, top_pages: $json.topPages, rank_alerts: $json.rankAlerts } }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "store-report",
+      "name": "Store Weekly Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build comprehensive HTML email for weekly SEO summary\nconst d = $('Compile Summary').first().json;\n\nconst pct = (curr, prev) => {\n  if (prev === 0) return curr > 0 ? '+100%' : '0%';\n  const p = Math.round(((curr - prev) / prev) * 100);\n  return (p >= 0 ? '+' : '') + p + '%';\n};\n\nconst arrow = (val) => val > 0 ? '&#9650;' : val < 0 ? '&#9660;' : '&#9644;';\nconst color = (val) => val > 0 ? '#22c55e' : val < 0 ? '#ef4444' : '#888';\n\n// Gainers table rows\nconst gainerRows = d.gainers.map(g => \n  `<tr><td style=\"padding:6px 10px;border-bottom:1px solid #eee;\">${g.query}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;\">${g.thisClicks}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;color:${color(g.clickChange)};\">${g.clickChange > 0 ? '+' : ''}${g.clickChange}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;\">${g.thisPosition}</td></tr>`\n).join('');\n\n// Losers table rows\nconst loserRows = d.losers.map(l => \n  `<tr><td style=\"padding:6px 10px;border-bottom:1px solid #eee;\">${l.query}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;\">${l.thisClicks}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;color:${color(l.clickChange)};\">${l.clickChange > 0 ? '+' : ''}${l.clickChange}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;\">${l.thisPosition}</td></tr>`\n).join('');\n\n// New keywords rows\nconst newKwRows = d.newKeywords.map(k => \n  `<tr><td style=\"padding:6px 10px;border-bottom:1px solid #eee;\">${k.query}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;\">${k.clicks}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;\">${k.impressions}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;\">${Math.round(k.position * 10) / 10}</td></tr>`\n).join('');\n\n// Lost keywords rows\nconst lostKwRows = d.lostKeywords.map(k => \n  `<tr><td style=\"padding:6px 10px;border-bottom:1px solid #eee;\">${k.query}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;\">${k.clicks}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;\">${k.impressions}</td></tr>`\n).join('');\n\n// Top pages rows\nconst pageRows = d.topPages.map(p => \n  `<tr><td style=\"padding:6px 10px;border-bottom:1px solid #eee;word-break:break-all;\">${p.page || '/'}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;\">${p.clicks}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;\">${p.impressions}</td></tr>`\n).join('');\n\n// Rank alerts rows\nconst alertRows = d.rankAlerts.map(a => {\n  const ad = a.data || {};\n  return `<tr><td style=\"padding:6px 10px;border-bottom:1px solid #eee;\">${ad.query || 'N/A'}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;\">${ad.previous_position || '-'}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee;text-align:right;color:#ef4444;\">${ad.current_position || '-'}</td></tr>`;\n}).join('');\n\nconst subject = `TG SEO Weekly: ${d.totalClicks} clicks (${d.clickChangeStr}), ${d.gainersCount} gainers, ${d.losersCount} losers`;\n\nconst html = `\n<div style=\"font-family:Arial,sans-serif;max-width:700px;margin:0 auto;background:#fff;\">\n  <div style=\"background:#1a1a2e;color:#fff;padding:24px;border-radius:8px 8px 0 0;\">\n    <h1 style=\"margin:0 0 8px;font-size:22px;\">TotalGuard SEO Weekly Report</h1>\n    <p style=\"margin:0;opacity:0.8;font-size:14px;\">${d.weekLabel}</p>\n  </div>\n\n  <!-- Overview Stats -->\n  <div style=\"padding:20px;background:#f8f9fa;\">\n    <table style=\"width:100%;border-collapse:collapse;\">\n      <tr>\n        <td style=\"padding:12px;text-align:center;\">\n          <div style=\"font-size:28px;font-weight:bold;color:#1a1a2e;\">${d.totalClicks}</div>\n          <div style=\"font-size:12px;color:#666;\">Total Clicks</div>\n          <div style=\"font-size:14px;color:${color(d.clickChange)};\">${arrow(d.clickChange)} ${d.clickChangeStr} (${pct(d.totalClicks, d.lastWeekClicks)})</div>\n        </td>\n        <td style=\"padding:12px;text-align:center;\">\n          <div style=\"font-size:28px;font-weight:bold;color:#1a1a2e;\">${d.totalImpressions}</div>\n          <div style=\"font-size:12px;color:#666;\">Impressions</div>\n          <div style=\"font-size:14px;color:${color(d.impressionChange)};\">${arrow(d.impressionChange)} ${d.impressionChange >= 0 ? '+' : ''}${d.impressionChange}</div>\n        </td>\n        <td style=\"padding:12px;text-align:center;\">\n          <div style=\"font-size:28px;font-weight:bold;color:#1a1a2e;\">${d.avgPosition}</div>\n          <div style=\"font-size:12px;color:#666;\">Avg Position</div>\n        </td>\n        <td style=\"padding:12px;text-align:center;\">\n          <div style=\"font-size:28px;font-weight:bold;color:#1a1a2e;\">${d.totalQueries}</div>\n          <div style=\"font-size:12px;color:#666;\">Tracked Queries</div>\n        </td>\n      </tr>\n    </table>\n  </div>\n\n  <!-- Quick Stats Row -->\n  <div style=\"padding:16px 20px;display:flex;gap:12px;flex-wrap:wrap;\">\n    <span style=\"background:#dcfce7;color:#166534;padding:4px 12px;border-radius:12px;font-size:13px;\">&#9650; ${d.gainersCount} Gainers</span>\n    <span style=\"background:#fee2e2;color:#991b1b;padding:4px 12px;border-radius:12px;font-size:13px;\">&#9660; ${d.losersCount} Losers</span>\n    <span style=\"background:#dbeafe;color:#1e40af;padding:4px 12px;border-radius:12px;font-size:13px;\">&#10010; ${d.newKeywordsCount} New Keywords</span>\n    <span style=\"background:#fef3c7;color:#92400e;padding:4px 12px;border-radius:12px;font-size:13px;\">&#10006; ${d.lostKeywordsCount} Lost Keywords</span>\n    <span style=\"background:#f3e8ff;color:#6b21a8;padding:4px 12px;border-radius:12px;font-size:13px;\">&#128269; ${d.contentGapCount} Content Gaps</span>\n    ${d.rankAlertCount > 0 ? '<span style=\"background:#fee2e2;color:#991b1b;padding:4px 12px;border-radius:12px;font-size:13px;\">&#9888; ' + d.rankAlertCount + ' Rank Alerts</span>' : ''}\n  </div>\n\n  ${d.rankAlerts.length > 0 ? `\n  <!-- Rank Drop Alerts -->\n  <div style=\"padding:0 20px 16px;\">\n    <h2 style=\"font-size:16px;color:#991b1b;margin:0 0 8px;\">&#9888; Rank Drop Alerts</h2>\n    <table style=\"width:100%;border-collapse:collapse;font-size:13px;\">\n      <thead><tr style=\"background:#fee2e2;\"><th style=\"padding:8px 10px;text-align:left;\">Query</th><th style=\"padding:8px 10px;text-align:right;\">Previous</th><th style=\"padding:8px 10px;text-align:right;\">Current</th></tr></thead>\n      <tbody>${alertRows}</tbody>\n    </table>\n  </div>` : ''}\n\n  <!-- Top Gainers -->\n  ${d.gainers.length > 0 ? `\n  <div style=\"padding:0 20px 16px;\">\n    <h2 style=\"font-size:16px;color:#166534;margin:0 0 8px;\">&#9650; Top Gainers</h2>\n    <table style=\"width:100%;border-collapse:collapse;font-size:13px;\">\n      <thead><tr style=\"background:#dcfce7;\"><th style=\"padding:8px 10px;text-align:left;\">Query</th><th style=\"padding:8px 10px;text-align:right;\">Clicks</th><th style=\"padding:8px 10px;text-align:right;\">Change</th><th style=\"padding:8px 10px;text-align:right;\">Position</th></tr></thead>\n      <tbody>${gainerRows}</tbody>\n    </table>\n  </div>` : ''}\n\n  <!-- Top Losers -->\n  ${d.losers.length > 0 ? `\n  <div style=\"padding:0 20px 16px;\">\n    <h2 style=\"font-size:16px;color:#991b1b;margin:0 0 8px;\">&#9660; Top Losers</h2>\n    <table style=\"width:100%;border-collapse:collapse;font-size:13px;\">\n      <thead><tr style=\"background:#fee2e2;\"><th style=\"padding:8px 10px;text-align:left;\">Query</th><th style=\"padding:8px 10px;text-align:right;\">Clicks</th><th style=\"padding:8px 10px;text-align:right;\">Change</th><th style=\"padding:8px 10px;text-align:right;\">Position</th></tr></thead>\n      <tbody>${loserRows}</tbody>\n    </table>\n  </div>` : ''}\n\n  <!-- New Keywords -->\n  ${d.newKeywords.length > 0 ? `\n  <div style=\"padding:0 20px 16px;\">\n    <h2 style=\"font-size:16px;color:#1e40af;margin:0 0 8px;\">&#10010; New Keywords</h2>\n    <table style=\"width:100%;border-collapse:collapse;font-size:13px;\">\n      <thead><tr style=\"background:#dbeafe;\"><th style=\"padding:8px 10px;text-align:left;\">Query</th><th style=\"padding:8px 10px;text-align:right;\">Clicks</th><th style=\"padding:8px 10px;text-align:right;\">Impressions</th><th style=\"padding:8px 10px;text-align:right;\">Position</th></tr></thead>\n      <tbody>${newKwRows}</tbody>\n    </table>\n  </div>` : ''}\n\n  <!-- Lost Keywords -->\n  ${d.lostKeywords.length > 0 ? `\n  <div style=\"padding:0 20px 16px;\">\n    <h2 style=\"font-size:16px;color:#92400e;margin:0 0 8px;\">&#10006; Lost Keywords</h2>\n    <table style=\"width:100%;border-collapse:collapse;font-size:13px;\">\n      <thead><tr style=\"background:#fef3c7;\"><th style=\"padding:8px 10px;text-align:left;\">Query</th><th style=\"padding:8px 10px;text-align:right;\">Last Clicks</th><th style=\"padding:8px 10px;text-align:right;\">Impressions</th></tr></thead>\n      <tbody>${lostKwRows}</tbody>\n    </table>\n  </div>` : ''}\n\n  <!-- Top Pages -->\n  ${d.topPages.length > 0 ? `\n  <div style=\"padding:0 20px 16px;\">\n    <h2 style=\"font-size:16px;color:#1a1a2e;margin:0 0 8px;\">&#128196; Top Pages This Week</h2>\n    <table style=\"width:100%;border-collapse:collapse;font-size:13px;\">\n      <thead><tr style=\"background:#f1f5f9;\"><th style=\"padding:8px 10px;text-align:left;\">Page</th><th style=\"padding:8px 10px;text-align:right;\">Clicks</th><th style=\"padding:8px 10px;text-align:right;\">Impressions</th></tr></thead>\n      <tbody>${pageRows}</tbody>\n    </table>\n  </div>` : ''}\n\n  <div style=\"padding:16px 20px;background:#f8f9fa;border-radius:0 0 8px 8px;font-size:12px;color:#888;text-align:center;\">\n    TotalGuard Yard Care &mdash; Automated SEO Weekly Report (TG-102)<br>\n    Generated ${d.reportDate}\n  </div>\n</div>`;\n\nreturn [{ json: { subject, html, reportDate: d.reportDate } }];"
+      },
+      "id": "build-email",
+      "name": "Build Summary Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 400]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "fields": {
+          "values": [
+            {
+              "name": "to_email",
+              "stringValue": "OWNER_EMAIL_PLACEHOLDER"
+            },
+            {
+              "name": "subject",
+              "stringValue": "={{ $json.subject }}"
+            },
+            {
+              "name": "html_body",
+              "stringValue": "={{ $json.html }}"
+            },
+            {
+              "name": "workflow_name",
+              "stringValue": "TG-102"
+            },
+            {
+              "name": "email_type",
+              "stringValue": "seo_weekly_report"
+            }
+          ]
+        }
+      },
+      "id": "send-email",
+      "name": "Send via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1320, 400]
+    }
+  ],
+  "connections": {
+    "Monday 8am CT": {
+      "main": [
+        [
+          { "node": "Calculate Date Ranges", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Calculate Date Ranges": {
+      "main": [
+        [
+          { "node": "Fetch This Week Queries", "type": "main", "index": 0 },
+          { "node": "Fetch Last Week Queries", "type": "main", "index": 0 },
+          { "node": "Fetch This Week Pages", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch This Week Queries": {
+      "main": [
+        [
+          { "node": "Get Content Gaps Count", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Last Week Queries": {
+      "main": [
+        [
+          { "node": "Get Recent Rank Drop Alerts", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch This Week Pages": {
+      "main": [
+        [
+          { "node": "Compile Summary", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Get Content Gaps Count": {
+      "main": [
+        [
+          { "node": "Compile Summary", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Get Recent Rank Drop Alerts": {
+      "main": [
+        [
+          { "node": "Compile Summary", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Compile Summary": {
+      "main": [
+        [
+          { "node": "Store Weekly Report", "type": "main", "index": 0 },
+          { "node": "Build Summary Email", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Build Summary Email": {
+      "main": [
+        [
+          { "node": "Send via TG-95", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "seo" },
+    { "name": "weekly-report" },
+    { "name": "phase-3" }
+  ]
+}
