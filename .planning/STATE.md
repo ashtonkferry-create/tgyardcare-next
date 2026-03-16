@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 3 of 4 (SEO Domination)
-Plan: 2 of 5 complete
+Plan: 3 of 5 complete
 Status: In progress
-Last activity: 2026-03-16 — Completed 03-02-PLAN.md (City Content Generation Pipeline)
+Last activity: 2026-03-16 — Completed 03-01-PLAN.md (GSC Data Foundation)
 
-Progress: [===================.] 17/20 plans
+Progress: [===================.] 18/20 plans
 
 Executing Milestone 2: CRM Unification
 - Phase 0 (Fix Existing): Ready to execute
@@ -25,8 +25,8 @@ Executing Milestone 2: CRM Unification
   - 02-03: DONE — TG-93 Auto-Dispatch (n8n ID: JBZCSMGKzBoTz7se, ACTIVE) [wave 2]
   - 02-04: DONE — TG-94 (AprqI2DgQA8lehij) + TG-95 (IUDLrQrAkcLFLsIC) + TG-76 updated [wave 2]
   - 02-05: DONE — All 5 workflows active, Twilio confirmed on tg-router, inbound verified [wave 3]
-- Phase 3 (SEO Domination): In progress (2/5 plans)
-  - 03-01: Pending
+- Phase 3 (SEO Domination): In progress (3/5 plans)
+  - 03-01: DONE — Migration 071 (index_coverage_log + seo_content_gaps) + TG-96 (Vt8uzm8RGy3QXv3B, ACTIVE) [wave 1]
   - 03-02: DONE — TG-103 (igtaJUnj9xDXcV2B) + TG-104 (qzRRPT7goiYxJsxL) content pipeline [wave 1]
   - 03-03: Pending
   - 03-04: Pending
@@ -39,8 +39,8 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16 (9 M2-Phase 1 + 5 M2-Phase 2 + 2 Phase 3)
-- Last plan duration: ~5 minutes (03-02)
+- Total plans completed: 17 (9 M2-Phase 1 + 5 M2-Phase 2 + 3 Phase 3)
+- Last plan duration: ~7 minutes (03-01)
 - Total execution time: N/A
 
 *Updated after each plan completion*
@@ -92,6 +92,12 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 - [Phase 3-02]: Claude Sonnet 4.6 used for content generation via HTTP Request
 - [Phase 3-02]: blog_posts table has ai_generated, ai_model, ai_generated_at, word_count, reading_time_minutes columns
 - [Phase 3-02]: TG-104 quality thresholds: 800+ words, 3+ H2s, 2+ local refs, CTA required, no placeholders
+- [Phase 3-01]: TG-96 workflow ID on n8n: Vt8uzm8RGy3QXv3B (ACTIVE) -- daily GSC sync
+- [Phase 3-01]: TG-96 cron: 0 11 * * * (6 AM CDT daily)
+- [Phase 3-01]: TG-97 placeholder is Code node on n8n -- swap to executeWorkflow when TG-97 deployed
+- [Phase 3-01]: GSC Bearer token is placeholder -- needs Google OAuth setup before first run
+- [Phase 3-01]: Migration 071 applied -- index_coverage_log + seo_content_gaps tables created
+- [Phase 3-01]: n8n activate endpoint: POST /api/v1/workflows/{id}/activate (not PATCH, not PUT)
 
 ### Pending Todos
 
@@ -118,5 +124,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 03-02-PLAN.md (City Content Generation Pipeline)
+Stopped at: Completed 03-01-PLAN.md (GSC Data Foundation)
 Resume file: None
