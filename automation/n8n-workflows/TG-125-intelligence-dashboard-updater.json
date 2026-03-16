@@ -1,0 +1,310 @@
+{
+  "name": "TG-125-intelligence-dashboard-updater",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 15 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily 10am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate date boundaries for 7d and 30d windows\nconst now = new Date();\nconst today = now.toISOString().split('T')[0];\n\nconst sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);\nconst sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0] + 'T00:00:00Z';\n\nconst thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);\nconst thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0] + 'T00:00:00Z';\n\nreturn [{ json: {\n  today,\n  sevenDaysAgoStr,\n  thirtyDaysAgoStr,\n  nowIso: now.toISOString()\n} }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Date Ranges",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_metrics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "metric_name,metric_type,value,recorded_at"
+            },
+            {
+              "name": "recorded_at",
+              "value": "=gte.{{ $json.sevenDaysAgoStr }}"
+            },
+            {
+              "name": "limit",
+              "value": "500"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-7d-metrics",
+      "name": "Fetch 7-Day Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 140]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_metrics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "metric_name,metric_type,value,recorded_at"
+            },
+            {
+              "name": "recorded_at",
+              "value": "=gte.{{ $('Calculate Date Ranges').item.json.thirtyDaysAgoStr }}"
+            },
+            {
+              "name": "limit",
+              "value": "1000"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-30d-metrics",
+      "name": "Fetch 30-Day Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 320]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_tests?status=eq.active&select=id",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Prefer",
+              "value": "count=exact"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "0"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "count-ab-tests",
+      "name": "Count Active A/B Tests",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 500]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_alerts?resolved=eq.false&select=id",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Prefer",
+              "value": "count=exact"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "0"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "count-alerts",
+      "name": "Count Unresolved Alerts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 680]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compute rolling averages and summary metrics for dashboard\nconst metrics7d = $('Fetch 7-Day Metrics').first().json;\nconst metrics30d = $('Fetch 30-Day Metrics').first().json;\nconst abTestsRaw = $('Count Active A/B Tests').first().json;\nconst alertsRaw = $('Count Unresolved Alerts').first().json;\n\nconst data7d = metrics7d.body || [];\nconst data30d = metrics30d.body || [];\n\n// Parse content-range for counts\nfunction parseCount(raw) {\n  const cr = raw.headers?.['content-range'] || '';\n  const match = cr.match(/\\/(\\d+)/);\n  return match ? parseInt(match[1]) : 0;\n}\n\nconst activeAbTests = parseCount(abTestsRaw);\nconst unresolvedAlerts = parseCount(alertsRaw);\n\n// Helper: average of numeric values by metric_type\nfunction avgByType(data, metricType) {\n  const filtered = data.filter(m => m.metric_type === metricType);\n  if (filtered.length === 0) return 0;\n  const sum = filtered.reduce((s, m) => s + (parseFloat(m.value) || 0), 0);\n  return Math.round((sum / filtered.length) * 100) / 100;\n}\n\n// Calculate rolling averages for key metric types\nconst metricTypes = ['kpi_snapshot', 'revenue_daily', 'lead_quality', 'workflow_performance', 'anomaly_score'];\n\nconst summaries = [];\n\nfor (const mt of metricTypes) {\n  summaries.push({\n    metric_name: `summary_7d_avg_${mt}`,\n    metric_type: 'dashboard_summary',\n    value: avgByType(data7d, mt),\n    metadata: JSON.stringify({ window: '7d', source_type: mt, data_points: data7d.filter(m => m.metric_type === mt).length })\n  });\n  summaries.push({\n    metric_name: `summary_30d_avg_${mt}`,\n    metric_type: 'dashboard_summary',\n    value: avgByType(data30d, mt),\n    metadata: JSON.stringify({ window: '30d', source_type: mt, data_points: data30d.filter(m => m.metric_type === mt).length })\n  });\n}\n\n// Add count metrics\nsummaries.push({\n  metric_name: 'summary_active_ab_tests',\n  metric_type: 'dashboard_summary',\n  value: activeAbTests,\n  metadata: JSON.stringify({ description: 'Currently active A/B tests' })\n});\n\nsummaries.push({\n  metric_name: 'summary_unresolved_alerts',\n  metric_type: 'dashboard_summary',\n  value: unresolvedAlerts,\n  metadata: JSON.stringify({ description: 'Unresolved intelligence alerts' })\n});\n\nsummaries.push({\n  metric_name: 'summary_total_7d_metrics',\n  metric_type: 'dashboard_summary',\n  value: data7d.length,\n  metadata: JSON.stringify({ description: 'Total metric data points in 7d window' })\n});\n\nsummaries.push({\n  metric_name: 'summary_total_30d_metrics',\n  metric_type: 'dashboard_summary',\n  value: data30d.length,\n  metadata: JSON.stringify({ description: 'Total metric data points in 30d window' })\n});\n\nreturn summaries.map(s => ({ json: {\n  ...s,\n  recorded_at: new Date().toISOString()\n} }));"
+      },
+      "id": "compute-summaries",
+      "name": "Compute Dashboard Summaries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [760, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_metrics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  metric_name: $json.metric_name,\n  metric_type: $json.metric_type,\n  value: $json.value,\n  metadata: $json.metadata,\n  recorded_at: $json.recorded_at\n}) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "upsert-summaries",
+      "name": "Upsert Summary Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1020, 400]
+    }
+  ],
+  "connections": {
+    "Daily 10am CT": {
+      "main": [
+        [{ "node": "Calculate Date Ranges", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Date Ranges": {
+      "main": [
+        [
+          { "node": "Fetch 7-Day Metrics", "type": "main", "index": 0 },
+          { "node": "Fetch 30-Day Metrics", "type": "main", "index": 0 },
+          { "node": "Count Active A/B Tests", "type": "main", "index": 0 },
+          { "node": "Count Unresolved Alerts", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch 7-Day Metrics": {
+      "main": [
+        [{ "node": "Compute Dashboard Summaries", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch 30-Day Metrics": {
+      "main": [
+        [{ "node": "Compute Dashboard Summaries", "type": "main", "index": 0 }]
+      ]
+    },
+    "Count Active A/B Tests": {
+      "main": [
+        [{ "node": "Compute Dashboard Summaries", "type": "main", "index": 0 }]
+      ]
+    },
+    "Count Unresolved Alerts": {
+      "main": [
+        [{ "node": "Compute Dashboard Summaries", "type": "main", "index": 0 }]
+      ]
+    },
+    "Compute Dashboard Summaries": {
+      "main": [
+        [{ "node": "Upsert Summary Metrics", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "phase-4-intelligence" },
+    { "name": "dashboard" },
+    { "name": "daily" }
+  ]
+}
