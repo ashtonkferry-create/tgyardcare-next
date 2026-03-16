@@ -1,0 +1,263 @@
+{
+  "name": "TG-110-anomaly-detector",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily 9am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate date range: today and 4 weeks ago\nconst now = new Date();\nconst today = now.toISOString().split('T')[0];\n\nconst fourWeeksAgo = new Date(now.getTime() - 28 * 24 * 60 * 60 * 1000);\nconst fourWeeksAgoStr = fourWeeksAgo.toISOString().split('T')[0];\n\nreturn [{ json: {\n  today,\n  fourWeeksAgoStr,\n  nowIso: now.toISOString()\n} }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Date Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_metrics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "metric_date,metric_name,metric_value"
+            },
+            {
+              "name": "metric_date",
+              "value": "=eq.{{ $json.today }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-today",
+      "name": "Fetch Today Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_metrics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "metric_date,metric_name,metric_value"
+            },
+            {
+              "name": "and",
+              "value": "=(metric_date.gte.{{ $('Calculate Date Range').first().json.fourWeeksAgoStr }},metric_date.lt.{{ $('Calculate Date Range').first().json.today }})"
+            },
+            {
+              "name": "order",
+              "value": "metric_date.desc"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-history",
+      "name": "Fetch 4-Week History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 420]
+    },
+    {
+      "parameters": {
+        "mode": "wait",
+        "options": {}
+      },
+      "id": "wait-data",
+      "name": "Wait For Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compare today's metrics to 4-week rolling average\n// Skip metrics with <7 days history or avg=0\nconst todayResponse = $('Fetch Today Metrics').first().json;\nconst historyResponse = $('Fetch 4-Week History').first().json;\n\nconst todayMetrics = todayResponse.body || todayResponse || [];\nconst historyMetrics = historyResponse.body || historyResponse || [];\n\nif (!Array.isArray(todayMetrics) || todayMetrics.length === 0) {\n  return [{ json: { anomalies: [], status: 'no_today_data' } }];\n}\n\n// Group history by metric_name\nconst historyByMetric = {};\nif (Array.isArray(historyMetrics)) {\n  for (const row of historyMetrics) {\n    const name = row.metric_name;\n    if (!historyByMetric[name]) historyByMetric[name] = [];\n    historyByMetric[name].push(parseFloat(row.metric_value) || 0);\n  }\n}\n\nconst anomalies = [];\n\nfor (const metric of todayMetrics) {\n  const name = metric.metric_name;\n  const todayValue = parseFloat(metric.metric_value) || 0;\n  const history = historyByMetric[name] || [];\n\n  // Skip if fewer than 7 data points\n  if (history.length < 7) continue;\n\n  const avg = history.reduce((s, v) => s + v, 0) / history.length;\n\n  // Skip if average is 0 (avoid division by zero, metric not meaningful)\n  if (avg === 0) continue;\n\n  const deviation = ((todayValue - avg) / Math.abs(avg)) * 100;\n  const absDeviation = Math.abs(deviation);\n\n  if (absDeviation > 25) {\n    const severity = absDeviation > 50 ? 'critical' : 'warning';\n    const direction = deviation > 0 ? 'above' : 'below';\n    anomalies.push({\n      metric_name: name,\n      today_value: todayValue,\n      avg_value: Math.round(avg * 100) / 100,\n      deviation_pct: Math.round(deviation * 100) / 100,\n      direction,\n      severity,\n      data_points: history.length\n    });\n  }\n}\n\n// Sort: critical first, then by absolute deviation\nanomalies.sort((a, b) => {\n  if (a.severity !== b.severity) return a.severity === 'critical' ? -1 : 1;\n  return Math.abs(b.deviation_pct) - Math.abs(a.deviation_pct);\n});\n\nreturn [{ json: { anomalies, count: anomalies.length, status: anomalies.length > 0 ? 'anomalies_found' : 'all_normal' } }];"
+      },
+      "id": "detect-anomalies",
+      "name": "Detect Anomalies",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-anomalies",
+              "leftValue": "={{ $json.count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-anomalies",
+      "name": "Has Anomalies?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build HTML alert table for anomalies\nconst { anomalies } = $json;\nconst timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' });\n\nconst rows = anomalies.map(a => {\n  const color = a.severity === 'critical' ? '#dc2626' : '#ea580c';\n  const arrow = a.direction === 'above' ? '&#9650;' : '&#9660;';\n  const sign = a.deviation_pct > 0 ? '+' : '';\n  return `<tr>\n    <td style=\"padding: 8px 12px; border-bottom: 1px solid #e5e7eb;\">${a.metric_name.replace(/_/g, ' ')}</td>\n    <td style=\"padding: 8px 12px; border-bottom: 1px solid #e5e7eb; text-align: right;\">${a.today_value}</td>\n    <td style=\"padding: 8px 12px; border-bottom: 1px solid #e5e7eb; text-align: right;\">${a.avg_value}</td>\n    <td style=\"padding: 8px 12px; border-bottom: 1px solid #e5e7eb; text-align: right; color: ${color}; font-weight: 700;\">${arrow} ${sign}${a.deviation_pct}%</td>\n    <td style=\"padding: 8px 12px; border-bottom: 1px solid #e5e7eb; text-align: center;\"><span style=\"background: ${color}; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;\">${a.severity.toUpperCase()}</span></td>\n  </tr>`;\n}).join('');\n\nconst criticalCount = anomalies.filter(a => a.severity === 'critical').length;\nconst warningCount = anomalies.filter(a => a.severity === 'warning').length;\n\nconst html = `<h3 style=\"margin: 0 0 8px;\">KPI Anomaly Report</h3>\n<p style=\"color: #6b7280; margin: 0 0 16px;\">${criticalCount} critical, ${warningCount} warning anomalies detected vs 4-week rolling average</p>\n<table style=\"width: 100%; border-collapse: collapse; font-size: 14px;\">\n  <thead>\n    <tr style=\"background: #f3f4f6;\">\n      <th style=\"padding: 8px 12px; text-align: left;\">Metric</th>\n      <th style=\"padding: 8px 12px; text-align: right;\">Today</th>\n      <th style=\"padding: 8px 12px; text-align: right;\">4wk Avg</th>\n      <th style=\"padding: 8px 12px; text-align: right;\">Deviation</th>\n      <th style=\"padding: 8px 12px; text-align: center;\">Severity</th>\n    </tr>\n  </thead>\n  <tbody>${rows}</tbody>\n</table>`;\n\nconst maxSeverity = criticalCount > 0 ? 'critical' : 'warning';\nconst title = `${anomalies.length} KPI Anomal${anomalies.length === 1 ? 'y' : 'ies'} Detected`;\n\nreturn [{ json: {\n  alert_type: 'kpi_anomaly',\n  alert_title: title,\n  alert_body: html,\n  severity: maxSeverity,\n  source_workflow: 'TG-110',\n  metadata: { anomalies, timestamp }\n} }];"
+      },
+      "id": "build-alert",
+      "name": "Build Alert HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": "GHL1BUPFZL8Ic6Bc",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "alert_type": "={{ $json.alert_type }}",
+            "alert_title": "={{ $json.alert_title }}",
+            "alert_body": "={{ $json.alert_body }}",
+            "severity": "={{ $json.severity }}",
+            "source_workflow": "={{ $json.source_workflow }}",
+            "metadata": "={{ JSON.stringify($json.metadata) }}"
+          }
+        }
+      },
+      "id": "call-tg113",
+      "name": "Alert via TG-113",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1600, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// No anomalies — all KPIs within normal range\nreturn [{ json: {\n  status: 'all_normal',\n  message: 'All KPIs within 25% of 4-week rolling average',\n  timestamp: new Date().toISOString()\n} }];"
+      },
+      "id": "log-normal",
+      "name": "Log All Normal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 420]
+    }
+  ],
+  "connections": {
+    "Daily 9am CT": {
+      "main": [
+        [{ "node": "Calculate Date Range", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Date Range": {
+      "main": [
+        [
+          { "node": "Fetch Today Metrics", "type": "main", "index": 0 },
+          { "node": "Fetch 4-Week History", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Today Metrics": {
+      "main": [
+        [{ "node": "Wait For Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch 4-Week History": {
+      "main": [
+        [{ "node": "Wait For Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait For Data": {
+      "main": [
+        [{ "node": "Detect Anomalies", "type": "main", "index": 0 }]
+      ]
+    },
+    "Detect Anomalies": {
+      "main": [
+        [{ "node": "Has Anomalies?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Has Anomalies?": {
+      "main": [
+        [{ "node": "Build Alert HTML", "type": "main", "index": 0 }],
+        [{ "node": "Log All Normal", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Alert HTML": {
+      "main": [
+        [{ "node": "Alert via TG-113", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}
