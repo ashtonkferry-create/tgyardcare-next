@@ -1,4 +1,5 @@
 {
+  "id": "9m2sID72Fz1PF0HY",
   "name": "TG-83-quote-followup-sequence",
   "nodes": [
     {
@@ -34,11 +35,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -46,7 +43,11 @@
             },
             {
               "name": "Prefer",
-              "value": "return=representation"
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -87,11 +88,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         }
@@ -158,15 +159,19 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
               "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -248,13 +253,13 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.brevo.com/v3/smtp/email",
+        "url": "https://api.resend.com/emails",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "api-key",
-              "value": "BREVO_API_KEY"
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -264,7 +269,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $('Extract Quote Data').item.json.customer_email }}\", \"name\": \"{{ $('Extract Quote Data').item.json.customer_name || 'Valued Customer' }}\" }],\n  \"subject\": \"Following up on your TotalGuard estimate\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }},</p><p>Just checking in on the {{ $('Extract Quote Data').item.json.service || '' }} estimate we sent over. Any questions? We're happy to walk through it.</p><p>Reply to this email or call us at <strong>608-535-6057</strong> and we'll get you taken care of.</p><p>Best,<br>The TotalGuard Team</p><p style='color:#888;font-size:12px;'>TotalGuard Yard Care LLC | Madison, WI</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('Extract Quote Data').item.json.customer_email }}\"],\n  \"subject\": \"Following up on your TotalGuard estimate\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }},</p><p>Just checking in on the {{ $('Extract Quote Data').item.json.service || '' }} estimate we sent over. Any questions? We're happy to walk through it.</p><p>Reply to this email or call us at <strong>608-535-6057</strong> and we'll get you taken care of.</p><p>Best,<br>The TotalGuard Team</p><p style='color:#888;font-size:12px;'>TotalGuard Yard Care LLC | Madison, WI</p></div>\"\n}"
       },
       "id": "tg83-email-fallback-t1",
       "name": "Send Email Fallback T1",
@@ -285,11 +290,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -298,12 +299,16 @@
             {
               "name": "Prefer",
               "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"phone\": \"{{ $('Extract Quote Data').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-83-quote-followup-t1\",\n  \"message_body\": \"Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }}! Just checking in on the {{ $('Extract Quote Data').item.json.service || '' }} estimate we sent over. Any questions? We're happy to walk through it. Reply here or call 608-535-6057. - TotalGuard\",\n  \"status\": \"pending\"\n}"
+        "jsonBody": "={\n  \"to_phone\": \"{{ $('Extract Quote Data').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-83-quote-followup-t1\",\n  \"message_body\": \"Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }}! Just checking in on the {{ $('Extract Quote Data').item.json.service || '' }} estimate we sent over. Any questions? We're happy to walk through it. Reply here or call 608-535-6057. - TotalGuard\",\n  \"status\": \"pending\"\n}"
       },
       "id": "tg83-log-t1",
       "name": "Log Touch 1 SMS",
@@ -331,7 +336,7 @@
       ],
       "credentials": {
         "twilioApi": {
-          "id": "TG_TWILIO",
+          "id": "Qd6M2hA9hDWRKGPR",
           "name": "TG - Twilio"
         }
       },
@@ -346,11 +351,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -359,6 +360,10 @@
             {
               "name": "Prefer",
               "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -399,11 +404,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         }
@@ -464,13 +469,13 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.brevo.com/v3/smtp/email",
+        "url": "https://api.resend.com/emails",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "api-key",
-              "value": "BREVO_API_KEY"
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -480,7 +485,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $('Extract Quote Data').item.json.customer_email }}\", \"name\": \"{{ $('Extract Quote Data').item.json.customer_name || 'Valued Customer' }}\" }],\n  \"subject\": \"What our customers are saying about TotalGuard\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }},</p><p>We wanted to follow up on your {{ $('Extract Quote Data').item.json.service || '' }} estimate. Here's what some of our customers have to say:</p><div style='background:#f0fdf4;border-left:4px solid #16a34a;padding:16px;margin:16px 0;border-radius:4px;'><p style='font-style:italic;margin:0;'>&quot;TotalGuard transformed our yard. Professional, on time, and the results speak for themselves.&quot;</p><p style='margin:8px 0 0;font-weight:bold;'>- Satisfied Customer, Madison WI</p></div><p>We'd love to earn your business. Your estimate is still valid -- just reply to this email or call us at 608-535-6057 to get started.</p><p>Best regards,<br>The TotalGuard Team</p><p style='color:#888;font-size:12px;'>TotalGuard Yard Care LLC | Madison, WI</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('Extract Quote Data').item.json.customer_email }}\"],\n  \"subject\": \"What our customers are saying about TotalGuard\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }},</p><p>We wanted to follow up on your {{ $('Extract Quote Data').item.json.service || '' }} estimate. Here's what some of our customers have to say:</p><div style='background:#f0fdf4;border-left:4px solid #16a34a;padding:16px;margin:16px 0;border-radius:4px;'><p style='font-style:italic;margin:0;'>&quot;TotalGuard transformed our yard. Professional, on time, and the results speak for themselves.&quot;</p><p style='margin:8px 0 0;font-weight:bold;'>- Satisfied Customer, Madison WI</p></div><p>We'd love to earn your business. Your estimate is still valid -- just reply to this email or call us at 608-535-6057 to get started.</p><p>Best regards,<br>The TotalGuard Team</p><p style='color:#888;font-size:12px;'>TotalGuard Yard Care LLC | Madison, WI</p></div>\"\n}"
       },
       "id": "tg83-email-t2",
       "name": "Send Touch 2 Email",
@@ -501,11 +506,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -514,6 +515,10 @@
             {
               "name": "Prefer",
               "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -554,11 +559,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         }
@@ -625,15 +630,19 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
               "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -715,13 +724,13 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.brevo.com/v3/smtp/email",
+        "url": "https://api.resend.com/emails",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "api-key",
-              "value": "BREVO_API_KEY"
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -731,7 +740,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $('Extract Quote Data').item.json.customer_email }}\", \"name\": \"{{ $('Extract Quote Data').item.json.customer_name || 'Valued Customer' }}\" }],\n  \"subject\": \"Last chance — your TotalGuard estimate is expiring\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }},</p><p>This is our last follow-up on your {{ $('Extract Quote Data').item.json.service || '' }} estimate. We'd love to help with your project -- this estimate is expiring soon.</p><p>To confirm or ask questions, simply reply to this email or call us at <strong>608-535-6057</strong>.</p><p>We hope to hear from you!</p><p>The TotalGuard Team</p><p style='color:#888;font-size:12px;'>TotalGuard Yard Care LLC | Madison, WI</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('Extract Quote Data').item.json.customer_email }}\"],\n  \"subject\": \"Last chance — your TotalGuard estimate is expiring\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }},</p><p>This is our last follow-up on your {{ $('Extract Quote Data').item.json.service || '' }} estimate. We'd love to help with your project -- this estimate is expiring soon.</p><p>To confirm or ask questions, simply reply to this email or call us at <strong>608-535-6057</strong>.</p><p>We hope to hear from you!</p><p>The TotalGuard Team</p><p style='color:#888;font-size:12px;'>TotalGuard Yard Care LLC | Madison, WI</p></div>\"\n}"
       },
       "id": "tg83-email-fallback-t3",
       "name": "Send Email Fallback T3",
@@ -752,11 +761,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -765,12 +770,16 @@
             {
               "name": "Prefer",
               "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"phone\": \"{{ $('Extract Quote Data').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-83-quote-followup-t3\",\n  \"message_body\": \"Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }}, last follow-up on your TotalGuard estimate. We'd love to help with your {{ $('Extract Quote Data').item.json.service || 'project' }}. This estimate expires soon -- reply YES to confirm or call 608-535-6057. - TotalGuard\",\n  \"status\": \"pending\"\n}"
+        "jsonBody": "={\n  \"to_phone\": \"{{ $('Extract Quote Data').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-83-quote-followup-t3\",\n  \"message_body\": \"Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }}, last follow-up on your TotalGuard estimate. We'd love to help with your {{ $('Extract Quote Data').item.json.service || 'project' }}. This estimate expires soon -- reply YES to confirm or call 608-535-6057. - TotalGuard\",\n  \"status\": \"pending\"\n}"
       },
       "id": "tg83-log-t3",
       "name": "Log Touch 3 SMS",
@@ -798,7 +807,7 @@
       ],
       "credentials": {
         "twilioApi": {
-          "id": "TG_TWILIO",
+          "id": "Qd6M2hA9hDWRKGPR",
           "name": "TG - Twilio"
         }
       },
@@ -813,11 +822,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -826,6 +831,10 @@
             {
               "name": "Prefer",
               "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -1267,19 +1276,8 @@
   "settings": {
     "executionOrder": "v1",
     "callerPolicy": "workflowsFromSameOwner",
-    "availableInMCP": false
-  },
-  "active": false,
-  "versionId": "385309be-4117-433b-8bf3-e9baf1a09b0e",
-  "id": "9m2sID72Fz1PF0HY",
-  "description": null,
-  "staticData": null,
-  "meta": null,
-  "pinData": null,
-  "activeVersionId": null,
-  "updatedAt": "2026-03-15T05:12:06.823Z",
-  "createdAt": "2026-03-15T05:12:06.823Z",
-  "isArchived": false,
-  "versionCounter": 1,
-  "triggerCount": 0
+    "availableInMCP": false,
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  }
 }

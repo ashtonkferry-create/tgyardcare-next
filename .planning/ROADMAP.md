@@ -32,24 +32,32 @@
 ## Phase 1: Revenue Engine
 **Goal**: Build 9 n8n workflows (TG-83 through TG-91) that automate revenue-generating customer communication: quote follow-ups, invoice collections, missed call capture, plan enrollment/renewal, on-my-way SMS, invoice delivery, fertilizer schedule reminders, and abandoned quote recovery.
 **Impact**: Recover 10-20% lost leads, increase quote-to-close 15-25%, enable recurring revenue
-**Status**: Complete (2026-03-15)
+**Status**: Complete
 **Plans:** 9 plans
 
 Plans:
 - [x] 01-01-PLAN.md -- Database migrations + fertilizer schedule seeding
 - [x] 01-02-PLAN.md -- TG-05 extension (new routes, $vars fix, poll frequency reduction)
 - [x] 01-03-PLAN.md -- TG-88 On My Way SMS + TG-89 Invoice Delivery
-- [x] 01-04-PLAN.md -- TG-85 Missed Call AI Capture
+- [x] 01-04-PLAN.md -- TG-85 Missed Call AI Capture (tested, SMS confirmed)
 - [x] 01-05-PLAN.md -- TG-83 Quote Follow-up Sequence
 - [x] 01-06-PLAN.md -- TG-84 Invoice Collections + TG-91 Abandoned Quote
-- [x] 01-07-PLAN.md -- TG-86 Plan Enrollment + TG-87 Renewal Reminder
+- [x] 01-07-PLAN.md -- TG-86 Plan Enrollment + TG-87 Renewal Reminder (+ SMS added)
 - [x] 01-08-PLAN.md -- TG-90 Fertilizer Schedule Engine
-- [x] 01-09-PLAN.md -- Brevo Email Marketing System (HTML templates, campaign strategy, Twilio->Brevo SMS migration)
+- [x] 01-09-PLAN.md -- Email system migrated Brevo->Resend across all workflows
 
 ## Phase 2: CRM Unification
-**Goal**: Build 10 workflows that unify all CRM communication — webhook router, integrated SMS/email, auto-dispatch, territory assignment, bonus calculator, payment installments.
+**Goal**: Build webhook router (TG-92), auto-dispatch notifications (TG-93), unified SMS sender (TG-94), unified email sender (TG-95), and convert TG-76 to sub-workflow -- single public webhook, owner dispatch with confirmation, all events logged, all communication gated through consent and rate limiting.
 **Impact**: Eliminate manual CRM work, unified customer communication layer
-**Status**: Pending Phase 1
+**Status**: Planning complete
+**Plans:** 5 plans
+
+Plans:
+- [ ] 02-01-PLAN.md -- DB tables (webhook_events, dispatch_log) + TG-76 sub-workflow conversion
+- [ ] 02-02-PLAN.md -- TG-92 Webhook Router (deployed inactive)
+- [ ] 02-03-PLAN.md -- TG-93 Auto-Dispatch + TG-05 extension
+- [ ] 02-04-PLAN.md -- TG-94 Unified SMS Sender + TG-95 Unified Email Sender + TG-76 customer reply routing
+- [ ] 02-05-PLAN.md -- Activate TG-92/TG-93, point Twilio, end-to-end verification
 
 ## Phase 3: SEO Domination
 **Goal**: Build 14 workflows/crons that close remaining SEO gaps — GSC daily sync, city/neighborhood content generator, content gap detector, ranking opportunity detector, index coverage monitor, rank drop alerts.

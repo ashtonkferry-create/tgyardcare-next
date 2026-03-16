@@ -1,4 +1,5 @@
 {
+  "id": "nzLYQlLtJ0j5elJf",
   "name": "TG-90-fertilizer-schedule-engine",
   "nodes": [
     {
@@ -30,7 +31,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         }
@@ -97,11 +102,19 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
               "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -158,7 +171,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -167,12 +180,16 @@
             {
               "name": "Prefer",
               "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"phone\": \"{{ $('Split Results').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-90-fertilizer-reminder\",\n  \"message_body\": \"Hi {{ $('Split Results').item.json.customer_name }}! Your {{ $('Split Results').item.json.step_name }} treatment is scheduled for {{ $('Split Results').item.json.scheduled_date }}. We'll take care of everything! Questions? Call 608-535-6057. - TotalGuard\",\n  \"status\": \"pending\"\n}"
+        "jsonBody": "={\n  \"to_phone\": \"{{ $('Split Results').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-90-fertilizer-reminder\",\n  \"message_body\": \"Hi {{ $('Split Results').item.json.customer_name }}! Your {{ $('Split Results').item.json.step_name }} treatment is scheduled for {{ $('Split Results').item.json.scheduled_date }}. We'll take care of everything! Questions? Call 608-535-6057. - TotalGuard\",\n  \"status\": \"pending\"\n}"
       },
       "id": "tg90-log",
       "name": "Log SMS Send",
@@ -209,23 +226,23 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.brevo.com/v3/smtp/email",
+        "url": "https://api.resend.com/emails",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "api-key",
-              "value": "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"
-            },
-            {
               "name": "Content-Type",
               "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"workelyhelp@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $('Split Results').item.json.customer_email }}\", \"name\": \"{{ $('Split Results').item.json.customer_name }}\" }],\n  \"subject\": \"Your {{ $('Split Results').item.json.step_name }} is coming up!\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Split Results').item.json.customer_name }},</p><p>This is a reminder that your <strong>{{ $('Split Results').item.json.step_name }}</strong> (Step {{ $('Split Results').item.json.step_number }} of 5) is scheduled for <strong>{{ $('Split Results').item.json.scheduled_date }}</strong>.</p><p>Our crew will take care of everything -- no action needed on your part. We'll send you an 'on my way' text when we're headed over.</p><p>Questions about your fertilizer program? Call 608-535-6057 or reply to this email.</p><p>The TotalGuard Team</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('Split Results').item.json.customer_email }}\"],\n  \"subject\": \"Your {{ $('Split Results').item.json.step_name }} is coming up!\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Split Results').item.json.customer_name }},</p><p>This is a reminder that your <strong>{{ $('Split Results').item.json.step_name }}</strong> (Step {{ $('Split Results').item.json.step_number }} of 5) is scheduled for <strong>{{ $('Split Results').item.json.scheduled_date }}</strong>.</p><p>Our crew will take care of everything -- no action needed on your part. We'll send you an 'on my way' text when we're headed over.</p><p>Questions about your fertilizer program? Call 608-535-6057 or reply to this email.</p><p>The TotalGuard Team</p></div>\"\n}"
       },
       "id": "tg90-email",
       "name": "Send Reminder Email",
@@ -246,7 +263,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -255,6 +272,10 @@
             {
               "name": "Prefer",
               "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -383,7 +404,10 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
-  },
-  "active": false
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  }
 }

@@ -1,4 +1,5 @@
 {
+  "id": "0qSgxknCY9LTcKBU",
   "name": "TG-91-abandoned-quote-sms",
   "nodes": [
     {
@@ -24,13 +25,17 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/estimates?followup_status=is.null&created_at=lt.{{ $now.minus(48, 'hours').toISO() }}&created_at=gt.{{ $now.minus(14, 'days').toISO() }}&select=id,customer_name,customer_phone,customer_email,total",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/estimates?or=(followup_status.is.null,followup_status.eq.none)&created_at=lt.{{ $now.minus(48, 'hours').toISO() }}&created_at=gt.{{ $now.minus(14, 'days').toISO() }}&select=id,customer_name,customer_phone,customer_email,total&limit=100",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         }
@@ -97,11 +102,19 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
               "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
             }
           ]
         },
@@ -158,7 +171,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -172,7 +189,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"phone\": \"{{ $('Split Results').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-91-abandoned-quote\",\n  \"message_body\": \"Hi {{ $('Split Results').item.json.customer_name || 'there' }}! We noticed you haven't had a chance to review your TotalGuard {{ $('Split Results').item.json.service || '' }} estimate. Still interested? Reply YES or call 608-535-6057. - TotalGuard\",\n  \"status\": \"pending\"\n}"
+        "jsonBody": "={\"to_phone\": \"{{ $('Split Results').item.json.customer_phone }}\", \"workflow_name\": \"TG-91-abandoned-quote\", \"message_body\": \"Hi {{ $('Split Results').item.json.customer_name }}! We noticed you haven't reviewed your TotalGuard estimate. Still interested? Reply YES or call 608-535-6057.\", \"message_type\": \"outbound\", \"status\": \"sent\"}"
       },
       "id": "tg91-log",
       "name": "Log SMS Send",
@@ -240,13 +257,13 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.brevo.com/v3/smtp/email",
+        "url": "https://api.resend.com/emails",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "api-key",
-              "value": "BREVO_API_KEY_REDACTED"
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -256,7 +273,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $('Split Results').item.json.customer_email }}\", \"name\": \"{{ $('Split Results').item.json.customer_name || 'Valued Customer' }}\" }],\n  \"subject\": \"Your TotalGuard quote is ready\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Split Results').item.json.customer_name || 'there' }},</p><p>We noticed you haven't had a chance to review your TotalGuard {{ $('Split Results').item.json.service || '' }} estimate. We'd love to earn your business!</p><p>Simply reply to this email or call us at <strong>608-535-6057</strong> and we'll get you scheduled right away.</p><p>Best,<br>The TotalGuard Team</p><p style='color:#888;font-size:12px;'>TotalGuard Yard Care LLC | Madison, WI</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('Split Results').item.json.customer_email }}\"],\n  \"subject\": \"Still interested in your TotalGuard estimate?\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto'><h2 style='color:#16a34a'>TotalGuard Yard Care</h2><p>Hi {{ $('Split Results').item.json.customer_name }},</p><p>We noticed you have not had a chance to review your TotalGuard estimate for ${{ $('Split Results').item.json.total }}. We would love to take care of your yard!</p><p>Still interested? Reply to this email or call <strong>608-535-6057</strong>.</p><p>The TotalGuard Team</p></div>\"\n}"
       },
       "id": "tg91-email-fallback",
       "name": "Send Email Nudge",
@@ -277,7 +294,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -291,7 +312,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\"followup_status\": \"abandoned_nudge_sent\"}"
+        "jsonBody": "={\"followup_status\": \"day1_sent\", \"followup_email_day1_sent_at\": \"{{ $now.toISO() }}\"}"
       },
       "id": "tg91-update",
       "name": "Mark Nudge Sent",
@@ -358,6 +379,11 @@
             "node": "Check SMS Consent",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Has Email?",
+            "type": "main",
+            "index": 0
           }
         ],
         []
@@ -383,42 +409,7 @@
             "index": 0
           }
         ],
-        [
-          {
-            "node": "Has Email?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Has Email?": {
-      "main": [
-        [
-          {
-            "node": "Send Email Nudge",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "No Consent No Email - Skip",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Send Email Nudge": {
-      "main": [
-        [
-          {
-            "node": "Mark Nudge Sent",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Log SMS Send": {
@@ -442,10 +433,41 @@
           }
         ]
       ]
+    },
+    "Has Email?": {
+      "main": [
+        [
+          {
+            "node": "Send Email Nudge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Send Email Nudge": {
+      "main": [
+        [
+          {
+            "node": "Mark Nudge Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Nudge Sent": {
+      "main": [
+        []
+      ]
     }
   },
   "settings": {
-    "executionOrder": "v1"
-  },
-  "id": "0qSgxknCY9LTcKBU"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true
+  }
 }

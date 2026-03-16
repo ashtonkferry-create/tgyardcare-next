@@ -1,4 +1,5 @@
 {
+  "id": "68jK9m7qXO5vQBef",
   "name": "TG-87-plan-renewal-reminder",
   "nodes": [
     {
@@ -24,13 +25,17 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/customer_subscriptions?status=eq.active&end_date=gte.{{ $now.toISODate() }}&end_date=lte.{{ $now.plus(31, 'days').toISODate() }}&select=id,lead_id,plan_id,end_date,renewal_reminder_30d_sent,renewal_reminder_14d_sent,renewal_reminder_3d_sent,leads(first_name,last_name,phone,email)",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/customer_subscriptions?status=eq.active&end_date=gte.{{ $now.toISODate() }}&end_date=lte.{{ $now.plus(31, 'days').toISODate() }}&select=id,lead_id,plan_id,end_date,renewal_reminder_30d_sent,renewal_reminder_14d_sent,renewal_reminder_3d_sent,leads(first_name,last_name,phone,email)&limit=100",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         }
@@ -46,7 +51,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const allItems = .all();\nif (!allItems || allItems.length === 0) {\n  return [{ json: { has_results: false } }];\n}\nconst now = new Date();\nconst output = [];\nfor (const item of allItems) {\n  const sub = item.json;\n  const endDate = new Date(sub.end_date);\n  const daysUntil = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));\n  const lead = sub.leads || {};\n  const name = ((lead.first_name || '') + ' ' + (lead.last_name || '')).trim();\n  const phone = lead.phone || '';\n  const email = lead.email || '';\n  let reminder_type = null;\n  if (daysUntil <= 3 && !sub.renewal_reminder_3d_sent) reminder_type = '3d';\n  else if (daysUntil <= 14 && !sub.renewal_reminder_14d_sent) reminder_type = '14d';\n  else if (daysUntil <= 30 && !sub.renewal_reminder_30d_sent) reminder_type = '30d';\n  if (reminder_type) {\n    output.push({ json: { has_results: true, sub_id: sub.id, customer_name: name, customer_phone: phone, customer_email: email, end_date: sub.end_date, days_until: daysUntil, reminder_type } });\n  }\n}\nif (output.length === 0) return [{ json: { has_results: false } }];\nreturn output;"
+        "jsCode": "const allItems = $input.all();\nif (!allItems || allItems.length === 0) {\n  return [{ json: { has_results: false } }];\n}\nconst now = new Date();\nconst output = [];\nfor (const item of allItems) {\n  const sub = item.json;\n  const endDate = new Date(sub.end_date);\n  const daysUntil = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));\n  const lead = sub.leads || {};\n  const name = ((lead.first_name || '') + ' ' + (lead.last_name || '')).trim();\n  const phone = lead.phone || '';\n  const email = lead.email || '';\n  let reminder_type = null;\n  if (daysUntil <= 3 && !sub.renewal_reminder_3d_sent) reminder_type = '3d';\n  else if (daysUntil <= 14 && !sub.renewal_reminder_14d_sent) reminder_type = '14d';\n  else if (daysUntil <= 30 && !sub.renewal_reminder_30d_sent) reminder_type = '30d';\n  if (reminder_type) {\n    output.push({ json: { has_results: true, sub_id: sub.id, customer_name: name, customer_phone: phone, customer_email: email, end_date: sub.end_date, days_until: daysUntil, reminder_type } });\n  }\n}\nif (output.length === 0) return [{ json: { has_results: false } }];\nreturn output;"
       },
       "id": "tg87-process",
       "name": "Determine Reminders",
@@ -91,13 +96,13 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.brevo.com/v3/smtp/email",
+        "url": "https://api.resend.com/emails",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "api-key",
-              "value": "BREVO_API_KEY_REDACTED"
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -107,7 +112,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"workelyhelp@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $json.customer_email }}\", \"name\": \"{{ $json.customer_name }}\" }],\n  \"subject\": \"{{ $json.reminder_type === '3d' ? 'Your TotalGuard plan expires in 3 days!' : $json.reminder_type === '14d' ? 'Your TotalGuard plan renews in 2 weeks' : 'Your TotalGuard plan is coming up for renewal' }}\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $json.customer_name || 'there' }},</p><p>{{ $json.reminder_type === '3d' ? 'Your TotalGuard plan expires in just 3 days! Do not let your yard care lapse.' : $json.reminder_type === '14d' ? 'Your TotalGuard plan is coming up for renewal in 2 weeks.' : 'Just a heads up -- your TotalGuard plan renews in about 30 days.' }}</p><p>To renew or discuss your plan options, reply to this email or call us at 608-535-6057.</p><p>We would love to keep taking care of your yard!</p><p>The TotalGuard Team</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $json.customer_email }}\"],\n  \"subject\": \"{{ $json.reminder_type === '3d' ? 'Your TotalGuard plan expires in 3 days!' : $json.reminder_type === '14d' ? 'Your TotalGuard plan renews in 2 weeks' : 'Your TotalGuard plan is coming up for renewal' }}\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $json.customer_name || 'there' }},</p><p>{{ $json.reminder_type === '3d' ? 'Your TotalGuard plan expires in just 3 days! Do not let your yard care lapse.' : $json.reminder_type === '14d' ? 'Your TotalGuard plan is coming up for renewal in 2 weeks.' : 'Just a heads up -- your TotalGuard plan renews in about 30 days.' }}</p><p>To renew or discuss your plan options, reply to this email or call us at 608-535-6057.</p><p>We would love to keep taking care of your yard!</p><p>The TotalGuard Team</p></div>\"\n}"
       },
       "id": "tg87-send-email",
       "name": "Send Renewal Email",
@@ -122,13 +127,17 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/customer_subscriptions?id=eq.{{ $json.sub_id }}",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/customer_subscriptions?id=eq.{{ $('Determine Reminders').item.json.sub_id }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -142,7 +151,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ $json.reminder_type === '3d' ? '{\"renewal_reminder_3d_sent\": \"' + $now.toISO() + '\"}' : $json.reminder_type === '14d' ? '{\"renewal_reminder_14d_sent\": \"' + $now.toISO() + '\"}' : '{\"renewal_reminder_30d_sent\": \"' + $now.toISO() + '\"}' }}"
+        "jsonBody": "={{ $('Determine Reminders').item.json.reminder_type === '3d' ? JSON.stringify({renewal_reminder_3d_sent: $now.toISO()}) : $('Determine Reminders').item.json.reminder_type === '14d' ? JSON.stringify({renewal_reminder_14d_sent: $now.toISO()}) : JSON.stringify({renewal_reminder_30d_sent: $now.toISO()}) }}"
       },
       "id": "tg87-mark-sent",
       "name": "Mark Reminder Sent",
@@ -153,6 +162,28 @@
         -100
       ],
       "continueOnFail": true
+    },
+    {
+      "id": "send-renewal-sms-tg87",
+      "name": "Send Renewal SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        880,
+        100
+      ],
+      "parameters": {
+        "operation": "send",
+        "from": "+16085953554",
+        "to": "={{ $(\"Determine Reminders\").item.json.customer_phone }}",
+        "message": "={{ $(\"Determine Reminders\").item.json.reminder_type === \"3d\" ? \"Hi \" + $(\"Determine Reminders\").item.json.customer_name + \"! Your TotalGuard lawn care plan expires in 3 days. Reply RENEW or call 608-535-6057 to keep your yard covered. - TotalGuard\" : $(\"Determine Reminders\").item.json.reminder_type === \"14d\" ? \"Hi \" + $(\"Determine Reminders\").item.json.customer_name + \"! Your TotalGuard plan expires in 14 days. Reply RENEW or call 608-535-6057 to renew. - TotalGuard\" : \"Hi \" + $(\"Determine Reminders\").item.json.customer_name + \"! Your TotalGuard plan expires in 30 days. Reply RENEW or call 608-535-6057 to renew early. - TotalGuard\" }}"
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "Qd6M2hA9hDWRKGPR",
+          "name": "TG - Twilio"
+        }
+      }
     }
   ],
   "connections": {
@@ -196,6 +227,11 @@
             "node": "Send Renewal Email",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Send Renewal SMS",
+            "type": "main",
+            "index": 0
           }
         ],
         []
@@ -211,9 +247,24 @@
           }
         ]
       ]
+    },
+    "Send Renewal SMS": {
+      "main": [
+        [
+          {
+            "node": "Mark Reminder Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
   }
 }

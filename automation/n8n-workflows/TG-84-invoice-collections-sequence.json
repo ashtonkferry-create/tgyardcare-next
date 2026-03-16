@@ -1,4 +1,5 @@
 {
+  "id": "63t7K6gAdW1aPupP",
   "name": "TG-84-invoice-collections-sequence",
   "nodes": [
     {
@@ -34,7 +35,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -42,7 +43,11 @@
             },
             {
               "name": "Prefer",
-              "value": "return=representation"
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -83,7 +88,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         }
@@ -150,11 +159,19 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
               "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -236,13 +253,13 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.brevo.com/v3/smtp/email",
+        "url": "https://api.resend.com/emails",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "api-key",
-              "value": "BREVO_API_KEY"
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -252,7 +269,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $('Extract Invoice Data').item.json.customer_email }}\", \"name\": \"{{ $('Extract Invoice Data').item.json.customer_name || 'Valued Customer' }}\" }],\n  \"subject\": \"Your TotalGuard invoice is past due\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }},</p><p>Just a friendly reminder that your TotalGuard invoice{{ $('Extract Invoice Data').item.json.amount ? ' for <strong>$' + $('Extract Invoice Data').item.json.amount + '</strong>' : '' }} for {{ $('Extract Invoice Data').item.json.service || 'your recent service' }} is past due.</p><p>You can pay quickly through the Jobber client hub link in your original invoice email, or contact us to discuss payment options.</p><ul><li>Phone: 608-535-6057</li><li>Email: totalguardllc@gmail.com</li></ul><p>We appreciate your business!<br>The TotalGuard Team</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('Extract Invoice Data').item.json.customer_email }}\"],\n  \"subject\": \"Your TotalGuard invoice is past due\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }},</p><p>Just a friendly reminder that your TotalGuard invoice{{ $('Extract Invoice Data').item.json.amount ? ' for <strong>$' + $('Extract Invoice Data').item.json.amount + '</strong>' : '' }} for {{ $('Extract Invoice Data').item.json.service || 'your recent service' }} is past due.</p><p>You can pay quickly through the Jobber client hub link in your original invoice email, or contact us to discuss payment options.</p><ul><li>Phone: 608-535-6057</li><li>Email: totalguardllc@gmail.com</li></ul><p>We appreciate your business!<br>The TotalGuard Team</p></div>\"\n}"
       },
       "id": "tg84-email-fallback-t1",
       "name": "Send Email Fallback T1",
@@ -273,7 +290,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -282,12 +299,16 @@
             {
               "name": "Prefer",
               "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"phone\": \"{{ $('Extract Invoice Data').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-84-invoice-collections-t1\",\n  \"message_body\": \"Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }}! Just a friendly reminder that your TotalGuard invoice{{ $('Extract Invoice Data').item.json.amount ? ' for $' + $('Extract Invoice Data').item.json.amount : '' }} is due. Pay easily through the Jobber link in your email. Questions? Call 608-535-6057. - TotalGuard\",\n  \"status\": \"pending\"\n}"
+        "jsonBody": "={\n  \"to_phone\": \"{{ $('Extract Invoice Data').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-84-invoice-collections-t1\",\n  \"message_body\": \"Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }}! Just a friendly reminder that your TotalGuard invoice{{ $('Extract Invoice Data').item.json.amount ? ' for $' + $('Extract Invoice Data').item.json.amount : '' }} is due. Pay easily through the Jobber link in your email. Questions? Call 608-535-6057. - TotalGuard\",\n  \"status\": \"pending\"\n}"
       },
       "id": "tg84-log-t1",
       "name": "Log Touch 1 SMS",
@@ -330,7 +351,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -339,6 +360,10 @@
             {
               "name": "Prefer",
               "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -379,7 +404,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         }
@@ -440,13 +469,13 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.brevo.com/v3/smtp/email",
+        "url": "https://api.resend.com/emails",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "api-key",
-              "value": "BREVO_API_KEY"
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -456,7 +485,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $('Extract Invoice Data').item.json.customer_email }}\", \"name\": \"{{ $('Extract Invoice Data').item.json.customer_name || 'Valued Customer' }}\" }],\n  \"subject\": \"Friendly reminder: Your TotalGuard invoice is due\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }},</p><p>We wanted to send a friendly reminder that your invoice{{ $('Extract Invoice Data').item.json.amount ? ' for <strong>$' + $('Extract Invoice Data').item.json.amount + '</strong>' : '' }} for {{ $('Extract Invoice Data').item.json.service || 'your recent service' }} is still outstanding.</p><p>You can pay quickly through the Jobber client hub link in your original invoice email, or contact us to discuss payment options.</p><p>We appreciate your business!</p><ul><li>Phone: 608-535-6057</li><li>Email: totalguardllc@gmail.com</li></ul><p>Thank you,<br>The TotalGuard Team</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('Extract Invoice Data').item.json.customer_email }}\"],\n  \"subject\": \"Friendly reminder: Your TotalGuard invoice is due\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }},</p><p>We wanted to send a friendly reminder that your invoice{{ $('Extract Invoice Data').item.json.amount ? ' for <strong>$' + $('Extract Invoice Data').item.json.amount + '</strong>' : '' }} for {{ $('Extract Invoice Data').item.json.service || 'your recent service' }} is still outstanding.</p><p>You can pay quickly through the Jobber client hub link in your original invoice email, or contact us to discuss payment options.</p><p>We appreciate your business!</p><ul><li>Phone: 608-535-6057</li><li>Email: totalguardllc@gmail.com</li></ul><p>Thank you,<br>The TotalGuard Team</p></div>\"\n}"
       },
       "id": "tg84-email-t2",
       "name": "Send Touch 2 Email",
@@ -477,7 +506,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -486,6 +515,10 @@
             {
               "name": "Prefer",
               "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -526,7 +559,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         }
@@ -593,11 +630,19 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
               "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -679,13 +724,13 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.brevo.com/v3/smtp/email",
+        "url": "https://api.resend.com/emails",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "api-key",
-              "value": "BREVO_API_KEY"
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -695,7 +740,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $('Extract Invoice Data').item.json.customer_email }}\", \"name\": \"{{ $('Extract Invoice Data').item.json.customer_name || 'Valued Customer' }}\" }],\n  \"subject\": \"Your TotalGuard invoice is past due\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }},</p><p>Your TotalGuard invoice{{ $('Extract Invoice Data').item.json.amount ? ' for <strong>$' + $('Extract Invoice Data').item.json.amount + '</strong>' : '' }} is now overdue. Please contact us as soon as possible to arrange payment and avoid further action.</p><ul><li>Phone: 608-535-6057</li><li>Email: totalguardllc@gmail.com</li></ul><p>The TotalGuard Team</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('Extract Invoice Data').item.json.customer_email }}\"],\n  \"subject\": \"Your TotalGuard invoice is past due\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }},</p><p>Your TotalGuard invoice{{ $('Extract Invoice Data').item.json.amount ? ' for <strong>$' + $('Extract Invoice Data').item.json.amount + '</strong>' : '' }} is now overdue. Please contact us as soon as possible to arrange payment and avoid further action.</p><ul><li>Phone: 608-535-6057</li><li>Email: totalguardllc@gmail.com</li></ul><p>The TotalGuard Team</p></div>\"\n}"
       },
       "id": "tg84-email-fallback-t3",
       "name": "Send Email Fallback T3",
@@ -716,7 +761,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -725,12 +770,16 @@
             {
               "name": "Prefer",
               "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"phone\": \"{{ $('Extract Invoice Data').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-84-invoice-collections-t3\",\n  \"message_body\": \"Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }}, your TotalGuard invoice{{ $('Extract Invoice Data').item.json.amount ? ' for $' + $('Extract Invoice Data').item.json.amount : '' }} is now overdue. Please contact us at 608-535-6057 to arrange payment. - TotalGuard\",\n  \"status\": \"pending\"\n}"
+        "jsonBody": "={\n  \"to_phone\": \"{{ $('Extract Invoice Data').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-84-invoice-collections-t3\",\n  \"message_body\": \"Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }}, your TotalGuard invoice{{ $('Extract Invoice Data').item.json.amount ? ' for $' + $('Extract Invoice Data').item.json.amount : '' }} is now overdue. Please contact us at 608-535-6057 to arrange payment. - TotalGuard\",\n  \"status\": \"pending\"\n}"
       },
       "id": "tg84-log-t3",
       "name": "Log Touch 3 SMS",
@@ -773,7 +822,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -782,6 +831,10 @@
             {
               "name": "Prefer",
               "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -1221,8 +1274,10 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
-  },
-  "active": false,
-  "id": "63t7K6gAdW1aPupP"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  }
 }
