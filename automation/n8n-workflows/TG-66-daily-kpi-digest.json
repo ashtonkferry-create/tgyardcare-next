@@ -1,5 +1,13 @@
 {
-  "name": "TG-66-daily-kpi-digest",
+  "_retirement": {
+    "status": "RETIRED",
+    "date": "2026-03-16",
+    "reason": "Superseded by Phase 4 Intelligence Layer workflows",
+    "replacedBy": ["TG-108-kpi-daily-snapshot", "TG-110-anomaly-detector", "TG-125-intelligence-dashboard-updater"],
+    "n8nId": "XyvUD8qA2E9YkTzR",
+    "n8nStatus": "deactivated"
+  },
+  "name": "TG-66-daily-kpi-digest [RETIRED]",
   "nodes": [
     {
       "parameters": {

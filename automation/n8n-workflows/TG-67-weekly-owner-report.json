@@ -1,5 +1,13 @@
 {
-  "name": "TG-67-weekly-owner-report",
+  "_retirement": {
+    "status": "RETIRED",
+    "date": "2026-03-16",
+    "reason": "Superseded by Phase 4 Intelligence Layer workflows",
+    "replacedBy": ["TG-117-weekly-what-got-smarter"],
+    "n8nId": "cANzgpQQBTfEiGek",
+    "n8nStatus": "deactivated"
+  },
+  "name": "TG-67-weekly-owner-report [RETIRED]",
   "nodes": [
     {
       "parameters": {
