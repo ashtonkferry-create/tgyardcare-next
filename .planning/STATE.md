@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 Phase: 5 of 9 (Safety Nets & Foundation)
 Plan: 0 of TBD in current phase
 Status: Ready to plan
-Last activity: 2026-03-16 — Completed full spreadsheet stack (quick tasks 003-007)
+Last activity: 2026-03-16 — Completed quick-008 (marketing favicon, OG image, logo fix)
 
 Progress: [=========.........] 9/? plans (M2 Phase 1 complete, M3 not started)
 
@@ -69,9 +69,10 @@ None yet.
 | 005 | Accounts Receivable (.xlsx) — 2-tab AR tracker with aging summary, days outstanding, follow-up dates | 2026-03-16 | — |
 | 006 | Equipment & Asset Inventory (.xlsx) — 2-tab asset tracker with depreciation, maintenance log, 4 items pre-populated | 2026-03-16 | — |
 | 007 | Customer Database (.xlsx) — 2-tab CRM lite with customer summary, by-city/by-source breakdowns | 2026-03-16 | — |
+| 008 | Marketing favicon, OG image, logo fix — dynamic favicon set, premium 1200x630 OG image, navbar/footer logo sizing | 2026-03-16 | [008-marketing-favicon-og-logo-fix](./quick/008-marketing-favicon-og-logo-fix/) |
 
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed full spreadsheet stack (7 total — job log, expenses, revenue, P&L, AR, equipment, customers)
+Stopped at: Completed quick-008 (marketing favicon, OG image, logo sizing fix for workely.ai)
 Resume file: None
