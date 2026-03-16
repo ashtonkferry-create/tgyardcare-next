@@ -5,16 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Transform tgyardcare.com into a billion-dollar brand experience that converts at 3-5x current rates while protecting existing SEO rankings and lead flow.
-**Current focus:** M2 COMPLETE — Ready for M3 Phase 5
+**Current focus:** M3 Phase 5 (Safety Nets & Foundation) — In Progress
 
 ## Current Position
 
-Phase: M2 complete, M3 Phase 5 next
-Plan: 34 of 34 complete (M2)
-Status: Milestone 2 complete — audited and gap-closed
-Last activity: 2026-03-16 — Completed quick-008 (marketing favicon, OG image, logo fix)
+Phase: 5 of 9 (Safety Nets & Foundation)
+Plan: 2 of 7 complete (Phase 5) — 05-01, 05-03 done
+Status: In progress
+Last activity: 2026-03-16 — Completed 05-03-PLAN.md (TypeScript error budget baseline)
 
-Progress: [█████████████████████████████████] 34/34 plans (M2)
+Progress M3: [██░░░░░] 2/7 plans (Phase 5)
+Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
 - Phase 0 (Fix Existing): Ready to execute
@@ -35,8 +36,9 @@ COMPLETED Milestone 2: Automation Gap Closer
 - Phase 4 (Intelligence Layer): COMPLETE (12/12 plans, all 5 waves)
 - Phase 4.1 (M2 Integration Fixes): COMPLETE (1/1 plan) — fixed W1/W2/S1/S2/S3/S4/D2
 
-Next: Milestone 3 (Billionaire Brand Transformation)
-- Phase 5 (Safety Nets & Foundation): NOT STARTED — ready to plan
+Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
+- Phase 5 (Safety Nets & Foundation): IN PROGRESS (1/7 plans)
+  - 05-01: DONE — Promise.allSettled + maybeSingle in SeasonalThemeContext [wave 1]
 - Phase 6-9: Not started
 
 ## Performance Metrics
@@ -176,6 +178,9 @@ Next: Milestone 3 (Billionaire Brand Transformation)
 - [Phase 4-12]: TG-66 deactivated on n8n (XyvUD8qA2E9YkTzR) — replaced by TG-108/110/125
 - [Phase 4-12]: TG-67 deactivated on n8n (cANzgpQQBTfEiGek) — replaced by TG-117
 - [Phase 4-12]: Phase 4 verified: 21 new + 6 modified + 2 retired = 29 total changes; 6 deployed, 15+6 pending n8n deploy
+- [Phase 5-03]: TypeScript error budget: 85 errors baseline, 7 codes (top: TS2769 x37, TS2352 x15, TS2589 x10)
+- [Phase 5-03]: Budget rule: Phase 6+ must not increase error count above 85
+- [Phase 5-03]: Most errors are Supabase type-gen mismatches — fixable by regenerating types
 
 ### Pending Todos
 
@@ -185,7 +190,7 @@ None yet.
 
 - WI Parcel REST API endpoint needs testing with real Madison addresses before Phase 7 planning
 - Jobber client hub styling capability must be investigated before Phase 8 planning
-- TypeScript error count unknown until `tsc --noEmit` runs in Phase 5
+- TypeScript error count: 85 errors (7 codes), baseline locked in .tsc-error-budget.json (Phase 5, Plan 3)
 - n8n API rate limit hit during 03-03: TG-100 deployment + TG-96 update pending when API access restores
 
 ### Quick Tasks Completed
@@ -204,6 +209,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed quick-008 (marketing favicon, OG image, logo sizing fix for workely.ai)
+Stopped at: Completed 05-03-PLAN.md (TypeScript error budget baseline)
 Resume file: None
-Next: M3 Phase 5 (Safety Nets & Foundation) — /gsd:discuss-phase 5 or /gsd:plan-phase 5
+Next: 05-02 or 05-04 (remaining Phase 5 plans)
