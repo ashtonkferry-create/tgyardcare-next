@@ -14,7 +14,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first().json;\nconst to_phone = (input.to_phone || '').trim();\nconst message_body = (input.message_body || '').trim();\nconst workflow_name = input.workflow_name || 'unknown';\nconst message_type = input.message_type || 'auto_reply';\n\nif (!to_phone || !message_body) {\n  return [{ json: { sent: false, reason: 'missing_params', to_phone, workflow_name } }];\n}\n\nreturn [{ json: { to_phone, message_body, workflow_name, message_type, valid: true } }];"
+        "jsCode": "const input = $input.first().json;\nconst to_phone = (input.to_phone || '').trim();\nconst message_body = (input.message_body || '').trim();\nconst workflow_name = input.workflow_name || 'unknown';\nconst message_type = input.message_type || 'auto_reply';\nconst ab_test_id = input.ab_test_id || null;\nconst ab_variant_id = input.ab_variant_id || null;\n\nif (!to_phone || !message_body) {\n  return [{ json: { sent: false, reason: 'missing_params', to_phone, workflow_name } }];\n}\n\nreturn [{ json: { to_phone, message_body, workflow_name, message_type, ab_test_id, ab_variant_id, valid: true } }];"
       },
       "id": "validate-input",
       "name": "Validate Input",
@@ -276,7 +276,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ to_phone: $('Validate Input').first().json.to_phone, message_body: $('Validate Input').first().json.message_body, from_phone: '+16089953554', message_type: $('Validate Input').first().json.message_type, workflow_name: $('Validate Input').first().json.workflow_name, external_message_id: $json.sid || '', status: 'sent', sent_at: new Date().toISOString() }) }}"
+        "jsonBody": "={{ JSON.stringify({ to_phone: $('Validate Input').first().json.to_phone, message_body: $('Validate Input').first().json.message_body, from_phone: '+16089953554', message_type: $('Validate Input').first().json.message_type, workflow_name: $('Validate Input').first().json.workflow_name, ab_test_id: $('Validate Input').first().json.ab_test_id, ab_variant_id: $('Validate Input').first().json.ab_variant_id, external_message_id: $json.sid || '', status: 'sent', sent_at: new Date().toISOString() }) }}"
       },
       "id": "log-success",
       "name": "Log SMS Success",
@@ -327,7 +327,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ to_phone: $('Validate Input').first().json.to_phone, message_body: $('Validate Input').first().json.message_body, from_phone: '+16089953554', message_type: $('Validate Input').first().json.message_type, workflow_name: $('Validate Input').first().json.workflow_name, status: 'failed', failure_reason: 'twilio_error: ' + ($json.message || 'unknown'), failed_at: new Date().toISOString() }) }}"
+        "jsonBody": "={{ JSON.stringify({ to_phone: $('Validate Input').first().json.to_phone, message_body: $('Validate Input').first().json.message_body, from_phone: '+16089953554', message_type: $('Validate Input').first().json.message_type, workflow_name: $('Validate Input').first().json.workflow_name, ab_test_id: $('Validate Input').first().json.ab_test_id, ab_variant_id: $('Validate Input').first().json.ab_variant_id, status: 'failed', failure_reason: 'twilio_error: ' + ($json.message || 'unknown'), failed_at: new Date().toISOString() }) }}"
       },
       "id": "log-failure",
       "name": "Log SMS Failure",

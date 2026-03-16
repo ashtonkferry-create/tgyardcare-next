@@ -308,7 +308,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"to_phone\": \"{{ $('Extract Invoice Data').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-84-invoice-collections-t1\",\n  \"message_body\": \"Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }}! Just a friendly reminder that your TotalGuard invoice{{ $('Extract Invoice Data').item.json.amount ? ' for $' + $('Extract Invoice Data').item.json.amount : '' }} is due. Pay easily through the Jobber link in your email. Questions? Call 608-535-6057. - TotalGuard\",\n  \"status\": \"pending\"\n}"
+        "jsonBody": "={\n  \"to_phone\": \"{{ $('Extract Invoice Data').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-84-invoice-collections-t1\",\n  \"message_body\": \"{{ $('Apply AB Day3 SMS').item.json.message_body }}\",\n  \"ab_test_id\": \"{{ $('Apply AB Day3 SMS').item.json.ab_test_id }}\",\n  \"ab_variant_id\": \"{{ $('Apply AB Day3 SMS').item.json.ab_variant_id }}\",\n  \"status\": \"pending\"\n}"
       },
       "id": "tg84-log-t1",
       "name": "Log Touch 1 SMS",
@@ -324,7 +324,7 @@
       "parameters": {
         "from": "+16089953554",
         "to": "={{ $('Extract Invoice Data').item.json.customer_phone }}",
-        "message": "=Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }}! Just a friendly reminder that your TotalGuard invoice{{ $('Extract Invoice Data').item.json.amount ? ' for $' + $('Extract Invoice Data').item.json.amount : '' }} is due. Pay easily through the Jobber link in your email. Questions? Call 608-535-6057. - TotalGuard"
+        "message": "={{ $('Apply AB Day3 SMS').item.json.message_body }}"
       },
       "id": "tg84-sms-t1",
       "name": "Send Touch 1 SMS",
@@ -485,7 +485,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('Extract Invoice Data').item.json.customer_email }}\"],\n  \"subject\": \"Friendly reminder: Your TotalGuard invoice is due\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Invoice Data').item.json.customer_name || 'there' }},</p><p>We wanted to send a friendly reminder that your invoice{{ $('Extract Invoice Data').item.json.amount ? ' for <strong>$' + $('Extract Invoice Data').item.json.amount + '</strong>' : '' }} for {{ $('Extract Invoice Data').item.json.service || 'your recent service' }} is still outstanding.</p><p>You can pay quickly through the Jobber client hub link in your original invoice email, or contact us to discuss payment options.</p><p>We appreciate your business!</p><ul><li>Phone: 608-535-6057</li><li>Email: totalguardllc@gmail.com</li></ul><p>Thank you,<br>The TotalGuard Team</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('Extract Invoice Data').item.json.customer_email }}\"],\n  \"subject\": \"Friendly reminder: Your TotalGuard invoice is due\",\n  \"html\": \"{{ $('Apply AB Day10 Email').item.json.html_body }}\"\n}"
       },
       "id": "tg84-email-t2",
       "name": "Send Touch 2 Email",
@@ -890,6 +890,62 @@
         5500,
         0
       ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": "6qhihK1RPUzwk2pd",
+        "inputData": "={\"test_id\": \"tg84-day3-sms\", \"channel\": \"sms\"}"
+      },
+      "id": "tg84-ab-call-t1",
+      "name": "AB Test Day3 SMS",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1860,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ab = $input.first().json;\nconst defaultMsg = $('Extract Invoice Data').first().json.customer_name ? ('Hi ' + $('Extract Invoice Data').first().json.customer_name + '! Just a friendly reminder that your TotalGuard invoice' + ($('Extract Invoice Data').first().json.amount ? ' for $' + $('Extract Invoice Data').first().json.amount : '') + ' is due. Pay easily through the Jobber link in your email. Questions? Call 608-535-6057. - TotalGuard') : 'Hi there! Just a friendly reminder that your TotalGuard invoice is due. Pay easily through the Jobber link in your email. Questions? Call 608-535-6057. - TotalGuard';\nconst finalMsg = (ab.is_default === true || ab.is_default === 'true' || !ab.variant_content) ? defaultMsg : ab.variant_content;\nreturn [{ json: { message_body: finalMsg, ab_test_id: ab.ab_test_id || null, ab_variant_id: ab.ab_variant_id || null } }];"
+      },
+      "id": "tg84-ab-apply-t1",
+      "name": "Apply AB Day3 SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1860,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": "6qhihK1RPUzwk2pd",
+        "inputData": "={\"test_id\": \"tg84-day10-email\", \"channel\": \"email\"}"
+      },
+      "id": "tg84-ab-call-t2",
+      "name": "AB Test Day10 Email",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        3400,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ab = $input.first().json;\nconst defaultHtml = \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi \" + ($('Extract Invoice Data').first().json.customer_name || 'there') + \",</p><p>We wanted to send a friendly reminder that your invoice\" + ($('Extract Invoice Data').first().json.amount ? ' for <strong>$' + $('Extract Invoice Data').first().json.amount + '</strong>' : '') + \" for \" + ($('Extract Invoice Data').first().json.service || 'your recent service') + \" is still outstanding.</p><p>You can pay quickly through the Jobber client hub link in your original invoice email, or contact us to discuss payment options.</p><p>We appreciate your business!</p><ul><li>Phone: 608-535-6057</li><li>Email: totalguardllc@gmail.com</li></ul><p>Thank you,<br>The TotalGuard Team</p></div>\";\nconst finalHtml = (ab.is_default === true || ab.is_default === 'true' || !ab.variant_content) ? defaultHtml : ab.variant_content;\nreturn [{ json: { html_body: finalHtml, ab_test_id: ab.ab_test_id || null, ab_variant_id: ab.ab_variant_id || null } }];"
+      },
+      "id": "tg84-ab-apply-t2",
+      "name": "Apply AB Day10 Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3400,
+        -200
+      ]
     }
   ],
   "connections": {
@@ -992,7 +1048,7 @@
       "main": [
         [
           {
-            "node": "Log Touch 1 SMS",
+            "node": "AB Test Day3 SMS",
             "type": "main",
             "index": 0
           }
@@ -1105,7 +1161,7 @@
       "main": [
         [
           {
-            "node": "Send Touch 2 Email",
+            "node": "AB Test Day10 Email",
             "type": "main",
             "index": 0
           }
@@ -1266,6 +1322,50 @@
         [
           {
             "node": "Mark Escalated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AB Test Day3 SMS": {
+      "main": [
+        [
+          {
+            "node": "Apply AB Day3 SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply AB Day3 SMS": {
+      "main": [
+        [
+          {
+            "node": "Log Touch 1 SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AB Test Day10 Email": {
+      "main": [
+        [
+          {
+            "node": "Apply AB Day10 Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply AB Day10 Email": {
+      "main": [
+        [
+          {
+            "node": "Send Touch 2 Email",
             "type": "main",
             "index": 0
           }

@@ -189,7 +189,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\"to_phone\": \"{{ $('Split Results').item.json.customer_phone }}\", \"workflow_name\": \"TG-91-abandoned-quote\", \"message_body\": \"Hi {{ $('Split Results').item.json.customer_name }}! We noticed you haven't reviewed your TotalGuard estimate. Still interested? Reply YES or call 608-535-6057.\", \"message_type\": \"outbound\", \"status\": \"sent\"}"
+        "jsonBody": "={\"to_phone\": \"{{ $('Split Results').item.json.customer_phone }}\", \"workflow_name\": \"TG-91-abandoned-quote\", \"message_body\": \"{{ $('Apply AB Reengagement SMS').item.json.message_body }}\", \"ab_test_id\": \"{{ $('Apply AB Reengagement SMS').item.json.ab_test_id }}\", \"ab_variant_id\": \"{{ $('Apply AB Reengagement SMS').item.json.ab_variant_id }}\", \"message_type\": \"outbound\", \"status\": \"sent\"}"
       },
       "id": "tg91-log",
       "name": "Log SMS Send",
@@ -205,7 +205,7 @@
       "parameters": {
         "from": "+16089953554",
         "to": "={{ $('Split Results').item.json.customer_phone }}",
-        "message": "=Hi {{ $('Split Results').item.json.customer_name || 'there' }}! We noticed you haven't had a chance to review your TotalGuard {{ $('Split Results').item.json.service || '' }} estimate. Still interested? Reply YES or call 608-535-6057. - TotalGuard"
+        "message": "={{ $('Apply AB Reengagement SMS').item.json.message_body }}"
       },
       "id": "tg91-sms",
       "name": "Send Nudge SMS",
@@ -336,6 +336,34 @@
         1760,
         100
       ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": "6qhihK1RPUzwk2pd",
+        "inputData": "={\"test_id\": \"tg91-reengagement-sms\", \"channel\": \"sms\"}"
+      },
+      "id": "tg91-ab-call",
+      "name": "AB Test Reengagement SMS",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1200,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ab = $input.first().json;\nconst defaultMsg = $('Split Results').first().json.customer_name ? ('Hi ' + $('Split Results').first().json.customer_name + '! We noticed you haven\\'t had a chance to review your TotalGuard ' + ($('Split Results').first().json.service || '') + ' estimate. Still interested? Reply YES or call 608-535-6057. - TotalGuard') : 'Hi there! We noticed you haven\\'t had a chance to review your TotalGuard estimate. Still interested? Reply YES or call 608-535-6057. - TotalGuard';\nconst finalMsg = (ab.is_default === true || ab.is_default === 'true' || !ab.variant_content) ? defaultMsg : ab.variant_content;\nreturn [{ json: { message_body: finalMsg, ab_test_id: ab.ab_test_id || null, ab_variant_id: ab.ab_variant_id || null } }];"
+      },
+      "id": "tg91-ab-apply",
+      "name": "Apply AB Reengagement SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        -200
+      ]
     }
   ],
   "connections": {
@@ -404,7 +432,7 @@
       "main": [
         [
           {
-            "node": "Log SMS Send",
+            "node": "AB Test Reengagement SMS",
             "type": "main",
             "index": 0
           }
@@ -460,6 +488,28 @@
     "Mark Nudge Sent": {
       "main": [
         []
+      ]
+    },
+    "AB Test Reengagement SMS": {
+      "main": [
+        [
+          {
+            "node": "Apply AB Reengagement SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply AB Reengagement SMS": {
+      "main": [
+        [
+          {
+            "node": "Log SMS Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },

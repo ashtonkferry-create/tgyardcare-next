@@ -14,7 +14,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first().json;\nconst to_email = (input.to_email || '').trim();\nconst subject = (input.subject || '').trim();\nconst html_body = (input.html_body || '').trim();\nconst workflow_name = input.workflow_name || 'unknown';\nconst email_type = input.email_type || 'transactional';\n\nif (!to_email || !subject || !html_body) {\n  return [{ json: { sent: false, reason: 'missing_params', to_email, workflow_name } }];\n}\n\nreturn [{ json: { to_email, subject, html_body, workflow_name, email_type, valid: true } }];"
+        "jsCode": "const input = $input.first().json;\nconst to_email = (input.to_email || '').trim();\nconst subject = (input.subject || '').trim();\nconst html_body = (input.html_body || '').trim();\nconst workflow_name = input.workflow_name || 'unknown';\nconst email_type = input.email_type || 'transactional';\nconst ab_test_id = input.ab_test_id || null;\nconst ab_variant_id = input.ab_variant_id || null;\n\nif (!to_email || !subject || !html_body) {\n  return [{ json: { sent: false, reason: 'missing_params', to_email, workflow_name } }];\n}\n\nreturn [{ json: { to_email, subject, html_body, workflow_name, email_type, ab_test_id, ab_variant_id, valid: true } }];"
       },
       "id": "validate-input",
       "name": "Validate Input",
@@ -90,7 +90,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const result = $input.first().json;\nconst prev = $('Validate Input').first().json;\n\n// Resend returns { id: '...' } on success, or error fields on failure\nif (result.id && !result.statusCode && !result.error) {\n  return [{ json: { sent: true, email_id: result.id, to_email: prev.to_email, workflow_name: prev.workflow_name, _needsRetry: false } }];\n}\n\n// Error — mark for retry\nreturn [{ json: { sent: false, error: result.message || result.error || 'unknown_error', to_email: prev.to_email, workflow_name: prev.workflow_name, _needsRetry: true, subject: prev.subject, html_body: prev.html_body } }];"
+        "jsCode": "const result = $input.first().json;\nconst prev = $('Validate Input').first().json;\n\nif (result.id && !result.statusCode && !result.error) {\n  return [{ json: { sent: true, email_id: result.id, to_email: prev.to_email, workflow_name: prev.workflow_name, ab_test_id: prev.ab_test_id || null, ab_variant_id: prev.ab_variant_id || null, _needsRetry: false } }];\n}\n\nreturn [{ json: { sent: false, error: result.message || result.error || 'unknown_error', to_email: prev.to_email, workflow_name: prev.workflow_name, ab_test_id: prev.ab_test_id || null, ab_variant_id: prev.ab_variant_id || null, _needsRetry: true, subject: prev.subject, html_body: prev.html_body } }];"
       },
       "id": "check-result",
       "name": "Check Send Result",
@@ -180,7 +180,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const result = $input.first().json;\nconst prev = $('Validate Input').first().json;\n\nif (result.id && !result.statusCode && !result.error) {\n  return [{ json: { sent: true, email_id: result.id, to_email: prev.to_email, workflow_name: prev.workflow_name } }];\n}\n\nreturn [{ json: { sent: false, error: result.message || result.error || 'retry_failed', to_email: prev.to_email, workflow_name: prev.workflow_name } }];"
+        "jsCode": "const result = $input.first().json;\nconst prev = $('Validate Input').first().json;\n\nif (result.id && !result.statusCode && !result.error) {\n  return [{ json: { sent: true, email_id: result.id, to_email: prev.to_email, workflow_name: prev.workflow_name, ab_test_id: prev.ab_test_id || null, ab_variant_id: prev.ab_variant_id || null } }];\n}\n\nreturn [{ json: { sent: false, error: result.message || result.error || 'retry_failed', to_email: prev.to_email, workflow_name: prev.workflow_name, ab_test_id: prev.ab_test_id || null, ab_variant_id: prev.ab_variant_id || null } }];"
       },
       "id": "check-retry-result",
       "name": "Check Retry Result",

@@ -308,7 +308,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"to_phone\": \"{{ $('Extract Quote Data').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-83-quote-followup-t1\",\n  \"message_body\": \"Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }}! Just checking in on the {{ $('Extract Quote Data').item.json.service || '' }} estimate we sent over. Any questions? We're happy to walk through it. Reply here or call 608-535-6057. - TotalGuard\",\n  \"status\": \"pending\"\n}"
+        "jsonBody": "={\n  \"to_phone\": \"{{ $('Extract Quote Data').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-83-quote-followup-t1\",\n  \"message_body\": \"{{ $('Apply AB Day2 SMS').item.json.message_body }}\",\n  \"ab_test_id\": \"{{ $('Apply AB Day2 SMS').item.json.ab_test_id }}\",\n  \"ab_variant_id\": \"{{ $('Apply AB Day2 SMS').item.json.ab_variant_id }}\",\n  \"status\": \"pending\"\n}"
       },
       "id": "tg83-log-t1",
       "name": "Log Touch 1 SMS",
@@ -324,7 +324,7 @@
       "parameters": {
         "from": "+16089953554",
         "to": "={{ $('Extract Quote Data').item.json.customer_phone }}",
-        "message": "=Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }}! Just checking in on the {{ $('Extract Quote Data').item.json.service || '' }} estimate we sent over. Any questions? We're happy to walk through it. Reply here or call 608-535-6057. - TotalGuard"
+        "message": "={{ $('Apply AB Day2 SMS').item.json.message_body }}"
       },
       "id": "tg83-sms-t1",
       "name": "Send Touch 1 SMS",
@@ -485,7 +485,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('Extract Quote Data').item.json.customer_email }}\"],\n  \"subject\": \"What our customers are saying about TotalGuard\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('Extract Quote Data').item.json.customer_name || 'there' }},</p><p>We wanted to follow up on your {{ $('Extract Quote Data').item.json.service || '' }} estimate. Here's what some of our customers have to say:</p><div style='background:#f0fdf4;border-left:4px solid #16a34a;padding:16px;margin:16px 0;border-radius:4px;'><p style='font-style:italic;margin:0;'>&quot;TotalGuard transformed our yard. Professional, on time, and the results speak for themselves.&quot;</p><p style='margin:8px 0 0;font-weight:bold;'>- Satisfied Customer, Madison WI</p></div><p>We'd love to earn your business. Your estimate is still valid -- just reply to this email or call us at 608-535-6057 to get started.</p><p>Best regards,<br>The TotalGuard Team</p><p style='color:#888;font-size:12px;'>TotalGuard Yard Care LLC | Madison, WI</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('Extract Quote Data').item.json.customer_email }}\"],\n  \"subject\": \"What our customers are saying about TotalGuard\",\n  \"html\": \"{{ $('Apply AB Day7 Email').item.json.html_body }}\"\n}"
       },
       "id": "tg83-email-t2",
       "name": "Send Touch 2 Email",
@@ -890,6 +890,62 @@
         5500,
         0
       ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": "6qhihK1RPUzwk2pd",
+        "inputData": "={\"test_id\": \"tg83-day2-sms\", \"channel\": \"sms\"}"
+      },
+      "id": "tg83-ab-call-t1",
+      "name": "AB Test Day2 SMS",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1860,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ab = $input.first().json;\nconst defaultMsg = $('Extract Quote Data').first().json.customer_name ? ('Hi ' + $('Extract Quote Data').first().json.customer_name + '! Just checking in on the ' + ($('Extract Quote Data').first().json.service || '') + ' estimate we sent over. Any questions? We\\'re happy to walk through it. Reply here or call 608-535-6057. - TotalGuard') : 'Hi there! Just checking in on the estimate we sent over. Any questions? We\\'re happy to walk through it. Reply here or call 608-535-6057. - TotalGuard';\nconst finalMsg = (ab.is_default === true || ab.is_default === 'true' || !ab.variant_content) ? defaultMsg : ab.variant_content;\nreturn [{ json: { message_body: finalMsg, ab_test_id: ab.ab_test_id || null, ab_variant_id: ab.ab_variant_id || null } }];"
+      },
+      "id": "tg83-ab-apply-t1",
+      "name": "Apply AB Day2 SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1860,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": "6qhihK1RPUzwk2pd",
+        "inputData": "={\"test_id\": \"tg83-day7-email\", \"channel\": \"email\"}"
+      },
+      "id": "tg83-ab-call-t2",
+      "name": "AB Test Day7 Email",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        3400,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ab = $input.first().json;\nconst defaultHtml = \"<div style=\\'font-family:Arial,sans-serif;max-width:600px;margin:0 auto;\\'><h2 style=\\'color:#16a34a;\\'>TotalGuard Yard Care</h2><p>Hi \" + ($('Extract Quote Data').first().json.customer_name || 'there') + \",</p><p>We wanted to follow up on your \" + ($('Extract Quote Data').first().json.service || '') + \" estimate. Here\\'s what some of our customers have to say:</p><div style=\\'background:#f0fdf4;border-left:4px solid #16a34a;padding:16px;margin:16px 0;border-radius:4px;\\'><p style=\\'font-style:italic;margin:0;\\'>&quot;TotalGuard transformed our yard. Professional, on time, and the results speak for themselves.&quot;</p><p style=\\'margin:8px 0 0;font-weight:bold;\\'>- Satisfied Customer, Madison WI</p></div><p>We\\'d love to earn your business. Your estimate is still valid -- just reply to this email or call us at 608-535-6057 to get started.</p><p>Best regards,<br>The TotalGuard Team</p><p style=\\'color:#888;font-size:12px;\\'>TotalGuard Yard Care LLC | Madison, WI</p></div>\";\nconst finalHtml = (ab.is_default === true || ab.is_default === 'true' || !ab.variant_content) ? defaultHtml : ab.variant_content;\nreturn [{ json: { html_body: finalHtml, ab_test_id: ab.ab_test_id || null, ab_variant_id: ab.ab_variant_id || null } }];"
+      },
+      "id": "tg83-ab-apply-t2",
+      "name": "Apply AB Day7 Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3400,
+        -200
+      ]
     }
   ],
   "connections": {
@@ -992,7 +1048,7 @@
       "main": [
         [
           {
-            "node": "Log Touch 1 SMS",
+            "node": "AB Test Day2 SMS",
             "type": "main",
             "index": 0
           }
@@ -1105,7 +1161,7 @@
       "main": [
         [
           {
-            "node": "Send Touch 2 Email",
+            "node": "AB Test Day7 Email",
             "type": "main",
             "index": 0
           }
@@ -1266,6 +1322,50 @@
         [
           {
             "node": "Mark Expired",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AB Test Day2 SMS": {
+      "main": [
+        [
+          {
+            "node": "Apply AB Day2 SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply AB Day2 SMS": {
+      "main": [
+        [
+          {
+            "node": "Log Touch 1 SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AB Test Day7 Email": {
+      "main": [
+        [
+          {
+            "node": "Apply AB Day7 Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply AB Day7 Email": {
+      "main": [
+        [
+          {
+            "node": "Send Touch 2 Email",
             "type": "main",
             "index": 0
           }
