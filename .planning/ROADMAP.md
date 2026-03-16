@@ -49,15 +49,15 @@ Plans:
 ## Phase 2: CRM Unification
 **Goal**: Build webhook router (TG-92), auto-dispatch notifications (TG-93), unified SMS sender (TG-94), unified email sender (TG-95), and convert TG-76 to sub-workflow -- single public webhook, owner dispatch with confirmation, all events logged, all communication gated through consent and rate limiting.
 **Impact**: Eliminate manual CRM work, unified customer communication layer
-**Status**: Planning complete
+**Status**: Complete
 **Plans:** 5 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- DB tables (webhook_events, dispatch_log) + TG-76 sub-workflow conversion
-- [ ] 02-02-PLAN.md -- TG-92 Webhook Router (deployed inactive)
-- [ ] 02-03-PLAN.md -- TG-93 Auto-Dispatch + TG-05 extension
-- [ ] 02-04-PLAN.md -- TG-94 Unified SMS Sender + TG-95 Unified Email Sender + TG-76 customer reply routing
-- [ ] 02-05-PLAN.md -- Activate TG-92/TG-93, point Twilio, end-to-end verification
+- [x] 02-01-PLAN.md -- DB tables (webhook_events, dispatch_log) + TG-76 sub-workflow conversion
+- [x] 02-02-PLAN.md -- TG-92 Webhook Router (deployed inactive)
+- [x] 02-03-PLAN.md -- TG-93 Auto-Dispatch + TG-05 extension
+- [x] 02-04-PLAN.md -- TG-94 Unified SMS Sender + TG-95 Unified Email Sender + TG-76 customer reply routing
+- [x] 02-05-PLAN.md -- Activate TG-92/TG-93, point Twilio, end-to-end verification
 
 ## Phase 3: SEO Domination
 **Goal**: Build 14 workflows/crons that close remaining SEO gaps — GSC daily sync, city/neighborhood content generator, content gap detector, ranking opportunity detector, index coverage monitor, rank drop alerts.
@@ -169,7 +169,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 0. Fix Existing | M2 | 0/? | Ready to execute | - |
 | 1. Revenue Engine | M2 | 9/9 | Complete | 2026-03-15 |
-| 2. CRM Unification | M2 | 0/? | Not started | - |
+| 2. CRM Unification | M2 | 5/5 | Complete | 2026-03-16 |
 | 3. SEO Domination | M2 | 0/? | Not started | - |
 | 4. Intelligence Layer | M2 | 0/? | Not started | - |
 | 5. Safety Nets & Foundation | M3 | 0/? | Not started | - |
