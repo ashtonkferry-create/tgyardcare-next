@@ -1,0 +1,20 @@
+{
+  "baseline": {
+    "date": "2026-03-16",
+    "tsconfig": "strict: false, noImplicitAny: false, strictNullChecks: false",
+    "errorCount": 85,
+    "topErrors": [
+      { "code": "TS2769", "count": 37, "description": "No overload matches this call" },
+      { "code": "TS2352", "count": 15, "description": "Conversion of type X to type Y may be a mistake" },
+      { "code": "TS2589", "count": 10, "description": "Type instantiation is excessively deep and possibly infinite" },
+      { "code": "TS2322", "count": 10, "description": "Type X is not assignable to type Y" },
+      { "code": "TS2339", "count": 9, "description": "Property X does not exist on type Y" },
+      { "code": "TS2551", "count": 2, "description": "Property X does not exist on type Y. Did you mean Z?" },
+      { "code": "TS2345", "count": 2, "description": "Argument of type X is not assignable to parameter of type Y" }
+    ]
+  },
+  "budget": {
+    "rule": "New code in Phase 6+ must not increase errorCount above baseline",
+    "checkCommand": "npx tsc --noEmit 2>&1 | grep -c 'error TS'"
+  }
+}
