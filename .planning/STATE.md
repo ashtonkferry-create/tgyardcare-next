@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Transform tgyardcare.com into a billion-dollar brand experience that converts at 3-5x current rates while protecting existing SEO rankings and lead flow.
-**Current focus:** Phase 2 — CRM Unification (M2)
+**Current focus:** Phase 3 — SEO Domination
 
 ## Current Position
 
-Phase: 2 of 4 (CRM Unification) — M2
-Plan: 5 of 5 complete (all waves complete)
-Status: Phase 2 COMPLETE — outbound SMS pending A2P 10DLC carrier approval
-Last activity: 2026-03-16 — Completed 02-05-PLAN.md (Activation + Twilio Cutover) + spreadsheet stack (quick tasks 003-007)
+Phase: 3 of 4 (SEO Domination)
+Plan: 2 of 5 complete
+Status: In progress
+Last activity: 2026-03-16 — Completed 03-02-PLAN.md (City Content Generation Pipeline)
 
-Progress: [==================] 15/15 plans (Phase 2 complete)
+Progress: [===================.] 17/20 plans
 
 Executing Milestone 2: CRM Unification
 - Phase 0 (Fix Existing): Ready to execute
@@ -25,7 +25,13 @@ Executing Milestone 2: CRM Unification
   - 02-03: DONE — TG-93 Auto-Dispatch (n8n ID: JBZCSMGKzBoTz7se, ACTIVE) [wave 2]
   - 02-04: DONE — TG-94 (AprqI2DgQA8lehij) + TG-95 (IUDLrQrAkcLFLsIC) + TG-76 updated [wave 2]
   - 02-05: DONE — All 5 workflows active, Twilio confirmed on tg-router, inbound verified [wave 3]
-- Phase 3-4: Not started
+- Phase 3 (SEO Domination): In progress (2/5 plans)
+  - 03-01: Pending
+  - 03-02: DONE — TG-103 (igtaJUnj9xDXcV2B) + TG-104 (qzRRPT7goiYxJsxL) content pipeline [wave 1]
+  - 03-03: Pending
+  - 03-04: Pending
+  - 03-05: Pending
+- Phase 4: Not started
 
 Parallel: Milestone 3 (Billionaire Brand Transformation)
 - Phase 5-9: Not started
@@ -33,8 +39,8 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14 (9 M2-Phase 1 + 5 M2-Phase 2)
-- Last plan duration: ~9 minutes (02-03)
+- Total plans completed: 16 (9 M2-Phase 1 + 5 M2-Phase 2 + 2 Phase 3)
+- Last plan duration: ~5 minutes (03-02)
 - Total execution time: N/A
 
 *Updated after each plan completion*
@@ -80,6 +86,12 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 - [M3 Roadmap]: Portal (PORT) and Referral (REF) grouped together — referral requires portal auth infrastructure
 - [M3 Research]: MDX rejected in favor of extending existing Supabase blog_posts table
 - [M3 Research]: Jobber client hub styling needs investigation before Phase 8 (custom vs embed decision)
+- [Phase 3-02]: TG-103 workflow ID on n8n: igtaJUnj9xDXcV2B (ACTIVE) -- city content generator
+- [Phase 3-02]: TG-104 workflow ID on n8n: qzRRPT7goiYxJsxL (ACTIVE) -- content quality checker
+- [Phase 3-02]: 15 active cities in seo_target_cities (not 12)
+- [Phase 3-02]: Claude Sonnet 4.6 used for content generation via HTTP Request
+- [Phase 3-02]: blog_posts table has ai_generated, ai_model, ai_generated_at, word_count, reading_time_minutes columns
+- [Phase 3-02]: TG-104 quality thresholds: 800+ words, 3+ H2s, 2+ local refs, CTA required, no placeholders
 
 ### Pending Todos
 
@@ -106,5 +118,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Phase 2 CRM Unification COMPLETE + spreadsheet stack (7 total)
+Stopped at: Completed 03-02-PLAN.md (City Content Generation Pipeline)
 Resume file: None
