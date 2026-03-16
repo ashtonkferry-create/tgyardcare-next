@@ -731,8 +731,20 @@ export const ChatBot = () => {
     const trimmed = input.trim();
     const inQuoteFlow = quoteStep !== 'idle' && quoteStep !== 'complete' && quoteStep !== 'feedback' && quoteStep !== 'feedback-submitted';
 
-    // Outside quote flow — always route to AI
+    // Outside quote flow — intercept quote intent, route everything else to AI
     if (!inQuoteFlow) {
+      const quoteIntent = /\b(want a quote|get a quote|need a quote|free quote|quote me|give me a quote|i('d| would) like a quote|pricing|how much|estimate|free estimate|get started|book a|schedule a)\b/i.test(trimmed);
+
+      if (quoteIntent) {
+        // User wants a quote — start the quote flow state machine
+        setInput('');
+        startQuoteFlow('Get a quote');
+        return;
+      }
+
+      // Everything else (service questions, general chat) → AI handles it
+      // The AI prompt now links to service pages + mentions in-chat quoting
+      // The "Get a Free Quote" button always appears after AI responses
       streamChat(input);
       return;
     }
