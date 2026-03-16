@@ -1,0 +1,474 @@
+{
+  "name": "TG-116-weekly-ad-performance",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 13 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Monday 8am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate this week (Mon-Sun) and previous week date ranges\nconst now = new Date();\nconst today = now.toISOString().split('T')[0];\n\n// This week: last Monday to today\nconst dayOfWeek = now.getDay(); // 0=Sun, 1=Mon\nconst daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;\nconst thisWeekStart = new Date(now.getTime() - daysSinceMonday * 24 * 60 * 60 * 1000);\nconst thisWeekStartStr = thisWeekStart.toISOString().split('T')[0];\n\n// Previous week: Monday to Sunday before this week\nconst prevWeekStart = new Date(thisWeekStart.getTime() - 7 * 24 * 60 * 60 * 1000);\nconst prevWeekEnd = new Date(thisWeekStart.getTime() - 1 * 24 * 60 * 60 * 1000);\nconst prevWeekStartStr = prevWeekStart.toISOString().split('T')[0];\nconst prevWeekEndStr = prevWeekEnd.toISOString().split('T')[0];\n\nreturn [{ json: {\n  today,\n  thisWeekStart: thisWeekStartStr,\n  prevWeekStart: prevWeekStartStr,\n  prevWeekEnd: prevWeekEndStr,\n  nowIso: now.toISOString()\n} }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Week Ranges",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_ads_daily",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "report_date,campaign_name,campaign_id,impressions,clicks,conversions,cost,cpc,ctr,conversion_rate,roas"
+            },
+            {
+              "name": "and",
+              "value": "=(report_date.gte.{{ $json.thisWeekStart }},report_date.lte.{{ $json.today }})"
+            },
+            {
+              "name": "order",
+              "value": "report_date.desc"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-this-week",
+      "name": "Fetch This Week Ads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 180]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_ads_daily",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "report_date,campaign_name,campaign_id,impressions,clicks,conversions,cost,cpc,ctr,conversion_rate,roas"
+            },
+            {
+              "name": "and",
+              "value": "=(report_date.gte.{{ $('Calculate Week Ranges').first().json.prevWeekStart }},report_date.lte.{{ $('Calculate Week Ranges').first().json.prevWeekEnd }})"
+            },
+            {
+              "name": "order",
+              "value": "report_date.desc"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-prev-week",
+      "name": "Fetch Previous Week Ads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 420]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_ads_alerts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "*"
+            },
+            {
+              "name": "and",
+              "value": "=(created_at.gte.{{ $('Calculate Week Ranges').first().json.thisWeekStart }})"
+            },
+            {
+              "name": "order",
+              "value": "created_at.desc"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-alerts",
+      "name": "Fetch Ads Alerts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 600]
+    },
+    {
+      "parameters": {
+        "mode": "wait",
+        "options": {}
+      },
+      "id": "wait-data",
+      "name": "Wait For Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "mode": "wait",
+        "options": {}
+      },
+      "id": "wait-data-2",
+      "name": "Wait For All Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [920, 420]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-data",
+              "leftValue": "={{ $('Fetch This Week Ads').first().json.body ? $('Fetch This Week Ads').first().json.body.length : 0 }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-has-data",
+      "name": "Has Ad Data?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1140, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate ad performance by campaign with week-over-week comparison\nconst thisWeekResponse = $('Fetch This Week Ads').first().json;\nconst prevWeekResponse = $('Fetch Previous Week Ads').first().json;\nconst alertsResponse = $('Fetch Ads Alerts').first().json;\nconst dates = $('Calculate Week Ranges').first().json;\n\nconst thisWeekData = thisWeekResponse.body || thisWeekResponse || [];\nconst prevWeekData = prevWeekResponse.body || prevWeekResponse || [];\nconst alertsData = alertsResponse.body || alertsResponse || [];\n\n// Aggregate by campaign\nfunction aggregateByCampaign(rows) {\n  const campaigns = {};\n  if (!Array.isArray(rows)) return campaigns;\n  for (const row of rows) {\n    const name = row.campaign_name || 'Unknown';\n    if (!campaigns[name]) {\n      campaigns[name] = { impressions: 0, clicks: 0, conversions: 0, cost: 0, days: 0 };\n    }\n    campaigns[name].impressions += parseFloat(row.impressions) || 0;\n    campaigns[name].clicks += parseFloat(row.clicks) || 0;\n    campaigns[name].conversions += parseFloat(row.conversions) || 0;\n    campaigns[name].cost += parseFloat(row.cost) || 0;\n    campaigns[name].days += 1;\n  }\n  // Calculate derived metrics\n  for (const [name, c] of Object.entries(campaigns)) {\n    c.cpc = c.clicks > 0 ? c.cost / c.clicks : 0;\n    c.ctr = c.impressions > 0 ? (c.clicks / c.impressions) * 100 : 0;\n    c.conversion_rate = c.clicks > 0 ? (c.conversions / c.clicks) * 100 : 0;\n    c.roas = c.cost > 0 ? (c.conversions * 150) / c.cost : 0; // Estimate $150/conversion\n    c.cost_per_conversion = c.conversions > 0 ? c.cost / c.conversions : 0;\n  }\n  return campaigns;\n}\n\nconst thisWeekCampaigns = aggregateByCampaign(thisWeekData);\nconst prevWeekCampaigns = aggregateByCampaign(prevWeekData);\n\n// Totals\nfunction sumCampaigns(campaigns) {\n  const total = { impressions: 0, clicks: 0, conversions: 0, cost: 0 };\n  for (const c of Object.values(campaigns)) {\n    total.impressions += c.impressions;\n    total.clicks += c.clicks;\n    total.conversions += c.conversions;\n    total.cost += c.cost;\n  }\n  total.cpc = total.clicks > 0 ? total.cost / total.clicks : 0;\n  total.ctr = total.impressions > 0 ? (total.clicks / total.impressions) * 100 : 0;\n  total.conversion_rate = total.clicks > 0 ? (total.conversions / total.clicks) * 100 : 0;\n  total.roas = total.cost > 0 ? (total.conversions * 150) / total.cost : 0;\n  total.cost_per_conversion = total.conversions > 0 ? total.cost / total.conversions : 0;\n  return total;\n}\n\nconst thisTotal = sumCampaigns(thisWeekCampaigns);\nconst prevTotal = sumCampaigns(prevWeekCampaigns);\n\n// Week-over-week change helper\nfunction wow(current, previous) {\n  if (previous === 0) return current > 0 ? '+100%' : '—';\n  const pct = ((current - previous) / Math.abs(previous)) * 100;\n  const sign = pct >= 0 ? '+' : '';\n  return `${sign}${pct.toFixed(1)}%`;\n}\n\nfunction fmt(n, decimals) {\n  if (decimals === undefined) decimals = 0;\n  return n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });\n}\n\n// Build TG-118 sections\nconst metrics = [\n  { label: 'Total Spend', value: `$${fmt(thisTotal.cost, 2)}`, change: wow(thisTotal.cost, prevTotal.cost) },\n  { label: 'Conversions', value: fmt(thisTotal.conversions), change: wow(thisTotal.conversions, prevTotal.conversions) },\n  { label: 'Cost/Conv', value: thisTotal.cost_per_conversion > 0 ? `$${fmt(thisTotal.cost_per_conversion, 2)}` : '—', change: thisTotal.cost_per_conversion > 0 && prevTotal.cost_per_conversion > 0 ? wow(thisTotal.cost_per_conversion, prevTotal.cost_per_conversion) : '' },\n  { label: 'ROAS', value: `${fmt(thisTotal.roas, 2)}x`, change: wow(thisTotal.roas, prevTotal.roas) }\n];\n\n// Campaign table\nconst campaignNames = [...new Set([...Object.keys(thisWeekCampaigns), ...Object.keys(prevWeekCampaigns)])];\nconst tableHeaders = ['Campaign', 'Spend', 'Clicks', 'Conv', 'CPC', 'ROAS', 'WoW Spend'];\nconst tableRows = campaignNames.map(name => {\n  const tw = thisWeekCampaigns[name] || { cost: 0, clicks: 0, conversions: 0, cpc: 0, roas: 0 };\n  const pw = prevWeekCampaigns[name] || { cost: 0 };\n  return [\n    name,\n    `$${fmt(tw.cost, 2)}`,\n    fmt(tw.clicks),\n    fmt(tw.conversions),\n    `$${fmt(tw.cpc, 2)}`,\n    `${fmt(tw.roas, 2)}x`,\n    wow(tw.cost, pw.cost)\n  ];\n});\n\n// Highlights\nconst highlights = [];\nif (thisTotal.conversions > prevTotal.conversions) {\n  highlights.push(`Conversions up ${wow(thisTotal.conversions, prevTotal.conversions)} week-over-week (${fmt(prevTotal.conversions)} -> ${fmt(thisTotal.conversions)})`);\n}\nif (thisTotal.cost_per_conversion > 0 && thisTotal.cost_per_conversion < prevTotal.cost_per_conversion) {\n  highlights.push(`Cost per conversion improved to $${fmt(thisTotal.cost_per_conversion, 2)} (was $${fmt(prevTotal.cost_per_conversion, 2)})`);\n}\nconst bestCampaign = Object.entries(thisWeekCampaigns).sort((a, b) => b[1].conversions - a[1].conversions)[0];\nif (bestCampaign && bestCampaign[1].conversions > 0) {\n  highlights.push(`Top campaign: ${bestCampaign[0]} with ${fmt(bestCampaign[1].conversions)} conversions at $${fmt(bestCampaign[1].cost_per_conversion, 2)}/conv`);\n}\nif (highlights.length === 0) {\n  highlights.push(`Total spend: $${fmt(thisTotal.cost, 2)} across ${campaignNames.length} campaign(s)`);\n}\n\n// Anomalies from alerts\nconst anomalyItems = Array.isArray(alertsData) ? alertsData.map(a => ({\n  severity: a.severity || 'warning',\n  message: a.alert_message || a.description || `${a.alert_type}: ${a.campaign_name || 'Unknown campaign'}`\n})) : [];\n\n// Actions\nconst actions = [];\nif (thisTotal.cost_per_conversion > 100) {\n  actions.push(`Review high cost/conversion ($${fmt(thisTotal.cost_per_conversion, 2)}) — consider pausing underperforming campaigns`);\n}\nif (thisTotal.roas < 1) {\n  actions.push(`ROAS below 1x ($${fmt(thisTotal.roas, 2)}x) — ad spend exceeding estimated return`);\n}\nconst lowConvCampaigns = Object.entries(thisWeekCampaigns).filter(([_, c]) => c.cost > 50 && c.conversions === 0);\nif (lowConvCampaigns.length > 0) {\n  actions.push(`${lowConvCampaigns.length} campaign(s) with $50+ spend and 0 conversions: ${lowConvCampaigns.map(([n]) => n).join(', ')}`);\n}\nif (actions.length === 0) {\n  actions.push('All campaigns performing within normal ranges — continue monitoring');\n}\n\nconst sections = [\n  { type: 'metrics', title: 'Weekly Ad Performance', items: metrics },\n  { type: 'highlights', title: 'Highlights', items: highlights },\n  { type: 'table', title: 'Campaign Breakdown', headers: tableHeaders, rows: tableRows },\n];\nif (anomalyItems.length > 0) {\n  sections.push({ type: 'anomalies', title: 'Ad Alerts This Week', items: anomalyItems });\n}\nsections.push({ type: 'actions', title: 'Recommended Actions', items: actions });\n\nreturn [{ json: {\n  report_title: 'Weekly Ad Performance',\n  report_subtitle: `${dates.thisWeekStart} to ${dates.today}`,\n  sections,\n  // For storage\n  summary: {\n    total_spend: thisTotal.cost,\n    total_conversions: thisTotal.conversions,\n    total_clicks: thisTotal.clicks,\n    cost_per_conversion: thisTotal.cost_per_conversion,\n    roas: thisTotal.roas,\n    campaign_count: campaignNames.length,\n    alerts_count: anomalyItems.length,\n    week_start: dates.thisWeekStart,\n    week_end: dates.today\n  }\n} }];"
+      },
+      "id": "aggregate",
+      "name": "Aggregate Performance",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1380, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "rOeTPPi2kW6thURB",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "report_title": "={{ $json.report_title }}",
+            "report_subtitle": "={{ $json.report_subtitle }}",
+            "sections": "={{ JSON.stringify($json.sections) }}"
+          }
+        }
+      },
+      "id": "call-tg118",
+      "name": "Build HTML via TG-118",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1620, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "to_email": "totalguardllc@gmail.com",
+            "subject": "={{ $('Aggregate Performance').first().json.report_title + ' — ' + $('Aggregate Performance').first().json.report_subtitle }}",
+            "html_body": "={{ $json.html }}",
+            "workflow_name": "TG-116",
+            "email_type": "report"
+          }
+        }
+      },
+      "id": "call-tg95",
+      "name": "Send Email via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1860, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ report_type: 'ad_performance', report_date: $('Calculate Week Ranges').first().json.today, report_data: $('Aggregate Performance').first().json.summary, generated_by: 'TG-116' }) }}"
+      },
+      "id": "store-report",
+      "name": "Store to Intelligence Reports",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2100, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// No ads data this week — send brief notification\nconst dates = $('Calculate Week Ranges').first().json;\n\nreturn [{ json: {\n  report_title: 'Weekly Ad Performance',\n  report_subtitle: `${dates.thisWeekStart} to ${dates.today}`,\n  sections: [\n    {\n      type: 'highlights',\n      title: 'No Ad Data This Week',\n      items: [\n        'No Google Ads data was recorded for this period.',\n        'This could mean no campaigns are running, or the Google Ads API sync (TG-109) has not been configured yet.',\n        'If campaigns are active, verify TG-109 is running and the Google Ads customer ID is set.'\n      ]\n    },\n    {\n      type: 'actions',\n      title: 'Next Steps',\n      items: [\n        'Verify Google Ads account is active and campaigns are running',\n        'Check that TG-109 daily sync is configured with $vars.TG_GOOGLE_ADS_CUSTOMER_ID',\n        'Review Google Ads dashboard directly for any issues'\n      ]\n    }\n  ],\n  summary: {\n    total_spend: 0,\n    total_conversions: 0,\n    total_clicks: 0,\n    cost_per_conversion: 0,\n    roas: 0,\n    campaign_count: 0,\n    alerts_count: 0,\n    week_start: dates.thisWeekStart,\n    week_end: dates.today,\n    status: 'no_data'\n  }\n} }];"
+      },
+      "id": "no-data-report",
+      "name": "Build No-Data Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1380, 560]
+    },
+    {
+      "parameters": {
+        "workflowId": "rOeTPPi2kW6thURB",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "report_title": "={{ $json.report_title }}",
+            "report_subtitle": "={{ $json.report_subtitle }}",
+            "sections": "={{ JSON.stringify($json.sections) }}"
+          }
+        }
+      },
+      "id": "call-tg118-nodata",
+      "name": "Build HTML (No Data) via TG-118",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1620, 560]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "to_email": "totalguardllc@gmail.com",
+            "subject": "={{ $('Build No-Data Report').first().json.report_title + ' — No Ads Running (' + $('Build No-Data Report').first().json.report_subtitle + ')' }}",
+            "html_body": "={{ $json.html }}",
+            "workflow_name": "TG-116",
+            "email_type": "report"
+          }
+        }
+      },
+      "id": "call-tg95-nodata",
+      "name": "Send Email (No Data) via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1860, 560]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ report_type: 'ad_performance', report_date: $('Calculate Week Ranges').first().json.today, report_data: $('Build No-Data Report').first().json.summary, generated_by: 'TG-116' }) }}"
+      },
+      "id": "store-report-nodata",
+      "name": "Store No-Data Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2100, 560]
+    }
+  ],
+  "connections": {
+    "Monday 8am CT": {
+      "main": [
+        [{ "node": "Calculate Week Ranges", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Week Ranges": {
+      "main": [
+        [
+          { "node": "Fetch This Week Ads", "type": "main", "index": 0 },
+          { "node": "Fetch Previous Week Ads", "type": "main", "index": 0 },
+          { "node": "Fetch Ads Alerts", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch This Week Ads": {
+      "main": [
+        [{ "node": "Wait For Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Previous Week Ads": {
+      "main": [
+        [{ "node": "Wait For Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait For Data": {
+      "main": [
+        [{ "node": "Wait For All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Ads Alerts": {
+      "main": [
+        [{ "node": "Wait For All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait For All Data": {
+      "main": [
+        [{ "node": "Has Ad Data?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Has Ad Data?": {
+      "main": [
+        [{ "node": "Aggregate Performance", "type": "main", "index": 0 }],
+        [{ "node": "Build No-Data Report", "type": "main", "index": 0 }]
+      ]
+    },
+    "Aggregate Performance": {
+      "main": [
+        [{ "node": "Build HTML via TG-118", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build HTML via TG-118": {
+      "main": [
+        [{ "node": "Send Email via TG-95", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Email via TG-95": {
+      "main": [
+        [{ "node": "Store to Intelligence Reports", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build No-Data Report": {
+      "main": [
+        [{ "node": "Build HTML (No Data) via TG-118", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build HTML (No Data) via TG-118": {
+      "main": [
+        [{ "node": "Send Email (No Data) via TG-95", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Email (No Data) via TG-95": {
+      "main": [
+        [{ "node": "Store No-Data Report", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  },
+  "pinData": {},
+  "staticData": null
+}
