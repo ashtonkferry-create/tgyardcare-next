@@ -62,15 +62,16 @@ Plans:
 ## Phase 3: SEO Domination
 **Goal**: Build 9 focused n8n workflows (TG-96 through TG-104) that close remaining SEO gaps -- daily GSC sync, rank drop detection, content gap analysis, ranking opportunity detection, index coverage monitoring, content staleness checks, city content generation, quality validation, and weekly SEO summary.
 **Impact**: Fill the only SEO category where TTW beats TG (monitoring: 10-5)
-**Status**: Planning complete
-**Plans:** 5 plans
+**Status**: Complete
+**Plans:** 6 plans (5 original + 1 gap closure)
 
 Plans:
-- [ ] 03-01-PLAN.md -- DB migration (index_coverage_log, seo_content_gaps) + TG-96 GSC Daily Sync
-- [ ] 03-02-PLAN.md -- TG-103 City Content Generator + TG-104 Content Quality Checker
-- [ ] 03-03-PLAN.md -- TG-97 Rank Drop Detector + TG-100 Index Coverage Monitor
-- [ ] 03-04-PLAN.md -- TG-98 Content Gap Detector + TG-99 Ranking Opportunity Detector + TG-101 Content Staleness Checker
-- [ ] 03-05-PLAN.md -- TG-102 Weekly SEO Summary (aggregates all monitoring data)
+- [x] 03-01-PLAN.md -- DB migration (index_coverage_log, seo_content_gaps) + TG-96 GSC Daily Sync
+- [x] 03-02-PLAN.md -- TG-103 City Content Generator + TG-104 Content Quality Checker
+- [x] 03-03-PLAN.md -- TG-97 Rank Drop Detector + TG-100 Index Coverage Monitor
+- [x] 03-04-PLAN.md -- TG-98 Content Gap Detector + TG-99 Ranking Opportunity Detector + TG-101 Content Staleness Checker
+- [x] 03-05-PLAN.md -- TG-102 Weekly SEO Summary (aggregates all monitoring data)
+- [x] 03-06-PLAN.md -- Gap closure: schema fix (TG-97/TG-102) + missing aggregation sources + city data verification
 
 ## Phase 4: Intelligence Layer
 **Goal**: Build 20+ workflows for self-improvement, revenue attribution, A/B testing, ad optimization, and AI learning reports. This is TTW's only 12-0 category — TG currently has zero.
@@ -178,7 +179,7 @@ Plans:
 | 0. Fix Existing | M2 | 0/? | Ready to execute | - |
 | 1. Revenue Engine | M2 | 9/9 | Complete | 2026-03-15 |
 | 2. CRM Unification | M2 | 5/5 | Complete | 2026-03-16 |
-| 3. SEO Domination | M2 | 0/5 | Planning complete | - |
+| 3. SEO Domination | M2 | 6/6 | Complete | 2026-03-16 |
 | 4. Intelligence Layer | M2 | 0/? | Not started | - |
 | 5. Safety Nets & Foundation | M3 | 0/? | Not started | - |
 | 6. Brand Transformation | M3 | 0/? | Not started | - |
