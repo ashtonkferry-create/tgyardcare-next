@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 5 of 9 (Safety Nets & Foundation)
-Plan: 3 of 7 complete (Phase 5) — 05-01, 05-02, 05-03 done
+Plan: 4 of 7 complete (Phase 5) — 05-01, 05-02, 05-03, 05-04 done
 Status: In progress
-Last activity: 2026-03-16 — Completed 05-02-PLAN.md (Typography foundation)
+Last activity: 2026-03-16 — Completed 05-04-PLAN.md (Supabase SSR + Auth Middleware)
 
-Progress M3: [███░░░░] 3/7 plans (Phase 5)
+Progress M3: [████░░░] 4/7 plans (Phase 5)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -182,6 +182,10 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - [Phase 5-03]: Budget rule: Phase 6+ must not increase error count above 85
 - [Phase 5-03]: Most errors are Supabase type-gen mismatches — fixable by regenerating types
 
+- [Phase 5-04]: @supabase/ssr v0.9.0 installed; server client at src/lib/supabase/server.ts, browser client at src/lib/supabase/client.ts
+- [Phase 5-04]: Old client (src/integrations/supabase/client.ts) untouched — 57+ imports, migration later
+- [Phase 5-04]: Auth middleware uses cookie detection (-auth-token), not full Supabase client instantiation
+- [Phase 5-04]: /admin/login excluded from auth redirect; redirect param preserves original destination
 - [Phase 5-02]: Self-hosted Clash Display + General Sans via next/font/local (zero external font requests)
 - [Phase 5-02]: Typography scale CSS variables: --text-display-xl (72px) through --text-caption (12px)
 - [Phase 5-02]: Tailwind fontFamily.sans = General Sans, fontFamily.display = Clash Display
@@ -214,6 +218,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 05-02-PLAN.md (Typography foundation -- Clash Display + General Sans)
+Stopped at: Completed 05-04-PLAN.md (Supabase SSR clients + auth middleware)
 Resume file: None
-Next: 05-02 or 05-04 (remaining Phase 5 plans)
+Next: 05-05, 05-06, 05-07 (remaining Phase 5 plans)
