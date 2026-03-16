@@ -108,6 +108,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(destinationUrl, redirect.statusCode);
   }
 
+  // Auth protection for /portal/* and /admin/* (except /admin/login)
+  if (
+    (pathname.startsWith('/portal') || pathname.startsWith('/admin')) &&
+    pathname !== '/admin/login'
+  ) {
+    // Check for Supabase auth cookie presence
+    const hasAuthCookie = request.cookies.getAll().some(c => c.name.includes('-auth-token'))
+    if (!hasAuthCookie) {
+      const loginUrl = new URL('/admin/login', request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+  }
+
   return NextResponse.next();
 }
 
@@ -130,5 +144,8 @@ export const config = {
     '/wix-:path*',
     // Catch all public paths for dynamic redirects (excludes _next, api, admin)
     '/((?!_next|api|admin).*)',
+    // Protected routes
+    '/admin/:path*',
+    '/portal/:path*',
   ],
 };
