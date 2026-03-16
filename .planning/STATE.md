@@ -42,6 +42,7 @@ Executing Milestone 2: CRM Unification
   - 04-07: DONE — TG-114 weekly revenue attribution + TG-115 weekly A/B test results [wave 3]
   - 04-08: DONE — TG-116 weekly ad performance + TG-117 what got smarter flagship digest [wave 3]
   - 04-09: DONE — TG-119 monthly trends + TG-120 channel ROI + TG-121 monthly learning report [wave 4]
+  - 04-10: DONE — TG-122 A/B seed manager + TG-123 workflow health + TG-124 lead recalibrator + TG-125 dashboard updater [wave 5]
   - 04-11: DONE — A/B test integration into TG-83/84/85/91 + TG-94/95 A/B logging [wave 5]
 
 Parallel: Milestone 3 (Billionaire Brand Transformation)
@@ -177,6 +178,10 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 - [Phase 4-09]: TG-121 monthly learning report: 1st of month 9 AM CT (1hr after TG-119/120), aggregates all monthly intelligence
 - [Phase 4-09]: TG-121 pulls from intelligence_reports + ab_tests (winners) + anomaly_log (detection count)
 - [Phase 4-09]: All 3 monthly workflows use TG-118 for HTML + TG-95 for email + store to intelligence_reports
+- [Phase 4-10]: TG-122 A/B seed manager: sub-workflow, creates/updates ab_tests + ab_test_variants
+- [Phase 4-10]: TG-123 workflow health: Monday 7 AM CT, fetches 250 n8n executions, alerts >10% error rate
+- [Phase 4-10]: TG-124 lead score recalibrator: 1st of month 8 AM CT, analysis-only (no auto-changes), 5-tier comparison
+- [Phase 4-10]: TG-125 dashboard updater: daily 10 AM CT, refreshes 7d/30d rolling averages + active counts
 
 ### Pending Todos
 
