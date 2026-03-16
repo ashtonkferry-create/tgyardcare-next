@@ -1,0 +1,1204 @@
+{
+  "name": "TG-92-webhook-router",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tg-router",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "tg92-webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "tg92-router"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Detect the source of the inbound webhook and classify SMS intent\nconst body = $input.first().json.body || $input.first().json;\n\nlet source = 'unknown';\nlet event_type = 'unknown';\n\nif (body.From && body.Body !== undefined && body.MessageSid) {\n  source = 'twilio_sms';\n  event_type = 'inbound_sms';\n} else if (body.first_name || body.email) {\n  source = 'web_form';\n  event_type = 'lead_capture';\n}\n\nlet smsIntent = null;\nif (source === 'twilio_sms') {\n  const from = (body.From || '').replace(/[^0-9+]/g, '');\n  const text = (body.Body || '').trim().toLowerCase();\n  const isOwner = from === 'OWNER_PHONE_PLACEHOLDER';\n\n  if (isOwner && ['1', 'yes', 'confirm'].includes(text)) smsIntent = 'dispatch_confirm';\n  else if (isOwner && ['2', 'no', 'flag'].includes(text)) smsIntent = 'dispatch_flag';\n  else if (['stop', 'unsubscribe', 'quit', 'cancel', 'end'].includes(text)) smsIntent = 'opt_out';\n  else if (['start', 'subscribe'].includes(text)) smsIntent = 'opt_in';\n  else if (text === 'help') smsIntent = 'help';\n  else smsIntent = 'general';\n}\n\nreturn [{\n  json: {\n    source,\n    event_type,\n    smsIntent,\n    idempotency_key: body.MessageSid || null,\n    from_phone: body.From || null,\n    message_body: body.Body || null,\n    raw_payload: body\n  }\n}];"
+      },
+      "id": "tg92-detect-source",
+      "name": "Detect Source",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/webhook_events?idempotency_key=eq.{{ $json.idempotency_key }}&select=id&limit=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" }
+          ]
+        },
+        "options": {
+          "timeout": 3000,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "tg92-check-idempotency",
+      "name": "Check Idempotency",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if the idempotency lookup returned any existing records\n// fullResponse: true means input is always {statusCode, headers, body} (never 0 items)\nconst fullResp = $input.first().json;\nconst body = fullResp.body || fullResp;\nconst detectData = $('Detect Source').first().json;\n\nlet isDuplicate = false;\nif (Array.isArray(body)) {\n  isDuplicate = body.length > 0;\n} else if (body && typeof body === 'object') {\n  isDuplicate = !!body.id;\n}\n\n// Skip idempotency check if key is null (non-SMS source)\nif (!detectData.idempotency_key) {\n  isDuplicate = false;\n}\n\nreturn [{\n  json: {\n    ...detectData,\n    is_duplicate: isDuplicate\n  }\n}];"
+      },
+      "id": "tg92-eval-duplicate",
+      "name": "Evaluate Duplicate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "dup-check",
+              "leftValue": "={{ $json.is_duplicate }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "name": "filter.boolean.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg92-if-duplicate",
+      "name": "IF Duplicate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [960, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response></Response>",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/xml"
+              }
+            ]
+          }
+        }
+      },
+      "id": "tg92-respond-duplicate",
+      "name": "Respond Duplicate (200)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1200, 160]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/webhook_events",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"source\": \"{{ $json.source }}\",\n  \"event_type\": \"{{ $json.event_type }}\",\n  \"idempotency_key\": {{ $json.idempotency_key ? '\"' + $json.idempotency_key + '\"' : 'null' }},\n  \"payload\": {{ JSON.stringify($json.raw_payload) }},\n  \"processing_status\": \"received\"\n}",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "tg92-log-event",
+      "name": "Log to webhook_events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1200, 440]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare routing data, carrying forward source info and webhook_event_id\nconst detectData = $('Evaluate Duplicate').first().json;\nconst logResponse = $input.first().json;\n\n// logResponse is the webhook_events row returned by Prefer: return=representation\nconst webhookEventId = Array.isArray(logResponse) ? (logResponse[0] || {}).id : logResponse.id;\n\nreturn [{\n  json: {\n    source: detectData.source,\n    event_type: detectData.event_type,\n    smsIntent: detectData.smsIntent,\n    raw_payload: detectData.raw_payload,\n    from_phone: detectData.from_phone,\n    message_body: detectData.message_body,\n    idempotency_key: detectData.idempotency_key,\n    webhook_event_id: webhookEventId || null\n  }\n}];"
+      },
+      "id": "tg92-prep-route",
+      "name": "Prepare Route Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, 440]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.source }}",
+                    "rightValue": "twilio_sms",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.string.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "twilio_sms"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.source }}",
+                    "rightValue": "web_form",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.string.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "web_form"
+            }
+          ],
+          "fallbackOutput": {
+            "renameOutput": true,
+            "outputKey": "unknown"
+          }
+        },
+        "options": {
+          "allMatchingOutputs": false
+        }
+      },
+      "id": "tg92-switch-source",
+      "name": "Switch on Source",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1680, 440]
+    },
+
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response></Response>",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/xml"
+              }
+            ]
+          }
+        }
+      },
+      "id": "tg92-sms-twiml-respond",
+      "name": "Respond TwiML (SMS)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1920, 100]
+    },
+
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.smsIntent }}",
+                    "rightValue": "dispatch_confirm",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.string.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "dispatch_confirm"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.smsIntent }}",
+                    "rightValue": "dispatch_flag",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.string.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "dispatch_flag"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.smsIntent }}",
+                    "rightValue": "opt_out",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.string.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "opt_out"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.smsIntent }}",
+                    "rightValue": "opt_in",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.string.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "opt_in"
+            }
+          ],
+          "fallbackOutput": {
+            "renameOutput": true,
+            "outputKey": "default"
+          }
+        },
+        "options": {
+          "allMatchingOutputs": false
+        }
+      },
+      "id": "tg92-switch-sms-intent",
+      "name": "Switch SMS Intent",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1920, 300]
+    },
+
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/dispatch_log?status=eq.pending&order=created_at.desc&limit=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"owner_response\": \"1\",\n  \"owner_responded_at\": \"{{ new Date().toISOString() }}\",\n  \"status\": \"confirmed\"\n}",
+        "options": { "timeout": 5000 }
+      },
+      "id": "tg92-dispatch-confirm",
+      "name": "Confirm Dispatch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2200, 0]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/webhook_events?id=eq.{{ $('Prepare Route Data').first().json.webhook_event_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"processing_status\": \"processed\", \"routed_to\": \"dispatch_confirm\" }",
+        "options": { "timeout": 5000 }
+      },
+      "id": "tg92-update-dispatch-confirm",
+      "name": "Update Status (Dispatch Confirm)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2460, 0]
+    },
+
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/dispatch_log?status=eq.pending&order=created_at.desc&limit=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"owner_response\": \"2\",\n  \"owner_responded_at\": \"{{ new Date().toISOString() }}\",\n  \"status\": \"flagged\"\n}",
+        "options": { "timeout": 5000 }
+      },
+      "id": "tg92-dispatch-flag",
+      "name": "Flag Dispatch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2200, 160]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/webhook_events?id=eq.{{ $('Prepare Route Data').first().json.webhook_event_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"processing_status\": \"processed\", \"routed_to\": \"dispatch_flag\" }",
+        "options": { "timeout": 5000 }
+      },
+      "id": "tg92-update-dispatch-flag",
+      "name": "Update Status (Dispatch Flag)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2460, 160]
+    },
+
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_consent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "resolution=merge-duplicates,return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $json.from_phone }}\",\n  \"status\": \"opted_out\",\n  \"opted_out_at\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": { "timeout": 5000 }
+      },
+      "id": "tg92-opt-out-update",
+      "name": "Update Consent (Opt-Out)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2200, 340]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twilio.com/2010-04-01/Accounts/TWILIO_ACCOUNT_SID/Messages.json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/x-www-form-urlencoded" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "string",
+        "body": "=To={{ encodeURIComponent($('Prepare Route Data').first().json.from_phone) }}&From=TWILIO_FROM_PLACEHOLDER&Body={{ encodeURIComponent(\"You've been unsubscribed from TotalGuard messages. Reply START to resubscribe.\") }}",
+        "options": { "timeout": 10000 },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi"
+      },
+      "id": "tg92-opt-out-sms",
+      "name": "Send Opt-Out Confirmation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2460, 340],
+      "credentials": {
+        "twilioApi": {
+          "id": "cwxndVw60DCxqeNg",
+          "name": "TotalGuard Twilio"
+        }
+      }
+    },
+
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_consent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "resolution=merge-duplicates,return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $json.from_phone }}\",\n  \"status\": \"opted_in\",\n  \"opted_in_at\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": { "timeout": 5000 }
+      },
+      "id": "tg92-opt-in-update",
+      "name": "Update Consent (Opt-In)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2200, 520]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twilio.com/2010-04-01/Accounts/TWILIO_ACCOUNT_SID/Messages.json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/x-www-form-urlencoded" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "string",
+        "body": "=To={{ encodeURIComponent($('Prepare Route Data').first().json.from_phone) }}&From=TWILIO_FROM_PLACEHOLDER&Body={{ encodeURIComponent('Welcome back! You are subscribed to TotalGuard messages.') }}",
+        "options": { "timeout": 10000 },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi"
+      },
+      "id": "tg92-opt-in-sms",
+      "name": "Send Opt-In Confirmation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2460, 520],
+      "credentials": {
+        "twilioApi": {
+          "id": "cwxndVw60DCxqeNg",
+          "name": "TotalGuard Twilio"
+        }
+      }
+    },
+
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_consent?phone=eq.{{ $json.from_phone }}&status=eq.opted_out&select=id&limit=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" }
+          ]
+        },
+        "options": {
+          "timeout": 3000,
+          "response": { "response": { "fullResponse": true } }
+        }
+      },
+      "id": "tg92-check-consent",
+      "name": "Check SMS Consent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2200, 700]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if customer has opted out\n// fullResponse:true means input is always {statusCode,headers,body}\nconst fullResp = $input.first().json;\nconst consentResult = fullResp.body !== undefined ? fullResp.body : fullResp;\nconst routeData = $('Prepare Route Data').first().json;\n\nlet isOptedOut = false;\nif (Array.isArray(consentResult)) {\n  isOptedOut = consentResult.length > 0;\n} else if (consentResult && consentResult.id) {\n  isOptedOut = true;\n}\n\nreturn [{\n  json: {\n    ...routeData,\n    is_opted_out: isOptedOut\n  }\n}];"
+      },
+      "id": "tg92-eval-consent",
+      "name": "Evaluate Consent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2420, 700]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "opted-out-check",
+              "leftValue": "={{ $json.is_opted_out }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "name": "filter.boolean.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg92-if-opted-out",
+      "name": "IF Opted Out",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2640, 700]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/webhook_events?id=eq.{{ $json.webhook_event_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"processing_status\": \"blocked_opted_out\" }",
+        "options": { "timeout": 5000 }
+      },
+      "id": "tg92-log-opted-out",
+      "name": "Log Opted Out Skip",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2880, 600]
+    },
+
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_sends?to_phone=eq.{{ $json.from_phone }}&sent_at=gte.{{ new Date(new Date().setHours(0,0,0,0)).toISOString() }}&select=id",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Prefer", "value": "count=exact" },
+            { "name": "Range-Unit", "value": "items" },
+            { "name": "Range", "value": "0-0" }
+          ]
+        },
+        "options": {
+          "timeout": 3000,
+          "fullResponse": true
+        }
+      },
+      "id": "tg92-rate-limit-check",
+      "name": "Rate Limit Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2880, 800]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse rate limit from Content-Range header\nconst response = $input.first().json;\nconst contentRange = response.headers?.['content-range'] || '';\nconst routeData = $('Evaluate Consent').first().json;\n\n// Content-Range format: 0-0/N where N is total count\nlet count = 0;\nconst match = contentRange.match(/\\/(\\d+)/);\nif (match) count = parseInt(match[1], 10);\n\nconst MAX_DAILY_SMS = 3;\nconst isRateLimited = count >= MAX_DAILY_SMS;\n\nreturn [{\n  json: {\n    ...routeData,\n    daily_sms_count: count,\n    is_rate_limited: isRateLimited\n  }\n}];"
+      },
+      "id": "tg92-eval-rate-limit",
+      "name": "Evaluate Rate Limit",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3120, 800]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "rate-limit-check",
+              "leftValue": "={{ $json.is_rate_limited }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "name": "filter.boolean.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg92-if-rate-limited",
+      "name": "IF Rate Limited",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [3360, 800]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/webhook_events?id=eq.{{ $json.webhook_event_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"processing_status\": \"rate_limited\" }",
+        "options": { "timeout": 5000 }
+      },
+      "id": "tg92-log-rate-limited",
+      "name": "Log Rate Limited Skip",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3600, 700]
+    },
+
+    {
+      "parameters": {
+        "jsCode": "// Prepare input for TG-76 sub-workflow\nconst data = $('Evaluate Rate Limit').first().json;\nreturn [{\n  json: {\n    from: data.from_phone,\n    messageText: data.message_body,\n    messageSid: data.idempotency_key\n  }\n}];"
+      },
+      "id": "tg92-prep-tg76",
+      "name": "Prepare TG-76 Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3600, 900]
+    },
+    {
+      "parameters": {
+        "workflowId": "XvUjMIkGDYUuYJxK",
+        "options": {}
+      },
+      "id": "tg92-execute-tg76",
+      "name": "Execute TG-76",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [3840, 900]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/webhook_events?id=eq.{{ $('Prepare Route Data').first().json.webhook_event_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"processing_status\": \"processed\", \"routed_to\": \"TG-76\" }",
+        "options": { "timeout": 5000 }
+      },
+      "id": "tg92-update-sms-status",
+      "name": "Update Status (SMS->TG-76)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [4080, 900]
+    },
+
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true }) }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "id": "tg92-respond-webform",
+      "name": "Respond JSON (Web Form)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1920, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare input for TG-01 lead capture sub-workflow\nconst data = $('Prepare Route Data').first().json;\nconst raw = data.raw_payload;\nreturn [{\n  json: {\n    name: raw.name || (raw.first_name || '') + ' ' + (raw.last_name || ''),\n    email: raw.email || '',\n    phone: raw.phone || '',\n    service: raw.service || '',\n    message: raw.message || '',\n    address: raw.address || '',\n    source: 'web_form',\n    form_type: raw.form_type || 'contact',\n    webhook_event_id: data.webhook_event_id\n  }\n}];"
+      },
+      "id": "tg92-prep-tg01",
+      "name": "Prepare TG-01 Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2160, 600]
+    },
+    {
+      "parameters": {
+        "workflowId": "1ydNC4gmQeGQrXQi",
+        "options": {}
+      },
+      "id": "tg92-execute-tg01",
+      "name": "Execute TG-01",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [2400, 600]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/webhook_events?id=eq.{{ $('Prepare Route Data').first().json.webhook_event_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"processing_status\": \"processed\", \"routed_to\": \"TG-01\" }",
+        "options": { "timeout": 5000 }
+      },
+      "id": "tg92-update-webform-status",
+      "name": "Update Status (Web Form)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2640, 600]
+    },
+
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, status: 'logged' }) }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "id": "tg92-respond-unknown",
+      "name": "Respond JSON (Unknown)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1920, 900]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/webhook_events?id=eq.{{ $json.webhook_event_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"processing_status\": \"unrouted\" }",
+        "options": { "timeout": 5000 }
+      },
+      "id": "tg92-update-unknown-status",
+      "name": "Update Status (Unknown)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2160, 900]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Detect Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Source": {
+      "main": [
+        [
+          {
+            "node": "Check Idempotency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Idempotency": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Duplicate": {
+      "main": [
+        [
+          {
+            "node": "IF Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Respond Duplicate (200)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log to webhook_events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to webhook_events": {
+      "main": [
+        [
+          {
+            "node": "Prepare Route Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Route Data": {
+      "main": [
+        [
+          {
+            "node": "Switch on Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch on Source": {
+      "main": [
+        [
+          {
+            "node": "Respond TwiML (SMS)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch SMS Intent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond JSON (Web Form)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare TG-01 Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond JSON (Unknown)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status (Unknown)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch SMS Intent": {
+      "main": [
+        [
+          {
+            "node": "Confirm Dispatch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Flag Dispatch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Consent (Opt-Out)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Consent (Opt-In)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check SMS Consent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Dispatch": {
+      "main": [
+        [
+          {
+            "node": "Update Status (Dispatch Confirm)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flag Dispatch": {
+      "main": [
+        [
+          {
+            "node": "Update Status (Dispatch Flag)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Consent (Opt-Out)": {
+      "main": [
+        [
+          {
+            "node": "Send Opt-Out Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Consent (Opt-In)": {
+      "main": [
+        [
+          {
+            "node": "Send Opt-In Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check SMS Consent": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Consent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Consent": {
+      "main": [
+        [
+          {
+            "node": "IF Opted Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Opted Out": {
+      "main": [
+        [
+          {
+            "node": "Log Opted Out Skip",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rate Limit Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rate Limit Check": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Rate Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Rate Limit": {
+      "main": [
+        [
+          {
+            "node": "IF Rate Limited",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Rate Limited": {
+      "main": [
+        [
+          {
+            "node": "Log Rate Limited Skip",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare TG-76 Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare TG-76 Input": {
+      "main": [
+        [
+          {
+            "node": "Execute TG-76",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute TG-76": {
+      "main": [
+        [
+          {
+            "node": "Update Status (SMS->TG-76)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare TG-01 Input": {
+      "main": [
+        [
+          {
+            "node": "Execute TG-01",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute TG-01": {
+      "main": [
+        [
+          {
+            "node": "Update Status (Web Form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "any",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": [
+    { "name": "phase-2-crm" },
+    { "name": "router" }
+  ]
+}

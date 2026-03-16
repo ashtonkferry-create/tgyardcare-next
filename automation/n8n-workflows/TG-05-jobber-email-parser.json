@@ -125,6 +125,23 @@
                 "conditions": [
                   {
                     "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "job_scheduled",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "job_scheduled"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
                     "rightValue": "job_completed",
                     "operator": {
                       "type": "string",
@@ -420,6 +437,21 @@
         500
       ],
       "notes": "TODO: Set workflowId after TG-89 is created"
+    },
+    {
+      "parameters": {
+        "workflowId": "JBZCSMGKzBoTz7se",
+        "options": {}
+      },
+      "id": "call-tg93",
+      "name": "Call TG-93 Auto-Dispatch",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        900
+      ],
+      "notes": "Dispatches new_request, job_scheduled, and plan_accepted events to owner via SMS"
     }
   ],
   "connections": {
@@ -474,6 +506,18 @@
             "node": "Upsert Lead (New Request)",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Call TG-93 Auto-Dispatch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call TG-93 Auto-Dispatch",
+            "type": "main",
+            "index": 0
           }
         ],
         [
@@ -512,6 +556,11 @@
         [
           {
             "node": "Call TG-86 Plan Enrollment",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Call TG-93 Auto-Dispatch",
             "type": "main",
             "index": 0
           }
@@ -596,6 +645,17 @@
       ]
     },
     "Call TG-89 Invoice Delivery": {
+      "main": [
+        [
+          {
+            "node": "Mark Event Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call TG-93 Auto-Dispatch": {
       "main": [
         [
           {
