@@ -1,0 +1,336 @@
+{
+  "name": "TG-115-weekly-ab-test-report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 13 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Monday 8am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate last Mon-Sun week range\nconst now = new Date();\nconst day = now.getUTCDay();\nconst daysToLastMonday = day === 0 ? 6 : (day - 1) + 7;\nconst lastMonday = new Date(now);\nlastMonday.setUTCDate(now.getUTCDate() - daysToLastMonday);\nlastMonday.setUTCHours(0, 0, 0, 0);\n\nconst lastSunday = new Date(lastMonday);\nlastSunday.setUTCDate(lastMonday.getUTCDate() + 6);\nlastSunday.setUTCHours(23, 59, 59, 999);\n\nconst fmt = (d) => d.toISOString();\nconst fmtDate = (d) => d.toISOString().split('T')[0];\n\nreturn [{ json: {\n  weekStart: fmt(lastMonday),\n  weekEnd: fmt(lastSunday),\n  weekLabel: fmtDate(lastMonday) + ' to ' + fmtDate(lastSunday),\n  reportDate: fmtDate(now)\n} }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Week Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_tests",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,test_name,channel,status,variant_a,variant_b,winner,metric_target,created_at,updated_at"
+            },
+            {
+              "name": "or",
+              "value": "=(status.eq.active,status.eq.completed)"
+            },
+            {
+              "name": "channel",
+              "value": "in.(sms,email)"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-ab-tests",
+      "name": "Fetch A/B Tests",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 100],
+      "notes": "Fetch active and completed A/B tests for SMS and email channels"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_test_sends",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,test_id,variant,converted,sent_at"
+            },
+            {
+              "name": "and",
+              "value": "=(sent_at.gte.{{ $('Calculate Week Range').first().json.weekStart }},sent_at.lte.{{ $('Calculate Week Range').first().json.weekEnd }})"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-sends",
+      "name": "Fetch This Week Sends",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 400],
+      "notes": "Fetch A/B test sends for the reporting week"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_tests",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,test_name,channel,winner,variant_a,variant_b,updated_at"
+            },
+            {
+              "name": "status",
+              "value": "eq.completed"
+            },
+            {
+              "name": "and",
+              "value": "=(updated_at.gte.{{ $('Calculate Week Range').first().json.weekStart }},updated_at.lte.{{ $('Calculate Week Range').first().json.weekEnd }})"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-winners",
+      "name": "Fetch Winners This Week",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 700],
+      "notes": "Fetch tests that completed (winner declared) this week"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build A/B test report from all fetched data\nconst dates = $('Calculate Week Range').first().json;\n\nconst testsRaw = $('Fetch A/B Tests').first().json.body || [];\nconst sendsRaw = $('Fetch This Week Sends').first().json.body || [];\nconst winnersRaw = $('Fetch Winners This Week').first().json.body || [];\n\nconst tests = Array.isArray(testsRaw) ? testsRaw : [];\nconst sends = Array.isArray(sendsRaw) ? sendsRaw : [];\nconst winners = Array.isArray(winnersRaw) ? winnersRaw : [];\n\nconst activeTests = tests.filter(t => t.status === 'active');\nconst completedTests = tests.filter(t => t.status === 'completed');\n\n// === Sends by test + variant ===\nconst sendsByTest = {};\nfor (const s of sends) {\n  const key = s.test_id;\n  if (!sendsByTest[key]) sendsByTest[key] = { a: { total: 0, converted: 0 }, b: { total: 0, converted: 0 } };\n  const variant = (s.variant || 'a').toLowerCase();\n  const bucket = variant === 'b' ? 'b' : 'a';\n  sendsByTest[key][bucket].total += 1;\n  if (s.converted) sendsByTest[key][bucket].converted += 1;\n}\n\n// === Build test results table ===\nconst testResults = tests.map(t => {\n  const sd = sendsByTest[t.id] || { a: { total: 0, converted: 0 }, b: { total: 0, converted: 0 } };\n  const aRate = sd.a.total > 0 ? Math.round((sd.a.converted / sd.a.total) * 10000) / 100 : 0;\n  const bRate = sd.b.total > 0 ? Math.round((sd.b.converted / sd.b.total) * 10000) / 100 : 0;\n  const totalSends = sd.a.total + sd.b.total;\n  const totalConverted = sd.a.converted + sd.b.converted;\n  return {\n    testName: t.test_name || 'Unnamed',\n    channel: t.channel || '-',\n    status: t.status,\n    variantA: t.variant_a || 'A',\n    variantB: t.variant_b || 'B',\n    aRate,\n    bRate,\n    aSends: sd.a.total,\n    bSends: sd.b.total,\n    totalSends,\n    totalConverted,\n    winner: t.winner || '-',\n    metric: t.metric_target || '-'\n  };\n});\n\n// === Overall metrics ===\nconst totalSendsWeek = sends.length;\nconst totalConvertedWeek = sends.filter(s => s.converted).length;\nconst avgConversion = totalSendsWeek > 0 ? Math.round((totalConvertedWeek / totalSendsWeek) * 10000) / 100 : 0;\n\n// === Highlights ===\nconst highlights = [];\nfor (const w of winners) {\n  highlights.push('Winner declared: \"' + (w.test_name || 'Test') + '\" (' + w.channel + ') - Variant ' + (w.winner || '?') + ' wins');\n}\nif (activeTests.length > 0) highlights.push(activeTests.length + ' test(s) still running and collecting data');\nif (totalSendsWeek > 0) highlights.push(totalSendsWeek + ' total sends this week with ' + avgConversion + '% avg conversion');\nif (tests.length === 0) highlights.push('No active or completed A/B tests found. Consider seeding new tests via TG-105.');\n\n// === Actions ===\nconst actions = [];\nif (activeTests.length === 0 && completedTests.length === 0) {\n  actions.push('No A/B tests running - seed new SMS and email tests via TG-105 router');\n  actions.push('Start with follow-up message variants or quote email subject lines');\n} else {\n  if (winners.length > 0) actions.push('Apply winning variants to production templates');\n  const lowSampleTests = testResults.filter(t => t.status === 'active' && t.totalSends < 20);\n  if (lowSampleTests.length > 0) actions.push(lowSampleTests.length + ' test(s) have low sample size (<20 sends) - continue collecting data');\n  if (activeTests.length < 2) actions.push('Consider adding more tests - optimal is 2-3 concurrent A/B tests');\n}\nif (actions.length === 0) actions.push('A/B testing program on track - no action needed');\n\n// === Build TG-118 compatible report ===\nconst noTests = tests.length === 0;\n\nconst sections = [\n  {\n    type: 'metrics',\n    title: 'A/B Testing Overview',\n    items: [\n      { label: 'Active Tests', value: activeTests.length.toString(), change: '' },\n      { label: 'Sends This Week', value: totalSendsWeek.toString(), change: '' },\n      { label: 'Winners Declared', value: winners.length.toString(), change: '' },\n      { label: 'Avg Conversion', value: avgConversion + '%', change: '' }\n    ]\n  }\n];\n\nif (testResults.length > 0) {\n  sections.push({\n    type: 'table',\n    title: 'Test Results by Variant',\n    headers: ['Test', 'Channel', 'Status', 'A Rate', 'B Rate', 'Sends', 'Winner'],\n    rows: testResults.map(t => [\n      t.testName,\n      t.channel,\n      t.status,\n      t.aRate + '%',\n      t.bRate + '%',\n      t.totalSends.toString(),\n      t.winner\n    ])\n  });\n}\n\nsections.push({\n  type: 'highlights',\n  title: noTests ? 'No Active Tests' : 'Key Highlights',\n  items: highlights\n});\n\nsections.push({\n  type: 'actions',\n  title: 'Recommended Actions',\n  items: actions\n});\n\nconst reportData = {\n  report_title: 'Weekly A/B Test Report',\n  report_subtitle: dates.weekLabel,\n  sections\n};\n\nconst subject = noTests\n  ? 'TG A/B Tests: No active tests - time to seed new experiments'\n  : 'TG A/B Tests: ' + activeTests.length + ' active, ' + winners.length + ' winners, ' + avgConversion + '% avg conversion';\n\nreturn [{ json: {\n  reportData,\n  subject,\n  storePayload: {\n    report_type: 'ab_test_results',\n    report_date: dates.reportDate,\n    report_data: {\n      week_label: dates.weekLabel,\n      active_tests: activeTests.length,\n      completed_tests: completedTests.length,\n      winners_this_week: winners.length,\n      total_sends: totalSendsWeek,\n      avg_conversion: avgConversion,\n      test_results: testResults,\n      highlights,\n      actions\n    }\n  }\n} }];"
+      },
+      "id": "build-report",
+      "name": "Build Report Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "rOeTPPi2kW6thURB",
+        "fields": {
+          "values": [
+            {
+              "name": "report_title",
+              "stringValue": "={{ $json.reportData.report_title }}"
+            },
+            {
+              "name": "report_subtitle",
+              "stringValue": "={{ $json.reportData.report_subtitle }}"
+            },
+            {
+              "name": "sections",
+              "stringValue": "={{ JSON.stringify($json.reportData.sections) }}"
+            }
+          ]
+        }
+      },
+      "id": "format-html",
+      "name": "Format HTML via TG-118",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "fields": {
+          "values": [
+            {
+              "name": "to_email",
+              "stringValue": "OWNER_EMAIL_PLACEHOLDER"
+            },
+            {
+              "name": "subject",
+              "stringValue": "={{ $('Build Report Data').first().json.subject }}"
+            },
+            {
+              "name": "html_body",
+              "stringValue": "={{ $json.html }}"
+            },
+            {
+              "name": "workflow_name",
+              "stringValue": "TG-115"
+            },
+            {
+              "name": "email_type",
+              "stringValue": "ab_test_weekly_report"
+            }
+          ]
+        }
+      },
+      "id": "send-email",
+      "name": "Send via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1320, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Build Report Data').first().json.storePayload) }}"
+      },
+      "id": "store-report",
+      "name": "Store Report Snapshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 500],
+      "notes": "Store report snapshot in intelligence_reports table for historical tracking"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log completion\nconst data = $('Build Report Data').first().json;\nreturn [{ json: {\n  status: 'complete',\n  report_type: 'ab_test_results',\n  report_date: data.storePayload.report_date,\n  active_tests: data.storePayload.report_data.active_tests,\n  winners_this_week: data.storePayload.report_data.winners_this_week,\n  completedAt: new Date().toISOString()\n} }];"
+      },
+      "id": "log-complete",
+      "name": "Log Completion",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 300]
+    }
+  ],
+  "connections": {
+    "Monday 8am CT": {
+      "main": [
+        [{ "node": "Calculate Week Range", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Week Range": {
+      "main": [
+        [
+          { "node": "Fetch A/B Tests", "type": "main", "index": 0 },
+          { "node": "Fetch This Week Sends", "type": "main", "index": 0 },
+          { "node": "Fetch Winners This Week", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch A/B Tests": {
+      "main": [
+        [{ "node": "Build Report Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch This Week Sends": {
+      "main": [
+        [{ "node": "Build Report Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Winners This Week": {
+      "main": [
+        [{ "node": "Build Report Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Report Data": {
+      "main": [
+        [
+          { "node": "Format HTML via TG-118", "type": "main", "index": 0 },
+          { "node": "Store Report Snapshot", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Format HTML via TG-118": {
+      "main": [
+        [{ "node": "Send via TG-95", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send via TG-95": {
+      "main": [
+        [{ "node": "Log Completion", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "intelligence" },
+    { "name": "weekly-report" },
+    { "name": "phase-4" }
+  ]
+}

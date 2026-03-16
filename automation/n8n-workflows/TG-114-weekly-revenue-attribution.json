@@ -1,0 +1,325 @@
+{
+  "name": "TG-114-weekly-revenue-attribution",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 13 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Monday 8am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate last Mon-Sun range + previous week for WoW comparison\nconst now = new Date();\nconst day = now.getUTCDay(); // 0=Sun, 1=Mon\n\n// Last Monday = most recent Monday before today\n// If today is Monday (1), last Monday is 7 days ago\nconst daysToLastMonday = day === 0 ? 6 : (day - 1) + 7;\nconst lastMonday = new Date(now);\nlastMonday.setUTCDate(now.getUTCDate() - daysToLastMonday);\nlastMonday.setUTCHours(0, 0, 0, 0);\n\nconst lastSunday = new Date(lastMonday);\nlastSunday.setUTCDate(lastMonday.getUTCDate() + 6);\nlastSunday.setUTCHours(23, 59, 59, 999);\n\n// Previous week (Mon-Sun before last week)\nconst prevMonday = new Date(lastMonday);\nprevMonday.setUTCDate(lastMonday.getUTCDate() - 7);\nprevMonday.setUTCHours(0, 0, 0, 0);\n\nconst prevSunday = new Date(prevMonday);\nprevSunday.setUTCDate(prevMonday.getUTCDate() + 6);\nprevSunday.setUTCHours(23, 59, 59, 999);\n\nconst fmt = (d) => d.toISOString();\nconst fmtDate = (d) => d.toISOString().split('T')[0];\n\nreturn [{ json: {\n  thisWeekStart: fmt(lastMonday),\n  thisWeekEnd: fmt(lastSunday),\n  prevWeekStart: fmt(prevMonday),\n  prevWeekEnd: fmt(prevSunday),\n  thisWeekLabel: fmtDate(lastMonday) + ' to ' + fmtDate(lastSunday),\n  prevWeekLabel: fmtDate(prevMonday) + ' to ' + fmtDate(prevSunday),\n  reportDate: fmtDate(now)\n} }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Week Ranges",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/revenue_attribution",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,lead_id,revenue,lead_source,service_type,attributed_at"
+            },
+            {
+              "name": "and",
+              "value": "=(attributed_at.gte.{{ $('Calculate Week Ranges').first().json.thisWeekStart }},attributed_at.lte.{{ $('Calculate Week Ranges').first().json.thisWeekEnd }})"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-revenue-this-week",
+      "name": "Fetch Revenue This Week",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/revenue_attribution",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,lead_id,revenue,lead_source,service_type,attributed_at"
+            },
+            {
+              "name": "and",
+              "value": "=(attributed_at.gte.{{ $('Calculate Week Ranges').first().json.prevWeekStart }},attributed_at.lte.{{ $('Calculate Week Ranges').first().json.prevWeekEnd }})"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-revenue-prev-week",
+      "name": "Fetch Revenue Previous Week",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 500]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,source,status,created_at"
+            },
+            {
+              "name": "and",
+              "value": "=(created_at.gte.{{ $('Calculate Week Ranges').first().json.thisWeekStart }},created_at.lte.{{ $('Calculate Week Ranges').first().json.thisWeekEnd }})"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-leads-this-week",
+      "name": "Fetch Leads This Week",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 800]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build comprehensive revenue attribution report\nconst dates = $('Calculate Week Ranges').first().json;\n\nconst thisWeekRaw = $('Fetch Revenue This Week').first().json.body || [];\nconst prevWeekRaw = $('Fetch Revenue Previous Week').first().json.body || [];\nconst leadsRaw = $('Fetch Leads This Week').first().json.body || [];\n\nconst thisWeek = Array.isArray(thisWeekRaw) ? thisWeekRaw : [];\nconst prevWeek = Array.isArray(prevWeekRaw) ? prevWeekRaw : [];\nconst leads = Array.isArray(leadsRaw) ? leadsRaw : [];\n\n// === Total Revenue ===\nconst thisRevenue = thisWeek.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);\nconst prevRevenue = prevWeek.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);\nconst revenueDiff = thisRevenue - prevRevenue;\nconst revenuePct = prevRevenue > 0 ? Math.round(((thisRevenue - prevRevenue) / prevRevenue) * 100) : (thisRevenue > 0 ? 100 : 0);\n\n// === Leads ===\nconst totalLeads = leads.length;\nconst bookedLeads = leads.filter(l => l.status === 'booked' || l.status === 'completed').length;\nconst conversionRate = totalLeads > 0 ? Math.round((bookedLeads / totalLeads) * 10000) / 100 : 0;\n\n// === Avg Job Value ===\nconst avgJobValue = thisWeek.length > 0 ? Math.round((thisRevenue / thisWeek.length) * 100) / 100 : 0;\nconst prevAvgJobValue = prevWeek.length > 0 ? Math.round((prevRevenue / prevWeek.length) * 100) / 100 : 0;\nconst avgJobDiff = Math.round((avgJobValue - prevAvgJobValue) * 100) / 100;\n\n// === Revenue by Source ===\nconst bySource = {};\nfor (const r of thisWeek) {\n  const src = (r.lead_source || 'unknown').toLowerCase();\n  if (!bySource[src]) bySource[src] = { revenue: 0, jobs: 0 };\n  bySource[src].revenue += parseFloat(r.revenue) || 0;\n  bySource[src].jobs += 1;\n}\nconst prevBySource = {};\nfor (const r of prevWeek) {\n  const src = (r.lead_source || 'unknown').toLowerCase();\n  if (!prevBySource[src]) prevBySource[src] = { revenue: 0, jobs: 0 };\n  prevBySource[src].revenue += parseFloat(r.revenue) || 0;\n  prevBySource[src].jobs += 1;\n}\n\nconst allSources = [...new Set([...Object.keys(bySource), ...Object.keys(prevBySource)])];\nconst sourceTable = allSources\n  .map(src => {\n    const curr = bySource[src] || { revenue: 0, jobs: 0 };\n    const prev = prevBySource[src] || { revenue: 0, jobs: 0 };\n    const diff = curr.revenue - prev.revenue;\n    const pct = prev.revenue > 0 ? Math.round(((curr.revenue - prev.revenue) / prev.revenue) * 100) : (curr.revenue > 0 ? 100 : 0);\n    return { source: src, revenue: Math.round(curr.revenue * 100) / 100, jobs: curr.jobs, prevRevenue: Math.round(prev.revenue * 100) / 100, diff: Math.round(diff * 100) / 100, pct };\n  })\n  .sort((a, b) => b.revenue - a.revenue);\n\n// === Revenue by Service ===\nconst byService = {};\nfor (const r of thisWeek) {\n  const svc = (r.service_type || 'unknown').toLowerCase();\n  if (!byService[svc]) byService[svc] = { revenue: 0, jobs: 0 };\n  byService[svc].revenue += parseFloat(r.revenue) || 0;\n  byService[svc].jobs += 1;\n}\nconst prevByService = {};\nfor (const r of prevWeek) {\n  const svc = (r.service_type || 'unknown').toLowerCase();\n  if (!prevByService[svc]) prevByService[svc] = { revenue: 0, jobs: 0 };\n  prevByService[svc].revenue += parseFloat(r.revenue) || 0;\n  prevByService[svc].jobs += 1;\n}\n\nconst allServices = [...new Set([...Object.keys(byService), ...Object.keys(prevByService)])];\nconst serviceTable = allServices\n  .map(svc => {\n    const curr = byService[svc] || { revenue: 0, jobs: 0 };\n    const prev = prevByService[svc] || { revenue: 0, jobs: 0 };\n    const diff = curr.revenue - prev.revenue;\n    const pct = prev.revenue > 0 ? Math.round(((curr.revenue - prev.revenue) / prev.revenue) * 100) : (curr.revenue > 0 ? 100 : 0);\n    return { service: svc, revenue: Math.round(curr.revenue * 100) / 100, jobs: curr.jobs, prevRevenue: Math.round(prev.revenue * 100) / 100, diff: Math.round(diff * 100) / 100, pct };\n  })\n  .sort((a, b) => b.revenue - a.revenue);\n\n// === Highlights ===\nconst highlights = [];\nif (thisRevenue > prevRevenue) highlights.push('Revenue up ' + (revenuePct >= 0 ? '+' : '') + revenuePct + '% week-over-week ($' + Math.round(thisRevenue).toLocaleString() + ' vs $' + Math.round(prevRevenue).toLocaleString() + ')');\nif (thisRevenue < prevRevenue) highlights.push('Revenue down ' + revenuePct + '% week-over-week ($' + Math.round(thisRevenue).toLocaleString() + ' vs $' + Math.round(prevRevenue).toLocaleString() + ')');\n\nconst topSource = sourceTable.length > 0 ? sourceTable[0] : null;\nif (topSource) highlights.push('Top source: ' + topSource.source + ' ($' + topSource.revenue.toLocaleString() + ', ' + topSource.jobs + ' jobs)');\n\nconst topService = serviceTable.length > 0 ? serviceTable[0] : null;\nif (topService) highlights.push('Top service: ' + topService.service + ' ($' + topService.revenue.toLocaleString() + ', ' + topService.jobs + ' jobs)');\n\nif (conversionRate > 0) highlights.push('Lead conversion rate: ' + conversionRate + '% (' + bookedLeads + '/' + totalLeads + ' leads)');\n\nif (thisWeek.length === 0 && prevWeek.length === 0) highlights.push('No revenue data recorded for either week. Ensure TG-107 daily sync is running.');\n\n// === Actions ===\nconst actions = [];\nif (thisRevenue < prevRevenue && revenuePct < -20) actions.push('Revenue dropped >20% - review lead pipeline and job scheduling');\nconst lowSources = sourceTable.filter(s => s.diff < -100);\nfor (const ls of lowSources.slice(0, 2)) actions.push(ls.source + ' revenue dropped $' + Math.abs(ls.diff) + ' - investigate channel');\nif (conversionRate < 30 && totalLeads > 5) actions.push('Conversion rate below 30% - review quote follow-up cadence');\nif (actions.length === 0) actions.push('Revenue tracking healthy - no action needed');\n\n// === Build TG-118 compatible report data ===\nconst sign = (v) => v >= 0 ? '+' : '';\n\nconst reportData = {\n  report_title: 'Weekly Revenue Attribution',\n  report_subtitle: dates.thisWeekLabel,\n  sections: [\n    {\n      type: 'metrics',\n      title: 'Revenue Overview',\n      items: [\n        { label: 'Total Revenue', value: '$' + Math.round(thisRevenue).toLocaleString(), change: sign(revenuePct) + revenuePct + '% WoW' },\n        { label: 'Total Leads', value: totalLeads.toString(), change: '' },\n        { label: 'Avg Job Value', value: '$' + avgJobValue.toLocaleString(), change: sign(avgJobDiff) + '$' + Math.abs(avgJobDiff) },\n        { label: 'Conversion Rate', value: conversionRate + '%', change: '' }\n      ]\n    },\n    {\n      type: 'table',\n      title: 'Revenue by Source',\n      headers: ['Source', 'Revenue', 'Jobs', 'Prev Week', 'Change'],\n      rows: sourceTable.map(s => [\n        s.source,\n        '$' + s.revenue.toLocaleString(),\n        s.jobs.toString(),\n        '$' + s.prevRevenue.toLocaleString(),\n        (s.pct >= 0 ? '+' : '') + s.pct + '%'\n      ])\n    },\n    {\n      type: 'table',\n      title: 'Revenue by Service',\n      headers: ['Service', 'Revenue', 'Jobs', 'Prev Week', 'Change'],\n      rows: serviceTable.map(s => [\n        s.service,\n        '$' + s.revenue.toLocaleString(),\n        s.jobs.toString(),\n        '$' + s.prevRevenue.toLocaleString(),\n        (s.pct >= 0 ? '+' : '') + s.pct + '%'\n      ])\n    },\n    {\n      type: 'highlights',\n      title: 'Key Highlights',\n      items: highlights\n    },\n    {\n      type: 'actions',\n      title: 'Recommended Actions',\n      items: actions\n    }\n  ]\n};\n\nreturn [{ json: {\n  reportData,\n  subject: 'TG Revenue Weekly: $' + Math.round(thisRevenue).toLocaleString() + ' (' + sign(revenuePct) + revenuePct + '% WoW)',\n  storePayload: {\n    report_type: 'revenue_attribution',\n    report_date: dates.reportDate,\n    report_data: {\n      week_label: dates.thisWeekLabel,\n      total_revenue: Math.round(thisRevenue * 100) / 100,\n      prev_revenue: Math.round(prevRevenue * 100) / 100,\n      revenue_change_pct: revenuePct,\n      total_leads: totalLeads,\n      conversion_rate: conversionRate,\n      avg_job_value: avgJobValue,\n      jobs_count: thisWeek.length,\n      by_source: sourceTable,\n      by_service: serviceTable,\n      highlights,\n      actions\n    }\n  }\n} }];"
+      },
+      "id": "build-report",
+      "name": "Build Report Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "rOeTPPi2kW6thURB",
+        "fields": {
+          "values": [
+            {
+              "name": "report_title",
+              "stringValue": "={{ $json.reportData.report_title }}"
+            },
+            {
+              "name": "report_subtitle",
+              "stringValue": "={{ $json.reportData.report_subtitle }}"
+            },
+            {
+              "name": "sections",
+              "stringValue": "={{ JSON.stringify($json.reportData.sections) }}"
+            }
+          ]
+        }
+      },
+      "id": "format-html",
+      "name": "Format HTML via TG-118",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "fields": {
+          "values": [
+            {
+              "name": "to_email",
+              "stringValue": "OWNER_EMAIL_PLACEHOLDER"
+            },
+            {
+              "name": "subject",
+              "stringValue": "={{ $('Build Report Data').first().json.subject }}"
+            },
+            {
+              "name": "html_body",
+              "stringValue": "={{ $json.html }}"
+            },
+            {
+              "name": "workflow_name",
+              "stringValue": "TG-114"
+            },
+            {
+              "name": "email_type",
+              "stringValue": "revenue_weekly_report"
+            }
+          ]
+        }
+      },
+      "id": "send-email",
+      "name": "Send via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1320, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Build Report Data').first().json.storePayload) }}"
+      },
+      "id": "store-report",
+      "name": "Store Report Snapshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 500],
+      "notes": "Store report snapshot in intelligence_reports table for historical tracking"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log completion\nconst data = $('Build Report Data').first().json;\nreturn [{ json: {\n  status: 'complete',\n  report_type: 'revenue_attribution',\n  report_date: data.storePayload.report_date,\n  total_revenue: data.storePayload.report_data.total_revenue,\n  revenue_change_pct: data.storePayload.report_data.revenue_change_pct,\n  completedAt: new Date().toISOString()\n} }];"
+      },
+      "id": "log-complete",
+      "name": "Log Completion",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 300]
+    }
+  ],
+  "connections": {
+    "Monday 8am CT": {
+      "main": [
+        [{ "node": "Calculate Week Ranges", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Week Ranges": {
+      "main": [
+        [
+          { "node": "Fetch Revenue This Week", "type": "main", "index": 0 },
+          { "node": "Fetch Revenue Previous Week", "type": "main", "index": 0 },
+          { "node": "Fetch Leads This Week", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Revenue This Week": {
+      "main": [
+        [{ "node": "Build Report Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Revenue Previous Week": {
+      "main": [
+        [{ "node": "Build Report Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Leads This Week": {
+      "main": [
+        [{ "node": "Build Report Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Report Data": {
+      "main": [
+        [
+          { "node": "Format HTML via TG-118", "type": "main", "index": 0 },
+          { "node": "Store Report Snapshot", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Format HTML via TG-118": {
+      "main": [
+        [{ "node": "Send via TG-95", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send via TG-95": {
+      "main": [
+        [{ "node": "Log Completion", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "intelligence" },
+    { "name": "weekly-report" },
+    { "name": "phase-4" }
+  ]
+}
