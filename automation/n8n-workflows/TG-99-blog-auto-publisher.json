@@ -1,0 +1,297 @@
+{
+  "name": "TG-99-blog-auto-publisher",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 15 * * 1,3,5"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Mon Wed Fri 3pm UTC",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/blog_posts?select=slug,category&order=published_at.desc",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+          ]
+        }
+      },
+      "id": "fetch-existing",
+      "name": "Fetch Existing Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 4-season model (fixes 3-season bug in old Vercel cron)\nfunction getCurrentSeason() {\n  const now = new Date();\n  const mmdd = (now.getMonth() + 1) * 100 + now.getDate();\n  if (mmdd >= 315 && mmdd <= 614) return 'spring';\n  if (mmdd >= 615 && mmdd <= 914) return 'summer';\n  if (mmdd >= 915 && mmdd <= 1114) return 'fall';\n  return 'winter';\n}\n\nconst existingPosts = $input.all().map(item => item.json);\nconst existingSlugs = new Set(existingPosts.map(p => p.slug));\nconst categoryCounts = {};\nfor (const p of existingPosts) {\n  categoryCounts[p.category] = (categoryCounts[p.category] || 0) + 1;\n}\n\nconst SERVICE_AREAS = ['Madison','Middleton','Waunakee','Monona','Sun Prairie','Fitchburg','Verona','McFarland','Cottage Grove','DeForest','Oregon','Stoughton'];\nconst topics = [];\n\n// seasonal-tips (20 topics)\nconst seasonalTopics = [\n  { title: 'Spring lawn revival guide for Madison homeowners', seasons: ['spring'], keywords: ['spring lawn care','Madison lawn care','lawn revival'] },\n  { title: 'When to start mowing in Wisconsin', seasons: ['spring'], keywords: ['first mow Wisconsin','mowing season start','spring mowing'] },\n  { title: 'Pre-emergent herbicide timing for Dane County', seasons: ['spring'], keywords: ['pre-emergent herbicide','crabgrass prevention','weed prevention timing'] },\n  { title: 'Spring garden bed preparation tips for Madison WI', seasons: ['spring'], keywords: ['garden bed prep','spring garden','Madison gardening'] },\n  { title: 'How to repair winter damage to your Madison lawn', seasons: ['spring'], keywords: ['winter damage lawn repair','spring lawn recovery','Madison lawn rehab'] },\n  { title: 'Summer watering schedule for Wisconsin lawns', seasons: ['summer'], keywords: ['watering schedule','summer lawn care','Wisconsin irrigation'] },\n  { title: 'How to keep your lawn green in July heat', seasons: ['summer'], keywords: ['summer lawn green','heat stress lawn','July lawn care'] },\n  { title: 'Best mowing height for summer in Madison WI', seasons: ['summer'], keywords: ['mowing height','summer mowing','grass height Wisconsin'] },\n  { title: 'Preventing brown patches in Wisconsin summers', seasons: ['summer'], keywords: ['brown patch disease','lawn disease','lawn fungus'] },\n  { title: 'Grub control timing for Dane County lawns', seasons: ['summer'], keywords: ['grub control','lawn grubs Wisconsin','grub prevention timing'] },\n  { title: 'Complete fall yard checklist for Madison homeowners', seasons: ['fall'], keywords: ['fall yard checklist','fall cleanup','autumn yard maintenance'] },\n  { title: 'When to do your last mow in Wisconsin', seasons: ['fall'], keywords: ['last mow season','fall mowing','Wisconsin mowing end'] },\n  { title: 'Fall gutter cleaning timing for Madison WI', seasons: ['fall'], keywords: ['gutter cleaning fall','winter gutter prep','fall gutter maintenance'] },\n  { title: 'Fall fertilization timing for Dane County lawns', seasons: ['fall'], keywords: ['fall fertilization','winter fertilizer','autumn lawn feeding'] },\n  { title: 'Preparing your garden beds for Wisconsin winter', seasons: ['fall'], keywords: ['winter garden prep','fall garden cleanup','garden bed winterization'] },\n  { title: 'Winter lawn protection tips for Madison WI', seasons: ['winter'], keywords: ['winter lawn care','lawn winterization','winter protection'] },\n  { title: 'Snow removal best practices for Madison driveways', seasons: ['winter'], keywords: ['snow removal tips','driveway snow removal','snow plowing'] },\n  { title: 'Preventing ice damage to your landscape in Wisconsin', seasons: ['winter'], keywords: ['ice damage landscape','winter landscape protection','salt damage lawn'] },\n  { title: 'Planning your spring lawn makeover during winter', seasons: ['winter'], keywords: ['spring planning','winter lawn prep','lawn renovation plan'] },\n  { title: 'How salt and de-icers damage your Madison lawn', seasons: ['winter'], keywords: ['salt damage lawn','de-icer damage','winter lawn protection'] }\n];\nfor (const t of seasonalTopics) { topics.push({ ...t, category: 'seasonal-tips' }); }\n\n// service-guides (10 topics)\nconst serviceTopics = [\n  { title: 'The complete guide to lawn aeration in Madison WI', keywords: ['lawn aeration','core aeration','when to aerate Wisconsin'] },\n  { title: 'Mulching 101: types benefits and costs in Wisconsin', keywords: ['mulching guide','mulch types','mulching cost'] },\n  { title: 'Gutter guard installation: is it worth it for Madison homes', keywords: ['gutter guards','gutter guard cost','gutter protection'] },\n  { title: 'Professional vs DIY weed control in Dane County', keywords: ['weed control','DIY weed control','professional herbicide'] },\n  { title: 'Spring cleanup services: what is included and why it matters', keywords: ['spring cleanup','yard cleanup services','spring yard work'] },\n  { title: 'Fall leaf removal: timing methods and Madison-specific tips', keywords: ['leaf removal','fall leaf cleanup','leaf removal timing'] },\n  { title: 'Professional pruning: when and how to trim shrubs in Wisconsin', keywords: ['shrub pruning','tree trimming','Wisconsin pruning timing'] },\n  { title: 'Garden bed maintenance: a seasonal guide for Madison WI', keywords: ['garden bed maintenance','seasonal garden care','flower bed upkeep'] },\n  { title: 'Snow plowing vs shoveling: choosing the right service', keywords: ['snow plowing','snow shoveling','snow removal service'] },\n  { title: 'Fertilization programs: what Madison lawns actually need', keywords: ['lawn fertilization','fertilizer program','Wisconsin fertilization schedule'] }\n];\nfor (const t of serviceTopics) { topics.push({ ...t, category: 'service-guides', seasons: ['spring','summer','fall','winter'] }); }\n\n// local-guides (24 topics)\nfor (const city of SERVICE_AREAS) {\n  topics.push({ title: `Lawn care tips specific to ${city} WI neighborhoods`, category: 'local-guides', keywords: [`${city} lawn care`,`${city} WI yard maintenance`,`lawn care ${city} Wisconsin`], seasons: ['spring','summer','fall','winter'] });\n  topics.push({ title: `Best yard maintenance schedule for ${city} Wisconsin`, category: 'local-guides', keywords: [`${city} yard maintenance`,`${city} lawn schedule`,`yard care ${city} WI`], seasons: ['spring','summer','fall','winter'] });\n}\n\n// how-to (8 topics)\nconst howToTopics = [\n  { title: 'How to fix bare spots in your Madison lawn', keywords: ['fix bare spots lawn','lawn repair Madison','grass seed bare spots'], seasons: ['spring','summer','fall'] },\n  { title: 'DIY soil testing guide for Wisconsin homeowners', keywords: ['soil testing','lawn soil test','Wisconsin soil pH'], seasons: ['spring','summer','fall','winter'] },\n  { title: 'How to sharpen mower blades for a cleaner cut', keywords: ['sharpen mower blades','lawn mower maintenance','clean lawn cut'], seasons: ['spring','summer'] },\n  { title: 'How to identify common Wisconsin lawn diseases', keywords: ['lawn diseases Wisconsin','lawn fungus identification','lawn disease treatment'], seasons: ['spring','summer','fall'] },\n  { title: 'How to prepare your irrigation system for winter', keywords: ['winterize irrigation','sprinkler system winterization','blow out sprinklers'], seasons: ['fall','winter'] },\n  { title: 'How to choose the right grass seed for Madison WI', keywords: ['grass seed Madison','best grass Wisconsin','cool season grass'], seasons: ['spring','summer','fall','winter'] },\n  { title: 'How to edge your lawn like a professional', keywords: ['lawn edging tips','professional lawn edging','edging techniques'], seasons: ['spring','summer'] },\n  { title: 'How to overseed your Wisconsin lawn for a thicker yard', keywords: ['overseeding lawn','thicker lawn Wisconsin','overseed timing Madison'], seasons: ['spring','fall'] }\n];\nfor (const t of howToTopics) { topics.push({ ...t, category: 'how-to' }); }\n\n// faq-answers (8 topics)\nconst faqTopics = [\n  { title: 'How often should you mow your lawn in Madison', keywords: ['mowing frequency','how often mow lawn','Madison mowing schedule'] },\n  { title: 'What is the best time to fertilize in Wisconsin', keywords: ['best time fertilize','Wisconsin fertilization timing','when to fertilize lawn'] },\n  { title: 'How much does professional lawn care cost in Madison', keywords: ['lawn care cost Madison','professional lawn care price','yard maintenance pricing'] },\n  { title: 'When should you clean your gutters in Wisconsin', keywords: ['gutter cleaning timing','when clean gutters','gutter cleaning schedule'] },\n  { title: 'Is fall cleanup really necessary for Madison homes', keywords: ['fall cleanup necessary','fall yard cleanup importance','leaves on lawn damage'] },\n  { title: 'How to choose a reliable lawn care company in Dane County', keywords: ['choose lawn care company','best lawn care Madison','lawn care company reviews'] },\n  { title: 'What does a spring cleanup include in Madison WI', keywords: ['spring cleanup services','what is spring cleanup','spring yard work included'] },\n  { title: 'How long does lawn aeration take to show results', keywords: ['aeration results timeline','when see aeration results','lawn aeration expectations'] }\n];\nfor (const t of faqTopics) { topics.push({ ...t, category: 'faq-answers', seasons: ['spring','summer','fall','winter'] }); }\n\nfunction slugify(text) { return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }\n\nconst available = topics.filter(t => !existingSlugs.has(slugify(t.title)));\nif (available.length === 0) { return [{ json: { stop: true, reason: 'All topics already published' } }]; }\n\nconst season = getCurrentSeason();\nconst seasonalPool = available.filter(t => t.seasons.includes(season));\nconst pool = seasonalPool.length > 0 ? seasonalPool : available;\n\nconst buckets = {};\nfor (const t of pool) { if (!buckets[t.category]) buckets[t.category] = []; buckets[t.category].push(t); }\n\nlet minCount = Infinity;\nlet bestCategory = '';\nfor (const cat of Object.keys(buckets)) {\n  const count = categoryCounts[cat] || 0;\n  if (count < minCount) { minCount = count; bestCategory = cat; }\n}\n\nconst candidates = buckets[bestCategory] || pool;\nconst topic = candidates[Math.floor(Math.random() * candidates.length)];\n\nreturn [{ json: { stop: false, topic: topic.title, category: topic.category, keywords: topic.keywords, slug: slugify(topic.title), season, month: new Date().toLocaleString('en-US', { month: 'long' }) } }];"
+      },
+      "id": "pick-topic",
+      "name": "Pick Topic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "topics-available",
+              "leftValue": "={{ $json.stop }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "notEqual" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-topics",
+      "name": "IF Topics Available",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/automation_runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"automation_slug\": \"TG-99-blog-auto-publisher\", \"status\": \"error\", \"result_summary\": \"Topics exhausted — all 70 topics already published\", \"error_message\": \"{{ $json.reason }}\", \"pages_affected\": 0, \"completed_at\": \"{{ new Date().toISOString() }}\" }"
+      },
+      "id": "log-topics-exhausted",
+      "name": "Log Topics Exhausted",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{$vars.TG_ANTHROPIC_API_KEY}}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 4096, \"system\": \"You are a professional blog writer for TotalGuard Yard Care, a lawn care and landscaping company in Madison, Wisconsin. You write helpful, engaging, SEO-optimized blog posts that position TotalGuard as the trusted local expert.\\n\\nWRITING RULES:\\n- Write 1200-1500 words\\n- Use HTML tags for formatting: <h2>, <h3>, <p>, <ul>, <li>, <blockquote>, <strong>, <em>\\n- Start with a compelling intro paragraph (no H1 — the title is rendered separately)\\n- Use numbered H2 sections (e.g., <h2>1. Section title</h2>) for main points\\n- Include a <blockquote> callout box with a useful tip or interesting fact\\n- Always mention Madison, Wisconsin, Dane County, or specific local details\\n- Reference specific TotalGuard services with links: <a href=\\\"/services/mowing\\\">lawn mowing</a>, <a href=\\\"/services/gutter-cleaning\\\">gutter cleaning</a>, etc.\\n- Include seasonal timing specific to Wisconsin climate\\n- End with a section titled \\\"Need professional help?\\\" that mentions TotalGuard\\n- Tone: Professional but approachable, knowledgeable but not condescending\\n- Reading level: 8th grade accessible\\n- DO NOT include an H1 tag — the title is rendered separately by the template\\n- DO NOT include any meta tags or frontmatter — just the article HTML body\\n\\nTOTALGUARD SERVICES (for internal links):\\n- /services/mowing — Lawn Mowing\\n- /services/fertilization — Fertilization\\n- /services/aeration — Aeration\\n- /services/herbicide — Weed Control\\n- /services/mulching — Mulching\\n- /services/garden-beds — Garden Beds\\n- /services/weeding — Weeding\\n- /services/pruning — Pruning\\n- /services/spring-cleanup — Spring Cleanup\\n- /services/fall-cleanup — Fall Cleanup\\n- /services/leaf-removal — Leaf Removal\\n- /services/snow-removal — Snow Removal\\n- /services/gutter-cleaning — Gutter Cleaning\\n- /services/gutter-guards — Gutter Guards\\n- /contact — Get a Free Quote\\n\\nSERVICE AREAS: Madison, Middleton, Waunakee, Monona, Sun Prairie, Fitchburg, Verona, McFarland, Cottage Grove, DeForest, Oregon, Stoughton\", \"messages\": [{ \"role\": \"user\", \"content\": \"Write a blog post about: {{ $json.topic }}\\nCategory: {{ $json.category }}\\nTarget keywords: {{ $json.keywords.join(', ') }}\\nCurrent season: {{ $json.season }}\\nCurrent month: {{ $json.month }}\\n\\nReturn a JSON object with these exact fields:\\n{\\n  \\\"title\\\": \\\"SEO-optimized title with Madison WI (under 65 characters)\\\",\\n  \\\"slug\\\": \\\"url-friendly-slug\\\",\\n  \\\"excerpt\\\": \\\"1-2 sentence teaser (under 160 chars)\\\",\\n  \\\"content\\\": \\\"full HTML article body\\\",\\n  \\\"meta_title\\\": \\\"SEO title for browser tab (under 60 chars)\\\",\\n  \\\"meta_description\\\": \\\"SEO meta description (under 155 chars)\\\",\\n  \\\"keywords\\\": [\\\"keyword1\\\", \\\"keyword2\\\", \\\"keyword3\\\", \\\"keyword4\\\", \\\"keyword5\\\"]\\n}\" }] }"
+      },
+      "id": "generate-article",
+      "name": "Generate Article",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst topicData = $('Pick Topic').first().json;\n\nconst textBlock = (raw.content || []).find(b => b.type === 'text');\nconst rawText = textBlock ? textBlock.text : '';\n\nfunction parseClaudeJson(text) {\n  try { return JSON.parse(text); } catch {}\n  const fence = text.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n  if (fence) { try { return JSON.parse(fence[1].trim()); } catch {} }\n  const first = text.indexOf('{');\n  const last = text.lastIndexOf('}');\n  if (first !== -1 && last > first) { try { return JSON.parse(text.slice(first, last + 1)); } catch {} }\n  return null;\n}\n\nconst parsed = parseClaudeJson(rawText);\nif (!parsed || !parsed.title || !parsed.content) {\n  return [{ json: { error: true, reason: 'Failed to parse Claude JSON response' } }];\n}\n\nconst plainText = parsed.content.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();\nconst wordCount = plainText.split(/\\s+/).filter(Boolean).length;\n\nif (wordCount < 800) {\n  return [{ json: { error: true, reason: `Content too thin: ${wordCount} words (min 800)` } }];\n}\n\nconst title = String(parsed.title).slice(0, 65);\nconst metaDesc = String(parsed.meta_description || parsed.excerpt || '').slice(0, 155);\nconst readingTime = Math.ceil(wordCount / 200);\nconst slug = parsed.slug ? String(parsed.slug) : topicData.slug;\n\nreturn [{ json: {\n  error: false,\n  title, slug,\n  excerpt: String(parsed.excerpt || ''),\n  content: String(parsed.content),\n  category: topicData.category,\n  keywords: Array.isArray(parsed.keywords) ? parsed.keywords : topicData.keywords,\n  meta_title: String(parsed.meta_title || title).slice(0, 60),\n  meta_description: metaDesc,\n  reading_time: readingTime,\n  reading_time_minutes: readingTime,\n  word_count: wordCount,\n  status: 'published',\n  published_at: new Date().toISOString(),\n  author: 'TotalGuard Yard Care',\n  ai_generated: true,\n  ai_model: 'claude-sonnet-4-6',\n  ai_generated_at: new Date().toISOString()\n} }];"
+      },
+      "id": "validate-structure",
+      "name": "Validate + Structure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "validation-passed",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "notEqual" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-valid",
+      "name": "IF Validation Passed",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/automation_runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"automation_slug\": \"TG-99-blog-auto-publisher\", \"status\": \"error\", \"result_summary\": \"Validation failed\", \"error_message\": \"{{ $json.reason }}\", \"pages_affected\": 0, \"completed_at\": \"{{ new Date().toISOString() }}\" }"
+      },
+      "id": "log-validation-error",
+      "name": "Log Validation Error",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1680, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/blog_posts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"title\": {{ JSON.stringify($json.title) }}, \"slug\": {{ JSON.stringify($json.slug) }}, \"excerpt\": {{ JSON.stringify($json.excerpt) }}, \"content\": {{ JSON.stringify($json.content) }}, \"category\": {{ JSON.stringify($json.category) }}, \"keywords\": {{ JSON.stringify($json.keywords) }}, \"meta_title\": {{ JSON.stringify($json.meta_title) }}, \"meta_description\": {{ JSON.stringify($json.meta_description) }}, \"reading_time\": {{ $json.reading_time }}, \"reading_time_minutes\": {{ $json.reading_time_minutes }}, \"word_count\": {{ $json.word_count }}, \"status\": \"published\", \"published_at\": {{ JSON.stringify($json.published_at) }}, \"author\": \"TotalGuard Yard Care\", \"ai_generated\": true, \"ai_model\": \"claude-sonnet-4-6\", \"ai_generated_at\": {{ JSON.stringify($json.ai_generated_at) }} }"
+      },
+      "id": "publish-post",
+      "name": "Publish to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.indexnow.org/indexnow",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"host\": \"tgyardcare.com\", \"key\": \"tg2026indexnow8x4k\", \"urlList\": [\"https://tgyardcare.com/blog/{{ $('Validate + Structure').first().json.slug }}\"] }",
+        "options": {}
+      },
+      "id": "ping-indexnow",
+      "name": "Ping IndexNow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1920, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/automation_runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"automation_slug\": \"TG-99-blog-auto-publisher\", \"status\": \"success\", \"result_summary\": \"Published: {{ $('Validate + Structure').first().json.title }} ({{ $('Validate + Structure').first().json.word_count }} words)\", \"pages_affected\": 1, \"completed_at\": \"{{ new Date().toISOString() }}\" }"
+      },
+      "id": "log-success",
+      "name": "Log Success",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2160, 300]
+    },
+    {
+      "parameters": {
+        "from": "+16089953554",
+        "to": "OWNER_PHONE",
+        "message": "=New blog published: \"{{ $('Validate + Structure').first().json.title }}\" — tgyardcare.com/blog/{{ $('Validate + Structure').first().json.slug }}"
+      },
+      "id": "sms-notify",
+      "name": "SMS Notification",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [2400, 300],
+      "credentials": {
+        "twilioApi": {
+          "id": "cwxndVw60DCxqeNg",
+          "name": "Twilio"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Mon Wed Fri 3pm UTC": {
+      "main": [[{ "node": "Fetch Existing Posts", "type": "main", "index": 0 }]]
+    },
+    "Fetch Existing Posts": {
+      "main": [[{ "node": "Pick Topic", "type": "main", "index": 0 }]]
+    },
+    "Pick Topic": {
+      "main": [[{ "node": "IF Topics Available", "type": "main", "index": 0 }]]
+    },
+    "IF Topics Available": {
+      "main": [
+        [{ "node": "Generate Article", "type": "main", "index": 0 }],
+        [{ "node": "Log Topics Exhausted", "type": "main", "index": 0 }]
+      ]
+    },
+    "Generate Article": {
+      "main": [[{ "node": "Validate + Structure", "type": "main", "index": 0 }]]
+    },
+    "Validate + Structure": {
+      "main": [[{ "node": "IF Validation Passed", "type": "main", "index": 0 }]]
+    },
+    "IF Validation Passed": {
+      "main": [
+        [{ "node": "Publish to Supabase", "type": "main", "index": 0 }],
+        [{ "node": "Log Validation Error", "type": "main", "index": 0 }]
+      ]
+    },
+    "Publish to Supabase": {
+      "main": [[{ "node": "Ping IndexNow", "type": "main", "index": 0 }]]
+    },
+    "Ping IndexNow": {
+      "main": [[{ "node": "Log Success", "type": "main", "index": 0 }]]
+    },
+    "Log Success": {
+      "main": [[{ "node": "SMS Notification", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}
