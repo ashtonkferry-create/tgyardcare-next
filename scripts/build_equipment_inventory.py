@@ -150,6 +150,14 @@ def build_equipment_tab(wb):
         (4, "Monitor", "Technology", "", "", "02/28/2026", 105.00, "New", "", "Office", ""),
         (5, "Trailer Hooks", "Hand Tools", "", "", "03/11/2026", 40.00, "New", "", "Truck", ""),
         (6, "Yard Signs", "Other", "", "", "03/10/2026", 398.00, "New", "", "", "Marketing materials"),
+        (7, "STIHL String Trimmer", "Trimmer", "STIHL FS 40 C-E Gas", "", "", 200.00, "Good", "", "Truck", ""),
+        (8, "Husqvarna Backpack Blower", "Blower", "Husqvarna 150BT 952991658 50.2cc 270mph", "", "", 200.00, "Good", "", "Truck", "Renewed from Amazon"),
+        (9, "Trailer 5X8", "Trailer", "", "", "", 400.00, "Good", "", "Truck", ""),
+        (10, "Electric Blower", "Blower", "", "", "", 200.00, "Good", "", "Truck", ""),
+        (11, "Ariens Riding Mower", "Mower", "Ariens", "", "", 3956.00, "Good", "", "Garage", ""),
+        (12, "Echo String Trimmer", "Trimmer", "Echo SRM-2620AA 25.4cc X Series Straight Shaft", "", "", 399.00, "Good", "", "Truck", ""),
+        (13, "Greenworks Dethatcher/Scarifier", "Aerator", "Greenworks 40V 15in", "", "", 249.99, "New", "", "Garage", ""),
+        (14, "Proyama Dual Sided Hedger", "Trimmer", "Proyama 24in 26cc 2-Cycle Gas", "", "", 179.00, "New", "", "Truck", ""),
     ]
     for item in equipment:
         row = item[0]
