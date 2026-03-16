@@ -144,7 +144,7 @@ export const GEO_CONFIG = {
 // BUSINESS CONFIGURATION
 // ============================================
 export const BUSINESS_CONFIG = {
-  name: 'TG Yard Care',
+  name: 'TotalGuard Yard Care',
   legalName: 'TotalGuard Yard Care LLC',
   phone: '608-535-6057',
   phoneFormatted: '+1-608-535-6057',

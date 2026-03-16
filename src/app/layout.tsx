@@ -24,8 +24,8 @@ const generalSans = localFont({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | TG Yard Care',
-    default: 'TG Yard Care | Professional Lawn Care & Landscaping in Madison, WI',
+    template: '%s | TotalGuard Yard Care',
+    default: 'TotalGuard Yard Care | Professional Lawn Care & Landscaping in Madison, WI',
   },
   description:
     "Madison's most dependable yard care -- clean, precise mowing, landscaping, gutters, and seasonal cleanups done right the first time.",
@@ -42,24 +42,24 @@ export const metadata: Metadata = {
     'fertilization',
     'overseeding',
   ],
-  authors: [{ name: 'TG Yard Care' }],
+  authors: [{ name: 'TotalGuard Yard Care' }],
   verification: {
     google: 'W06QbLPFcD9e2S7-dOeriShueA7MNqp4n7Rvjyaw3PY',
   },
   openGraph: {
     type: 'website',
     url: 'https://tgyardcare.com/',
-    title: 'TG Yard Care | Professional Lawn Care & Landscaping in Madison, WI',
+    title: 'TotalGuard Yard Care | Professional Lawn Care & Landscaping in Madison, WI',
     description:
       "Madison's most dependable yard care -- clean, precise mowing, landscaping, gutters, and seasonal cleanups done right the first time.",
-    siteName: 'TG Yard Care',
+    siteName: 'TotalGuard Yard Care',
     locale: 'en_US',
     images: [{ url: 'https://tgyardcare.com/og-image.png', width: 1200, height: 630, type: 'image/png' }],
   },
   twitter: {
     card: 'summary_large_image',
     site: '@TotalGuardYC',
-    title: 'TG Yard Care | Professional Lawn Care & Landscaping in Madison, WI',
+    title: 'TotalGuard Yard Care | Professional Lawn Care & Landscaping in Madison, WI',
     description:
       "Madison's most dependable yard care -- clean, precise mowing, landscaping, gutters, and seasonal cleanups done right the first time.",
     images: ['https://tgyardcare.com/og-image.png'],
