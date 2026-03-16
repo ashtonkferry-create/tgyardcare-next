@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 5 of 9 (Safety Nets & Foundation)
-Plan: 2 of 7 complete (Phase 5) — 05-01, 05-03 done
+Plan: 3 of 7 complete (Phase 5) — 05-01, 05-02, 05-03 done
 Status: In progress
-Last activity: 2026-03-16 — Completed 05-03-PLAN.md (TypeScript error budget baseline)
+Last activity: 2026-03-16 — Completed 05-02-PLAN.md (Typography foundation)
 
-Progress M3: [██░░░░░] 2/7 plans (Phase 5)
+Progress M3: [███░░░░] 3/7 plans (Phase 5)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -182,6 +182,11 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - [Phase 5-03]: Budget rule: Phase 6+ must not increase error count above 85
 - [Phase 5-03]: Most errors are Supabase type-gen mismatches — fixable by regenerating types
 
+- [Phase 5-02]: Self-hosted Clash Display + General Sans via next/font/local (zero external font requests)
+- [Phase 5-02]: Typography scale CSS variables: --text-display-xl (72px) through --text-caption (12px)
+- [Phase 5-02]: Tailwind fontFamily.sans = General Sans, fontFamily.display = Clash Display
+- [Phase 5-02]: CSS custom properties --font-display and --font-body as indirection layer for font assignments
+
 ### Pending Todos
 
 None yet.
@@ -209,6 +214,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 05-03-PLAN.md (TypeScript error budget baseline)
+Stopped at: Completed 05-02-PLAN.md (Typography foundation -- Clash Display + General Sans)
 Resume file: None
 Next: 05-02 or 05-04 (remaining Phase 5 plans)
