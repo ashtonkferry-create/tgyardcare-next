@@ -529,11 +529,64 @@ export const ChatBot = () => {
     }
   };
 
+  const cancelPhrases = /^(cancel|nevermind|never mind|nvm|stop|quit|exit|no thanks|forget it|nah|go back|back|start over|restart)$/i;
+  const goBackPhrases = /^(go back|back|previous|prev|undo)$/i;
+
+  const STEP_FLOW: QuoteStep[] = ['service', 'name', 'email', 'phone', 'address', 'description'];
+
+  const resetQuoteFlow = () => {
+    setQuoteStep('idle');
+    setShowQuickReplies(true);
+    setSelectedService('');
+    setAwaitingCustomService(false);
+    setQuoteFormData({ name: '', email: '', phone: '', address: '', message: '' });
+    setEditingField(null);
+  };
+
+  const goBackOneStep = () => {
+    const currentIdx = STEP_FLOW.indexOf(quoteStep as typeof STEP_FLOW[number]);
+    if (currentIdx <= 0) {
+      // At first step or not in flow — reset entirely
+      resetQuoteFlow();
+      addAssistantMessage("No problem! How else can I help you?");
+      return;
+    }
+    const prevStep = STEP_FLOW[currentIdx - 1];
+    setQuoteStep(prevStep);
+    const prompts: Record<string, string> = {
+      service: "What service are you interested in?",
+      name: "What's your full name?",
+      email: "What's your email address?",
+      phone: "What's the best phone number to reach you?",
+      address: "What's your property address?",
+    };
+    addAssistantMessage(`Sure, let's go back. ${prompts[prevStep] || ''}`);
+  };
+
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
 
+    const trimmed = input.trim();
+    const inQuoteFlow = quoteStep !== 'idle' && quoteStep !== 'complete' && quoteStep !== 'feedback' && quoteStep !== 'feedback-submitted';
+
+    // Handle cancel/exit during quote flow
+    if (inQuoteFlow && cancelPhrases.test(trimmed)) {
+      addUserMessage(trimmed);
+      setInput('');
+
+      if (goBackPhrases.test(trimmed)) {
+        goBackOneStep();
+        return;
+      }
+
+      // Full cancel
+      resetQuoteFlow();
+      addAssistantMessage("No problem at all! If you change your mind, I'm here. Is there anything else I can help with?");
+      return;
+    }
+
     switch (quoteStep) {
-      case 'service': handleServiceSelect(input.trim()); setInput(''); break;
+      case 'service': handleServiceSelect(trimmed); setInput(''); break;
       case 'name': handleNameSubmit(); break;
       case 'email': handleEmailSubmit(); break;
       case 'phone': handlePhoneSubmit(); break;
@@ -782,6 +835,17 @@ export const ChatBot = () => {
                         delay={0}
                       >
                         Submit Quote
+                      </GlassChip>
+                      <GlassChip
+                        onClick={() => {
+                          addUserMessage('Cancel');
+                          resetQuoteFlow();
+                          addAssistantMessage("No problem! If you change your mind, I'm here. Is there anything else I can help with?");
+                        }}
+                        icon={<X className="h-4 w-4 text-white/40" />}
+                        delay={0.1}
+                      >
+                        Cancel
                       </GlassChip>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
