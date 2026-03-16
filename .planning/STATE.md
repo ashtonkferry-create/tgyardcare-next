@@ -34,6 +34,7 @@ Executing Milestone 2: CRM Unification
   - 03-06: DONE — Gap closure: TG-97/TG-102 schema fix, opportunity+staleness counts, 15 cities verified [wave 4]
 - Phase 4 (Intelligence Layer): In progress (3/12 plans)
   - 04-01: DONE — Migration 072 (5 new tables + 4 table extensions + RLS) [wave 1]
+  - 04-02: DONE — TG-113 (GHL1BUPFZL8Ic6Bc) critical alert router + TG-105 (6qhihK1RPUzwk2pd) A/B test router [wave 1]
   - 04-03: DONE — TG-107 revenue sync daily + TG-108 KPI daily snapshot (13 metrics) [wave 1]
 
 Parallel: Milestone 3 (Billionaire Brand Transformation)
@@ -126,6 +127,13 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 - [Phase 4-01]: intelligence_reports.report_type CHECK expanded to 8 types (includes learning_report, what_got_smarter for later plans)
 - [Phase 4-01]: ab_tests extended with channel/min_sends_per_variant/auto_winner/winner columns
 - [Phase 4-01]: email_sends and sms_sends extended with ab_test_id/ab_variant_id for A/B tracking
+- [Phase 4-02]: TG-113 workflow ID on n8n: GHL1BUPFZL8Ic6Bc (ACTIVE) -- critical alert router sub-workflow
+- [Phase 4-02]: TG-113 input: {alert_type, alert_title, alert_body, severity, source_workflow, metadata?}
+- [Phase 4-02]: TG-113 sends email (all severities) + SMS (critical only) via TG-95/TG-94
+- [Phase 4-02]: TG-105 workflow ID on n8n: 6qhihK1RPUzwk2pd (ACTIVE) -- A/B test router sub-workflow
+- [Phase 4-02]: TG-105 input: {test_id, channel, recipient_phone?, recipient_email?}
+- [Phase 4-02]: TG-105 handles 3 cases: no test (default), winner declared (return winner), active (weighted random + log)
+- [Phase 4-02]: TG-105 default variant weight = 50 when not explicitly set
 - [Phase 4-03]: TG-107 revenue sync: 5 AM CT daily, matches jobber_email_events payments to leads by email/phone
 - [Phase 4-03]: TG-108 KPI snapshot: 6 AM CT daily, 13 metrics including leads_total, revenue, conversion, SMS/email rates, 6x source breakdown
 - [Phase 4-03]: revenue_attribution table has no workflow_attribution column — removed from TG-107 output
