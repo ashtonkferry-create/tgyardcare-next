@@ -1,0 +1,210 @@
+{
+  "name": "TG-123-workflow-performance-tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 12 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Weekly Monday 7am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://tgyardcare.app.n8n.cloud/api/v1/executions?limit=250",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-executions",
+      "name": "Fetch Recent Executions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "n8n-api-key",
+          "name": "n8n API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Group executions by workflow, calculate health metrics\nconst response = $input.all()[0].json;\nconst executions = response.body?.data || response.body || [];\n\nconst byWorkflow = {};\n\nfor (const exec of executions) {\n  const wfId = exec.workflowId || 'unknown';\n  const wfName = exec.workflowName || exec.workflowId || 'unknown';\n  \n  if (!byWorkflow[wfId]) {\n    byWorkflow[wfId] = {\n      workflow_id: wfId,\n      workflow_name: wfName,\n      total_executions: 0,\n      success_count: 0,\n      error_count: 0,\n      waiting_count: 0\n    };\n  }\n  \n  byWorkflow[wfId].total_executions++;\n  \n  if (exec.status === 'success' || exec.finished === true) {\n    byWorkflow[wfId].success_count++;\n  } else if (exec.status === 'error' || exec.status === 'crashed') {\n    byWorkflow[wfId].error_count++;\n  } else {\n    byWorkflow[wfId].waiting_count++;\n  }\n}\n\n// Calculate error rates and build output\nconst results = Object.values(byWorkflow).map(wf => {\n  const error_rate = wf.total_executions > 0\n    ? Math.round((wf.error_count / wf.total_executions) * 10000) / 100\n    : 0;\n  return {\n    ...wf,\n    error_rate,\n    has_high_error_rate: error_rate > 10\n  };\n});\n\nreturn results.map(r => ({ json: r }));"
+      },
+      "id": "calc-metrics",
+      "name": "Calculate Per-Workflow Metrics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_metrics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  metric_name: 'workflow_health_' + $json.workflow_id,\n  metric_type: 'workflow_performance',\n  value: $json.error_rate,\n  metadata: JSON.stringify({\n    workflow_name: $json.workflow_name,\n    total_executions: $json.total_executions,\n    success_count: $json.success_count,\n    error_count: $json.error_count,\n    error_rate: $json.error_rate\n  }),\n  recorded_at: new Date().toISOString()\n}) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "upsert-metrics",
+      "name": "Upsert Workflow Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "high-error",
+              "leftValue": "={{ $('Calculate Per-Workflow Metrics').item.json.has_high_error_rate }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "check-errors",
+      "name": "High Error Rate?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [960, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build alert for high error rate workflows\nconst wf = $('Calculate Per-Workflow Metrics').item.json;\nreturn [{ json: {\n  alert_type: 'workflow_health',\n  alert_title: `Workflow Error Rate Alert: ${wf.workflow_name}`,\n  alert_body: `<p>Workflow <strong>${wf.workflow_name}</strong> (${wf.workflow_id}) has an error rate of <strong>${wf.error_rate}%</strong> over the last 250 executions.</p><p>Total: ${wf.total_executions} | Success: ${wf.success_count} | Errors: ${wf.error_count}</p>`,\n  severity: wf.error_rate > 25 ? 'critical' : 'warning',\n  source_workflow: 'TG-123',\n  metadata: JSON.stringify(wf)\n} }];"
+      },
+      "id": "build-alert",
+      "name": "Build Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": "GHL1BUPFZL8Ic6Bc",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "alert_type": "={{ $json.alert_type }}",
+            "alert_title": "={{ $json.alert_title }}",
+            "alert_body": "={{ $json.alert_body }}",
+            "severity": "={{ $json.severity }}",
+            "source_workflow": "={{ $json.source_workflow }}",
+            "metadata": "={{ $json.metadata }}"
+          }
+        }
+      },
+      "id": "call-tg113",
+      "name": "Alert via TG-113",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1440, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// No alert needed — workflow healthy\nreturn [{ json: { status: 'healthy', alert: false } }];"
+      },
+      "id": "no-alert",
+      "name": "No Alert Needed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 420]
+    }
+  ],
+  "connections": {
+    "Weekly Monday 7am CT": {
+      "main": [
+        [{ "node": "Fetch Recent Executions", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Recent Executions": {
+      "main": [
+        [{ "node": "Calculate Per-Workflow Metrics", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Per-Workflow Metrics": {
+      "main": [
+        [{ "node": "Upsert Workflow Metrics", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert Workflow Metrics": {
+      "main": [
+        [{ "node": "High Error Rate?", "type": "main", "index": 0 }]
+      ]
+    },
+    "High Error Rate?": {
+      "main": [
+        [{ "node": "Build Alert", "type": "main", "index": 0 }],
+        [{ "node": "No Alert Needed", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Alert": {
+      "main": [
+        [{ "node": "Alert via TG-113", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "phase-4-intelligence" },
+    { "name": "monitoring" },
+    { "name": "weekly" }
+  ]
+}
