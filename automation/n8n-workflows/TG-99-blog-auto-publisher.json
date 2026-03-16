@@ -16,17 +16,26 @@
       "name": "Mon Wed Fri 3pm UTC",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 300]
+      "position": [
+        0,
+        300
+      ]
     },
     {
       "parameters": {
         "method": "GET",
-        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/blog_posts?select=slug,category&order=published_at.desc",
+        "url": "https://SUPABASE_PROJECT_ID.supabase.co/rest/v1/blog_posts?select=slug,category&order=published_at.desc",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
-            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+            {
+              "name": "apikey",
+              "value": "=SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer SUPABASE_SECRET_KEY"
+            }
           ]
         }
       },
@@ -34,7 +43,10 @@
       "name": "Fetch Existing Posts",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [240, 300]
+      "position": [
+        240,
+        300
+      ]
     },
     {
       "parameters": {
@@ -44,18 +56,28 @@
       "name": "Pick Topic",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [480, 300]
+      "position": [
+        480,
+        300
+      ]
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
           "conditions": [
             {
               "id": "topics-available",
               "leftValue": "={{ $json.stop }}",
               "rightValue": true,
-              "operator": { "type": "boolean", "operation": "notEqual" }
+              "operator": {
+                "type": "boolean",
+                "operation": "notEqual"
+              }
             }
           ],
           "combinator": "and"
@@ -65,19 +87,34 @@
       "name": "IF Topics Available",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [720, 300]
+      "position": [
+        720,
+        300
+      ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/automation_runs",
+        "url": "https://SUPABASE_PROJECT_ID.supabase.co/rest/v1/automation_runs",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
-            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Prefer", "value": "return=minimal" }
+            {
+              "name": "apikey",
+              "value": "=SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
           ]
         },
         "sendBody": true,
@@ -88,7 +125,10 @@
       "name": "Log Topics Exhausted",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [960, 500]
+      "position": [
+        960,
+        500
+      ]
     },
     {
       "parameters": {
@@ -97,9 +137,18 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "x-api-key", "value": "={{$vars.TG_ANTHROPIC_API_KEY}}" },
-            { "name": "anthropic-version", "value": "2023-06-01" },
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "x-api-key",
+              "value": "=ANTHROPIC_API_KEY"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -110,28 +159,41 @@
       "name": "Generate Article",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [960, 300]
+      "position": [
+        960,
+        300
+      ]
     },
     {
       "parameters": {
-        "jsCode": "const raw = $input.first().json;\nconst topicData = $('Pick Topic').first().json;\n\nconst textBlock = (raw.content || []).find(b => b.type === 'text');\nconst rawText = textBlock ? textBlock.text : '';\n\nfunction parseClaudeJson(text) {\n  try { return JSON.parse(text); } catch {}\n  const fence = text.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n  if (fence) { try { return JSON.parse(fence[1].trim()); } catch {} }\n  const first = text.indexOf('{');\n  const last = text.lastIndexOf('}');\n  if (first !== -1 && last > first) { try { return JSON.parse(text.slice(first, last + 1)); } catch {} }\n  return null;\n}\n\nconst parsed = parseClaudeJson(rawText);\nif (!parsed || !parsed.title || !parsed.content) {\n  return [{ json: { error: true, reason: 'Failed to parse Claude JSON response' } }];\n}\n\nconst plainText = parsed.content.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();\nconst wordCount = plainText.split(/\\s+/).filter(Boolean).length;\n\nif (wordCount < 800) {\n  return [{ json: { error: true, reason: `Content too thin: ${wordCount} words (min 800)` } }];\n}\n\nconst title = String(parsed.title).slice(0, 65);\nconst metaDesc = String(parsed.meta_description || parsed.excerpt || '').slice(0, 155);\nconst readingTime = Math.ceil(wordCount / 200);\nconst slug = parsed.slug ? String(parsed.slug) : topicData.slug;\n\nreturn [{ json: {\n  error: false,\n  title, slug,\n  excerpt: String(parsed.excerpt || ''),\n  content: String(parsed.content),\n  category: topicData.category,\n  keywords: Array.isArray(parsed.keywords) ? parsed.keywords : topicData.keywords,\n  meta_title: String(parsed.meta_title || title).slice(0, 60),\n  meta_description: metaDesc,\n  reading_time: readingTime,\n  reading_time_minutes: readingTime,\n  word_count: wordCount,\n  status: 'published',\n  published_at: new Date().toISOString(),\n  author: 'TotalGuard Yard Care',\n  ai_generated: true,\n  ai_model: 'claude-sonnet-4-6',\n  ai_generated_at: new Date().toISOString()\n} }];"
+        "jsCode": "const raw = $input.first().json;\nconst topicData = $('Pick Topic').first().json;\n\nconst textBlock = (raw.content || []).find(b => b.type === 'text');\nconst rawText = textBlock ? textBlock.text : '';\n\nfunction parseClaudeJson(text) {\n  try { return JSON.parse(text); } catch {}\n  const fence = text.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n  if (fence) { try { return JSON.parse(fence[1].trim()); } catch {} }\n  const first = text.indexOf('{');\n  const last = text.lastIndexOf('}');\n  if (first !== -1 && last > first) { try { return JSON.parse(text.slice(first, last + 1)); } catch {} }\n  return null;\n}\n\nconst parsed = parseClaudeJson(rawText);\nif (!parsed || !parsed.title || !parsed.content) {\n  return [{ json: { error: true, reason: 'Failed to parse Claude JSON response' } }];\n}\n\nconst plainText = parsed.content.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();\nconst wordCount = plainText.split(/\\s+/).filter(Boolean).length;\n\nif (wordCount < 800) {\n  return [{ json: { error: true, reason: `Content too thin: ${wordCount} words (min 800)` } }];\n}\n\nconst title = String(parsed.title).slice(0, 65);\nconst metaDesc = String(parsed.meta_description || parsed.excerpt || '').slice(0, 155);\nconst readingTime = Math.ceil(wordCount / 200);\nconst slug = parsed.slug ? String(parsed.slug) : topicData.slug;\n\nreturn [{ json: {\n  error: false,\n  title, slug,\n  excerpt: String(parsed.excerpt || ''),\n  content: String(parsed.content),\n  category: topicData.category,\n  keywords: Array.isArray(parsed.keywords) ? parsed.keywords : topicData.keywords,\n  meta_title: String(parsed.meta_title || title).slice(0, 60),\n  meta_description: metaDesc,\n  reading_time: readingTime,\n  reading_time_minutes: readingTime,\n  word_count: wordCount,\n  status: 'published',\n  published_at: new Date().toISOString(),\n  ai_generated: true,\n  ai_model: 'claude-sonnet-4-6',\n  ai_generated_at: new Date().toISOString()\n} }];"
       },
       "id": "validate-structure",
       "name": "Validate + Structure",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1200, 300]
+      "position": [
+        1200,
+        300
+      ]
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
           "conditions": [
             {
               "id": "validation-passed",
               "leftValue": "={{ $json.error }}",
               "rightValue": true,
-              "operator": { "type": "boolean", "operation": "notEqual" }
+              "operator": {
+                "type": "boolean",
+                "operation": "notEqual"
+              }
             }
           ],
           "combinator": "and"
@@ -141,19 +203,34 @@
       "name": "IF Validation Passed",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [1440, 300]
+      "position": [
+        1440,
+        300
+      ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/automation_runs",
+        "url": "https://SUPABASE_PROJECT_ID.supabase.co/rest/v1/automation_runs",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
-            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Prefer", "value": "return=minimal" }
+            {
+              "name": "apikey",
+              "value": "=SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
           ]
         },
         "sendBody": true,
@@ -164,30 +241,48 @@
       "name": "Log Validation Error",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1680, 500]
+      "position": [
+        1680,
+        500
+      ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/blog_posts",
+        "url": "https://SUPABASE_PROJECT_ID.supabase.co/rest/v1/blog_posts",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
-            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Prefer", "value": "return=minimal" }
+            {
+              "name": "apikey",
+              "value": "=SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"title\": {{ JSON.stringify($json.title) }}, \"slug\": {{ JSON.stringify($json.slug) }}, \"excerpt\": {{ JSON.stringify($json.excerpt) }}, \"content\": {{ JSON.stringify($json.content) }}, \"category\": {{ JSON.stringify($json.category) }}, \"keywords\": {{ JSON.stringify($json.keywords) }}, \"meta_title\": {{ JSON.stringify($json.meta_title) }}, \"meta_description\": {{ JSON.stringify($json.meta_description) }}, \"reading_time\": {{ $json.reading_time }}, \"reading_time_minutes\": {{ $json.reading_time_minutes }}, \"word_count\": {{ $json.word_count }}, \"status\": \"published\", \"published_at\": {{ JSON.stringify($json.published_at) }}, \"author\": \"TotalGuard Yard Care\", \"ai_generated\": true, \"ai_model\": \"claude-sonnet-4-6\", \"ai_generated_at\": {{ JSON.stringify($json.ai_generated_at) }} }"
+        "jsonBody": "={ \"title\": {{ JSON.stringify($json.title) }}, \"slug\": {{ JSON.stringify($json.slug) }}, \"excerpt\": {{ JSON.stringify($json.excerpt) }}, \"content\": {{ JSON.stringify($json.content) }}, \"category\": {{ JSON.stringify($json.category) }}, \"keywords\": {{ JSON.stringify($json.keywords) }}, \"meta_title\": {{ JSON.stringify($json.meta_title) }}, \"meta_description\": {{ JSON.stringify($json.meta_description) }}, \"reading_time\": {{ $json.reading_time }}, \"reading_time_minutes\": {{ $json.reading_time_minutes }}, \"word_count\": {{ $json.word_count }}, \"status\": \"published\", \"published_at\": {{ JSON.stringify($json.published_at) }}, \"ai_generated\": true, \"ai_model\": \"claude-sonnet-4-6\", \"ai_generated_at\": {{ JSON.stringify($json.ai_generated_at) }} }"
       },
       "id": "publish-post",
       "name": "Publish to Supabase",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1680, 300]
+      "position": [
+        1680,
+        300
+      ]
     },
     {
       "parameters": {
@@ -196,7 +291,10 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -208,20 +306,35 @@
       "name": "Ping IndexNow",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1920, 300],
+      "position": [
+        1920,
+        300
+      ],
       "continueOnFail": true
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/automation_runs",
+        "url": "https://SUPABASE_PROJECT_ID.supabase.co/rest/v1/automation_runs",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
-            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Prefer", "value": "return=minimal" }
+            {
+              "name": "apikey",
+              "value": "=SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
           ]
         },
         "sendBody": true,
@@ -232,7 +345,10 @@
       "name": "Log Success",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2160, 300]
+      "position": [
+        2160,
+        300
+      ]
     },
     {
       "parameters": {
@@ -244,51 +360,142 @@
       "name": "SMS Notification",
       "type": "n8n-nodes-base.twilio",
       "typeVersion": 1,
-      "position": [2400, 300],
+      "position": [
+        2400,
+        300
+      ],
       "credentials": {
         "twilioApi": {
-          "id": "cwxndVw60DCxqeNg",
-          "name": "Twilio"
+          "id": "Qd6M2hA9hDWRKGPR",
+          "name": "TG - Twilio"
         }
       }
     }
   ],
   "connections": {
     "Mon Wed Fri 3pm UTC": {
-      "main": [[{ "node": "Fetch Existing Posts", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Fetch Existing Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Fetch Existing Posts": {
-      "main": [[{ "node": "Pick Topic", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Pick Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Pick Topic": {
-      "main": [[{ "node": "IF Topics Available", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "IF Topics Available",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "IF Topics Available": {
       "main": [
-        [{ "node": "Generate Article", "type": "main", "index": 0 }],
-        [{ "node": "Log Topics Exhausted", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Generate Article",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Topics Exhausted",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Generate Article": {
-      "main": [[{ "node": "Validate + Structure", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Validate + Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Validate + Structure": {
-      "main": [[{ "node": "IF Validation Passed", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "IF Validation Passed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "IF Validation Passed": {
       "main": [
-        [{ "node": "Publish to Supabase", "type": "main", "index": 0 }],
-        [{ "node": "Log Validation Error", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Publish to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Validation Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Publish to Supabase": {
-      "main": [[{ "node": "Ping IndexNow", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Ping IndexNow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Ping IndexNow": {
-      "main": [[{ "node": "Log Success", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Log Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Log Success": {
-      "main": [[{ "node": "SMS Notification", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "SMS Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
