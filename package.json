@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:smoke": "npx playwright test tests/smoke/"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
@@ -69,6 +70,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/typography": "^0.5.19",
     "@types/dompurify": "^3.0.5",
     "@types/node": "^20",

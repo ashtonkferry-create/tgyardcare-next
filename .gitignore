@@ -55,5 +55,9 @@ test.png
 # Playwright MCP logs
 .playwright-mcp/*.log
 
+# Playwright
+test-results/
+playwright-report/
+
 # IDE
 .idea/
