@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 4 of 4 (Intelligence Layer) — In progress
-Plan: 3 of 12 complete
+Plan: 4 of 12 complete
 Status: In progress
-Last activity: 2026-03-16 — Completed 04-03-PLAN.md (Daily Data Pipelines)
+Last activity: 2026-03-16 — Completed 04-04-PLAN.md (Google Ads Sync + A/B Auto-Winner)
 
-Progress: [========================---------] 24/33 plans
+Progress: [=========================--------] 25/33 plans
 
 Executing Milestone 2: CRM Unification
 - Phase 0 (Fix Existing): Ready to execute
@@ -32,10 +32,11 @@ Executing Milestone 2: CRM Unification
   - 03-04: DONE — TG-98 + TG-99 + TG-101 SEO intelligence workflows [wave 2]
   - 03-05: DONE — TG-102 weekly SEO summary (pending deploy) [wave 3]
   - 03-06: DONE — Gap closure: TG-97/TG-102 schema fix, opportunity+staleness counts, 15 cities verified [wave 4]
-- Phase 4 (Intelligence Layer): In progress (3/12 plans)
+- Phase 4 (Intelligence Layer): In progress (4/12 plans)
   - 04-01: DONE — Migration 072 (5 new tables + 4 table extensions + RLS) [wave 1]
   - 04-02: DONE — TG-113 (GHL1BUPFZL8Ic6Bc) critical alert router + TG-105 (6qhihK1RPUzwk2pd) A/B test router [wave 1]
   - 04-03: DONE — TG-107 revenue sync daily + TG-108 KPI daily snapshot (13 metrics) [wave 1]
+  - 04-04: DONE — TG-109 (rD7Tiz6WgIOI8ndG) Google Ads sync stub + TG-106 (4LByKtLiF2hQO5Ut) A/B auto-winner [wave 1 COMPLETE]
 
 Parallel: Milestone 3 (Billionaire Brand Transformation)
 - Phase 5-9: Not started
@@ -43,8 +44,8 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 24 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 3 Phase 4)
-- Last plan duration: ~3 minutes (04-03 daily data pipelines)
+- Total plans completed: 25 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 4 Phase 4)
+- Last plan duration: ~4 minutes (04-04 Google Ads sync + A/B auto-winner)
 - Total execution time: N/A
 
 *Updated after each plan completion*
@@ -139,6 +140,13 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 - [Phase 4-03]: revenue_attribution table has no workflow_attribution column — removed from TG-107 output
 - [Phase 4-03]: PostgREST date range filtering: use `and=(col.gte.X,col.lte.Y)` not duplicate param names
 - [Phase 4-03]: SMS "response rate" proxied by delivered_at (sms_sends has no reply tracking column)
+- [Phase 4-04]: TG-109 workflow ID on n8n: rD7Tiz6WgIOI8ndG (ACTIVE stub) -- Google Ads daily sync
+- [Phase 4-04]: TG-109 uses $vars.TG_GOOGLE_ADS_CUSTOMER_ID check for graceful skip when API not configured
+- [Phase 4-04]: TG-109 uses Google Ads API v17 searchStream with GAQL, cost_micros / 1000000 transform
+- [Phase 4-04]: TG-106 workflow ID on n8n: 4LByKtLiF2hQO5Ut (ACTIVE) -- A/B test auto-winner
+- [Phase 4-04]: TG-106 winner criteria: both variants >= min_sends_per_variant (default 30), >20% relative conversion improvement
+- [Phase 4-04]: TG-106 logs winner declarations to intelligence_reports (report_type: ab_test_results)
+- [Phase 4-04]: Wave 1 COMPLETE — 6 workflows: TG-105, TG-106, TG-107, TG-108, TG-109, TG-113
 
 ### Pending Todos
 
@@ -166,5 +174,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 04-03-PLAN.md (Daily Data Pipelines) — Phase 4 wave 1 continuing
+Stopped at: Completed 04-04-PLAN.md (Google Ads Sync + A/B Auto-Winner) — Wave 1 COMPLETE, ready for Wave 2
 Resume file: None
