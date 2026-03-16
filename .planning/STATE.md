@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 5 of 9 (Safety Nets & Foundation)
-Plan: 5 of 7 complete (Phase 5) — 05-01, 05-02, 05-03, 05-04, 05-05 done
+Plan: 6 of 7 complete (Phase 5) — 05-01, 05-02, 05-03, 05-04, 05-05, 05-06 done
 Status: In progress
-Last activity: 2026-03-16 — Completed 05-05-PLAN.md (Seasonal CSS + Brand Consistency)
+Last activity: 2026-03-16 — Completed 05-06-PLAN.md (Smoke Tests + Cron Audit)
 
-Progress M3: [█████░░] 5/7 plans (Phase 5)
+Progress M3: [██████░] 6/7 plans (Phase 5)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -194,6 +194,10 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - [Phase 5-02]: Typography scale CSS variables: --text-display-xl (72px) through --text-caption (12px)
 - [Phase 5-02]: Tailwind fontFamily.sans = General Sans, fontFamily.display = Clash Display
 - [Phase 5-02]: CSS custom properties --font-display and --font-body as indirection layer for font assignments
+- [Phase 5-06]: Playwright smoke tests use npm run dev (not build+start) for webServer; CI can override
+- [Phase 5-06]: Strict console error assertion (empty array) — Plan 01 already fixed silent fallbacks
+- [Phase 5-06]: 41 cron jobs documented; 2 potential redundancies identified (gbp-post vs gbp-post-publisher, seo-audit vs seo-crawl+seo-score)
+- [Phase 5-06]: FOUND-09 (SEO baseline) deferred to Phase 6+ pending GSC credential rotation
 
 ### Pending Todos
 
@@ -222,6 +226,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 05-05-PLAN.md (Seasonal CSS + Brand Consistency)
+Stopped at: Completed 05-06-PLAN.md (Smoke Tests + Cron Audit)
 Resume file: None
-Next: 05-06, 05-07 (remaining Phase 5 plans)
+Next: 05-07 (final Phase 5 plan)
