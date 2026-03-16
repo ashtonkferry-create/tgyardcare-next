@@ -43,9 +43,9 @@ export async function POST(req: NextRequest) {
       email: data.email,
       phone: data.phone,
       address: data.address,
-      notes: data.message,
+      message: data.message,
       status: 'new',
-      referral_source: 'contact_form',
+      source: 'contact_form',
       lead_score: 60,
     });
 

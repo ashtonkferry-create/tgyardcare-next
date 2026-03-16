@@ -1,12 +1,197 @@
 {
   "name": "TG-48-citation-monitor",
   "nodes": [
-    { "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 14 1 * *" }] } }, "id": "schedule", "name": "Monthly 1st", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 300] },
-    { "parameters": { "method": "GET", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/citations?select=id,directory_name,listing_url,expected_name,expected_phone,expected_address", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] } }, "id": "fetch-citations", "name": "Fetch Citations", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [220, 300] },
-    { "parameters": { "jsCode": "const citations = $input.all().map(i => i.json);\nconst results = [];\nfor (const c of citations) {\n  results.push({ json: { id: c.id, directory_name: c.directory_name, status: 'check_needed', last_checked: new Date().toISOString() } });\n}\nreturn results;" }, "id": "flag-check", "name": "Flag for Manual Check", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [440, 300] },
-    { "parameters": { "method": "PATCH", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/citations?id=eq.{{$json.id}}", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] }, "sendBody": true, "bodyParameters": { "parameters": [{ "name": "last_checked", "value": "={{ new Date().toISOString() }}" }] } }, "id": "update-citation", "name": "Update Check Date", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [660, 300] },
-    { "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$vars.TG_OWNER_PHONE}}", "message": "TG: Monthly citation audit triggered. Review citations at tgyardcare.com/admin for NAP consistency. - TG System" }, "id": "sms-owner", "name": "SMS Owner", "type": "n8n-nodes-base.twilio", "typeVersion": 1, "position": [880, 300], "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } } }
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 1 * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Monthly 1st",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/citations?select=id,directory_name,listing_url,expected_name,expected_phone,expected_address",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-citations",
+      "name": "Fetch Citations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const citations = $input.all().map(i => i.json);\nconst results = [];\nfor (const c of citations) {\n  results.push({ json: { id: c.id, directory_name: c.directory_name, status: 'check_needed', last_checked: new Date().toISOString() } });\n}\nreturn results;"
+      },
+      "id": "flag-check",
+      "name": "Flag for Manual Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/citations?id=eq.{{$json.id}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "last_checked",
+              "value": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "id": "update-citation",
+      "name": "Update Check Date",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "id": "sms-owner",
+      "name": "SMS Owner",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        300
+      ],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{$vars.TG_OWNER_PHONE}}"
+            },
+            {
+              "name": "content",
+              "value": "TG: Monthly citation audit triggered. Review citations at tgyardcare.com/admin for NAP consistency. - TG System"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
   ],
-  "connections": { "Monthly 1st": { "main": [[{ "node": "Fetch Citations", "type": "main", "index": 0 }]] }, "Fetch Citations": { "main": [[{ "node": "Flag for Manual Check", "type": "main", "index": 0 }]] }, "Flag for Manual Check": { "main": [[{ "node": "Update Check Date", "type": "main", "index": 0 }]] }, "Update Check Date": { "main": [[{ "node": "SMS Owner", "type": "main", "index": 0 }]] } },
-  "settings": { "availableInMCP": true }
+  "connections": {
+    "Monthly 1st": {
+      "main": [
+        [
+          {
+            "node": "Fetch Citations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Citations": {
+      "main": [
+        [
+          {
+            "node": "Flag for Manual Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flag for Manual Check": {
+      "main": [
+        [
+          {
+            "node": "Update Check Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Check Date": {
+      "main": [
+        [
+          {
+            "node": "SMS Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
 }

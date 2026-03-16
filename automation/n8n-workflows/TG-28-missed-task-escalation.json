@@ -2,25 +2,51 @@
   "name": "TG-28-missed-task-escalation",
   "nodes": [
     {
-      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 14 * * *" }] } },
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 * * *"
+            }
+          ]
+        }
+      },
       "id": "schedule",
       "name": "Daily 9am CT",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 300]
+      "position": [
+        0,
+        300
+      ]
     },
     {
       "parameters": {
         "method": "GET",
         "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/field_marketing_tasks?status=eq.pending&created_at=lt.{{ new Date().toISOString().split('T')[0] }}&select=id,job_address,created_at",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        }
       },
       "id": "fetch-missed",
       "name": "Fetch Yesterday Missed Tasks",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 300]
+      "position": [
+        220,
+        300
+      ]
     },
     {
       "parameters": {
@@ -30,22 +56,91 @@
       "name": "Format Escalation",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 300]
+      "position": [
+        440,
+        300
+      ]
     },
     {
-      "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$vars.TG_OWNER_PHONE}}", "message": "={{$json.message}}" },
       "id": "sms-owner",
       "name": "Alert Owner",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
-      "position": [660, 300],
-      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{$vars.TG_OWNER_PHONE}}"
+            },
+            {
+              "name": "content",
+              "value": "={{$json.message}}"
+            }
+          ]
+        },
+        "options": {}
+      }
     }
   ],
   "connections": {
-    "Daily 9am CT": { "main": [[{ "node": "Fetch Yesterday Missed Tasks", "type": "main", "index": 0 }]] },
-    "Fetch Yesterday Missed Tasks": { "main": [[{ "node": "Format Escalation", "type": "main", "index": 0 }]] },
-    "Format Escalation": { "main": [[{ "node": "Alert Owner", "type": "main", "index": 0 }]] }
+    "Daily 9am CT": {
+      "main": [
+        [
+          {
+            "node": "Fetch Yesterday Missed Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Yesterday Missed Tasks": {
+      "main": [
+        [
+          {
+            "node": "Format Escalation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Escalation": {
+      "main": [
+        [
+          {
+            "node": "Alert Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "availableInMCP": true }
+  "settings": {
+    "availableInMCP": true
+  }
 }

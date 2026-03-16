@@ -2,12 +2,24 @@
   "name": "TG-32-seasonal-transition",
   "nodes": [
     {
-      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 14 1 * *" }] } },
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 1 * *"
+            }
+          ]
+        }
+      },
       "id": "schedule",
       "name": "1st of Month 9am CT",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 300]
+      "position": [
+        0,
+        300
+      ]
     },
     {
       "parameters": {
@@ -17,21 +29,80 @@
       "name": "Get Seasonal Alert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 300]
+      "position": [
+        220,
+        300
+      ]
     },
     {
-      "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$vars.TG_OWNER_PHONE}}", "message": "=TG Seasonal Transition Alert:\\n{{$json.msg}}" },
       "id": "sms-owner",
       "name": "SMS Owner Alert",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
-      "position": [440, 300],
-      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{$vars.TG_OWNER_PHONE}}"
+            },
+            {
+              "name": "content",
+              "value": "=TG Seasonal Transition Alert:\\n{{$json.msg}}"
+            }
+          ]
+        },
+        "options": {}
+      }
     }
   ],
   "connections": {
-    "1st of Month 9am CT": { "main": [[{ "node": "Get Seasonal Alert", "type": "main", "index": 0 }]] },
-    "Get Seasonal Alert": { "main": [[{ "node": "SMS Owner Alert", "type": "main", "index": 0 }]] }
+    "1st of Month 9am CT": {
+      "main": [
+        [
+          {
+            "node": "Get Seasonal Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Seasonal Alert": {
+      "main": [
+        [
+          {
+            "node": "SMS Owner Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "availableInMCP": true }
+  "settings": {
+    "availableInMCP": true
+  }
 }

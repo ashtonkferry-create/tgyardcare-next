@@ -1,11 +1,167 @@
 {
   "name": "TG-51-local-seo-report",
   "nodes": [
-    { "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 15 1 * *" }] } }, "id": "schedule", "name": "Monthly 1st", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 300] },
-    { "parameters": { "method": "GET", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/keyword_rankings?order=checked_at.desc&limit=20&select=keyword,position,clicks,impressions,checked_at", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] } }, "id": "fetch-rankings", "name": "Fetch Rankings", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [220, 300] },
-    { "parameters": { "method": "POST", "url": "https://api.anthropic.com/v1/messages", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "x-api-key", "value": "={{$vars.TG_ANTHROPIC_API_KEY}}" }, { "name": "anthropic-version", "value": "2023-06-01" }, { "name": "Content-Type", "value": "application/json" }] }, "sendBody": true, "specifyBody": "json", "jsonBody": "={ \"model\": \"claude-haiku-4-5-20251001\", \"max_tokens\": 500, \"messages\": [{ \"role\": \"user\", \"content\": \"Summarize TotalGuard Yard Care's local SEO performance for Madison WI this month. Data: {{ JSON.stringify($json) }}. Give 3 key insights and 2 recommended actions. Keep it under 300 words.\" }] }" }, "id": "ai-summary", "name": "AI SEO Summary", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [440, 300] },
-    { "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$vars.TG_OWNER_PHONE}}", "message": "=TG Monthly SEO Report: {{ $json.content?.[0]?.text?.substring(0, 300) || 'Report ready - check admin' }} - TG System" }, "id": "sms-report", "name": "SMS SEO Summary", "type": "n8n-nodes-base.twilio", "typeVersion": 1, "position": [660, 300], "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } } }
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 15 1 * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Monthly 1st",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/keyword_rankings?order=checked_at.desc&limit=20&select=keyword,position,clicks,impressions,checked_at",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-rankings",
+      "name": "Fetch Rankings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{$vars.TG_ANTHROPIC_API_KEY}}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-haiku-4-5-20251001\", \"max_tokens\": 500, \"messages\": [{ \"role\": \"user\", \"content\": \"Summarize TotalGuard Yard Care's local SEO performance for Madison WI this month. Data: {{ JSON.stringify($json) }}. Give 3 key insights and 2 recommended actions. Keep it under 300 words.\" }] }"
+      },
+      "id": "ai-summary",
+      "name": "AI SEO Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "id": "sms-report",
+      "name": "SMS SEO Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{$vars.TG_OWNER_PHONE}}"
+            },
+            {
+              "name": "content",
+              "value": "=TG Monthly SEO Report: {{ $json.content?.[0]?.text?.substring(0, 300) || 'Report ready - check admin' }} - TG System"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
   ],
-  "connections": { "Monthly 1st": { "main": [[{ "node": "Fetch Rankings", "type": "main", "index": 0 }]] }, "Fetch Rankings": { "main": [[{ "node": "AI SEO Summary", "type": "main", "index": 0 }]] }, "AI SEO Summary": { "main": [[{ "node": "SMS SEO Summary", "type": "main", "index": 0 }]] } },
-  "settings": { "availableInMCP": true }
+  "connections": {
+    "Monthly 1st": {
+      "main": [
+        [
+          {
+            "node": "Fetch Rankings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Rankings": {
+      "main": [
+        [
+          {
+            "node": "AI SEO Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI SEO Summary": {
+      "main": [
+        [
+          {
+            "node": "SMS SEO Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
 }

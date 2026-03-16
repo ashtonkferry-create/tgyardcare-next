@@ -81,28 +81,46 @@
       "continueOnFail": true
     },
     {
-      "parameters": {
-        "resource": "message",
-        "operation": "send",
-        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
-        "to": "={{ $vars.TG_OWNER_PHONE }}",
-        "body": "=TG: This week's YouTube Shorts ideas are ready ({{ $('Generate YouTube Shorts Ideas').first().json.ideaCount }} ideas for {{ $('Generate YouTube Shorts Ideas').first().json.season }} season). Review at tgyardcare.com/admin/content"
-      },
       "id": "sms-owner-yt",
       "name": "SMS Owner - YouTube Ideas Ready",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         660,
         300
       ],
-      "credentials": {
-        "twilioApi": {
-          "id": "twilio-creds",
-          "name": "Twilio API"
-        }
-      },
-      "continueOnFail": true
+      "continueOnFail": true,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{ $vars.TG_OWNER_PHONE }}"
+            },
+            {
+              "name": "content"
+            }
+          ]
+        },
+        "options": {}
+      }
     }
   ],
   "connections": {

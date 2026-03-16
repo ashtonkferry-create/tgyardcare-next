@@ -7,59 +7,218 @@
       "name": "Execute Workflow Trigger",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
-      "position": [0, 300]
+      "position": [
+        0,
+        300
+      ]
     },
     {
       "parameters": {
         "method": "GET",
         "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/referrals?referral_code=eq.{{$json.referral_code}}&select=id,referring_customer_id,referral_code",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        }
       },
       "id": "lookup-referral",
       "name": "Lookup Referral Code",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 300]
+      "position": [
+        220,
+        300
+      ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/referral_redemptions",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
         "sendBody": true,
-        "bodyParameters": { "parameters": [{ "name": "referral_id", "value": "={{$json[0].id}}" }, { "name": "new_customer_name", "value": "={{$('Execute Workflow Trigger').first().json.new_customer_name}}" }, { "name": "new_customer_email", "value": "={{$('Execute Workflow Trigger').first().json.new_customer_email}}" }, { "name": "redeemed_at", "value": "={{ new Date().toISOString() }}" }] }
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "referral_id",
+              "value": "={{$json[0].id}}"
+            },
+            {
+              "name": "new_customer_name",
+              "value": "={{$('Execute Workflow Trigger').first().json.new_customer_name}}"
+            },
+            {
+              "name": "new_customer_email",
+              "value": "={{$('Execute Workflow Trigger').first().json.new_customer_email}}"
+            },
+            {
+              "name": "redeemed_at",
+              "value": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
       },
       "id": "log-redemption",
       "name": "Log Referral Redemption",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 300]
+      "position": [
+        440,
+        300
+      ]
     },
     {
-      "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$('Execute Workflow Trigger').first().json.referring_customer_phone}}", "message": "=Your referral is paying off! {{$('Execute Workflow Trigger').first().json.new_customer_name}} just signed up with TotalGuard. Your $25 credit has been applied to your account. Thank you! - TG Team" },
       "id": "sms-referrer",
       "name": "SMS Referring Customer",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
-      "position": [660, 200],
-      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        200
+      ],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{$('Execute Workflow Trigger').first().json.referring_customer_phone}}"
+            },
+            {
+              "name": "content",
+              "value": "=Your referral is paying off! {{$('Execute Workflow Trigger').first().json.new_customer_name}} just signed up with TotalGuard. Your $25 credit has been applied to your account. Thank you! - TG Team"
+            }
+          ]
+        },
+        "options": {}
+      }
     },
     {
-      "parameters": { "operation": "send", "from": "={{$vars.TG_TWILIO_PHONE_NUMBER}}", "to": "={{$('Execute Workflow Trigger').first().json.new_customer_phone}}", "message": "=Welcome to TotalGuard Yard Care! Your 15% first-service discount has been applied. Ready to get started? Book at tgyardcare.com or call (608) 535-6057. - The TG Team" },
       "id": "sms-new-customer",
       "name": "SMS New Customer Welcome",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
-      "position": [660, 400],
-      "credentials": { "twilioApi": { "id": "twilio", "name": "Twilio" } }
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        400
+      ],
+      "continueOnFail": false,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{$vars.TG_BREVO_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sender",
+              "value": "TotalGuard"
+            },
+            {
+              "name": "recipient",
+              "value": "={{$('Execute Workflow Trigger').first().json.new_customer_phone}}"
+            },
+            {
+              "name": "content",
+              "value": "=Welcome to TotalGuard Yard Care! Your 15% first-service discount has been applied. Ready to get started? Book at tgyardcare.com or call (608) 535-6057. - The TG Team"
+            }
+          ]
+        },
+        "options": {}
+      }
     }
   ],
   "connections": {
-    "Execute Workflow Trigger": { "main": [[{ "node": "Lookup Referral Code", "type": "main", "index": 0 }]] },
-    "Lookup Referral Code": { "main": [[{ "node": "Log Referral Redemption", "type": "main", "index": 0 }]] },
-    "Log Referral Redemption": { "main": [[{ "node": "SMS Referring Customer", "type": "main", "index": 0 }, { "node": "SMS New Customer Welcome", "type": "main", "index": 0 }]] }
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Lookup Referral Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Referral Code": {
+      "main": [
+        [
+          {
+            "node": "Log Referral Redemption",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Referral Redemption": {
+      "main": [
+        [
+          {
+            "node": "SMS Referring Customer",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "SMS New Customer Welcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "availableInMCP": true }
+  "settings": {
+    "availableInMCP": true
+  }
 }

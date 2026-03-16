@@ -455,7 +455,16 @@ export const ChatBot = () => {
     setInput('');
     setShowQuickReplies(false);
 
-    // Free-form chat — no quote data extraction needed
+    // If user asked a question mid-quote, add context so AI can redirect gracefully
+    const inQuoteFlow = quoteStep !== 'idle' && quoteStep !== 'complete' && quoteStep !== 'feedback' && quoteStep !== 'feedback-submitted';
+    const quoteContext: Message | null = inQuoteFlow ? {
+      role: 'assistant' as const,
+      content: `[System: The user is currently in a quote request flow at the "${quoteStep}" step. After answering their question, gently remind them they can continue their quote or say "cancel" to exit.]`,
+    } : null;
+
+    const messagesForAI = quoteContext
+      ? [...updatedMessages.slice(0, -1), quoteContext, updatedMessages[updatedMessages.length - 1]]
+      : updatedMessages;
 
     let assistantContent = '';
     const updateAssistant = (chunk: string) => {
@@ -474,7 +483,7 @@ export const ChatBot = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: updatedMessages }),
+        body: JSON.stringify({ messages: messagesForAI }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -529,17 +538,176 @@ export const ChatBot = () => {
     }
   };
 
+  const STEP_FLOW: QuoteStep[] = ['service', 'name', 'email', 'phone', 'address', 'description'];
+
+  const resetQuoteFlow = () => {
+    setQuoteStep('idle');
+    setShowQuickReplies(true);
+    setSelectedService('');
+    setAwaitingCustomService(false);
+    setQuoteFormData({ name: '', email: '', phone: '', address: '', message: '' });
+    setEditingField(null);
+  };
+
+  const goBackOneStep = () => {
+    const currentIdx = STEP_FLOW.indexOf(quoteStep as typeof STEP_FLOW[number]);
+    if (currentIdx <= 0) {
+      resetQuoteFlow();
+      addAssistantMessage("No problem! How else can I help you?");
+      return;
+    }
+    const prevStep = STEP_FLOW[currentIdx - 1];
+    setQuoteStep(prevStep);
+    const prompts: Record<string, string> = {
+      service: "What service are you interested in?",
+      name: "What's your full name?",
+      email: "What's your email address?",
+      phone: "What's the best phone number to reach you?",
+      address: "What's your property address?",
+    };
+    addAssistantMessage(`Sure, let's go back. ${prompts[prevStep] || ''}`);
+  };
+
+  // ============ INTENT DETECTION ============
+  // Instead of blindly accepting any input as a form answer,
+  // classify the user's intent FIRST and route accordingly.
+
+  type InputIntent = 'cancel' | 'go_back' | 'question' | 'off_topic' | 'valid_input';
+
+  const SERVICE_KEYWORDS = [
+    'lawn', 'mow', 'mowing', 'cut', 'grass', 'fertiliz', 'aerat', 'herbicide', 'weed',
+    'mulch', 'garden', 'bed', 'bush', 'trim', 'hardscap', 'patio', 'paver', 'retaining',
+    'spring', 'fall', 'cleanup', 'clean up', 'leaf', 'leaves', 'gutter', 'snow', 'plow',
+    'removal', 'landscap', 'yard', 'turf', 'seed', 'overseed', 'sod',
+  ];
+
+  const classifyIntent = (text: string, step: QuoteStep): InputIntent => {
+    const lower = text.toLowerCase().trim();
+
+    // Cancel / exit
+    if (/^(cancel|nevermind|never mind|nvm|stop|quit|exit|no thanks|forget it|nah|start over|restart|i('m| am) (done|good)|no|nope)$/i.test(text)) {
+      return 'cancel';
+    }
+
+    // Go back
+    if (/^(go back|back|previous|prev|undo)$/i.test(text)) {
+      return 'go_back';
+    }
+
+    // Questions (contains ?) or starts with question words
+    if (text.includes('?') || /^(what|when|where|who|why|how|do you|can you|is there|are you|tell me|i have a question)/i.test(lower)) {
+      return 'question';
+    }
+
+    // Greetings / small talk / off-topic
+    if (/^(hi|hello|hey|sup|yo|thanks|thank you|ok|okay|cool|nice|awesome|great|sure|wow|lol|haha|hmm|idk|whatever|bruh|dude|man|bro)$/i.test(text)) {
+      return 'off_topic';
+    }
+
+    // Step-specific validation
+    switch (step) {
+      case 'service': {
+        // Must contain at least one service-related keyword
+        if (awaitingCustomService) return 'valid_input'; // They were asked to type a service
+        const hasServiceKeyword = SERVICE_KEYWORDS.some(kw => lower.includes(kw));
+        if (!hasServiceKeyword) return 'off_topic';
+        return 'valid_input';
+      }
+      case 'name': {
+        // Names: 2+ chars, no URLs, no digits-only, no obvious non-names
+        if (text.length < 2) return 'off_topic';
+        if (/^[\d.@]+$/.test(text)) return 'off_topic'; // Looks like email/phone not a name
+        if (/^https?:\/\//i.test(text)) return 'off_topic';
+        return 'valid_input';
+      }
+      case 'email': {
+        // Must look vaguely like an email
+        if (text.includes('@') || /\w+\.\w+/.test(text)) return 'valid_input';
+        return 'off_topic';
+      }
+      case 'phone': {
+        // Must contain at least 7 digits
+        const digits = text.replace(/\D/g, '');
+        if (digits.length >= 7) return 'valid_input';
+        return 'off_topic';
+      }
+      case 'address': {
+        // Must have a number + letters (basic address pattern) OR be 10+ chars
+        if (/\d+.*[a-zA-Z]/.test(text) || text.length >= 10) return 'valid_input';
+        return 'off_topic';
+      }
+      case 'description':
+        // Almost anything goes for description, but catch very short junk
+        if (text.length >= 3) return 'valid_input';
+        return 'off_topic';
+      default:
+        return 'valid_input';
+    }
+  };
+
+  const stepPrompts: Record<string, string> = {
+    service: "What service are you interested in? You can pick from the options above or describe what you need.",
+    name: "What's your full name?",
+    email: "What's your email address?",
+    phone: "What's the best phone number to reach you?",
+    address: "What's your property address?",
+    description: "Could you describe what you need? Even a sentence or two helps.",
+  };
+
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
 
-    switch (quoteStep) {
-      case 'service': handleServiceSelect(input.trim()); setInput(''); break;
-      case 'name': handleNameSubmit(); break;
-      case 'email': handleEmailSubmit(); break;
-      case 'phone': handlePhoneSubmit(); break;
-      case 'address': handleAddressSubmit(); break;
-      case 'description': handleDescriptionSubmit(); break;
-      default: streamChat(input);
+    const trimmed = input.trim();
+    const inQuoteFlow = quoteStep !== 'idle' && quoteStep !== 'complete' && quoteStep !== 'feedback' && quoteStep !== 'feedback-submitted';
+
+    // Outside quote flow — always route to AI
+    if (!inQuoteFlow) {
+      streamChat(input);
+      return;
+    }
+
+    // Inside quote flow — classify intent before doing anything
+    const intent = classifyIntent(trimmed, quoteStep);
+
+    switch (intent) {
+      case 'cancel':
+        addUserMessage(trimmed);
+        setInput('');
+        resetQuoteFlow();
+        addAssistantMessage("No problem at all! If you change your mind, I'm here. Is there anything else I can help with?");
+        return;
+
+      case 'go_back':
+        addUserMessage(trimmed);
+        setInput('');
+        goBackOneStep();
+        return;
+
+      case 'question':
+        // Route to AI but preserve quote flow state — AI answers, user can resume
+        streamChat(trimmed);
+        return;
+
+      case 'off_topic':
+        addUserMessage(trimmed);
+        setInput('');
+        // Gently redirect to what we were asking
+        setTimeout(() => {
+          addAssistantMessage(`I didn't quite catch that. ${stepPrompts[quoteStep] || "Could you try again?"}`);
+        }, 300);
+        return;
+
+      case 'valid_input':
+        // Process through the normal step handler
+        switch (quoteStep) {
+          case 'service': handleServiceSelect(trimmed); setInput(''); break;
+          case 'name': handleNameSubmit(); break;
+          case 'email': handleEmailSubmit(); break;
+          case 'phone': handlePhoneSubmit(); break;
+          case 'address': handleAddressSubmit(); break;
+          case 'description': handleDescriptionSubmit(); break;
+        }
+        return;
     }
   };
 
@@ -782,6 +950,17 @@ export const ChatBot = () => {
                         delay={0}
                       >
                         Submit Quote
+                      </GlassChip>
+                      <GlassChip
+                        onClick={() => {
+                          addUserMessage('Cancel');
+                          resetQuoteFlow();
+                          addAssistantMessage("No problem! If you change your mind, I'm here. Is there anything else I can help with?");
+                        }}
+                        icon={<X className="h-4 w-4 text-white/40" />}
+                        delay={0.1}
+                      >
+                        Cancel
                       </GlassChip>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
