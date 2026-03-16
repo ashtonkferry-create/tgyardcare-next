@@ -203,6 +203,58 @@
         660,
         400
       ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/email_sends",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY_PLACEHOLDER" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ contact_email: $json.to_email, workflow_name: $json.workflow_name, email_type: $('Validate Input').first().json.email_type || 'transactional', brevo_message_id: $json.email_id || null, ab_test_id: $json.ab_test_id || null, ab_variant_id: $json.ab_variant_id || null }) }}"
+      },
+      "id": "log-email-send",
+      "name": "Log to email_sends",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        100
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/email_sends",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_SECRET_KEY_PLACEHOLDER" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ contact_email: $json.to_email, workflow_name: $json.workflow_name, email_type: $('Validate Input').first().json.email_type || 'transactional', brevo_message_id: $json.email_id || null, ab_test_id: $json.ab_test_id || null, ab_variant_id: $json.ab_variant_id || null }) }}"
+      },
+      "id": "log-retry-send",
+      "name": "Log Retry to email_sends",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        300
+      ],
+      "continueOnFail": true
     }
   ],
   "connections": {
@@ -277,7 +329,13 @@
             "index": 0
           }
         ],
-        []
+        [
+          {
+            "node": "Log to email_sends",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Wait 10s": {
@@ -296,6 +354,17 @@
         [
           {
             "node": "Check Retry Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Retry Result": {
+      "main": [
+        [
+          {
+            "node": "Log Retry to email_sends",
             "type": "main",
             "index": 0
           }

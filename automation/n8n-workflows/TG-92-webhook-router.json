@@ -432,7 +432,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"phone\": \"{{ $json.from_phone }}\",\n  \"status\": \"opted_out\",\n  \"opted_out_at\": \"{{ new Date().toISOString() }}\"\n}",
+        "jsonBody": "={\n  \"phone\": \"{{ $json.from_phone }}\",\n  \"consent_status\": \"opted_out\",\n  \"opted_out_at\": \"{{ new Date().toISOString() }}\"\n}",
         "options": { "timeout": 5000 }
       },
       "id": "tg92-opt-out-update",
@@ -486,7 +486,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"phone\": \"{{ $json.from_phone }}\",\n  \"status\": \"opted_in\",\n  \"opted_in_at\": \"{{ new Date().toISOString() }}\"\n}",
+        "jsonBody": "={\n  \"phone\": \"{{ $json.from_phone }}\",\n  \"consent_status\": \"opted_in\",\n  \"opted_in_at\": \"{{ new Date().toISOString() }}\"\n}",
         "options": { "timeout": 5000 }
       },
       "id": "tg92-opt-in-update",
@@ -528,7 +528,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_consent?phone=eq.{{ $json.from_phone }}&status=eq.opted_out&select=id&limit=1",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_consent?phone=eq.{{ $json.from_phone }}&consent_status=eq.opted_out&select=id&limit=1",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [

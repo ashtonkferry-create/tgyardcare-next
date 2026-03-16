@@ -60,7 +60,7 @@
     {
       "parameters": {
         "source": "database",
-        "workflowId": "TG94_WORKFLOW_ID"
+        "workflowId": "AprqI2DgQA8lehij"
       },
       "id": "call-tg94",
       "name": "Send Reply via TG-94",

@@ -73,7 +73,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"event_type\": \"{{ $json.event_type }}\",\n  \"customer_name\": \"{{ $json.customer_name }}\",\n  \"customer_email\": \"{{ $json.customer_email }}\",\n  \"customer_phone\": \"{{ $json.customer_phone }}\",\n  \"address\": \"{{ $json.address }}\",\n  \"service\": \"{{ $json.service }}\",\n  \"amount\": {{ $json.amount || 'null' }},\n  \"jobber_id\": \"{{ $json.jobber_id }}\",\n  \"email_subject\": \"{{ $json.email_subject }}\",\n  \"received_at\": \"{{ $json.received_at }}\",\n  \"processing_status\": \"processing\"\n}",
+        "jsonBody": "={\n  \"parsed_event_type\": \"{{ $json.event_type }}\",\n  \"parsed_customer_name\": \"{{ $json.customer_name }}\",\n  \"parsed_customer_email\": \"{{ $json.customer_email }}\",\n  \"parsed_customer_phone\": \"{{ $json.customer_phone }}\",\n  \"parsed_address\": \"{{ $json.address }}\",\n  \"parsed_service\": \"{{ $json.service }}\",\n  \"parsed_amount\": {{ $json.amount || 'null' }},\n  \"raw_email_subject\": \"{{ $json.email_subject }}\",\n  \"parsed_at\": \"{{ $json.received_at }}\",\n  \"processing_status\": \"processing\"\n}",
         "options": {}
       },
       "id": "insert-email-event",
@@ -365,7 +365,7 @@
     },
     {
       "parameters": {
-        "workflowId": "",
+        "workflowId": "9m2sID72Fz1PF0HY",
         "options": {}
       },
       "id": "call-tg83",
@@ -375,12 +375,11 @@
       "position": [
         1100,
         300
-      ],
-      "notes": "TODO: Set workflowId after TG-83 is created"
+      ]
     },
     {
       "parameters": {
-        "workflowId": "",
+        "workflowId": "63t7K6gAdW1aPupP",
         "options": {}
       },
       "id": "call-tg84",
@@ -390,12 +389,11 @@
       "position": [
         1100,
         500
-      ],
-      "notes": "TODO: Set workflowId after TG-84 is created"
+      ]
     },
     {
       "parameters": {
-        "workflowId": "",
+        "workflowId": "wJvqFV6PyGvUZccX",
         "options": {}
       },
       "id": "call-tg86",
@@ -405,8 +403,7 @@
       "position": [
         1100,
         700
-      ],
-      "notes": "TODO: Set workflowId after TG-86 is created"
+      ]
     },
     {
       "parameters": {
