@@ -2,7 +2,7 @@
 """
 Build TotalGuard 2026 Equipment & Asset Inventory spreadsheet.
 Generates TotalGuard_2026_Equipment_Inventory.xlsx with two tabs:
-  1. Equipment & Assets — 100-row capacity with depreciation formulas
+  1. Equipment & Assets — 100-row capacity (11 columns, no depreciation)
   2. Maintenance Log — 200-row capacity
 """
 
@@ -72,10 +72,10 @@ def build_equipment_tab(wb):
     ws = wb.active
     ws.title = "Equipment & Assets"
 
-    col_count = 14  # A-N
+    col_count = 11  # A-K
 
     # ── Column widths ───────────────────────────────────────────────
-    widths = [8, 28, 16, 22, 18, 14, 14, 12, 14, 12, 16, 16, 12, 22]
+    widths = [8, 28, 16, 22, 18, 14, 14, 12, 14, 12, 24]
     for i, w in enumerate(widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
@@ -95,7 +95,6 @@ def build_equipment_tab(wb):
     headers = [
         "Asset #", "Item Name", "Category", "Brand/Model", "Serial #",
         "Purchase Date", "Purchase Price", "Condition", "Warranty Expiry",
-        "Depreciation Life (Yrs)", "Annual Depreciation", "Current Book Value",
         "Location", "Notes"
     ]
     for c, h in enumerate(headers, 1):
@@ -136,29 +135,21 @@ def build_equipment_tab(wb):
         ws.cell(row=row, column=7).number_format = CURRENCY_FMT
         # Col I: date format
         ws.cell(row=row, column=9).number_format = DATE_FMT
-        # Col K: Annual Depreciation formula
-        ws.cell(row=row, column=11).value = f"=IF(J{row}>0,G{row}/J{row},0)"
-        ws.cell(row=row, column=11).number_format = CURRENCY_FMT
-        # Col L: Current Book Value formula
-        ws.cell(row=row, column=12).value = (
-            f"=MAX(G{row}-K{row}*(YEAR(TODAY())-YEAR(F{row})),0)"
-        )
-        ws.cell(row=row, column=12).number_format = CURRENCY_FMT
 
         apply_row_style(ws, row, col_count, is_alt)
 
         # Dropdowns
         cat_dv.add(ws.cell(row=row, column=3))
         cond_dv.add(ws.cell(row=row, column=8))
-        loc_dv.add(ws.cell(row=row, column=13))
+        loc_dv.add(ws.cell(row=row, column=10))
 
     # ── Pre-populate known equipment ────────────────────────────────
     equipment = [
-        # (row, name, category, brand, serial, date, price, condition, warranty, depr_yrs, location, notes)
-        (3, "Trailer 5x10", "Trailer", "", "", "03/11/2026", 1582.00, "Good", "", 7, "Truck", ""),
-        (4, "Monitor", "Technology", "", "", "02/28/2026", 105.00, "New", "", 5, "Office", ""),
-        (5, "Trailer Hooks", "Hand Tools", "", "", "03/11/2026", 40.00, "New", "", 5, "Truck", ""),
-        (6, "Yard Signs", "Other", "", "", "03/10/2026", 398.00, "New", "", 3, "", "Marketing materials"),
+        # (row, name, category, brand, serial, date, price, condition, warranty, location, notes)
+        (3, "Trailer 5x10", "Trailer", "", "", "03/11/2026", 1582.00, "Good", "", "Truck", ""),
+        (4, "Monitor", "Technology", "", "", "02/28/2026", 105.00, "New", "", "Office", ""),
+        (5, "Trailer Hooks", "Hand Tools", "", "", "03/11/2026", 40.00, "New", "", "Truck", ""),
+        (6, "Yard Signs", "Other", "", "", "03/10/2026", 398.00, "New", "", "", "Marketing materials"),
     ]
     for item in equipment:
         row = item[0]
@@ -172,9 +163,8 @@ def build_equipment_tab(wb):
         ws.cell(row=row, column=7).number_format = CURRENCY_FMT
         ws.cell(row=row, column=8, value=item[7])   # Condition
         ws.cell(row=row, column=9, value=item[8])   # Warranty Expiry
-        ws.cell(row=row, column=10, value=item[9])  # Depreciation Life
-        ws.cell(row=row, column=13, value=item[10]) # Location
-        ws.cell(row=row, column=14, value=item[11]) # Notes
+        ws.cell(row=row, column=10, value=item[9])  # Location
+        ws.cell(row=row, column=11, value=item[10]) # Notes
 
     # ── Row 103: TOTAL row ──────────────────────────────────────────
     total_row = 103
@@ -182,10 +172,6 @@ def build_equipment_tab(wb):
     ws.cell(row=total_row, column=1).alignment = CENTER
     ws.cell(row=total_row, column=7, value="=SUM(G3:G102)")
     ws.cell(row=total_row, column=7).number_format = CURRENCY_FMT
-    ws.cell(row=total_row, column=11, value="=SUM(K3:K102)")
-    ws.cell(row=total_row, column=11).number_format = CURRENCY_FMT
-    ws.cell(row=total_row, column=12, value="=SUM(L3:L102)")
-    ws.cell(row=total_row, column=12).number_format = CURRENCY_FMT
     apply_row_style(ws, total_row, col_count, False, font=TOTAL_FONT, fill_override=TOTAL_FILL)
 
     # ── Conditional formatting on column H (Condition) ──────────────
