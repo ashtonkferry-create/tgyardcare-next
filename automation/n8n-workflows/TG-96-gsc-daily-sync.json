@@ -1,0 +1,233 @@
+{
+  "name": "TG-96-gsc-daily-sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 11 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily 6am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// GSC data has a 2-day lag. Calculate the sync date.\nconst now = new Date();\nconst syncDate = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);\nconst dateStr = syncDate.toISOString().split('T')[0];\n\nreturn [{ json: { syncDate: dateStr, startRow: 0 } }];"
+      },
+      "id": "calc-date",
+      "name": "Calculate Sync Date",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://searchconsole.googleapis.com/v1/sites/https%3A%2F%2Ftgyardcare.com/searchAnalytics/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ startDate: $json.syncDate, endDate: $json.syncDate, dimensions: ['page'], dataState: 'final', rowLimit: 25000, startRow: 0 }) }}"
+      },
+      "id": "fetch-page-data",
+      "name": "Fetch Page Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300],
+      "notes": "Pagination: If >25K pages, add a loop incrementing startRow by 25000. TG site currently has <100 pages so single request suffices."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform GSC page-level rows to gsc_pages schema\nconst syncDate = $('Calculate Sync Date').first().json.syncDate;\nconst rows = $input.first().json.rows || [];\n\nif (rows.length === 0) {\n  return [{ json: { upsertData: [], rowCount: 0, syncDate } }];\n}\n\nconst transformed = rows.map(r => ({\n  page: r.keys[0],\n  date: syncDate,\n  clicks: r.clicks || 0,\n  impressions: r.impressions || 0,\n  ctr: Math.round((r.ctr || 0) * 10000) / 10000,\n  avg_position: Math.round((r.position || 0) * 100) / 100\n}));\n\nreturn [{ json: { upsertData: transformed, rowCount: transformed.length, syncDate } }];"
+      },
+      "id": "transform-pages",
+      "name": "Transform Page Rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "SUPABASE_URL_PLACEHOLDER/rest/v1/gsc_pages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.upsertData) }}"
+      },
+      "id": "upsert-pages",
+      "name": "Upsert gsc_pages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://searchconsole.googleapis.com/v1/sites/https%3A%2F%2Ftgyardcare.com/searchAnalytics/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ startDate: $('Calculate Sync Date').first().json.syncDate, endDate: $('Calculate Sync Date').first().json.syncDate, dimensions: ['query'], dataState: 'final', rowLimit: 25000, startRow: 0 }) }}"
+      },
+      "id": "fetch-query-data",
+      "name": "Fetch Query Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 300],
+      "notes": "Pagination: If >25K queries, add a loop incrementing startRow by 25000."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform GSC query-level rows to gsc_search_queries schema\n// Unique index is (query, COALESCE(page,''), date, COALESCE(device,''))\n// For query-only dimension, page='' and device=null\nconst syncDate = $('Calculate Sync Date').first().json.syncDate;\nconst rows = $input.first().json.rows || [];\n\nif (rows.length === 0) {\n  return [{ json: { upsertData: [], rowCount: 0, syncDate } }];\n}\n\nconst transformed = rows.map(r => ({\n  query: r.keys[0],\n  page: null,\n  country: 'USA',\n  device: null,\n  date: syncDate,\n  clicks: r.clicks || 0,\n  impressions: r.impressions || 0,\n  ctr: Math.round((r.ctr || 0) * 10000) / 10000,\n  position: Math.round((r.position || 0) * 100) / 100\n}));\n\nreturn [{ json: { upsertData: transformed, rowCount: transformed.length, syncDate } }];"
+      },
+      "id": "transform-queries",
+      "name": "Transform Query Rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "SUPABASE_URL_PLACEHOLDER/rest/v1/gsc_search_queries",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.upsertData) }}"
+      },
+      "id": "upsert-queries",
+      "name": "Upsert gsc_search_queries",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "NPxVFCf05a15PjBH"
+      },
+      "id": "trigger-tg97",
+      "name": "Trigger TG-97",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1760, 300]
+    }
+  ],
+  "connections": {
+    "Daily 6am CT": {
+      "main": [
+        [{ "node": "Calculate Sync Date", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Sync Date": {
+      "main": [
+        [{ "node": "Fetch Page Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Page Data": {
+      "main": [
+        [{ "node": "Transform Page Rows", "type": "main", "index": 0 }]
+      ]
+    },
+    "Transform Page Rows": {
+      "main": [
+        [{ "node": "Upsert gsc_pages", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert gsc_pages": {
+      "main": [
+        [{ "node": "Fetch Query Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Query Data": {
+      "main": [
+        [{ "node": "Transform Query Rows", "type": "main", "index": 0 }]
+      ]
+    },
+    "Transform Query Rows": {
+      "main": [
+        [{ "node": "Upsert gsc_search_queries", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert gsc_search_queries": {
+      "main": [
+        [{ "node": "Trigger TG-97", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

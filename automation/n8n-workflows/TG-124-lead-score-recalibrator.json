@@ -1,0 +1,311 @@
+{
+  "name": "TG-124-lead-score-recalibrator",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 13 1 * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Monthly 1st 8am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate date range: last 90 days for meaningful sample\nconst now = new Date();\nconst today = now.toISOString().split('T')[0];\nconst ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);\nconst ninetyDaysAgoStr = ninetyDaysAgo.toISOString().split('T')[0] + 'T00:00:00Z';\n\nreturn [{ json: {\n  today,\n  ninetyDaysAgoStr,\n  nowIso: now.toISOString(),\n  report_month: now.toISOString().substring(0, 7)\n} }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Date Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,lead_score,status,created_at,updated_at"
+            },
+            {
+              "name": "created_at",
+              "value": "=gte.{{ $json.ninetyDaysAgoStr }}"
+            },
+            {
+              "name": "lead_score",
+              "value": "not.is.null"
+            },
+            {
+              "name": "limit",
+              "value": "1000"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-scored-leads",
+      "name": "Fetch Scored Leads (90d)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/revenue_events",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,lead_id,amount,event_type,created_at"
+            },
+            {
+              "name": "created_at",
+              "value": "=gte.{{ $json.ninetyDaysAgoStr }}"
+            },
+            {
+              "name": "event_type",
+              "value": "eq.booking"
+            },
+            {
+              "name": "limit",
+              "value": "1000"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-bookings",
+      "name": "Fetch Bookings (90d)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 440]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Analyze lead scores vs actual booking rates by tier\nconst leadsRaw = $('Fetch Scored Leads (90d)').first().json;\nconst bookingsRaw = $('Fetch Bookings (90d)').first().json;\n\nconst leads = leadsRaw.body || [];\nconst bookings = bookingsRaw.body || [];\n\n// Build booking lookup by lead_id\nconst bookingsByLead = {};\nfor (const b of bookings) {\n  if (!bookingsByLead[b.lead_id]) {\n    bookingsByLead[b.lead_id] = { count: 0, total_revenue: 0 };\n  }\n  bookingsByLead[b.lead_id].count++;\n  bookingsByLead[b.lead_id].total_revenue += (b.amount || 0);\n}\n\n// Define tiers\nconst tiers = [\n  { name: '0-20 (Cold)', min: 0, max: 20 },\n  { name: '21-40 (Cool)', min: 21, max: 40 },\n  { name: '41-60 (Warm)', min: 41, max: 60 },\n  { name: '61-80 (Hot)', min: 61, max: 80 },\n  { name: '81-100 (Fire)', min: 81, max: 100 }\n];\n\n// Expected booking rates per tier\nconst expectedRates = {\n  '0-20 (Cold)': 2,\n  '21-40 (Cool)': 8,\n  '41-60 (Warm)': 20,\n  '61-80 (Hot)': 40,\n  '81-100 (Fire)': 65\n};\n\nconst tierResults = tiers.map(tier => {\n  const tierLeads = leads.filter(l => l.lead_score >= tier.min && l.lead_score <= tier.max);\n  const booked = tierLeads.filter(l => bookingsByLead[l.id]);\n  const totalRevenue = booked.reduce((sum, l) => sum + (bookingsByLead[l.id]?.total_revenue || 0), 0);\n  \n  const booking_rate = tierLeads.length > 0\n    ? Math.round((booked.length / tierLeads.length) * 10000) / 100\n    : 0;\n  const avg_revenue = booked.length > 0\n    ? Math.round(totalRevenue / booked.length)\n    : 0;\n  const expected = expectedRates[tier.name];\n  const deviation = booking_rate - expected;\n  const significant = Math.abs(deviation) > 10;\n  \n  return {\n    tier: tier.name,\n    lead_count: tierLeads.length,\n    booked_count: booked.length,\n    booking_rate,\n    avg_revenue,\n    expected_rate: expected,\n    deviation: Math.round(deviation * 100) / 100,\n    significant_miscalibration: significant,\n    recommendation: significant\n      ? (deviation > 0\n        ? `Tier ${tier.name} converts ${deviation.toFixed(1)}% ABOVE expected — consider raising score thresholds`\n        : `Tier ${tier.name} converts ${Math.abs(deviation).toFixed(1)}% BELOW expected — scoring weights may need adjustment`)\n      : 'Within acceptable range'\n  };\n});\n\nconst anySignificant = tierResults.some(t => t.significant_miscalibration);\nconst reportMonth = $('Calculate Date Range').first().json.report_month;\n\nreturn [{ json: {\n  report_month: reportMonth,\n  total_leads_analyzed: leads.length,\n  total_bookings: bookings.length,\n  tiers: tierResults,\n  any_significant_miscalibration: anySignificant,\n  generated_at: new Date().toISOString()\n} }];"
+      },
+      "id": "analyze-tiers",
+      "name": "Analyze Score Tiers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  report_type: 'lead_score_calibration',\n  report_period: $json.report_month,\n  title: 'Lead Score Calibration Report — ' + $json.report_month,\n  data: JSON.stringify($json),\n  generated_at: $json.generated_at\n}) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "store-report",
+      "name": "Store Calibration Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [940, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "miscalibrated",
+              "leftValue": "={{ $('Analyze Score Tiers').item.json.any_significant_miscalibration }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "check-miscalibration",
+      "name": "Significant Miscalibration?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1180, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build alert HTML for miscalibrated tiers\nconst data = $('Analyze Score Tiers').item.json;\nconst miscalibrated = data.tiers.filter(t => t.significant_miscalibration);\n\nconst tierRows = miscalibrated.map(t =>\n  `<tr><td>${t.tier}</td><td>${t.lead_count}</td><td>${t.booking_rate}%</td><td>${t.expected_rate}%</td><td style=\"color:${t.deviation > 0 ? 'green' : 'red'}\">${t.deviation > 0 ? '+' : ''}${t.deviation}%</td><td>${t.recommendation}</td></tr>`\n).join('');\n\nconst html = `<p>Monthly lead score calibration detected <strong>${miscalibrated.length}</strong> miscalibrated tier(s).</p>\n<table border=\"1\" cellpadding=\"4\" style=\"border-collapse:collapse\">\n<tr><th>Tier</th><th>Leads</th><th>Actual Rate</th><th>Expected</th><th>Deviation</th><th>Recommendation</th></tr>\n${tierRows}\n</table>\n<p><em>Analysis based on ${data.total_leads_analyzed} leads over 90 days. This is a recommendation only — no automatic changes were made.</em></p>`;\n\nreturn [{ json: {\n  alert_type: 'lead_score_calibration',\n  alert_title: 'Lead Score Miscalibration Detected — ' + data.report_month,\n  alert_body: html,\n  severity: 'warning',\n  source_workflow: 'TG-124',\n  metadata: JSON.stringify({ miscalibrated_tiers: miscalibrated.length, report_month: data.report_month })\n} }];"
+      },
+      "id": "build-alert",
+      "name": "Build Miscalibration Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1420, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": "GHL1BUPFZL8Ic6Bc",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "alert_type": "={{ $json.alert_type }}",
+            "alert_title": "={{ $json.alert_title }}",
+            "alert_body": "={{ $json.alert_body }}",
+            "severity": "={{ $json.severity }}",
+            "source_workflow": "={{ $json.source_workflow }}",
+            "metadata": "={{ $json.metadata }}"
+          }
+        }
+      },
+      "id": "call-tg113",
+      "name": "Alert via TG-113",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1660, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// No significant miscalibration — all tiers within tolerance\nreturn [{ json: { status: 'calibrated', alert: false } }];"
+      },
+      "id": "no-alert",
+      "name": "No Alert Needed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1420, 420]
+    }
+  ],
+  "connections": {
+    "Monthly 1st 8am CT": {
+      "main": [
+        [{ "node": "Calculate Date Range", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Date Range": {
+      "main": [
+        [
+          { "node": "Fetch Scored Leads (90d)", "type": "main", "index": 0 },
+          { "node": "Fetch Bookings (90d)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Scored Leads (90d)": {
+      "main": [
+        [{ "node": "Analyze Score Tiers", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Bookings (90d)": {
+      "main": [
+        [{ "node": "Analyze Score Tiers", "type": "main", "index": 0 }]
+      ]
+    },
+    "Analyze Score Tiers": {
+      "main": [
+        [{ "node": "Store Calibration Report", "type": "main", "index": 0 }]
+      ]
+    },
+    "Store Calibration Report": {
+      "main": [
+        [{ "node": "Significant Miscalibration?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Significant Miscalibration?": {
+      "main": [
+        [{ "node": "Build Miscalibration Alert", "type": "main", "index": 0 }],
+        [{ "node": "No Alert Needed", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Miscalibration Alert": {
+      "main": [
+        [{ "node": "Alert via TG-113", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "phase-4-intelligence" },
+    { "name": "lead-scoring" },
+    { "name": "monthly" }
+  ]
+}

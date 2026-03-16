@@ -1,0 +1,275 @@
+{
+  "name": "TG-112-ad-conversion-watchdog",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0,12 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Every 12 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "ads-configured",
+              "leftValue": "={{ $vars.TG_GOOGLE_ADS_CUSTOMER_ID }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-ads-configured",
+      "name": "Ads Configured?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Google Ads API not configured — graceful skip\nreturn [{ json: {\n  status: 'skipped',\n  reason: 'Google Ads not configured — set TG_GOOGLE_ADS_CUSTOMER_ID to enable conversion monitoring',\n  timestamp: new Date().toISOString()\n} }];"
+      },
+      "id": "skip-not-configured",
+      "name": "Skip - Not Configured",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate 48-hour window\nconst now = new Date();\nconst fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);\nconst twoDaysAgoStr = fortyEightHoursAgo.toISOString().split('T')[0];\nconst today = now.toISOString().split('T')[0];\n\nreturn [{ json: { today, twoDaysAgoStr, nowIso: now.toISOString() } }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate 48h Window",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_ads_daily",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "campaign_id,campaign_name,report_date,cost,conversions"
+            },
+            {
+              "name": "and",
+              "value": "=(report_date.gte.{{ $json.twoDaysAgoStr }},report_date.lte.{{ $json.today }})"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-48h",
+      "name": "Fetch Last 48h Ads Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Group by campaign, sum conversions and cost over 48h\n// Flag campaigns where conversions=0 AND cost>0\nconst response = $input.first().json;\nconst rows = response.body || response || [];\n\nif (!Array.isArray(rows) || rows.length === 0) {\n  return [{ json: { zeroConversionCampaigns: [], count: 0, status: 'no_data' } }];\n}\n\n// Group by campaign\nconst campaigns = {};\nfor (const row of rows) {\n  const id = row.campaign_id || 'unknown';\n  if (!campaigns[id]) {\n    campaigns[id] = {\n      campaign_id: id,\n      campaign_name: row.campaign_name || id,\n      total_cost: 0,\n      total_conversions: 0,\n      days: 0\n    };\n  }\n  campaigns[id].total_cost += parseFloat(row.cost) || 0;\n  campaigns[id].total_conversions += parseFloat(row.conversions) || 0;\n  campaigns[id].days += 1;\n}\n\n// Flag zero-conversion campaigns that are spending money\nconst zeroConversionCampaigns = Object.values(campaigns)\n  .filter(c => c.total_conversions === 0 && c.total_cost > 0)\n  .map(c => ({\n    ...c,\n    total_cost: Math.round(c.total_cost * 100) / 100\n  }))\n  .sort((a, b) => b.total_cost - a.total_cost);\n\nreturn [{ json: {\n  zeroConversionCampaigns,\n  count: zeroConversionCampaigns.length,\n  totalWastedSpend: Math.round(zeroConversionCampaigns.reduce((s, c) => s + c.total_cost, 0) * 100) / 100,\n  status: zeroConversionCampaigns.length > 0 ? 'zero_conversions_found' : 'all_converting'\n} }];"
+      },
+      "id": "analyze-conversions",
+      "name": "Analyze Conversions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-zero-conv",
+              "leftValue": "={{ $json.count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-zero-conversions",
+      "name": "Zero-Conversion Campaigns?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build alert for zero-conversion campaigns\nconst { zeroConversionCampaigns, count, totalWastedSpend } = $json;\n\nconst campaignRows = zeroConversionCampaigns.map(c => \n  `<tr>\n    <td style=\"padding: 6px 12px; border-bottom: 1px solid #e5e7eb;\">${c.campaign_name}</td>\n    <td style=\"padding: 6px 12px; border-bottom: 1px solid #e5e7eb; text-align: right;\">$${c.total_cost.toFixed(2)}</td>\n    <td style=\"padding: 6px 12px; border-bottom: 1px solid #e5e7eb; text-align: center;\">0</td>\n    <td style=\"padding: 6px 12px; border-bottom: 1px solid #e5e7eb; text-align: center;\">${c.days} day${c.days > 1 ? 's' : ''}</td>\n  </tr>`\n).join('');\n\nconst html = `<h3 style=\"margin: 0 0 8px;\">Zero-Conversion Campaign Alert</h3>\n<p style=\"margin: 0 0 12px;\"><strong>${count}</strong> campaign${count > 1 ? 's have' : ' has'} produced zero conversions in the last 48 hours while spending <strong>$${totalWastedSpend.toFixed(2)}</strong>.</p>\n<table style=\"width: 100%; border-collapse: collapse; font-size: 14px;\">\n  <thead>\n    <tr style=\"background: #f3f4f6;\">\n      <th style=\"padding: 6px 12px; text-align: left;\">Campaign</th>\n      <th style=\"padding: 6px 12px; text-align: right;\">48h Spend</th>\n      <th style=\"padding: 6px 12px; text-align: center;\">Conversions</th>\n      <th style=\"padding: 6px 12px; text-align: center;\">Data Points</th>\n    </tr>\n  </thead>\n  <tbody>${campaignRows}</tbody>\n</table>\n<p style=\"color: #6b7280; font-size: 13px; margin-top: 12px;\"><em>Note: Auto-pause via Google Ads API is not yet configured. Manual review recommended.</em></p>`;\n\nreturn [{ json: {\n  alert_type: 'no_conversions_48h',\n  alert_title: `${count} Campaign${count > 1 ? 's' : ''} With Zero Conversions (48h) — $${totalWastedSpend.toFixed(2)} Wasted`,\n  alert_body: html,\n  severity: 'critical',\n  source_workflow: 'TG-112',\n  metadata: { zeroConversionCampaigns, totalWastedSpend },\n  action_taken: 'alert_only'\n} }];"
+      },
+      "id": "build-alert",
+      "name": "Build Conversion Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 100]
+    },
+    {
+      "parameters": {
+        "workflowId": "GHL1BUPFZL8Ic6Bc",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "alert_type": "={{ $json.alert_type }}",
+            "alert_title": "={{ $json.alert_title }}",
+            "alert_body": "={{ $json.alert_body }}",
+            "severity": "={{ $json.severity }}",
+            "source_workflow": "={{ $json.source_workflow }}",
+            "metadata": "={{ JSON.stringify($json.metadata) }}"
+          }
+        }
+      },
+      "id": "call-tg113",
+      "name": "Alert via TG-113",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1600, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_ads_alerts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ alert_type: 'no_conversions_48h', severity: 'critical', message: $('Build Conversion Alert').first().json.alert_title, details: { campaigns: $('Analyze Conversions').first().json.zeroConversionCampaigns, total_wasted: $('Analyze Conversions').first().json.totalWastedSpend }, action_taken: 'alert_only', created_at: new Date().toISOString() }) }}"
+      },
+      "id": "log-alert",
+      "name": "Log to google_ads_alerts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1840, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// All campaigns converting — no issues\nreturn [{ json: {\n  status: 'all_converting',\n  message: 'All active campaigns have conversions in the last 48 hours',\n  timestamp: new Date().toISOString()\n} }];"
+      },
+      "id": "log-normal",
+      "name": "Log All Converting",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 320]
+    }
+  ],
+  "connections": {
+    "Every 12 Hours": {
+      "main": [
+        [{ "node": "Ads Configured?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Ads Configured?": {
+      "main": [
+        [{ "node": "Calculate 48h Window", "type": "main", "index": 0 }],
+        [{ "node": "Skip - Not Configured", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate 48h Window": {
+      "main": [
+        [{ "node": "Fetch Last 48h Ads Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Last 48h Ads Data": {
+      "main": [
+        [{ "node": "Analyze Conversions", "type": "main", "index": 0 }]
+      ]
+    },
+    "Analyze Conversions": {
+      "main": [
+        [{ "node": "Zero-Conversion Campaigns?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Zero-Conversion Campaigns?": {
+      "main": [
+        [{ "node": "Build Conversion Alert", "type": "main", "index": 0 }],
+        [{ "node": "Log All Converting", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Conversion Alert": {
+      "main": [
+        [{ "node": "Alert via TG-113", "type": "main", "index": 0 }]
+      ]
+    },
+    "Alert via TG-113": {
+      "main": [
+        [{ "node": "Log to google_ads_alerts", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

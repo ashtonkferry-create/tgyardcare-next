@@ -1,0 +1,280 @@
+{
+  "name": "TG-98-content-gap-detector",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 12 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Weekly Monday 7am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate date range: last 7 days with 2-day lag\nconst now = new Date();\nconst endDate = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);\nconst startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);\n\nreturn [{ json: {\n  startDate: startDate.toISOString().split('T')[0],\n  endDate: endDate.toISOString().split('T')[0],\n  detectedAt: now.toISOString().split('T')[0]\n}}];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Date Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://searchconsole.googleapis.com/v1/sites/https%3A%2F%2Ftgyardcare.com/searchAnalytics/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ startDate: $json.startDate, endDate: $json.endDate, dimensions: ['query'], dataState: 'final', rowLimit: 25000, startRow: 0 }) }}"
+      },
+      "id": "fetch-queries",
+      "name": "Fetch Query Data from GSC",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "SUPABASE_URL_PLACEHOLDER/rest/v1/gsc_pages?select=page&order=page",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "get-pages",
+      "name": "Get Existing Pages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 500]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "SUPABASE_URL_PLACEHOLDER/rest/v1/blog_posts?select=slug,title,target_keyword&status=eq.published",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "get-blogs",
+      "name": "Get Published Blog Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 700]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Detect content gaps: queries with impressions but no matching page or blog post\nconst gscRows = $('Fetch Query Data from GSC').first().json.rows || [];\nconst pagesBody = $('Get Existing Pages').first().json.body || [];\nconst blogsBody = $('Get Published Blog Posts').first().json.body || [];\nconst detectedAt = $('Calculate Date Range').first().json.detectedAt;\n\n// Build set of existing page paths (lowercased)\nconst existingPages = new Set();\nfor (const p of pagesBody) {\n  if (p.page) {\n    // Extract path from full URL\n    try {\n      const url = new URL(p.page);\n      existingPages.add(url.pathname.toLowerCase());\n    } catch {\n      existingPages.add(p.page.toLowerCase());\n    }\n  }\n}\n\n// Build set of blog keywords and titles (lowercased)\nconst blogKeywords = new Set();\nfor (const b of blogsBody) {\n  if (b.target_keyword) blogKeywords.add(b.target_keyword.toLowerCase());\n  if (b.title) blogKeywords.add(b.title.toLowerCase());\n  if (b.slug) blogKeywords.add(b.slug.replace(/-/g, ' ').toLowerCase());\n}\n\n// Find gaps: queries with impressions but no dedicated page\nconst gaps = [];\nfor (const row of gscRows) {\n  const query = row.keys[0].toLowerCase();\n  const impressions = row.impressions || 0;\n  const clicks = row.clicks || 0;\n  const position = row.position || 100;\n\n  if (impressions < 5) continue; // Filter noise\n\n  // Check if query matches an existing page path\n  const querySlug = query.replace(/\\s+/g, '-');\n  const hasPage = existingPages.has('/' + querySlug) ||\n    existingPages.has('/blog/' + querySlug) ||\n    existingPages.has('/services/' + querySlug);\n\n  // Check if query matches a blog keyword/title\n  const hasBlog = blogKeywords.has(query) ||\n    [...blogKeywords].some(kw => kw.includes(query) || query.includes(kw));\n\n  if (!hasPage && !hasBlog) {\n    const priorityScore = Math.round(impressions * (1 - position / 100) * 100) / 100;\n    gaps.push({\n      query: row.keys[0],\n      impressions,\n      clicks,\n      avg_position: Math.round(position * 100) / 100,\n      priority_score: Math.max(priorityScore, 0),\n      has_dedicated_page: false,\n      status: 'new',\n      detected_at: detectedAt\n    });\n  }\n}\n\n// Sort by priority_score descending, take top 30\ngaps.sort((a, b) => b.priority_score - a.priority_score);\nconst top30 = gaps.slice(0, 30);\n\nreturn [{ json: { gaps: top30, totalGaps: gaps.length, topGaps: top30.length } }];"
+      },
+      "id": "detect-gaps",
+      "name": "Detect Content Gaps",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "SUPABASE_URL_PLACEHOLDER/rest/v1/seo_content_gaps",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.gaps) }}"
+      },
+      "id": "upsert-gaps",
+      "name": "Upsert Top 30 to seo_content_gaps",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build HTML email report of top 15 content gaps\nconst gaps = $('Detect Content Gaps').first().json.gaps || [];\nconst totalGaps = $('Detect Content Gaps').first().json.totalGaps || 0;\nconst top15 = gaps.slice(0, 15);\nconst detectedAt = $('Calculate Date Range').first().json.detectedAt;\n\nif (top15.length === 0) {\n  return [{ json: { skipEmail: true } }];\n}\n\nlet tableRows = '';\nfor (let i = 0; i < top15.length; i++) {\n  const g = top15[i];\n  const bg = i % 2 === 0 ? '#f9f9f9' : '#ffffff';\n  tableRows += `<tr style=\"background:${bg}\">\n    <td style=\"padding:8px;border:1px solid #ddd\">${i + 1}</td>\n    <td style=\"padding:8px;border:1px solid #ddd\">${g.query}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;text-align:center\">${g.impressions}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;text-align:center\">${g.clicks}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;text-align:center\">${g.avg_position.toFixed(1)}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;text-align:center;font-weight:bold\">${g.priority_score.toFixed(1)}</td>\n  </tr>`;\n}\n\nconst html = `\n<div style=\"font-family:Arial,sans-serif;max-width:800px;margin:0 auto\">\n  <h2 style=\"color:#2d5016\">TG-98 Content Gap Report</h2>\n  <p style=\"color:#666\">Week ending ${detectedAt} | ${totalGaps} total gaps found, top 15 shown</p>\n  <p>These are search queries where people find impressions of tgyardcare.com but there is no dedicated page targeting that query.</p>\n  <table style=\"border-collapse:collapse;width:100%;font-size:14px\">\n    <thead>\n      <tr style=\"background:#2d5016;color:#fff\">\n        <th style=\"padding:8px;border:1px solid #ddd\">#</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Query</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Impressions</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Clicks</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Avg Position</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Priority Score</th>\n      </tr>\n    </thead>\n    <tbody>${tableRows}</tbody>\n  </table>\n  <p style=\"color:#888;font-size:12px;margin-top:16px\">Priority Score = impressions * (1 - position/100). Higher = more opportunity.</p>\n  <p style=\"color:#888;font-size:12px\">Action: Create dedicated blog posts or location pages for high-priority queries.</p>\n</div>`;\n\nreturn [{ json: {\n  skipEmail: false,\n  to_email: 'totalguardllc@gmail.com',\n  subject: `[TG-98] Content Gap Report - ${top15.length} Opportunities (${detectedAt})`,\n  html_body: html,\n  workflow_name: 'TG-98',\n  email_type: 'report'\n}}];"
+      },
+      "id": "build-report",
+      "name": "Build Gap Report Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 500]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "skip-check",
+              "leftValue": "={{ $json.skipEmail }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-has-gaps",
+      "name": "IF Has Gaps",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1320, 500]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "to_email": "={{ $json.to_email }}",
+            "subject": "={{ $json.subject }}",
+            "html_body": "={{ $json.html_body }}",
+            "workflow_name": "={{ $json.workflow_name }}",
+            "email_type": "={{ $json.email_type }}"
+          }
+        }
+      },
+      "id": "send-email",
+      "name": "Send via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1540, 400]
+    }
+  ],
+  "connections": {
+    "Weekly Monday 7am CT": {
+      "main": [
+        [{ "node": "Calculate Date Range", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Date Range": {
+      "main": [
+        [
+          { "node": "Fetch Query Data from GSC", "type": "main", "index": 0 },
+          { "node": "Get Existing Pages", "type": "main", "index": 0 },
+          { "node": "Get Published Blog Posts", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Query Data from GSC": {
+      "main": [
+        [{ "node": "Detect Content Gaps", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Existing Pages": {
+      "main": [
+        [{ "node": "Detect Content Gaps", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Published Blog Posts": {
+      "main": [
+        [{ "node": "Detect Content Gaps", "type": "main", "index": 0 }]
+      ]
+    },
+    "Detect Content Gaps": {
+      "main": [
+        [{ "node": "Upsert Top 30 to seo_content_gaps", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert Top 30 to seo_content_gaps": {
+      "main": [
+        [{ "node": "Build Gap Report Email", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Gap Report Email": {
+      "main": [
+        [{ "node": "IF Has Gaps", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF Has Gaps": {
+      "main": [
+        [{ "node": "Send via TG-95", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

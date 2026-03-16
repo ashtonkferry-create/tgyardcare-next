@@ -1,0 +1,324 @@
+{
+  "name": "TG-122-ab-test-seed-manager",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate input and route action\nconst input = $input.all()[0].json;\nconst action = input.action;\n\nif (!action || !['create', 'update'].includes(action)) {\n  throw new Error('Invalid action: must be create or update');\n}\nif (!input.test_name && action === 'create') {\n  throw new Error('test_name required for create action');\n}\nif (!input.channel) {\n  throw new Error('channel is required');\n}\nif (!input.variant_a || !input.variant_b) {\n  throw new Error('variant_a and variant_b are required');\n}\n\nconst testId = input.test_id || `ab-${input.channel}-${Date.now()}`;\n\nreturn [{ json: {\n  action,\n  test_id: testId,\n  test_name: input.test_name || '',\n  channel: input.channel,\n  variant_a: input.variant_a,\n  variant_b: input.variant_b,\n  min_sends_per_variant: input.min_sends_per_variant || 50,\n  auto_winner: input.auto_winner !== false\n} }];"
+      },
+      "id": "validate-input",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "is-create",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "create",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "route-action",
+      "name": "Create or Update?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_tests",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  id: $json.test_id,\n  test_name: $json.test_name,\n  channel: $json.channel,\n  status: 'active',\n  min_sends_per_variant: $json.min_sends_per_variant,\n  auto_winner: $json.auto_winner\n}) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "create-test",
+      "name": "Create AB Test",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_test_variants",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify([\n  {\n    id: $('Validate Input').item.json.test_id + '-a',\n    test_id: $('Validate Input').item.json.test_id,\n    variant_name: 'A',\n    title: $('Validate Input').item.json.variant_a.title,\n    content: $('Validate Input').item.json.variant_a.content,\n    weight: $('Validate Input').item.json.variant_a.weight || 50,\n    sends: 0,\n    opens: 0,\n    clicks: 0,\n    conversions: 0\n  },\n  {\n    id: $('Validate Input').item.json.test_id + '-b',\n    test_id: $('Validate Input').item.json.test_id,\n    variant_name: 'B',\n    title: $('Validate Input').item.json.variant_b.title,\n    content: $('Validate Input').item.json.variant_b.content,\n    weight: $('Validate Input').item.json.variant_b.weight || 50,\n    sends: 0,\n    opens: 0,\n    clicks: 0,\n    conversions: 0\n  }\n]) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "create-variants",
+      "name": "Create Variants A+B",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Return success for create\nconst input = $('Validate Input').item.json;\nreturn [{ json: {\n  success: true,\n  test_id: input.test_id,\n  action: 'create'\n} }];"
+      },
+      "id": "return-create",
+      "name": "Return Create Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 200]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_tests?id=eq.{{ $json.test_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify(Object.assign(\n  {},\n  $json.test_name ? { test_name: $json.test_name } : {},\n  $json.min_sends_per_variant ? { min_sends_per_variant: $json.min_sends_per_variant } : {},\n  $json.auto_winner !== undefined ? { auto_winner: $json.auto_winner } : {},\n  { updated_at: new Date().toISOString() }\n)) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "update-test",
+      "name": "Update AB Test",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 440]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_test_variants?id=eq.{{ $json.test_id }}-a",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify(Object.assign(\n  {},\n  $('Validate Input').item.json.variant_a.title ? { title: $('Validate Input').item.json.variant_a.title } : {},\n  $('Validate Input').item.json.variant_a.content ? { content: $('Validate Input').item.json.variant_a.content } : {},\n  $('Validate Input').item.json.variant_a.weight ? { weight: $('Validate Input').item.json.variant_a.weight } : {},\n  { updated_at: new Date().toISOString() }\n)) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "update-variant-a",
+      "name": "Update Variant A",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 380]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_test_variants?id=eq.{{ $('Validate Input').item.json.test_id }}-b",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify(Object.assign(\n  {},\n  $('Validate Input').item.json.variant_b.title ? { title: $('Validate Input').item.json.variant_b.title } : {},\n  $('Validate Input').item.json.variant_b.content ? { content: $('Validate Input').item.json.variant_b.content } : {},\n  $('Validate Input').item.json.variant_b.weight ? { weight: $('Validate Input').item.json.variant_b.weight } : {},\n  { updated_at: new Date().toISOString() }\n)) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "update-variant-b",
+      "name": "Update Variant B",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 520]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Return success for update\nconst input = $('Validate Input').item.json;\nreturn [{ json: {\n  success: true,\n  test_id: input.test_id,\n  action: 'update'\n} }];"
+      },
+      "id": "return-update",
+      "name": "Return Update Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 440]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [{ "node": "Validate Input", "type": "main", "index": 0 }]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [{ "node": "Create or Update?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create or Update?": {
+      "main": [
+        [{ "node": "Create AB Test", "type": "main", "index": 0 }],
+        [{ "node": "Update AB Test", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create AB Test": {
+      "main": [
+        [{ "node": "Create Variants A+B", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Variants A+B": {
+      "main": [
+        [{ "node": "Return Create Result", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update AB Test": {
+      "main": [
+        [{ "node": "Update Variant A", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Variant A": {
+      "main": [
+        [{ "node": "Update Variant B", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Variant B": {
+      "main": [
+        [{ "node": "Return Update Result", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "phase-4-intelligence" },
+    { "name": "ab-testing" },
+    { "name": "sub-workflow" }
+  ]
+}

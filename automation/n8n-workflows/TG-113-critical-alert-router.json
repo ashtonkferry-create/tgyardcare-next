@@ -1,0 +1,161 @@
+{
+  "name": "TG-113-critical-alert-router",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build color-coded alert email HTML\nconst { alert_type, alert_title, alert_body, severity, source_workflow, metadata } = $json;\n\nconst severityColors = {\n  critical: { bg: '#dc2626', text: '#fff', label: 'CRITICAL' },\n  warning: { bg: '#ea580c', text: '#fff', label: 'WARNING' },\n  info: { bg: '#2563eb', text: '#fff', label: 'INFO' }\n};\nconst sev = severityColors[severity] || severityColors.info;\nconst timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' });\n\nconst html = `\n<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: #f9fafb; padding: 20px;\">\n  <div style=\"background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);\">\n    <div style=\"background: ${sev.bg}; color: ${sev.text}; padding: 12px 20px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;\">\n      ${sev.label}\n    </div>\n    <div style=\"padding: 24px 20px;\">\n      <h2 style=\"margin: 0 0 12px 0; font-size: 20px; color: #111827;\">${alert_title}</h2>\n      <div style=\"color: #374151; font-size: 15px; line-height: 1.6; margin-bottom: 20px;\">${alert_body}</div>\n      <table style=\"width: 100%; font-size: 13px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 16px;\">\n        <tr><td style=\"padding: 4px 0;\"><strong>Alert Type:</strong></td><td>${alert_type}</td></tr>\n        <tr><td style=\"padding: 4px 0;\"><strong>Source:</strong></td><td>${source_workflow}</td></tr>\n        <tr><td style=\"padding: 4px 0;\"><strong>Time:</strong></td><td>${timestamp}</td></tr>\n      </table>\n    </div>\n    <div style=\"background: #f3f4f6; padding: 12px 20px; text-align: center; font-size: 12px; color: #9ca3af;\">\n      TotalGuard Yard Care &mdash; Automated Alert System\n    </div>\n  </div>\n</div>\n`;\n\nreturn [{ json: {\n  alert_type,\n  alert_title,\n  alert_body,\n  severity,\n  source_workflow,\n  metadata: metadata || null,\n  html_body: html\n}}];"
+      },
+      "id": "build-html",
+      "name": "Build Alert Email HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare email payload for TG-95\nconst { severity, alert_title, html_body } = $json;\nconst sevLabel = severity.toUpperCase();\nreturn [{ json: {\n  to_email: 'totalguardllc@gmail.com',\n  subject: `[TG Alert - ${sevLabel}] ${alert_title}`,\n  html_body: html_body,\n  workflow_name: 'TG-113',\n  email_type: 'alert'\n}}];"
+      },
+      "id": "prep-email",
+      "name": "Prepare Email Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "to_email": "={{ $json.to_email }}",
+            "subject": "={{ $json.subject }}",
+            "html_body": "={{ $json.html_body }}",
+            "workflow_name": "={{ $json.workflow_name }}",
+            "email_type": "={{ $json.email_type }}"
+          }
+        }
+      },
+      "id": "send-email",
+      "name": "Send Email via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "critical-check",
+              "leftValue": "={{ $('Build Alert Email HTML').first().json.severity }}",
+              "rightValue": "critical",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-critical",
+      "name": "Is Critical?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [960, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare SMS payload for critical alerts\nconst data = $('Build Alert Email HTML').first().json;\nconst truncated = data.alert_body.length > 120 ? data.alert_body.substring(0, 117) + '...' : data.alert_body;\nreturn [{ json: {\n  to_phone: 'OWNER_PHONE_PLACEHOLDER',\n  message_body: `[TG ALERT] ${data.alert_title}: ${truncated}`,\n  workflow_name: 'TG-113',\n  message_type: 'alert'\n}}];"
+      },
+      "id": "build-sms",
+      "name": "Build SMS Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": "AprqI2DgQA8lehij",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "to_phone": "={{ $json.to_phone }}",
+            "message_body": "={{ $json.message_body }}",
+            "workflow_name": "={{ $json.workflow_name }}",
+            "message_type": "={{ $json.message_type }}"
+          }
+        }
+      },
+      "id": "send-sms",
+      "name": "Send SMS via TG-94",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1440, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Return result summary\nconst data = $('Build Alert Email HTML').first().json;\nconst isCritical = data.severity === 'critical';\nreturn [{ json: {\n  success: true,\n  alert_type: data.alert_type,\n  severity: data.severity,\n  email_sent: true,\n  sms_sent: isCritical\n}}];"
+      },
+      "id": "return-result",
+      "name": "Return Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 420]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [{ "node": "Build Alert Email HTML", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Alert Email HTML": {
+      "main": [
+        [{ "node": "Prepare Email Payload", "type": "main", "index": 0 }]
+      ]
+    },
+    "Prepare Email Payload": {
+      "main": [
+        [{ "node": "Send Email via TG-95", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Email via TG-95": {
+      "main": [
+        [{ "node": "Is Critical?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Is Critical?": {
+      "main": [
+        [{ "node": "Build SMS Payload", "type": "main", "index": 0 }],
+        [{ "node": "Return Result", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build SMS Payload": {
+      "main": [
+        [{ "node": "Send SMS via TG-94", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send SMS via TG-94": {
+      "main": [
+        [{ "node": "Return Result", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

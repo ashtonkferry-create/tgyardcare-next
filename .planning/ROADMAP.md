@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- [x] **M2: Automation Gap Closer** - Phases 0-4 (in progress)
+- [x] **M2: Automation Gap Closer** - Phases 0-4.1 (complete)
 - [ ] **M3: Billionaire Brand Transformation** - Phases 5-9 (planned)
 
 ---
@@ -49,25 +49,59 @@ Plans:
 ## Phase 2: CRM Unification
 **Goal**: Build webhook router (TG-92), auto-dispatch notifications (TG-93), unified SMS sender (TG-94), unified email sender (TG-95), and convert TG-76 to sub-workflow -- single public webhook, owner dispatch with confirmation, all events logged, all communication gated through consent and rate limiting.
 **Impact**: Eliminate manual CRM work, unified customer communication layer
-**Status**: Planning complete
+**Status**: Complete
 **Plans:** 5 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- DB tables (webhook_events, dispatch_log) + TG-76 sub-workflow conversion
-- [ ] 02-02-PLAN.md -- TG-92 Webhook Router (deployed inactive)
-- [ ] 02-03-PLAN.md -- TG-93 Auto-Dispatch + TG-05 extension
-- [ ] 02-04-PLAN.md -- TG-94 Unified SMS Sender + TG-95 Unified Email Sender + TG-76 customer reply routing
-- [ ] 02-05-PLAN.md -- Activate TG-92/TG-93, point Twilio, end-to-end verification
+- [x] 02-01-PLAN.md -- DB tables (webhook_events, dispatch_log) + TG-76 sub-workflow conversion
+- [x] 02-02-PLAN.md -- TG-92 Webhook Router (deployed inactive)
+- [x] 02-03-PLAN.md -- TG-93 Auto-Dispatch + TG-05 extension
+- [x] 02-04-PLAN.md -- TG-94 Unified SMS Sender + TG-95 Unified Email Sender + TG-76 customer reply routing
+- [x] 02-05-PLAN.md -- Activate TG-92/TG-93, point Twilio, end-to-end verification
 
 ## Phase 3: SEO Domination
-**Goal**: Build 14 workflows/crons that close remaining SEO gaps — GSC daily sync, city/neighborhood content generator, content gap detector, ranking opportunity detector, index coverage monitor, rank drop alerts.
+**Goal**: Build 9 focused n8n workflows (TG-96 through TG-104) that close remaining SEO gaps -- daily GSC sync, rank drop detection, content gap analysis, ranking opportunity detection, index coverage monitoring, content staleness checks, city content generation, quality validation, and weekly SEO summary.
 **Impact**: Fill the only SEO category where TTW beats TG (monitoring: 10-5)
-**Status**: Pending Phase 2
+**Status**: Complete
+**Plans:** 6 plans (5 original + 1 gap closure)
+
+Plans:
+- [x] 03-01-PLAN.md -- DB migration (index_coverage_log, seo_content_gaps) + TG-96 GSC Daily Sync
+- [x] 03-02-PLAN.md -- TG-103 City Content Generator + TG-104 Content Quality Checker
+- [x] 03-03-PLAN.md -- TG-97 Rank Drop Detector + TG-100 Index Coverage Monitor
+- [x] 03-04-PLAN.md -- TG-98 Content Gap Detector + TG-99 Ranking Opportunity Detector + TG-101 Content Staleness Checker
+- [x] 03-05-PLAN.md -- TG-102 Weekly SEO Summary (aggregates all monitoring data)
+- [x] 03-06-PLAN.md -- Gap closure: schema fix (TG-97/TG-102) + missing aggregation sources + city data verification
 
 ## Phase 4: Intelligence Layer
-**Goal**: Build 20+ workflows for self-improvement, revenue attribution, A/B testing, ad optimization, and AI learning reports. This is TTW's only 12-0 category — TG currently has zero.
+**Goal**: Build 21 workflows (TG-105 through TG-125) + 6 modifications for self-improvement, revenue attribution, A/B testing, ad optimization, and AI learning reports. This is TTW's only 12-0 category — TG currently has zero.
 **Impact**: TG becomes a self-optimizing system that gets smarter every week
-**Status**: Pending Phase 3
+**Status**: Complete
+**Plans:** 12/12 plans
+
+Plans:
+- [x] 04-01-PLAN.md -- Migration 072: 5 new tables + 4 table extensions for Intelligence Layer [wave 1]
+- [x] 04-02-PLAN.md -- TG-113 Critical Alert Router + TG-105 A/B Test Router (sub-workflows) [wave 1]
+- [x] 04-03-PLAN.md -- TG-107 Revenue Sync Daily + TG-108 KPI Daily Snapshot [wave 1]
+- [x] 04-04-PLAN.md -- TG-109 Google Ads Daily Sync (stub) + TG-106 A/B Test Auto-Winner [wave 1]
+- [x] 04-05-PLAN.md -- TG-110 Anomaly Detector + TG-111 Ad Budget Guardian + TG-112 Ad Conversion Watchdog [wave 2]
+- [x] 04-06-PLAN.md -- TG-118 Weekly Intelligence Assembler (shared HTML email builder) [wave 3]
+- [x] 04-07-PLAN.md -- TG-114 Weekly Revenue Attribution + TG-115 Weekly A/B Test Report [wave 3]
+- [x] 04-08-PLAN.md -- TG-116 Weekly Ad Performance + TG-117 Weekly What Got Smarter [wave 3]
+- [x] 04-09-PLAN.md -- TG-119/120/121 Monthly Trend + Channel ROI + Learning Report [wave 4]
+- [x] 04-10-PLAN.md -- TG-122/123/124/125 A/B Seed Manager + Workflow Health + Lead Recalibrator + Dashboard Updater [wave 5]
+- [x] 04-11-PLAN.md -- Modify TG-83/84/85/91 for A/B testing + TG-94/95 A/B logging [wave 5]
+- [x] 04-12-PLAN.md -- Retire TG-66/67 + Full Phase 4 Verification [wave 5]
+
+## Phase 4.1: M2 Integration Fixes (INSERTED — Gap Closure)
+**Goal**: Fix 6 critical cross-phase integration issues found by milestone audit: workflow ID placeholders in local JSONs, column/parameter name mismatches against live Supabase schema, missing ab_test_variants.content column, and TG-95 email logging gap.
+**Impact**: All E2E flows pass, local JSON matches live state, A/B testing fully functional
+**Status**: Complete
+**Plans:** 1 plan
+**Gap Closure**: Closes W1, W2, S1, S2, S3, S4, D2 from M2-MILESTONE-AUDIT.md
+
+Plans:
+- [x] 04.1-01-PLAN.md -- Fix all 7 integration issues (workflowIds, column names, RPC params, schema, logging)
 
 </details>
 
@@ -169,9 +203,10 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 0. Fix Existing | M2 | 0/? | Ready to execute | - |
 | 1. Revenue Engine | M2 | 9/9 | Complete | 2026-03-15 |
-| 2. CRM Unification | M2 | 0/? | Not started | - |
-| 3. SEO Domination | M2 | 0/? | Not started | - |
-| 4. Intelligence Layer | M2 | 0/? | Not started | - |
+| 2. CRM Unification | M2 | 5/5 | Complete | 2026-03-16 |
+| 3. SEO Domination | M2 | 6/6 | Complete | 2026-03-16 |
+| 4. Intelligence Layer | M2 | 12/12 | Complete | 2026-03-16 |
+| 4.1 M2 Integration Fixes | M2 | 1/1 | Complete | 2026-03-16 |
 | 5. Safety Nets & Foundation | M3 | 0/? | Not started | - |
 | 6. Brand Transformation | M3 | 0/? | Not started | - |
 | 7. Conversion Features | M3 | 0/? | Not started | - |

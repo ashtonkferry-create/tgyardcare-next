@@ -1,0 +1,62 @@
+{
+  "name": "TG-118-weekly-intelligence-assembler",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-118: Build HTML Email from structured report data\n// Input: { report_title, report_subtitle, sections: [ { type, ... } ] }\n// Section types: metrics, highlights, table, anomalies, actions\n\nconst input = $input.first().json;\nconst title = input.report_title || 'Weekly Report';\nconst subtitle = input.report_subtitle || '';\nconst sections = input.sections || [];\nconst now = new Date().toISOString().split('T')[0];\n\n// --- Color palette ---\nconst DARK_GREEN = '#1a5d1a';\nconst LIGHT_GREEN = '#e8f5e9';\nconst GREEN_TEXT = '#2e7d32';\nconst RED_TEXT = '#c62828';\nconst ORANGE_BG = '#fff3e0';\nconst ORANGE_BORDER = '#e65100';\nconst RED_BG = '#fbe9e7';\nconst RED_BORDER = '#c62828';\nconst GRAY_BG = '#f5f5f5';\nconst BORDER_COLOR = '#e0e0e0';\nconst TEXT_PRIMARY = '#212121';\nconst TEXT_SECONDARY = '#616161';\n\n// --- Section renderers ---\n\nfunction renderMetrics(section) {\n  const items = section.items || [];\n  if (items.length === 0) return '';\n  const cards = items.map(m => {\n    const changeColor = (m.change || '').toString().startsWith('-') ? RED_TEXT : GREEN_TEXT;\n    const changeHtml = m.change ? `<div style=\"font-size:13px;color:${changeColor};font-weight:600;margin-top:4px;\">${m.change}</div>` : '';\n    return `<td style=\"padding:8px;text-align:center;vertical-align:top;width:${Math.floor(100/Math.min(items.length,4))}%;\">\n      <div style=\"background-color:#ffffff;border:1px solid ${BORDER_COLOR};border-radius:8px;padding:16px 12px;\">\n        <div style=\"font-size:12px;color:${TEXT_SECONDARY};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;\">${m.label || ''}</div>\n        <div style=\"font-size:28px;font-weight:700;color:${TEXT_PRIMARY};line-height:1.2;\">${m.value || '—'}</div>\n        ${changeHtml}\n      </div>\n    </td>`;\n  }).join('');\n  // Wrap in rows of 4 max\n  const rows = [];\n  for (let i = 0; i < items.length; i += 4) {\n    rows.push(cards.slice(i, i + 4).join(''));\n  }\n  const sectionTitle = section.title ? `<tr><td colspan=\"4\" style=\"padding:24px 0 8px 0;font-size:18px;font-weight:700;color:${TEXT_PRIMARY};\">${section.title}</td></tr>` : '';\n  return `${sectionTitle}${rows.map(r => `<tr>${r}</tr>`).join('')}`;\n}\n\nfunction renderHighlights(section) {\n  const items = section.items || [];\n  if (items.length === 0) return '';\n  const sectionTitle = section.title || 'Highlights';\n  const bullets = items.map(h => \n    `<tr><td style=\"padding:6px 0 6px 0;\">\n      <div style=\"border-left:4px solid ${GREEN_TEXT};padding:8px 12px;background-color:${LIGHT_GREEN};border-radius:0 4px 4px 0;font-size:14px;color:${TEXT_PRIMARY};line-height:1.5;\">${h}</div>\n    </td></tr>`\n  ).join('');\n  return `<tr><td style=\"padding:24px 0 8px 0;font-size:18px;font-weight:700;color:${TEXT_PRIMARY};\">${sectionTitle}</td></tr>${bullets}`;\n}\n\nfunction renderTable(section) {\n  const headers = section.headers || [];\n  const rows = section.rows || [];\n  if (headers.length === 0 && rows.length === 0) return '';\n  const sectionTitle = section.title || 'Data';\n  const headerCells = headers.map((h, i) => \n    `<th style=\"padding:10px 12px;text-align:${i === 0 ? 'left' : 'right'};font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:${TEXT_SECONDARY};border-bottom:2px solid ${BORDER_COLOR};background-color:${GRAY_BG};\">${h}</th>`\n  ).join('');\n  const dataRows = rows.map((row, ri) => {\n    const bgColor = ri % 2 === 0 ? '#ffffff' : GRAY_BG;\n    const cells = row.map((cell, ci) => \n      `<td style=\"padding:10px 12px;text-align:${ci === 0 ? 'left' : 'right'};font-size:14px;color:${TEXT_PRIMARY};border-bottom:1px solid ${BORDER_COLOR};background-color:${bgColor};\">${cell}</td>`\n    ).join('');\n    return `<tr>${cells}</tr>`;\n  }).join('');\n  return `<tr><td style=\"padding:24px 0 8px 0;font-size:18px;font-weight:700;color:${TEXT_PRIMARY};\">${sectionTitle}</td></tr>\n    <tr><td style=\"padding:0;\">\n      <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border:1px solid ${BORDER_COLOR};border-radius:8px;border-collapse:collapse;\">\n        <tr>${headerCells}</tr>\n        ${dataRows}\n      </table>\n    </td></tr>`;\n}\n\nfunction renderAnomalies(section) {\n  const items = section.items || [];\n  if (items.length === 0) return '';\n  const sectionTitle = section.title || 'Anomalies Detected';\n  const alerts = items.map(a => {\n    const severity = (a.severity || 'warning').toLowerCase();\n    const bgColor = severity === 'critical' ? RED_BG : ORANGE_BG;\n    const borderColor = severity === 'critical' ? RED_BORDER : ORANGE_BORDER;\n    const label = typeof a === 'string' ? a : (a.message || a.description || JSON.stringify(a));\n    const severityBadge = typeof a !== 'string' && a.severity ? `<span style=\"display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;color:#ffffff;background-color:${borderColor};padding:2px 8px;border-radius:3px;margin-right:8px;\">${a.severity}</span>` : '';\n    return `<tr><td style=\"padding:6px 0;\">\n      <div style=\"border-left:4px solid ${borderColor};padding:10px 12px;background-color:${bgColor};border-radius:0 4px 4px 0;font-size:14px;color:${TEXT_PRIMARY};line-height:1.5;\">${severityBadge}${label}</div>\n    </td></tr>`;\n  }).join('');\n  return `<tr><td style=\"padding:24px 0 8px 0;font-size:18px;font-weight:700;color:${TEXT_PRIMARY};\">${sectionTitle}</td></tr>${alerts}`;\n}\n\nfunction renderActions(section) {\n  const items = section.items || [];\n  if (items.length === 0) return '';\n  const sectionTitle = section.title || 'Recommended Actions';\n  const numbered = items.map((a, i) => \n    `<tr><td style=\"padding:4px 0;\">\n      <div style=\"padding:8px 12px;font-size:14px;color:${TEXT_PRIMARY};line-height:1.5;\">\n        <span style=\"display:inline-block;width:24px;height:24px;background-color:${DARK_GREEN};color:#ffffff;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:700;margin-right:10px;vertical-align:middle;\">${i+1}</span>${a}\n      </div>\n    </td></tr>`\n  ).join('');\n  return `<tr><td style=\"padding:24px 0 8px 0;font-size:18px;font-weight:700;color:${TEXT_PRIMARY};\">${sectionTitle}</td></tr>${numbered}`;\n}\n\n// --- Assemble HTML ---\n\nlet bodyHtml = '';\nfor (const section of sections) {\n  switch (section.type) {\n    case 'metrics':    bodyHtml += renderMetrics(section); break;\n    case 'highlights': bodyHtml += renderHighlights(section); break;\n    case 'table':      bodyHtml += renderTable(section); break;\n    case 'anomalies':  bodyHtml += renderAnomalies(section); break;\n    case 'actions':    bodyHtml += renderActions(section); break;\n    default: break; // skip unknown types gracefully\n  }\n}\n\nconst subtitleHtml = subtitle ? `<div style=\"font-size:14px;color:rgba(255,255,255,0.85);margin-top:4px;\">${subtitle}</div>` : '';\n\nconst html = `<!DOCTYPE html>\n<html lang=\"en\">\n<head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head>\n<body style=\"margin:0;padding:0;background-color:#f0f0f0;font-family:Arial,Helvetica,sans-serif;\">\n  <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f0f0f0;padding:24px 0;\">\n    <tr><td align=\"center\">\n      <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:600px;width:100%;background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);\">\n        <!-- Header -->\n        <tr><td style=\"background-color:${DARK_GREEN};padding:28px 32px;\">\n          <div style=\"font-size:24px;font-weight:700;color:#ffffff;line-height:1.3;\">${title}</div>\n          ${subtitleHtml}\n        </td></tr>\n        <!-- Body -->\n        <tr><td style=\"padding:8px 32px 32px 32px;\">\n          <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n            ${bodyHtml}\n          </table>\n        </td></tr>\n        <!-- Footer -->\n        <tr><td style=\"background-color:${GRAY_BG};padding:20px 32px;border-top:1px solid ${BORDER_COLOR};\">\n          <div style=\"font-size:12px;color:${TEXT_SECONDARY};text-align:center;line-height:1.6;\">\n            Generated by TotalGuard Intelligence Layer<br>\n            ${now} | tgyardcare.com\n          </div>\n        </td></tr>\n      </table>\n    </td></tr>\n  </table>\n</body>\n</html>`;\n\nreturn [{ json: { html, title, subtitle, section_count: sections.length } }];"
+      },
+      "id": "build-html",
+      "name": "Build HTML Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Return final HTML + plain text version\nconst input = $input.first().json;\nconst html = input.html || '';\n\n// Strip HTML tags for plain text fallback\nconst plain_text = html\n  .replace(/<style[^>]*>[\\s\\S]*?<\\/style>/gi, '')\n  .replace(/<script[^>]*>[\\s\\S]*?<\\/script>/gi, '')\n  .replace(/<br\\s*\\/?>/gi, '\\n')\n  .replace(/<\\/tr>/gi, '\\n')\n  .replace(/<\\/td>/gi, ' | ')\n  .replace(/<\\/div>/gi, '\\n')\n  .replace(/<\\/p>/gi, '\\n\\n')\n  .replace(/<[^>]+>/g, '')\n  .replace(/&nbsp;/g, ' ')\n  .replace(/&amp;/g, '&')\n  .replace(/&lt;/g, '<')\n  .replace(/&gt;/g, '>')\n  .replace(/\\n{3,}/g, '\\n\\n')\n  .trim();\n\nreturn [{ json: { html, plain_text } }];"
+      },
+      "id": "return-html",
+      "name": "Return HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build HTML Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build HTML Email": {
+      "main": [
+        [
+          {
+            "node": "Return HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  },
+  "pinData": {},
+  "staticData": null
+}

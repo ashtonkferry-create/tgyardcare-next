@@ -309,7 +309,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"to_phone\": \"{{ $('Process Lead Result').item.json.from_phone }}\",\n  \"workflow_name\": \"TG-85-missed-call-capture\",\n  \"message_body\": \"TotalGuard Yard Care missed your call. We handle lawn mowing, fertilization, aeration, overseeding, weed control, mulching, pruning, leaf & snow removal across Madison, WI. Reply with your address for a free estimate \\u2014 we schedule within 24 hours, guaranteed.\",\n  \"status\": \"pending\"\n}"
+        "jsonBody": "={\n  \"to_phone\": \"{{ $('Process Lead Result').item.json.from_phone }}\",\n  \"workflow_name\": \"TG-85-missed-call-capture\",\n  \"message_body\": \"{{ $('Apply AB Autoreply SMS').item.json.message_body }}\",\n  \"ab_test_id\": \"{{ $('Apply AB Autoreply SMS').item.json.ab_test_id }}\",\n  \"ab_variant_id\": \"{{ $('Apply AB Autoreply SMS').item.json.ab_variant_id }}\",\n  \"status\": \"pending\"\n}"
       },
       "id": "tg85-log-sms",
       "name": "Log SMS Send",
@@ -336,7 +336,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"content\": \"TotalGuard Yard Care missed your call. We handle lawn mowing, fertilization, aeration, overseeding, weed control, mulching, pruning, leaf & snow removal across Madison, WI. Reply with your address for a free estimate \\u2014 we schedule within 24 hours, guaranteed.\",\n  \"from\": \"+16085356057\",\n  \"to\": [\"{{ $('Process Lead Result').item.json.from_phone }}\"]\n}"
+        "jsonBody": "={\n  \"content\": \"{{ $('Apply AB Autoreply SMS').item.json.message_body }}\",\n  \"from\": \"+16085356057\",\n  \"to\": [\"{{ $('Process Lead Result').item.json.from_phone }}\"]\n}"
       },
       "id": "tg85-send-sms",
       "name": "Send Auto-Reply via Quo",
@@ -413,6 +413,34 @@
       "position": [
         660,
         100
+      ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": "6qhihK1RPUzwk2pd",
+        "inputData": "={\"test_id\": \"tg85-autoreply-sms\", \"channel\": \"sms\"}"
+      },
+      "id": "tg85-ab-call",
+      "name": "AB Test Autoreply SMS",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2080,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ab = $input.first().json;\nconst defaultMsg = 'TotalGuard Yard Care missed your call. We handle lawn mowing, fertilization, aeration, overseeding, weed control, mulching, pruning, leaf & snow removal across Madison, WI. Reply with your address for a free estimate \\u2014 we schedule within 24 hours, guaranteed.';\nconst finalMsg = (ab.is_default === true || ab.is_default === 'true' || !ab.variant_content) ? defaultMsg : ab.variant_content;\nreturn [{ json: { message_body: finalMsg, ab_test_id: ab.ab_test_id || null, ab_variant_id: ab.ab_variant_id || null } }];"
+      },
+      "id": "tg85-ab-apply",
+      "name": "Apply AB Autoreply SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        -200
       ]
     }
   ],
@@ -534,7 +562,7 @@
       "main": [
         [
           {
-            "node": "Log SMS Send",
+            "node": "AB Test Autoreply SMS",
             "type": "main",
             "index": 0
           }
@@ -575,6 +603,28 @@
         [
           {
             "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AB Test Autoreply SMS": {
+      "main": [
+        [
+          {
+            "node": "Apply AB Autoreply SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply AB Autoreply SMS": {
+      "main": [
+        [
+          {
+            "node": "Log SMS Send",
             "type": "main",
             "index": 0
           }

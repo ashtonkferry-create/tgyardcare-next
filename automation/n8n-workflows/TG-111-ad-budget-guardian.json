@@ -1,0 +1,275 @@
+{
+  "name": "TG-111-ad-budget-guardian",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 */4 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Every 4 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "ads-configured",
+              "leftValue": "={{ $vars.TG_GOOGLE_ADS_CUSTOMER_ID }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-ads-configured",
+      "name": "Ads Configured?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Google Ads API not configured — graceful skip\nreturn [{ json: {\n  status: 'skipped',\n  reason: 'Google Ads not configured — set TG_GOOGLE_ADS_CUSTOMER_ID to enable budget monitoring',\n  timestamp: new Date().toISOString()\n} }];"
+      },
+      "id": "skip-not-configured",
+      "name": "Skip - Not Configured",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate today's date for spend lookup\nconst now = new Date();\nconst today = now.toISOString().split('T')[0];\nreturn [{ json: { today, nowIso: now.toISOString() } }];"
+      },
+      "id": "calc-date",
+      "name": "Calculate Today",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_ads_daily",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "campaign_id,campaign_name,cost"
+            },
+            {
+              "name": "report_date",
+              "value": "=eq.{{ $json.today }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-spend",
+      "name": "Fetch Today Spend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compare total daily spend vs budget\n// Budget from n8n variable TG_GOOGLE_ADS_DAILY_BUDGET (default $50)\nconst response = $input.first().json;\nconst rows = response.body || response || [];\n\nconst dailyBudget = parseFloat($vars.TG_GOOGLE_ADS_DAILY_BUDGET || '50');\n\nif (!Array.isArray(rows) || rows.length === 0) {\n  return [{ json: { status: 'no_data', totalSpend: 0, dailyBudget, pctUsed: 0 } }];\n}\n\n// Sum total spend across all campaigns\nconst totalSpend = rows.reduce((sum, r) => sum + (parseFloat(r.cost) || 0), 0);\nconst pctUsed = dailyBudget > 0 ? Math.round((totalSpend / dailyBudget) * 10000) / 100 : 0;\n\n// Per-campaign breakdown\nconst campaignSpend = {};\nfor (const row of rows) {\n  const name = row.campaign_name || row.campaign_id || 'unknown';\n  campaignSpend[name] = (campaignSpend[name] || 0) + (parseFloat(row.cost) || 0);\n}\n\nlet severity = null;\nif (pctUsed >= 100) severity = 'critical';\nelse if (pctUsed >= 80) severity = 'warning';\n\nreturn [{ json: {\n  totalSpend: Math.round(totalSpend * 100) / 100,\n  dailyBudget,\n  pctUsed,\n  severity,\n  overBudget: severity !== null,\n  campaignSpend\n} }];"
+      },
+      "id": "check-budget",
+      "name": "Check Budget",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "over-budget",
+              "leftValue": "={{ $json.overBudget }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-over-budget",
+      "name": "Over Budget?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build budget alert payload for TG-113\nconst { totalSpend, dailyBudget, pctUsed, severity, campaignSpend } = $json;\n\nconst campaignRows = Object.entries(campaignSpend)\n  .sort((a, b) => b[1] - a[1])\n  .map(([name, cost]) => `<tr><td style=\"padding: 4px 8px;\">${name}</td><td style=\"padding: 4px 8px; text-align: right;\">$${cost.toFixed(2)}</td></tr>`)\n  .join('');\n\nconst statusLabel = pctUsed >= 100 ? 'OVER BUDGET' : 'APPROACHING BUDGET';\n\nconst html = `<h3 style=\"margin: 0 0 8px;\">Google Ads Budget Alert: ${statusLabel}</h3>\n<p style=\"margin: 0 0 12px;\">Daily spend has reached <strong>${pctUsed.toFixed(1)}%</strong> of the $${dailyBudget.toFixed(2)} daily budget.</p>\n<table style=\"font-size: 14px; margin-bottom: 12px;\">\n  <tr><td style=\"padding: 4px 0;\"><strong>Total Spend Today:</strong></td><td style=\"padding: 4px 8px;\">$${totalSpend.toFixed(2)}</td></tr>\n  <tr><td style=\"padding: 4px 0;\"><strong>Daily Budget:</strong></td><td style=\"padding: 4px 8px;\">$${dailyBudget.toFixed(2)}</td></tr>\n  <tr><td style=\"padding: 4px 0;\"><strong>Utilization:</strong></td><td style=\"padding: 4px 8px;\">${pctUsed.toFixed(1)}%</td></tr>\n</table>\n<h4 style=\"margin: 12px 0 4px;\">Campaign Breakdown</h4>\n<table style=\"width: 100%; border-collapse: collapse; font-size: 13px;\">\n  <thead><tr style=\"background: #f3f4f6;\"><th style=\"padding: 4px 8px; text-align: left;\">Campaign</th><th style=\"padding: 4px 8px; text-align: right;\">Spend</th></tr></thead>\n  <tbody>${campaignRows}</tbody>\n</table>`;\n\nreturn [{ json: {\n  alert_type: 'budget_exceeded',\n  alert_title: `Ad Budget ${statusLabel}: $${totalSpend.toFixed(2)} / $${dailyBudget.toFixed(2)} (${pctUsed.toFixed(1)}%)`,\n  alert_body: html,\n  severity,\n  source_workflow: 'TG-111',\n  metadata: { totalSpend, dailyBudget, pctUsed, campaignSpend }\n} }];"
+      },
+      "id": "build-alert",
+      "name": "Build Budget Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 100]
+    },
+    {
+      "parameters": {
+        "workflowId": "GHL1BUPFZL8Ic6Bc",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "alert_type": "={{ $json.alert_type }}",
+            "alert_title": "={{ $json.alert_title }}",
+            "alert_body": "={{ $json.alert_body }}",
+            "severity": "={{ $json.severity }}",
+            "source_workflow": "={{ $json.source_workflow }}",
+            "metadata": "={{ JSON.stringify($json.metadata) }}"
+          }
+        }
+      },
+      "id": "call-tg113",
+      "name": "Alert via TG-113",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1600, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_ads_alerts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ alert_type: 'budget_exceeded', severity: $('Check Budget').first().json.severity, message: $('Build Budget Alert').first().json.alert_title, details: { total_spend: $('Check Budget').first().json.totalSpend, daily_budget: $('Check Budget').first().json.dailyBudget, pct_used: $('Check Budget').first().json.pctUsed }, created_at: new Date().toISOString() }) }}"
+      },
+      "id": "log-alert",
+      "name": "Log to google_ads_alerts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1840, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Budget within normal range — no alert needed\nconst { totalSpend, dailyBudget, pctUsed } = $json;\nreturn [{ json: {\n  status: 'within_budget',\n  totalSpend,\n  dailyBudget,\n  pctUsed,\n  message: `Spend $${totalSpend.toFixed(2)} is ${pctUsed.toFixed(1)}% of $${dailyBudget.toFixed(2)} budget — within normal range`,\n  timestamp: new Date().toISOString()\n} }];"
+      },
+      "id": "log-normal",
+      "name": "Log Within Budget",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 320]
+    }
+  ],
+  "connections": {
+    "Every 4 Hours": {
+      "main": [
+        [{ "node": "Ads Configured?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Ads Configured?": {
+      "main": [
+        [{ "node": "Calculate Today", "type": "main", "index": 0 }],
+        [{ "node": "Skip - Not Configured", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Today": {
+      "main": [
+        [{ "node": "Fetch Today Spend", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Today Spend": {
+      "main": [
+        [{ "node": "Check Budget", "type": "main", "index": 0 }]
+      ]
+    },
+    "Check Budget": {
+      "main": [
+        [{ "node": "Over Budget?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Over Budget?": {
+      "main": [
+        [{ "node": "Build Budget Alert", "type": "main", "index": 0 }],
+        [{ "node": "Log Within Budget", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Budget Alert": {
+      "main": [
+        [{ "node": "Alert via TG-113", "type": "main", "index": 0 }]
+      ]
+    },
+    "Alert via TG-113": {
+      "main": [
+        [{ "node": "Log to google_ads_alerts", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

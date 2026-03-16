@@ -1,0 +1,224 @@
+{
+  "name": "TG-104 Content Quality Checker",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate 24 hours ago in ISO format\nconst now = new Date();\nconst twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);\nreturn [{ json: { cutoff: twentyFourHoursAgo.toISOString() } }];"
+      },
+      "id": "calc-cutoff",
+      "name": "Calculate Cutoff Time",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/blog_posts?status=eq.draft&ai_generated=eq.true&created_at=gte.{{ $json.cutoff }}&select=id,title,slug,content,excerpt,meta_description,word_count,tags",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SERVICE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SERVICE_KEY"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "get-recent-drafts",
+      "name": "Get Recent Drafts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst drafts = Array.isArray(response.body) ? response.body : (Array.isArray(response) ? response : []);\n\nif (drafts.length === 0) {\n  return [{ json: { hasIssues: false, message: 'No recent AI drafts to check', checkedCount: 0, issues: [] } }];\n}\n\nconst localTerms = ['wisconsin', 'dane county', 'zone 5a', 'zone 5b', 'zone 4b', 'silt loam', 'madison', 'clay', 'glacial', 'driftless', 'lake mendota', 'lake monona', 'yahara'];\nconst ctaTerms = ['608', 'tgyardcare', 'totalguard', 'total guard'];\n\nconst issues = [];\n\nfor (const draft of drafts) {\n  const draftIssues = [];\n  const content = draft.content || '';\n  \n  // Strip HTML for text analysis\n  const textOnly = content.replace(/<[^>]*>/g, ' ').replace(/&[a-z]+;/g, ' ').replace(/\\s+/g, ' ').trim();\n  const textLower = textOnly.toLowerCase();\n  const wordCount = textOnly.split(/\\s+/).filter(w => w.length > 0).length;\n  \n  // Check 1: Word count >= 800\n  if (wordCount < 800) {\n    draftIssues.push(`Word count too low: ${wordCount} (minimum 800)`);\n  }\n  \n  // Check 2: No placeholder text [bracket content]\n  const placeholders = content.match(/\\[[^\\]]*(?:insert|TBD|placeholder|TODO|your|CITY|COMPANY)[^\\]]*\\]/gi);\n  if (placeholders && placeholders.length > 0) {\n    draftIssues.push(`Contains placeholder text: ${placeholders.join(', ')}`);\n  }\n  \n  // Check 3: 3+ H2 headings\n  const h2Count = (content.match(/<h2[^>]*>/gi) || []).length;\n  if (h2Count < 3) {\n    draftIssues.push(`Only ${h2Count} H2 headings (minimum 3)`);\n  }\n  \n  // Check 4: 2+ local references\n  let localRefCount = 0;\n  for (const term of localTerms) {\n    if (textLower.includes(term)) localRefCount++;\n  }\n  if (localRefCount < 2) {\n    draftIssues.push(`Only ${localRefCount} local references found (minimum 2). Checked: Wisconsin, Dane County, Zone 5a, silt loam, Madison, etc.`);\n  }\n  \n  // Check 5: Has CTA (608 phone or tgyardcare)\n  let hasCTA = false;\n  for (const term of ctaTerms) {\n    if (textLower.includes(term)) { hasCTA = true; break; }\n  }\n  if (!hasCTA) {\n    draftIssues.push('Missing CTA: no 608 phone number or tgyardcare.com reference found');\n  }\n  \n  if (draftIssues.length > 0) {\n    issues.push({\n      id: draft.id,\n      title: draft.title || 'Untitled',\n      slug: draft.slug || 'no-slug',\n      wordCount,\n      h2Count,\n      localRefCount,\n      hasCTA,\n      problems: draftIssues\n    });\n  }\n}\n\nreturn [{ json: {\n  hasIssues: issues.length > 0,\n  checkedCount: drafts.length,\n  issueCount: issues.length,\n  passedCount: drafts.length - issues.length,\n  issues\n} }];"
+      },
+      "id": "validate-quality",
+      "name": "Validate Quality",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-issues",
+              "leftValue": "={{ $json.hasIssues }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-has-issues",
+      "name": "Has Quality Issues",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst issues = data.issues || [];\n\nlet tableRows = '';\nfor (const item of issues) {\n  const problems = item.problems.map(p => `<li>${p}</li>`).join('');\n  tableRows += `<tr>\n    <td style=\"padding:8px;border:1px solid #ddd;\">${item.title}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;\">${item.wordCount}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;\">${item.h2Count}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;\">${item.localRefCount}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;\">${item.hasCTA ? 'Yes' : 'No'}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;\"><ul style=\"margin:0;padding-left:16px;\">${problems}</ul></td>\n  </tr>`;\n}\n\nconst html = `<div style=\"font-family:Arial,sans-serif;max-width:800px;\">\n  <h2 style=\"color:#d32f2f;\">Content Quality Report - ${data.issueCount} Draft(s) Need Attention</h2>\n  <p>Checked ${data.checkedCount} recent AI-generated drafts. ${data.passedCount} passed, ${data.issueCount} flagged.</p>\n  <table style=\"border-collapse:collapse;width:100%;margin-top:16px;\">\n    <thead>\n      <tr style=\"background:#f5f5f5;\">\n        <th style=\"padding:8px;border:1px solid #ddd;text-align:left;\">Title</th>\n        <th style=\"padding:8px;border:1px solid #ddd;\">Words</th>\n        <th style=\"padding:8px;border:1px solid #ddd;\">H2s</th>\n        <th style=\"padding:8px;border:1px solid #ddd;\">Local Refs</th>\n        <th style=\"padding:8px;border:1px solid #ddd;\">CTA</th>\n        <th style=\"padding:8px;border:1px solid #ddd;text-align:left;\">Issues</th>\n      </tr>\n    </thead>\n    <tbody>${tableRows}</tbody>\n  </table>\n  <p style=\"margin-top:16px;color:#666;\">Review these drafts in blog_posts before publishing. Auto-generated by TG-104.</p>\n</div>`;\n\nreturn [{ json: {\n  to_email: 'totalguardllc@gmail.com',\n  subject: 'TG Content Quality Alert: ' + data.issueCount + ' draft(s) need review',\n  html_body: html,\n  workflow_name: 'TG-104',\n  email_type: 'notification'\n} }];"
+      },
+      "id": "build-quality-report",
+      "name": "Build Quality Report Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "IUDLrQrAkcLFLsIC"
+        },
+        "options": {}
+      },
+      "id": "send-report-email",
+      "name": "Send Report via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        200
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "all-passed",
+      "name": "All Drafts Passed",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Calculate Cutoff Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Cutoff Time": {
+      "main": [
+        [
+          {
+            "node": "Get Recent Drafts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recent Drafts": {
+      "main": [
+        [
+          {
+            "node": "Validate Quality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Quality": {
+      "main": [
+        [
+          {
+            "node": "Has Quality Issues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Quality Issues": {
+      "main": [
+        [
+          {
+            "node": "Build Quality Report Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "All Drafts Passed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Quality Report Email": {
+      "main": [
+        [
+          {
+            "node": "Send Report via TG-95",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

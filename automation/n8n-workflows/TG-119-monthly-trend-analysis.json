@@ -1,0 +1,277 @@
+{
+  "name": "TG-119-monthly-trend-analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 13 1 * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "1st of Month 8am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate previous month and 2-months-ago date ranges\nconst now = new Date();\nconst reportDate = now.toISOString().split('T')[0];\n\n// Previous month\nconst prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0); // last day of prev month\nconst prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);\n\n// Two months ago\nconst twoMonthsAgoEnd = new Date(now.getFullYear(), now.getMonth() - 1, 0); // last day of 2 months ago\nconst twoMonthsAgoStart = new Date(now.getFullYear(), now.getMonth() - 2, 1);\n\nconst fmt = (d) => d.toISOString().split('T')[0];\n\nconst prevMonthLabel = prevMonthStart.toLocaleString('en-US', { month: 'long', year: 'numeric' });\nconst twoMonthsAgoLabel = twoMonthsAgoStart.toLocaleString('en-US', { month: 'long', year: 'numeric' });\n\nreturn [{ json: {\n  reportDate,\n  prevMonthStart: fmt(prevMonthStart),\n  prevMonthEnd: fmt(prevMonthEnd),\n  twoMonthsAgoStart: fmt(twoMonthsAgoStart),\n  twoMonthsAgoEnd: fmt(twoMonthsAgoEnd),\n  prevMonthLabel,\n  twoMonthsAgoLabel,\n  nowIso: now.toISOString()\n} }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Month Ranges",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_metrics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "metric_date,metric_name,metric_value"
+            },
+            {
+              "name": "and",
+              "value": "=(metric_date.gte.{{ $json.prevMonthStart }},metric_date.lte.{{ $json.prevMonthEnd }})"
+            },
+            {
+              "name": "order",
+              "value": "metric_date.desc"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-prev-month",
+      "name": "Fetch Previous Month Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 180]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_metrics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "metric_date,metric_name,metric_value"
+            },
+            {
+              "name": "and",
+              "value": "=(metric_date.gte.{{ $('Calculate Month Ranges').first().json.twoMonthsAgoStart }},metric_date.lte.{{ $('Calculate Month Ranges').first().json.twoMonthsAgoEnd }})"
+            },
+            {
+              "name": "order",
+              "value": "metric_date.desc"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-two-months-ago",
+      "name": "Fetch Two Months Ago Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 420]
+    },
+    {
+      "parameters": {
+        "mode": "wait",
+        "options": {}
+      },
+      "id": "wait-all",
+      "name": "Wait All Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compare previous month vs 2 months ago across all KPIs\nconst dates = $('Calculate Month Ranges').first().json;\nconst prevMonthRaw = $('Fetch Previous Month Metrics').first().json;\nconst twoMonthsRaw = $('Fetch Two Months Ago Metrics').first().json;\n\nconst prevMonth = prevMonthRaw.body || prevMonthRaw || [];\nconst twoMonths = twoMonthsRaw.body || twoMonthsRaw || [];\n\n// Compute monthly averages per metric\nfunction monthlyAverages(metrics) {\n  const byName = {};\n  const arr = Array.isArray(metrics) ? metrics : [];\n  for (const m of arr) {\n    if (!byName[m.metric_name]) byName[m.metric_name] = [];\n    byName[m.metric_name].push(parseFloat(m.metric_value) || 0);\n  }\n  const result = {};\n  for (const [name, vals] of Object.entries(byName)) {\n    result[name] = {\n      avg: vals.reduce((s, v) => s + v, 0) / vals.length,\n      sum: vals.reduce((s, v) => s + v, 0),\n      count: vals.length,\n      min: Math.min(...vals),\n      max: Math.max(...vals)\n    };\n  }\n  return result;\n}\n\nconst prevAvgs = monthlyAverages(prevMonth);\nconst twoAvgs = monthlyAverages(twoMonths);\n\n// Calculate MoM change for each metric\nconst allMetricNames = [...new Set([...Object.keys(prevAvgs), ...Object.keys(twoAvgs)])];\nconst changes = [];\nfor (const name of allMetricNames) {\n  const curr = prevAvgs[name] || { avg: 0, sum: 0, count: 0 };\n  const prev = twoAvgs[name] || { avg: 0, sum: 0, count: 0 };\n  const changePct = prev.avg !== 0\n    ? ((curr.avg - prev.avg) / Math.abs(prev.avg)) * 100\n    : (curr.avg > 0 ? 100 : 0);\n  changes.push({\n    metric: name,\n    currentAvg: Math.round(curr.avg * 100) / 100,\n    previousAvg: Math.round(prev.avg * 100) / 100,\n    changePct: Math.round(changePct * 10) / 10,\n    absChange: Math.abs(changePct),\n    direction: changePct >= 0 ? 'up' : 'down',\n    currentSum: Math.round(curr.sum * 100) / 100,\n    dataPoints: curr.count\n  });\n}\n\n// Sort by absolute change\nchanges.sort((a, b) => b.absChange - a.absChange);\n\n// Top 3 up and top 3 down\nconst topUp = changes.filter(c => c.direction === 'up').slice(0, 3);\nconst topDown = changes.filter(c => c.direction === 'down').slice(0, 3);\n\n// Format helpers\nconst fmt = (n) => {\n  if (n === undefined || n === null) return '\\u2014';\n  return Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 });\n};\nconst sign = (v) => v >= 0 ? '+' : '';\n\n// Build highlights\nconst highlights = [];\nif (topUp.length > 0) {\n  for (const m of topUp) {\n    highlights.push(`${m.metric.replace(/_/g, ' ')}: +${m.changePct}% (${fmt(m.previousAvg)} -> ${fmt(m.currentAvg)})`);\n  }\n}\nif (topDown.length > 0) {\n  for (const m of topDown) {\n    highlights.push(`${m.metric.replace(/_/g, ' ')}: ${m.changePct}% (${fmt(m.previousAvg)} -> ${fmt(m.currentAvg)})`);\n  }\n}\nif (highlights.length === 0) {\n  highlights.push('Monthly trend analysis active \\u2014 collecting baseline data across KPIs');\n}\n\n// Build table rows for all metrics\nconst tableHeaders = ['Metric', dates.prevMonthLabel + ' Avg', dates.twoMonthsAgoLabel + ' Avg', 'MoM Change'];\nconst tableRows = changes.map(c => [\n  c.metric.replace(/_/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase()),\n  fmt(c.currentAvg),\n  fmt(c.previousAvg),\n  sign(c.changePct) + c.changePct + '%'\n]);\n\n// Top metrics cards\nconst topMetrics = [\n  { label: 'KPIs Tracked', value: allMetricNames.length.toString(), change: '' },\n  { label: 'Biggest Gainer', value: topUp.length > 0 ? topUp[0].metric.replace(/_/g, ' ') : '\\u2014', change: topUp.length > 0 ? '+' + topUp[0].changePct + '%' : '' },\n  { label: 'Biggest Decliner', value: topDown.length > 0 ? topDown[0].metric.replace(/_/g, ' ') : '\\u2014', change: topDown.length > 0 ? topDown[0].changePct + '%' : '' },\n  { label: 'Data Points', value: fmt(Array.isArray(prevMonth) ? prevMonth.length : 0), change: '' }\n];\n\n// Actions\nconst actions = [];\nif (topDown.length > 0 && topDown[0].absChange > 20) {\n  actions.push('Investigate ' + topDown[0].metric.replace(/_/g, ' ') + ' decline of ' + topDown[0].changePct + '% \\u2014 check for operational or seasonal cause');\n}\nif (topUp.length > 0 && topUp[0].absChange > 30) {\n  actions.push('Capitalize on ' + topUp[0].metric.replace(/_/g, ' ') + ' surge \\u2014 double down on what drove +' + topUp[0].changePct + '%');\n}\nif (changes.length > 0) {\n  const stableCount = changes.filter(c => c.absChange < 5).length;\n  if (stableCount > changes.length * 0.7) {\n    actions.push('Most KPIs stable month-over-month \\u2014 consider new experiments to drive growth');\n  }\n}\nif (actions.length === 0) {\n  actions.push('Review trend data and identify optimization opportunities for the coming month');\n}\n\n// Build sections for TG-118\nconst sections = [\n  { type: 'metrics', title: 'Monthly Overview', items: topMetrics },\n  { type: 'highlights', title: 'Biggest Movers', items: highlights }\n];\n\nif (tableRows.length > 0) {\n  sections.push({ type: 'table', title: 'All KPI Trends', headers: tableHeaders, rows: tableRows });\n}\n\nsections.push({ type: 'actions', title: 'Recommended Actions', items: actions });\n\nreturn [{ json: {\n  report_title: 'Monthly Trend Analysis',\n  report_subtitle: dates.prevMonthLabel + ' vs ' + dates.twoMonthsAgoLabel + ' | TotalGuard Intelligence',\n  sections,\n  storePayload: {\n    report_type: 'monthly_trend',\n    report_date: dates.reportDate,\n    report_data: {\n      prev_month: dates.prevMonthLabel,\n      comparison_month: dates.twoMonthsAgoLabel,\n      kpis_tracked: allMetricNames.length,\n      top_gainers: topUp,\n      top_decliners: topDown,\n      all_changes: changes,\n      data_points_prev: Array.isArray(prevMonth) ? prevMonth.length : 0,\n      data_points_two: Array.isArray(twoMonths) ? twoMonths.length : 0\n    },\n    generated_by: 'TG-119'\n  }\n} }];"
+      },
+      "id": "build-report",
+      "name": "Build Trend Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [940, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "rOeTPPi2kW6thURB",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "report_title": "={{ $json.report_title }}",
+            "report_subtitle": "={{ $json.report_subtitle }}",
+            "sections": "={{ JSON.stringify($json.sections) }}"
+          }
+        }
+      },
+      "id": "call-tg118",
+      "name": "Build HTML via TG-118",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1180, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "to_email": "totalguardllc@gmail.com",
+            "subject": "={{ $('Build Trend Report').first().json.report_title + ' — ' + $('Calculate Month Ranges').first().json.prevMonthLabel }}",
+            "html_body": "={{ $json.html }}",
+            "workflow_name": "TG-119",
+            "email_type": "monthly_trend_report"
+          }
+        }
+      },
+      "id": "call-tg95",
+      "name": "Send Email via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1420, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Build Trend Report').first().json.storePayload) }}"
+      },
+      "id": "store-report",
+      "name": "Store to Intelligence Reports",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1660, 300]
+    }
+  ],
+  "connections": {
+    "1st of Month 8am CT": {
+      "main": [
+        [{ "node": "Calculate Month Ranges", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Month Ranges": {
+      "main": [
+        [
+          { "node": "Fetch Previous Month Metrics", "type": "main", "index": 0 },
+          { "node": "Fetch Two Months Ago Metrics", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Previous Month Metrics": {
+      "main": [
+        [{ "node": "Wait All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Two Months Ago Metrics": {
+      "main": [
+        [{ "node": "Wait All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait All Data": {
+      "main": [
+        [{ "node": "Build Trend Report", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Trend Report": {
+      "main": [
+        [{ "node": "Build HTML via TG-118", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build HTML via TG-118": {
+      "main": [
+        [{ "node": "Send Email via TG-95", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Email via TG-95": {
+      "main": [
+        [{ "node": "Store to Intelligence Reports", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  },
+  "tags": [
+    { "name": "intelligence" },
+    { "name": "monthly-report" },
+    { "name": "phase-4" }
+  ],
+  "pinData": {},
+  "staticData": null
+}

@@ -1,0 +1,346 @@
+{
+  "name": "TG-117-weekly-what-got-smarter",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Monday 9am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate this week's date range (Monday to today)\nconst now = new Date();\nconst today = now.toISOString().split('T')[0];\n\nconst dayOfWeek = now.getDay();\nconst daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;\nconst thisWeekStart = new Date(now.getTime() - daysSinceMonday * 24 * 60 * 60 * 1000);\nconst thisWeekStartStr = thisWeekStart.toISOString().split('T')[0];\n\n// Previous week for comparison\nconst prevWeekStart = new Date(thisWeekStart.getTime() - 7 * 24 * 60 * 60 * 1000);\nconst prevWeekEnd = new Date(thisWeekStart.getTime() - 1 * 24 * 60 * 60 * 1000);\nconst prevWeekStartStr = prevWeekStart.toISOString().split('T')[0];\nconst prevWeekEndStr = prevWeekEnd.toISOString().split('T')[0];\n\nreturn [{ json: {\n  today,\n  thisWeekStart: thisWeekStartStr,\n  prevWeekStart: prevWeekStartStr,\n  prevWeekEnd: prevWeekEndStr,\n  nowIso: now.toISOString()\n} }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Week Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "report_type,report_date,report_data,generated_by"
+            },
+            {
+              "name": "and",
+              "value": "=(report_date.gte.{{ $json.thisWeekStart }},report_date.lte.{{ $json.today }},report_type.in.(revenue_attribution,ab_test_results,ad_performance))"
+            },
+            {
+              "name": "order",
+              "value": "report_date.desc"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-reports",
+      "name": "Fetch Weekly Reports",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 180]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_tests",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,test_name,channel,winner,status,updated_at"
+            },
+            {
+              "name": "status",
+              "value": "=eq.completed"
+            },
+            {
+              "name": "and",
+              "value": "=(updated_at.gte.{{ $('Calculate Week Range').first().json.thisWeekStart }})"
+            },
+            {
+              "name": "order",
+              "value": "updated_at.desc"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-ab-winners",
+      "name": "Fetch A/B Winners",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 380]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_metrics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "metric_date,metric_name,metric_value"
+            },
+            {
+              "name": "and",
+              "value": "=(metric_date.gte.{{ $('Calculate Week Range').first().json.prevWeekStart }},metric_date.lte.{{ $('Calculate Week Range').first().json.today }})"
+            },
+            {
+              "name": "order",
+              "value": "metric_date.desc"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-metrics",
+      "name": "Fetch Intelligence Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 560]
+    },
+    {
+      "parameters": {
+        "mode": "wait",
+        "options": {}
+      },
+      "id": "wait-1",
+      "name": "Wait Reports+Winners",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [700, 280]
+    },
+    {
+      "parameters": {
+        "mode": "wait",
+        "options": {}
+      },
+      "id": "wait-2",
+      "name": "Wait All Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [920, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Assemble the comprehensive \"What Got Smarter\" weekly digest\n// Reads stored reports from TG-114 (revenue), TG-115 (A/B), TG-116 (ads)\n// Plus A/B winners and intelligence metrics for context\n\nconst dates = $('Calculate Week Range').first().json;\nconst reportsResponse = $('Fetch Weekly Reports').first().json;\nconst winnersResponse = $('Fetch A/B Winners').first().json;\nconst metricsResponse = $('Fetch Intelligence Metrics').first().json;\n\nconst reports = reportsResponse.body || reportsResponse || [];\nconst winners = winnersResponse.body || winnersResponse || [];\nconst allMetrics = metricsResponse.body || metricsResponse || [];\n\n// Parse sub-reports by type\nconst reportsByType = {};\nif (Array.isArray(reports)) {\n  for (const r of reports) {\n    if (!reportsByType[r.report_type]) reportsByType[r.report_type] = [];\n    reportsByType[r.report_type].push(r.report_data || {});\n  }\n}\n\n// --- Extract key data from sub-reports ---\n\n// Revenue (from TG-114)\nconst revenueReports = reportsByType['revenue_attribution'] || [];\nconst latestRevenue = revenueReports[0] || {};\nconst weekRevenue = latestRevenue.total_revenue || 0;\nconst weekLeads = latestRevenue.total_leads || latestRevenue.leads_count || 0;\n\n// A/B test results (from TG-115)\nconst abReports = reportsByType['ab_test_results'] || [];\nconst latestAB = abReports[0] || {};\nconst activeTests = latestAB.active_tests || 0;\nconst completedTests = latestAB.completed_this_week || 0;\n\n// Ad performance (from TG-116)\nconst adReports = reportsByType['ad_performance'] || [];\nconst latestAds = adReports[0] || {};\nconst adSpend = latestAds.total_spend || 0;\nconst adConversions = latestAds.total_conversions || 0;\nconst adROAS = latestAds.roas || 0;\n\n// --- Compute weekly KPI trends from intelligence_metrics ---\n\nfunction getMetricsByWeek(metrics, weekStart, weekEnd) {\n  const filtered = Array.isArray(metrics) ? metrics.filter(m => m.metric_date >= weekStart && m.metric_date <= weekEnd) : [];\n  const byName = {};\n  for (const m of filtered) {\n    if (!byName[m.metric_name]) byName[m.metric_name] = [];\n    byName[m.metric_name].push(parseFloat(m.metric_value) || 0);\n  }\n  // Average each metric\n  const result = {};\n  for (const [name, vals] of Object.entries(byName)) {\n    result[name] = vals.reduce((s, v) => s + v, 0) / vals.length;\n  }\n  return result;\n}\n\nconst thisWeekMetrics = getMetricsByWeek(allMetrics, dates.thisWeekStart, dates.today);\nconst prevWeekMetrics = getMetricsByWeek(allMetrics, dates.prevWeekStart, dates.prevWeekEnd);\n\nfunction fmt(n, decimals) {\n  if (n === undefined || n === null) return '—';\n  decimals = decimals || 0;\n  return Number(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });\n}\n\nfunction wow(current, previous) {\n  if (!previous || previous === 0) return current > 0 ? '+100%' : '—';\n  const pct = ((current - previous) / Math.abs(previous)) * 100;\n  const sign = pct >= 0 ? '+' : '';\n  return `${sign}${pct.toFixed(1)}%`;\n}\n\n// Count anomalies from metrics that deviate >25% from previous week\nlet anomalyCount = 0;\nconst anomalyItems = [];\nfor (const [name, thisVal] of Object.entries(thisWeekMetrics)) {\n  const prevVal = prevWeekMetrics[name];\n  if (prevVal && prevVal !== 0) {\n    const deviation = Math.abs((thisVal - prevVal) / prevVal) * 100;\n    if (deviation > 25) {\n      anomalyCount++;\n      const direction = thisVal > prevVal ? 'up' : 'down';\n      const severity = deviation > 50 ? 'critical' : 'warning';\n      anomalyItems.push({\n        severity,\n        message: `${name.replace(/_/g, ' ')}: ${direction} ${deviation.toFixed(0)}% (${fmt(prevVal, 1)} -> ${fmt(thisVal, 1)})`\n      });\n    }\n  }\n}\n\n// --- Build TG-118 sections ---\n\n// 1. Top-level metrics\nconst topMetrics = [\n  { label: 'Revenue', value: weekRevenue > 0 ? `$${fmt(weekRevenue, 2)}` : '—', change: '' },\n  { label: 'Leads', value: weekLeads > 0 ? fmt(weekLeads) : '—', change: '' },\n  { label: 'Active A/B Tests', value: fmt(activeTests), change: '' },\n  { label: 'Anomalies', value: fmt(anomalyCount), change: '' }\n];\n\n// 2. Highlights — \"What Got Smarter\"\nconst highlights = [];\n\n// A/B winners deployed\nif (Array.isArray(winners) && winners.length > 0) {\n  for (const w of winners) {\n    highlights.push(`A/B Winner: \"${w.test_name}\" — variant ${w.winner || 'selected'} deployed (${w.channel || 'unknown'} channel)`);\n  }\n} else if (completedTests > 0) {\n  highlights.push(`${completedTests} A/B test(s) completed this week`);\n}\n\n// Revenue insights\nif (weekRevenue > 0) {\n  highlights.push(`Revenue tracked: $${fmt(weekRevenue, 2)} from ${fmt(weekLeads)} leads`);\n}\n\n// Ad performance\nif (adSpend > 0) {\n  highlights.push(`Ad spend: $${fmt(adSpend, 2)} with ${fmt(adConversions)} conversions (${fmt(adROAS, 2)}x ROAS)`);\n} else if (adReports.length > 0) {\n  highlights.push('Google Ads: No active campaigns this week');\n}\n\n// Fallback if nothing\nif (highlights.length === 0) {\n  highlights.push('Intelligence layer active — collecting baseline data');\n  highlights.push('Sub-reports will populate as TG-107/108/109 accumulate daily metrics');\n}\n\n// 3. Key Numbers table (this week vs last week)\nconst keyMetricNames = ['leads_total', 'revenue', 'conversion_rate', 'sms_delivered', 'email_opened', 'leads_google'];\nconst tableHeaders = ['Metric', 'This Week', 'Last Week', 'Change'];\nconst tableRows = [];\nfor (const name of keyMetricNames) {\n  const thisVal = thisWeekMetrics[name];\n  const prevVal = prevWeekMetrics[name];\n  if (thisVal !== undefined || prevVal !== undefined) {\n    const isRate = name.includes('rate');\n    const isDollar = name === 'revenue';\n    const formatVal = (v) => {\n      if (v === undefined) return '—';\n      if (isDollar) return `$${fmt(v, 2)}`;\n      if (isRate) return `${fmt(v, 1)}%`;\n      return fmt(v, 0);\n    };\n    tableRows.push([\n      name.replace(/_/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase()),\n      formatVal(thisVal),\n      formatVal(prevVal),\n      thisVal !== undefined && prevVal !== undefined ? wow(thisVal, prevVal) : '—'\n    ]);\n  }\n}\n\n// 4. Actions — \"What To Do This Week\"\nconst actions = [];\n\nif (Array.isArray(winners) && winners.length > 0) {\n  actions.push('Review A/B test winners and verify variant deployment across workflows');\n}\n\nif (activeTests > 0) {\n  actions.push(`Monitor ${activeTests} active A/B test(s) — check sample sizes approaching minimum`);\n} else {\n  actions.push('Consider seeding new A/B tests for SMS copy, email subject lines, or ad creatives');\n}\n\nif (adSpend > 0 && adROAS < 2) {\n  actions.push(`Ad ROAS at ${fmt(adROAS, 2)}x — review campaign targeting and bid strategy`);\n} else if (adSpend > 0) {\n  actions.push('Ad performance healthy — consider testing new ad copy or expanding keywords');\n}\n\nif (anomalyCount > 0) {\n  actions.push(`Investigate ${anomalyCount} KPI anomal${anomalyCount === 1 ? 'y' : 'ies'} from TG-110 alerts`);\n}\n\nif (weekLeads > 0 && weekRevenue === 0) {\n  actions.push('Leads coming in but no revenue attributed — follow up on open quotes');\n}\n\nif (actions.length === 0) {\n  actions.push('Continue monitoring — intelligence layer building baseline data');\n}\n\n// --- Assemble sections ---\nconst sections = [\n  { type: 'metrics', title: 'This Week at a Glance', items: topMetrics },\n  { type: 'highlights', title: 'What Got Smarter', items: highlights }\n];\n\nif (tableRows.length > 0) {\n  sections.push({ type: 'table', title: 'Key Numbers', headers: tableHeaders, rows: tableRows });\n}\n\nif (anomalyItems.length > 0) {\n  sections.push({ type: 'anomalies', title: 'KPI Anomalies', items: anomalyItems });\n}\n\nsections.push({ type: 'actions', title: 'What To Do This Week', items: actions });\n\nreturn [{ json: {\n  report_title: 'What Got Smarter This Week',\n  report_subtitle: `${dates.thisWeekStart} to ${dates.today} | TotalGuard Intelligence Digest`,\n  sections,\n  summary: {\n    week_start: dates.thisWeekStart,\n    week_end: dates.today,\n    revenue: weekRevenue,\n    leads: weekLeads,\n    active_ab_tests: activeTests,\n    completed_ab_tests: completedTests,\n    ab_winners: Array.isArray(winners) ? winners.length : 0,\n    ad_spend: adSpend,\n    ad_conversions: adConversions,\n    ad_roas: adROAS,\n    anomaly_count: anomalyCount,\n    sub_reports_found: Object.keys(reportsByType).length,\n    sub_report_types: Object.keys(reportsByType)\n  }\n} }];"
+      },
+      "id": "assemble-digest",
+      "name": "Assemble Digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1160, 400]
+    },
+    {
+      "parameters": {
+        "workflowId": "rOeTPPi2kW6thURB",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "report_title": "={{ $json.report_title }}",
+            "report_subtitle": "={{ $json.report_subtitle }}",
+            "sections": "={{ JSON.stringify($json.sections) }}"
+          }
+        }
+      },
+      "id": "call-tg118",
+      "name": "Build HTML via TG-118",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1400, 400]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "to_email": "totalguardllc@gmail.com",
+            "subject": "={{ $('Assemble Digest').first().json.report_title + ' — ' + $('Calculate Week Range').first().json.thisWeekStart + ' to ' + $('Calculate Week Range').first().json.today }}",
+            "html_body": "={{ $json.html }}",
+            "workflow_name": "TG-117",
+            "email_type": "report"
+          }
+        }
+      },
+      "id": "call-tg95",
+      "name": "Send Email via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1640, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ report_type: 'what_got_smarter', report_date: $('Calculate Week Range').first().json.today, report_data: $('Assemble Digest').first().json.summary, generated_by: 'TG-117' }) }}"
+      },
+      "id": "store-report",
+      "name": "Store to Intelligence Reports",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1880, 400]
+    }
+  ],
+  "connections": {
+    "Monday 9am CT": {
+      "main": [
+        [{ "node": "Calculate Week Range", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Week Range": {
+      "main": [
+        [
+          { "node": "Fetch Weekly Reports", "type": "main", "index": 0 },
+          { "node": "Fetch A/B Winners", "type": "main", "index": 0 },
+          { "node": "Fetch Intelligence Metrics", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Weekly Reports": {
+      "main": [
+        [{ "node": "Wait Reports+Winners", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch A/B Winners": {
+      "main": [
+        [{ "node": "Wait Reports+Winners", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait Reports+Winners": {
+      "main": [
+        [{ "node": "Wait All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Intelligence Metrics": {
+      "main": [
+        [{ "node": "Wait All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait All Data": {
+      "main": [
+        [{ "node": "Assemble Digest", "type": "main", "index": 0 }]
+      ]
+    },
+    "Assemble Digest": {
+      "main": [
+        [{ "node": "Build HTML via TG-118", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build HTML via TG-118": {
+      "main": [
+        [{ "node": "Send Email via TG-95", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Email via TG-95": {
+      "main": [
+        [{ "node": "Store to Intelligence Reports", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  },
+  "pinData": {},
+  "staticData": null
+}

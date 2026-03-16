@@ -1,0 +1,272 @@
+{
+  "name": "TG-107-revenue-sync-daily",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily 5am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate yesterday's date range (UTC boundaries for CT day)\nconst now = new Date();\nconst yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);\nconst dateStr = yesterday.toISOString().split('T')[0];\nconst startOfDay = dateStr + 'T00:00:00Z';\nconst endOfDay = dateStr + 'T23:59:59.999Z';\n\nreturn [{ json: { yesterday: dateStr, startOfDay, endOfDay } }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Yesterday",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/jobber_email_events",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Prefer",
+              "value": "count=exact"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "parsed_event_type",
+              "value": "eq.payment_received"
+            },
+            {
+              "name": "and",
+              "value": "=(created_at.gte.{{ $json.startOfDay }},created_at.lte.{{ $json.endOfDay }})"
+            },
+            {
+              "name": "select",
+              "value": "id,parsed_customer_name,parsed_customer_email,parsed_customer_phone,parsed_service,parsed_amount,parsed_at,created_at"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-payments",
+      "name": "Fetch Payment Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300],
+      "notes": "Fetch all payment_received events from jobber_email_events for yesterday. Uses created_at range filter."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-payments",
+              "leftValue": "={{ $json.body.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "check-payments",
+      "name": "Has Payments?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract payment data from the fetched jobber_email_events\nconst payments = $('Fetch Payment Events').first().json.body;\nconst yesterday = $('Calculate Yesterday').first().json.yesterday;\n\nif (!payments || payments.length === 0) {\n  return [{ json: { payments: [], count: 0 } }];\n}\n\n// Build lookup lists for lead matching\nconst emails = [];\nconst phones = [];\n\nfor (const p of payments) {\n  if (p.parsed_customer_email) emails.push(p.parsed_customer_email.toLowerCase());\n  if (p.parsed_customer_phone) {\n    // Normalize phone: strip non-digits\n    const normalized = p.parsed_customer_phone.replace(/\\D/g, '');\n    if (normalized.length >= 10) phones.push(normalized);\n  }\n}\n\n// Deduplicate\nconst uniqueEmails = [...new Set(emails)];\nconst uniquePhones = [...new Set(phones)];\n\nreturn [{ json: {\n  payments,\n  yesterday,\n  uniqueEmails,\n  uniquePhones,\n  count: payments.length\n} }];"
+      },
+      "id": "extract-payments",
+      "name": "Extract Payment Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,email,phone,source"
+            },
+            {
+              "name": "or",
+              "value": "=(email.in.({{ $json.uniqueEmails.map(e => '\"' + e + '\"').join(',') }}),phone.in.({{ $json.uniquePhones.map(p => '\"' + p + '\"').join(',') }}))"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-leads",
+      "name": "Match Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 200],
+      "notes": "Fetch leads matching payment emails OR phones. Uses PostgREST OR filter."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build attribution records by matching payments to leads\nconst data = $('Extract Payment Data').first().json;\nconst leadsResponse = $('Match Leads').first().json.body;\nconst payments = data.payments;\nconst yesterday = data.yesterday;\n\n// Build lookup maps from leads\nconst leadsByEmail = {};\nconst leadsByPhone = {};\n\nif (Array.isArray(leadsResponse)) {\n  for (const lead of leadsResponse) {\n    if (lead.email) leadsByEmail[lead.email.toLowerCase()] = lead;\n    if (lead.phone) {\n      const normalized = lead.phone.replace(/\\D/g, '');\n      if (normalized.length >= 10) leadsByPhone[normalized] = lead;\n    }\n  }\n}\n\n// Build attribution records\nconst attributions = [];\n\nfor (const payment of payments) {\n  let matchedLead = null;\n\n  // Try email match first\n  if (payment.parsed_customer_email) {\n    const email = payment.parsed_customer_email.toLowerCase();\n    if (leadsByEmail[email]) matchedLead = leadsByEmail[email];\n  }\n\n  // Try phone match if no email match\n  if (!matchedLead && payment.parsed_customer_phone) {\n    const phone = payment.parsed_customer_phone.replace(/\\D/g, '');\n    if (phone.length >= 10 && leadsByPhone[phone]) matchedLead = leadsByPhone[phone];\n  }\n\n  const attribution = {\n    lead_id: matchedLead ? matchedLead.id : null,\n    revenue: payment.parsed_amount || 0,\n    lead_source: matchedLead ? (matchedLead.source || 'unknown') : 'unknown',\n    service_type: payment.parsed_service || null,\n    attributed_at: payment.parsed_at || payment.created_at || new Date().toISOString()\n  };\n\n  attributions.push(attribution);\n}\n\nreturn [{ json: {\n  attributions,\n  matchedCount: attributions.filter(a => a.lead_id !== null).length,\n  unmatchedCount: attributions.filter(a => a.lead_id === null).length,\n  totalRevenue: attributions.reduce((sum, a) => sum + (a.revenue || 0), 0)\n} }];"
+      },
+      "id": "build-attributions",
+      "name": "Build Attribution Records",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/revenue_attribution",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.attributions) }}"
+      },
+      "id": "upsert-attributions",
+      "name": "Upsert Revenue Attribution",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 200],
+      "notes": "Upsert attribution records. merge-duplicates uses the table's unique constraints."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log summary of the sync\nconst data = $('Build Attribution Records').first().json;\nreturn [{ json: {\n  status: 'complete',\n  totalPayments: data.attributions.length,\n  matchedToLeads: data.matchedCount,\n  unmatchedPayments: data.unmatchedCount,\n  totalRevenue: data.totalRevenue,\n  syncedAt: new Date().toISOString()\n} }];"
+      },
+      "id": "log-summary",
+      "name": "Log Sync Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1760, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// No payments found yesterday — log and exit cleanly\nconst yesterday = $('Calculate Yesterday').first().json.yesterday;\nreturn [{ json: {\n  status: 'no_payments',\n  message: `No payment_received events found for ${yesterday}`,\n  syncedAt: new Date().toISOString()\n} }];"
+      },
+      "id": "no-payments",
+      "name": "No Payments Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 420]
+    }
+  ],
+  "connections": {
+    "Daily 5am CT": {
+      "main": [
+        [{ "node": "Calculate Yesterday", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Yesterday": {
+      "main": [
+        [{ "node": "Fetch Payment Events", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Payment Events": {
+      "main": [
+        [{ "node": "Has Payments?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Has Payments?": {
+      "main": [
+        [{ "node": "Extract Payment Data", "type": "main", "index": 0 }],
+        [{ "node": "No Payments Log", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extract Payment Data": {
+      "main": [
+        [{ "node": "Match Leads", "type": "main", "index": 0 }]
+      ]
+    },
+    "Match Leads": {
+      "main": [
+        [{ "node": "Build Attribution Records", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Attribution Records": {
+      "main": [
+        [{ "node": "Upsert Revenue Attribution", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert Revenue Attribution": {
+      "main": [
+        [{ "node": "Log Sync Summary", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

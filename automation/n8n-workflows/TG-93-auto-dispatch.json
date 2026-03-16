@@ -1,0 +1,397 @@
+{
+  "name": "TG-93 Auto-Dispatch",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const job = $input.first().json;\nconst address = job.address || 'No address';\nconst mapsUrl = 'https://maps.google.com/?q=' + encodeURIComponent(address);\nconst eventLabel = job.event_type === 'quote_approved' || job.event_type === 'plan_accepted' ? 'QUOTE APPROVED' : 'NEW JOB';\nconst message = [\n  `${eventLabel} - ${job.customer_name || 'Unknown Customer'}`,\n  `Service: ${job.service || 'Unknown service'}`,\n  `Address: ${address}`,\n  job.scheduled_time ? `Scheduled: ${job.scheduled_time}` : null,\n  `Maps: ${mapsUrl}`,\n  '',\n  'Reply 1 to confirm, 2 to flag issue'\n].filter(Boolean).join('\\n');\nreturn [{ json: { message, maps_url: mapsUrl, owner_phone: '+16085356057', customer_name: job.customer_name, address, service: job.service, event_type: job.event_type, scheduled_time: job.scheduled_time, customer_phone: job.customer_phone } }];"
+      },
+      "id": "build-dispatch-sms",
+      "name": "Build Dispatch SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/dispatch_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SERVICE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SERVICE_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event_type\": \"{{ $json.event_type }}\",\n  \"customer_name\": \"{{ $json.customer_name }}\",\n  \"customer_phone\": \"{{ $json.customer_phone }}\",\n  \"address\": \"{{ $json.address }}\",\n  \"service_type\": \"{{ $json.service }}\",\n  \"maps_url\": \"{{ $json.maps_url }}\",\n  \"status\": \"pending\"\n}",
+        "options": {}
+      },
+      "id": "log-dispatch",
+      "name": "Log to dispatch_log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const logResult = $input.first().json;\nconst dispatch_id = Array.isArray(logResult) ? (logResult[0] && logResult[0].id) : (logResult && logResult.id);\nconst sms_body = $('Build Dispatch SMS').first().json.message;\nreturn [{ json: { dispatch_id: dispatch_id || null, sms_body } }];"
+      },
+      "id": "extract-dispatch-id",
+      "name": "Extract Dispatch ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "from": "+16089953554",
+        "to": "+16085356057",
+        "message": "={{ $json.sms_body }}"
+      },
+      "id": "send-dispatch-sms",
+      "name": "Send Dispatch SMS to Owner",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        880,
+        300
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "cwxndVw60DCxqeNg",
+          "name": "Twilio"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/dispatch_log?id=eq.{{ $('Extract Dispatch ID').first().json.dispatch_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SERVICE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SERVICE_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"dispatch_sms_sent_at\": \"{{ new Date().toISOString() }}\" }",
+        "options": {}
+      },
+      "id": "update-dispatch-sent",
+      "name": "Update dispatch_sms_sent_at",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "hours"
+      },
+      "id": "wait-2h",
+      "name": "Wait 2 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/dispatch_log?id=eq.{{ $('Extract Dispatch ID').first().json.dispatch_id }}&select=status",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SERVICE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SERVICE_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-dispatch-status",
+      "name": "Check dispatch_log Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "still-pending",
+              "leftValue": "={{ Array.isArray($json) ? ($json[0] && $json[0].status) : $json.status }}",
+              "rightValue": "pending",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-still-pending",
+      "name": "IF Still Pending",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "from": "+16089953554",
+        "to": "+16085356057",
+        "message": "=[TG Reminder] No response on dispatch from 2hrs ago.\n\nCustomer: {{ $('Build Dispatch SMS').first().json.customer_name }}\nService: {{ $('Build Dispatch SMS').first().json.service }}\n\nReply 1=Acknowledge 2=Call Back Needed"
+      },
+      "id": "send-reminder-sms",
+      "name": "Send Reminder SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        200
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "cwxndVw60DCxqeNg",
+          "name": "Twilio"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/dispatch_log?id=eq.{{ $('Extract Dispatch ID').first().json.dispatch_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SERVICE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SERVICE_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"reminder_sent_at\": \"{{ new Date().toISOString() }}\" }",
+        "options": {}
+      },
+      "id": "update-reminder-sent",
+      "name": "Update reminder_sent_at",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        200
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build Dispatch SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Dispatch SMS": {
+      "main": [
+        [
+          {
+            "node": "Log to dispatch_log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to dispatch_log": {
+      "main": [
+        [
+          {
+            "node": "Extract Dispatch ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Dispatch ID": {
+      "main": [
+        [
+          {
+            "node": "Send Dispatch SMS to Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Dispatch SMS to Owner": {
+      "main": [
+        [
+          {
+            "node": "Update dispatch_sms_sent_at",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update dispatch_sms_sent_at": {
+      "main": [
+        [
+          {
+            "node": "Wait 2 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2 Hours": {
+      "main": [
+        [
+          {
+            "node": "Check dispatch_log Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check dispatch_log Status": {
+      "main": [
+        [
+          {
+            "node": "IF Still Pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Still Pending": {
+      "main": [
+        [
+          {
+            "node": "Send Reminder SMS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Send Reminder SMS": {
+      "main": [
+        [
+          {
+            "node": "Update reminder_sent_at",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

@@ -1,0 +1,528 @@
+{
+  "name": "TG-94-unified-sms-sender",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst to_phone = (input.to_phone || '').trim();\nconst message_body = (input.message_body || '').trim();\nconst workflow_name = input.workflow_name || 'unknown';\nconst message_type = input.message_type || 'auto_reply';\nconst ab_test_id = input.ab_test_id || null;\nconst ab_variant_id = input.ab_variant_id || null;\n\nif (!to_phone || !message_body) {\n  return [{ json: { sent: false, reason: 'missing_params', to_phone, workflow_name } }];\n}\n\nreturn [{ json: { to_phone, message_body, workflow_name, message_type, ab_test_id, ab_variant_id, valid: true } }];"
+      },
+      "id": "validate-input",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "valid-check",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-valid",
+      "name": "IF Valid Input",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/rpc/can_send_sms",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ p_phone: $json.to_phone }) }}"
+      },
+      "id": "check-consent",
+      "name": "Check Consent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const consent = $input.first().json;\n// can_send_sms RPC returns a boolean\nconst canSend = consent === true || consent === 'true';\nconst prev = $('Validate Input').first().json;\n\nif (!canSend) {\n  return [{ json: { sent: false, reason: 'no_consent', to_phone: prev.to_phone, workflow_name: prev.workflow_name } }];\n}\n\nreturn [{ json: { ...prev, consent_ok: true } }];"
+      },
+      "id": "eval-consent",
+      "name": "Evaluate Consent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "consent-check",
+              "leftValue": "={{ $json.consent_ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-consent",
+      "name": "IF Consent OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_sends?to_phone=eq.{{ $json.to_phone }}&sent_at=gte.{{ new Date().toISOString().split('T')[0] }}T00:00:00Z&select=id",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Prefer",
+              "value": "count=exact"
+            },
+            {
+              "name": "Range-Unit",
+              "value": "items"
+            },
+            {
+              "name": "Range",
+              "value": "0-0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "check-rate-limit",
+      "name": "Check Rate Limit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\n// Supabase returns content-range header: 0-0/N or */N\nconst contentRange = response.headers?.['content-range'] || '';\nlet count = 0;\nconst match = contentRange.match(/\\/(\\d+)/);\nif (match) count = parseInt(match[1], 10);\n\n// Fallback: if body is array, use length\nif (count === 0 && Array.isArray(response.body)) {\n  count = response.body.length;\n}\n\nconst prev = $('Validate Input').first().json;\nconst DAILY_LIMIT = 3;\n\nif (count >= DAILY_LIMIT) {\n  return [{ json: { sent: false, reason: 'rate_limited', to_phone: prev.to_phone, workflow_name: prev.workflow_name, daily_count: count } }];\n}\n\nreturn [{ json: { ...prev, daily_count: count, rate_ok: true } }];"
+      },
+      "id": "eval-rate-limit",
+      "name": "Evaluate Rate Limit",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "rate-check",
+              "leftValue": "={{ $json.rate_ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-rate-ok",
+      "name": "IF Rate OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "from": "=+16089953554",
+        "to": "={{ $json.to_phone }}",
+        "message": "={{ $json.message_body }}"
+      },
+      "id": "send-sms",
+      "name": "Send SMS via Twilio",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        0
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "cwxndVw60DCxqeNg",
+          "name": "Twilio"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_sends",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to_phone: $('Validate Input').first().json.to_phone, message_body: $('Validate Input').first().json.message_body, from_phone: '+16089953554', message_type: $('Validate Input').first().json.message_type, workflow_name: $('Validate Input').first().json.workflow_name, ab_test_id: $('Validate Input').first().json.ab_test_id, ab_variant_id: $('Validate Input').first().json.ab_variant_id, external_message_id: $json.sid || '', status: 'sent', sent_at: new Date().toISOString() }) }}"
+      },
+      "id": "log-success",
+      "name": "Log SMS Success",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const smsResult = $('Send SMS via Twilio').first().json;\nreturn [{ json: { sent: true, message_sid: smsResult.sid || 'unknown' } }];"
+      },
+      "id": "return-success",
+      "name": "Return Success",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_sends",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to_phone: $('Validate Input').first().json.to_phone, message_body: $('Validate Input').first().json.message_body, from_phone: '+16089953554', message_type: $('Validate Input').first().json.message_type, workflow_name: $('Validate Input').first().json.workflow_name, ab_test_id: $('Validate Input').first().json.ab_test_id, ab_variant_id: $('Validate Input').first().json.ab_variant_id, status: 'failed', failure_reason: 'twilio_error: ' + ($json.message || 'unknown'), failed_at: new Date().toISOString() }) }}"
+      },
+      "id": "log-failure",
+      "name": "Log SMS Failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { sent: false, reason: 'twilio_error' } }];"
+      },
+      "id": "return-twilio-error",
+      "name": "Return Twilio Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Passthrough for no-consent / rate-limited / invalid results\nreturn $input.all();"
+      },
+      "id": "return-blocked",
+      "name": "Return Blocked",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [
+          {
+            "node": "IF Valid Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Valid Input": {
+      "main": [
+        [
+          {
+            "node": "Check Consent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Blocked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Consent": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Consent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Consent": {
+      "main": [
+        [
+          {
+            "node": "IF Consent OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Consent OK": {
+      "main": [
+        [
+          {
+            "node": "Check Rate Limit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Blocked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Rate Limit": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Rate Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Rate Limit": {
+      "main": [
+        [
+          {
+            "node": "IF Rate OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Rate OK": {
+      "main": [
+        [
+          {
+            "node": "Send SMS via Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Blocked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send SMS via Twilio": {
+      "main": [
+        [
+          {
+            "node": "Log SMS Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log SMS Success": {
+      "main": [
+        [
+          {
+            "node": "Return Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log SMS Failure": {
+      "main": [
+        [
+          {
+            "node": "Return Twilio Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  },
+  "pinData": {},
+  "staticData": null
+}

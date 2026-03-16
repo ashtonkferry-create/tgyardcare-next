@@ -1,0 +1,164 @@
+{
+  "name": "TG-99-ranking-opportunity-detector",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 12 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Weekly Monday 7am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate date range: last 7 days with 2-day lag\nconst now = new Date();\nconst endDate = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);\nconst startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);\n\nreturn [{ json: {\n  startDate: startDate.toISOString().split('T')[0],\n  endDate: endDate.toISOString().split('T')[0],\n  reportDate: now.toISOString().split('T')[0]\n}}];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Date Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://searchconsole.googleapis.com/v1/sites/https%3A%2F%2Ftgyardcare.com/searchAnalytics/query",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ startDate: $json.startDate, endDate: $json.endDate, dimensions: ['query', 'page'], dataState: 'final', rowLimit: 25000, startRow: 0 }) }}"
+      },
+      "id": "fetch-query-page",
+      "name": "Fetch Query+Page Data from GSC",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Find quick wins: position 4-20, impressions >= 10\nconst rows = $input.first().json.rows || [];\nconst reportDate = $('Calculate Date Range').first().json.reportDate;\n\nconst quickWins = [];\nfor (const row of rows) {\n  const query = row.keys[0];\n  const page = row.keys[1];\n  const position = row.position || 0;\n  const impressions = row.impressions || 0;\n  const clicks = row.clicks || 0;\n  const ctr = row.ctr || 0;\n\n  if (position >= 4 && position <= 20 && impressions >= 10) {\n    // Potential score: higher impressions + closer to position 1 = more potential\n    const potentialScore = Math.round(impressions * (21 - position) * 100) / 100;\n    quickWins.push({\n      query,\n      page,\n      position: Math.round(position * 10) / 10,\n      impressions,\n      clicks,\n      ctr: Math.round(ctr * 10000) / 100,\n      potential_score: potentialScore\n    });\n  }\n}\n\n// Sort by potential_score descending, take top 25\nquickWins.sort((a, b) => b.potential_score - a.potential_score);\nconst top25 = quickWins.slice(0, 25);\n\nreturn [{ json: { opportunities: top25, totalFound: quickWins.length, reportDate } }];"
+      },
+      "id": "find-quick-wins",
+      "name": "Find Quick Wins",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build HTML email report of ranking opportunities\nconst opps = $json.opportunities || [];\nconst totalFound = $json.totalFound || 0;\nconst reportDate = $json.reportDate;\n\nif (opps.length === 0) {\n  return [{ json: { skipEmail: true } }];\n}\n\nlet tableRows = '';\nfor (let i = 0; i < opps.length; i++) {\n  const o = opps[i];\n  const bg = i % 2 === 0 ? '#f9f9f9' : '#ffffff';\n  // Highlight positions 4-10 (page 1) differently from 11-20 (page 2)\n  const posColor = o.position <= 10 ? '#2d5016' : '#666';\n  const pagePath = o.page.replace('https://tgyardcare.com', '');\n  tableRows += `<tr style=\"background:${bg}\">\n    <td style=\"padding:8px;border:1px solid #ddd\">${i + 1}</td>\n    <td style=\"padding:8px;border:1px solid #ddd\">${o.query}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;color:${posColor};font-weight:bold;text-align:center\">${o.position}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;text-align:center\">${o.impressions}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;text-align:center\">${o.clicks}</td>\n    <td style=\"padding:8px;border:1px solid #ddd;text-align:center\">${o.ctr}%</td>\n    <td style=\"padding:8px;border:1px solid #ddd;font-size:12px\">${pagePath}</td>\n  </tr>`;\n}\n\nconst html = `\n<div style=\"font-family:Arial,sans-serif;max-width:900px;margin:0 auto\">\n  <h2 style=\"color:#2d5016\">TG-99 Ranking Opportunity Report</h2>\n  <p style=\"color:#666\">Week ending ${reportDate} | ${totalFound} quick-win queries found, top 25 shown</p>\n  <p>These queries rank between positions 4-20 with 10+ impressions. Optimizing existing pages for these terms could push them into top-3 positions.</p>\n  <table style=\"border-collapse:collapse;width:100%;font-size:13px\">\n    <thead>\n      <tr style=\"background:#2d5016;color:#fff\">\n        <th style=\"padding:8px;border:1px solid #ddd\">#</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Query</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Position</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Impressions</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Clicks</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">CTR</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Page</th>\n      </tr>\n    </thead>\n    <tbody>${tableRows}</tbody>\n  </table>\n  <h3 style=\"margin-top:20px;color:#2d5016\">Recommended Actions</h3>\n  <ul style=\"color:#444\">\n    <li><strong>Position 4-10 (page 1):</strong> Add the query to page title/H1, improve content depth, add internal links</li>\n    <li><strong>Position 11-20 (page 2):</strong> Consider dedicated content, build backlinks, optimize meta description for CTR</li>\n  </ul>\n  <p style=\"color:#888;font-size:12px;margin-top:16px\">Potential Score = impressions * (21 - position). Higher = easier win with more impact.</p>\n</div>`;\n\nreturn [{ json: {\n  skipEmail: false,\n  to_email: 'totalguardllc@gmail.com',\n  subject: `[TG-99] Ranking Opportunities - ${opps.length} Quick Wins (${reportDate})`,\n  html_body: html,\n  workflow_name: 'TG-99',\n  email_type: 'report'\n}}];"
+      },
+      "id": "build-report",
+      "name": "Build Opportunity Report Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "skip-check",
+              "leftValue": "={{ $json.skipEmail }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-has-opps",
+      "name": "IF Has Opportunities",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1100, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "to_email": "={{ $json.to_email }}",
+            "subject": "={{ $json.subject }}",
+            "html_body": "={{ $json.html_body }}",
+            "workflow_name": "={{ $json.workflow_name }}",
+            "email_type": "={{ $json.email_type }}"
+          }
+        }
+      },
+      "id": "send-email",
+      "name": "Send via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1320, 200]
+    }
+  ],
+  "connections": {
+    "Weekly Monday 7am CT": {
+      "main": [
+        [{ "node": "Calculate Date Range", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Date Range": {
+      "main": [
+        [{ "node": "Fetch Query+Page Data from GSC", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Query+Page Data from GSC": {
+      "main": [
+        [{ "node": "Find Quick Wins", "type": "main", "index": 0 }]
+      ]
+    },
+    "Find Quick Wins": {
+      "main": [
+        [{ "node": "Build Opportunity Report Email", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Opportunity Report Email": {
+      "main": [
+        [{ "node": "IF Has Opportunities", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF Has Opportunities": {
+      "main": [
+        [{ "node": "Send via TG-95", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

@@ -1,0 +1,296 @@
+{
+  "name": "TG-105-ab-test-router",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_tests?id=eq.{{ $json.test_id }}&status=in.(active,winner_declared)&select=*",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-test",
+      "name": "Fetch Active Test",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "test-exists",
+              "leftValue": "={{ $json.body.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-test-exists",
+      "name": "Test Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// No active test found — return default\nreturn [{ json: {\n  variant_id: null,\n  variant_title: 'default',\n  variant_content: null,\n  is_default: true\n}}];"
+      },
+      "id": "return-default",
+      "name": "Return Default",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 480]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "winner-status",
+              "leftValue": "={{ $json.body[0].status }}",
+              "rightValue": "winner_declared",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "winner-id",
+              "leftValue": "={{ $json.body[0].winner_variant_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-winner",
+      "name": "Winner Declared?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [720, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_test_variants?id=eq.{{ $('Fetch Active Test').first().json.body[0].winner_variant_id }}&select=*",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-winner",
+      "name": "Fetch Winner Variant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Return the winner variant\nconst variant = $json.body[0];\nreturn [{ json: {\n  variant_id: variant.id,\n  variant_title: variant.title,\n  variant_content: variant.content,\n  is_default: false,\n  is_winner: true\n}}];"
+      },
+      "id": "return-winner",
+      "name": "Return Winner",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 100]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_test_variants?ab_test_id=eq.{{ $('Fetch Active Test').first().json.body[0].id }}&select=*",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-variants",
+      "name": "Fetch All Variants",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Weighted random selection among active variants\nconst variants = $json.body;\nif (!variants || variants.length === 0) {\n  return [{ json: { variant_id: null, variant_title: 'default', variant_content: null, is_default: true } }];\n}\n\n// Assign default weight of 50 if not set\nconst weighted = variants.map(v => ({\n  ...v,\n  weight: v.weight != null ? v.weight : 50\n}));\n\nconst totalWeight = weighted.reduce((sum, v) => sum + v.weight, 0);\nlet random = Math.random() * totalWeight;\nlet selected = weighted[0];\n\nfor (const v of weighted) {\n  random -= v.weight;\n  if (random <= 0) {\n    selected = v;\n    break;\n  }\n}\n\n// Get trigger input for recipient info\nconst input = $('Execute Workflow Trigger').first().json;\n\nreturn [{ json: {\n  variant_id: selected.id,\n  variant_title: selected.title,\n  variant_content: selected.content,\n  is_default: false,\n  is_winner: false,\n  test_id: input.test_id,\n  channel: input.channel,\n  recipient_phone: input.recipient_phone || null,\n  recipient_email: input.recipient_email || null,\n  log_payload: {\n    ab_test_id: input.test_id,\n    ab_variant_id: selected.id,\n    channel: input.channel,\n    recipient_phone: input.recipient_phone || null,\n    recipient_email: input.recipient_email || null,\n    sent_at: new Date().toISOString()\n  }\n}}];"
+      },
+      "id": "weighted-select",
+      "name": "Weighted Random Selection",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_test_sends",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.log_payload) }}",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "log-send",
+      "name": "Log to ab_test_sends",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1440, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Return the selected variant (fire-and-forget logging already done)\nconst prev = $('Weighted Random Selection').first().json;\nreturn [{ json: {\n  variant_id: prev.variant_id,\n  variant_title: prev.variant_title,\n  variant_content: prev.variant_content,\n  is_default: prev.is_default,\n  is_winner: prev.is_winner\n}}];"
+      },
+      "id": "return-selected",
+      "name": "Return Selected",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1680, 300]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [{ "node": "Fetch Active Test", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Active Test": {
+      "main": [
+        [{ "node": "Test Exists?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Test Exists?": {
+      "main": [
+        [{ "node": "Winner Declared?", "type": "main", "index": 0 }],
+        [{ "node": "Return Default", "type": "main", "index": 0 }]
+      ]
+    },
+    "Winner Declared?": {
+      "main": [
+        [{ "node": "Fetch Winner Variant", "type": "main", "index": 0 }],
+        [{ "node": "Fetch All Variants", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Winner Variant": {
+      "main": [
+        [{ "node": "Return Winner", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch All Variants": {
+      "main": [
+        [{ "node": "Weighted Random Selection", "type": "main", "index": 0 }]
+      ]
+    },
+    "Weighted Random Selection": {
+      "main": [
+        [{ "node": "Log to ab_test_sends", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log to ab_test_sends": {
+      "main": [
+        [{ "node": "Return Selected", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

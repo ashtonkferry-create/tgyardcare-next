@@ -1,0 +1,331 @@
+{
+  "name": "TG-100-index-coverage-monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 11 * * 2"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Tuesday 6am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/gsc_pages?select=page&order=clicks.desc",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "get-pages",
+      "name": "Get Known Pages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Deduplicate pages from gsc_pages (multiple date entries per page)\nconst rows = $json.body || [];\nconst uniquePages = [...new Set(rows.map(r => r.page))];\nreturn uniquePages.map(p => ({ json: { pageUrl: p } }));"
+      },
+      "id": "dedup-pages",
+      "name": "Deduplicate Pages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/index_coverage_log?select=page_url,verdict,check_date&order=check_date.desc",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "get-prev-coverage",
+      "name": "Get Previous Coverage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build previous verdict map and merge with page list\nconst logs = $('Get Previous Coverage').first().json.body || [];\nconst prevMap = {};\nfor (const log of logs) {\n  if (!prevMap[log.page_url]) prevMap[log.page_url] = log.verdict;\n}\nconst pages = $('Deduplicate Pages').all().map(i => i.json);\nreturn pages.map(p => ({\n  json: { ...p, previousVerdict: prevMap[p.pageUrl] || null }\n}));"
+      },
+      "id": "build-map",
+      "name": "Build Previous Verdict Map",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "options": {
+          "batchSize": 1
+        }
+      },
+      "id": "split-batches",
+      "name": "SplitInBatches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [920, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inspectionUrl: $json.pageUrl, siteUrl: 'https://tgyardcare.com/', languageCode: 'en-US' }) }}"
+      },
+      "id": "inspect-url",
+      "name": "Inspect URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1140, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract inspection result fields for storage\nconst result = $json.inspectionResult || {};\nconst indexStatus = result.indexStatusResult || {};\nconst today = new Date().toISOString().split('T')[0];\n\n// Get the pageUrl from the SplitInBatches context\nconst pageUrl = $('SplitInBatches').first().json.pageUrl;\nconst previousVerdict = $('SplitInBatches').first().json.previousVerdict;\n\nreturn [{ json: {\n  page_url: pageUrl,\n  check_date: today,\n  verdict: indexStatus.verdict || 'VERDICT_UNSPECIFIED',\n  coverage_state: indexStatus.coverageState || null,\n  indexing_state: indexStatus.indexingState || null,\n  last_crawl_time: indexStatus.lastCrawlTime || null,\n  page_fetch_state: indexStatus.pageFetchState || null,\n  robots_txt_state: indexStatus.robotsTxtState || null,\n  google_canonical: indexStatus.googleCanonical || null,\n  previous_verdict: previousVerdict\n}}];"
+      },
+      "id": "extract-result",
+      "name": "Extract Inspection Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/index_coverage_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ page_url: $json.page_url, check_date: $json.check_date, verdict: $json.verdict, coverage_state: $json.coverage_state, indexing_state: $json.indexing_state, last_crawl_time: $json.last_crawl_time, page_fetch_state: $json.page_fetch_state, robots_txt_state: $json.robots_txt_state, google_canonical: $json.google_canonical }) }}"
+      },
+      "id": "upsert-coverage",
+      "name": "Upsert Coverage Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1580, 400]
+    },
+    {
+      "parameters": {
+        "amount": 0.2
+      },
+      "id": "wait",
+      "name": "Wait 200ms",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1800, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Detect deindex events: previous verdict PASS -> current FAIL or NEUTRAL\nconst results = $('Extract Inspection Result').all().map(i => i.json);\nconst deindexed = results.filter(r =>\n  r.previous_verdict === 'PASS' &&\n  (r.verdict === 'FAIL' || r.verdict === 'NEUTRAL')\n);\nconst newIssues = results.filter(r =>\n  r.verdict === 'FAIL' || r.verdict === 'NEUTRAL'\n);\nreturn [{ json: {\n  totalChecked: results.length,\n  deindexed,\n  hasDeindexEvents: deindexed.length > 0,\n  totalIssues: newIssues.length,\n  allResults: results\n}}];"
+      },
+      "id": "detect-deindex",
+      "name": "Detect Deindex Events",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 600]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "deindex-check",
+              "leftValue": "={{ $json.hasDeindexEvents }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-deindex",
+      "name": "Has Deindex Events",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1140, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build SMS alert for deindex events\nconst data = $json;\nconst lines = ['TG DEINDEX ALERT'];\ndata.deindexed.forEach(d => {\n  const shortUrl = d.page_url.replace('https://tgyardcare.com', '');\n  lines.push(`${shortUrl}: was indexed, now ${d.verdict}`);\n});\nlines.push(`${data.totalChecked} pages checked, ${data.totalIssues} total issues`);\nreturn [{ json: {\n  to_phone: 'OWNER_PHONE_PLACEHOLDER',\n  message_body: lines.join('\\n'),\n  workflow_name: 'TG-100',\n  message_type: 'deindex_alert'\n}}];"
+      },
+      "id": "build-deindex-sms",
+      "name": "Build Deindex SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 520]
+    },
+    {
+      "parameters": {
+        "workflowId": "AprqI2DgQA8lehij"
+      },
+      "id": "send-sms",
+      "name": "Send SMS via TG-94",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1580, 520]
+    }
+  ],
+  "connections": {
+    "Tuesday 6am CT": {
+      "main": [
+        [
+          { "node": "Get Known Pages", "type": "main", "index": 0 },
+          { "node": "Get Previous Coverage", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Get Known Pages": {
+      "main": [
+        [{ "node": "Deduplicate Pages", "type": "main", "index": 0 }]
+      ]
+    },
+    "Deduplicate Pages": {
+      "main": [
+        [{ "node": "Build Previous Verdict Map", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Previous Coverage": {
+      "main": [
+        [{ "node": "Build Previous Verdict Map", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Previous Verdict Map": {
+      "main": [
+        [{ "node": "SplitInBatches", "type": "main", "index": 0 }]
+      ]
+    },
+    "SplitInBatches": {
+      "main": [
+        [{ "node": "Detect Deindex Events", "type": "main", "index": 0 }],
+        [{ "node": "Inspect URL", "type": "main", "index": 0 }]
+      ]
+    },
+    "Inspect URL": {
+      "main": [
+        [{ "node": "Extract Inspection Result", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extract Inspection Result": {
+      "main": [
+        [{ "node": "Upsert Coverage Log", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert Coverage Log": {
+      "main": [
+        [{ "node": "Wait 200ms", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait 200ms": {
+      "main": [
+        [{ "node": "SplitInBatches", "type": "main", "index": 0 }]
+      ]
+    },
+    "Detect Deindex Events": {
+      "main": [
+        [{ "node": "Has Deindex Events", "type": "main", "index": 0 }]
+      ]
+    },
+    "Has Deindex Events": {
+      "main": [
+        [{ "node": "Build Deindex SMS", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Build Deindex SMS": {
+      "main": [
+        [{ "node": "Send SMS via TG-94", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}
