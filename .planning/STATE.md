@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 4 of 4 (Intelligence Layer) — In progress
-Plan: 6 of 12 complete
+Plan: 7 of 12 complete
 Status: In progress
-Last activity: 2026-03-16 — Completed 04-06-PLAN.md (TG-118 Weekly Intelligence Assembler)
+Last activity: 2026-03-16 — Completed 04-07-PLAN.md (TG-114 Revenue Weekly + TG-115 A/B Test Weekly)
 
-Progress: [===========================------] 27/33 plans
+Progress: [============================-----] 28/33 plans
 
 Executing Milestone 2: CRM Unification
 - Phase 0 (Fix Existing): Ready to execute
@@ -32,13 +32,14 @@ Executing Milestone 2: CRM Unification
   - 03-04: DONE — TG-98 + TG-99 + TG-101 SEO intelligence workflows [wave 2]
   - 03-05: DONE — TG-102 weekly SEO summary (pending deploy) [wave 3]
   - 03-06: DONE — Gap closure: TG-97/TG-102 schema fix, opportunity+staleness counts, 15 cities verified [wave 4]
-- Phase 4 (Intelligence Layer): In progress (6/12 plans)
+- Phase 4 (Intelligence Layer): In progress (7/12 plans)
   - 04-01: DONE — Migration 072 (5 new tables + 4 table extensions + RLS) [wave 1]
   - 04-02: DONE — TG-113 (GHL1BUPFZL8Ic6Bc) critical alert router + TG-105 (6qhihK1RPUzwk2pd) A/B test router [wave 1]
   - 04-03: DONE — TG-107 revenue sync daily + TG-108 KPI daily snapshot (13 metrics) [wave 1]
   - 04-04: DONE — TG-109 (rD7Tiz6WgIOI8ndG) Google Ads sync stub + TG-106 (4LByKtLiF2hQO5Ut) A/B auto-winner [wave 1 COMPLETE]
   - 04-05: DONE — TG-110 anomaly detector + TG-111 ad budget guardian + TG-112 ad conversion watchdog [wave 2]
   - 04-06: DONE — TG-118 (rOeTPPi2kW6thURB) weekly intelligence assembler HTML email sub-workflow [wave 3]
+  - 04-07: DONE — TG-114 weekly revenue attribution + TG-115 weekly A/B test report [wave 3]
 
 Parallel: Milestone 3 (Billionaire Brand Transformation)
 - Phase 5-9: Not started
@@ -46,8 +47,8 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 6 Phase 4)
-- Last plan duration: ~2 minutes (04-06 TG-118 intelligence assembler)
+- Total plans completed: 28 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 7 Phase 4)
+- Last plan duration: ~3 minutes (04-07 TG-114 + TG-115 weekly reports)
 - Total execution time: N/A
 
 *Updated after each plan completion*
