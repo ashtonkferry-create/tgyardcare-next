@@ -1,0 +1,299 @@
+{
+  "name": "TG-106-ab-test-auto-winner",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 2 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily 9pm CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_tests?status=eq.active&channel=in.(sms,email)&auto_winner=eq.true&select=*",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-active-tests",
+      "name": "Fetch Active SMS/Email Tests",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-tests",
+              "leftValue": "={{ $json.body.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-has-tests",
+      "name": "Has Active Tests?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// No active A/B tests to evaluate\nreturn [{ json: {\n  status: 'no_active_tests',\n  timestamp: new Date().toISOString()\n} }];"
+      },
+      "id": "no-tests",
+      "name": "No Active Tests",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Flatten active tests into individual items for processing\nconst tests = $('Fetch Active SMS/Email Tests').first().json.body;\nreturn tests.map(t => ({ json: t }));"
+      },
+      "id": "split-tests",
+      "name": "Split Tests",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 180]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_test_sends?test_id=eq.{{ $json.id }}&select=variant_id,converted",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-sends",
+      "name": "Get Variant Send Counts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 180]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate winner eligibility for this A/B test\nconst sends = $('Get Variant Send Counts').first().json.body;\nconst test = $('Split Tests').first().json;\nconst minSends = test.min_sends_per_variant || 30;\n\n// Group sends by variant_id\nconst grouped = {};\nfor (const s of sends) {\n  if (!grouped[s.variant_id]) grouped[s.variant_id] = { total: 0, converted: 0 };\n  grouped[s.variant_id].total++;\n  if (s.converted) grouped[s.variant_id].converted++;\n}\n\nconst variants = Object.entries(grouped);\n\n// Need at least 2 variants to compare\nif (variants.length < 2) {\n  return [{ json: {\n    eligible: false,\n    reason: 'less_than_2_variants',\n    test_id: test.id,\n    test_name: test.name || test.id\n  } }];\n}\n\n// Check minimum sends per variant\nconst [v1, v2] = variants;\nif (v1[1].total < minSends || v2[1].total < minSends) {\n  return [{ json: {\n    eligible: false,\n    reason: 'insufficient_sends',\n    test_id: test.id,\n    test_name: test.name || test.id,\n    v1_id: v1[0],\n    v1_sends: v1[1].total,\n    v2_id: v2[0],\n    v2_sends: v2[1].total,\n    min_required: minSends\n  } }];\n}\n\n// Calculate conversion rates\nconst rate1 = v1[1].converted / v1[1].total;\nconst rate2 = v2[1].converted / v2[1].total;\n\n// Check for >20% relative improvement\nconst maxRate = Math.max(rate1, rate2, 0.001);\nconst relativeImprovement = Math.abs(rate1 - rate2) / maxRate;\n\nif (relativeImprovement > 0.20) {\n  const winnerId = rate1 > rate2 ? v1[0] : v2[0];\n  const winnerRate = rate1 > rate2 ? rate1 : rate2;\n  const loserRate = rate1 > rate2 ? rate2 : rate1;\n  return [{ json: {\n    eligible: true,\n    test_id: test.id,\n    test_name: test.name || test.id,\n    winner_variant_id: winnerId,\n    winner_rate: Math.round(winnerRate * 10000) / 100,\n    loser_rate: Math.round(loserRate * 10000) / 100,\n    relative_improvement: Math.round(relativeImprovement * 10000) / 100,\n    v1_id: v1[0],\n    v1_sends: v1[1].total,\n    v1_converted: v1[1].converted,\n    v1_rate: Math.round(rate1 * 10000) / 100,\n    v2_id: v2[0],\n    v2_sends: v2[1].total,\n    v2_converted: v2[1].converted,\n    v2_rate: Math.round(rate2 * 10000) / 100,\n    start_date: test.start_date || test.created_at\n  } }];\n}\n\nreturn [{ json: {\n  eligible: false,\n  reason: 'no_significant_difference',\n  test_id: test.id,\n  test_name: test.name || test.id,\n  rate1: Math.round(rate1 * 10000) / 100,\n  rate2: Math.round(rate2 * 10000) / 100,\n  relative_improvement: Math.round(relativeImprovement * 10000) / 100,\n  threshold: 20\n} }];"
+      },
+      "id": "calc-winner",
+      "name": "Calculate Winner Eligibility",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 180]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "winner-eligible",
+              "leftValue": "={{ $json.eligible }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-winner",
+      "name": "Winner Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1440, 180]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/ab_tests?id=eq.{{ $json.test_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  status: 'winner_declared',\n  winner_variant_id: $json.winner_variant_id,\n  winner_declared_at: new Date().toISOString()\n}) }}",
+        "options": {}
+      },
+      "id": "declare-winner",
+      "name": "Declare Winner",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1680, 80]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  report_type: 'ab_test_results',\n  report_period_start: $('Calculate Winner Eligibility').first().json.start_date || new Date().toISOString().split('T')[0],\n  report_period_end: new Date().toISOString().split('T')[0],\n  report_data: {\n    test_id: $('Calculate Winner Eligibility').first().json.test_id,\n    test_name: $('Calculate Winner Eligibility').first().json.test_name,\n    winner_variant_id: $('Calculate Winner Eligibility').first().json.winner_variant_id,\n    winner_rate: $('Calculate Winner Eligibility').first().json.winner_rate,\n    loser_rate: $('Calculate Winner Eligibility').first().json.loser_rate,\n    relative_improvement: $('Calculate Winner Eligibility').first().json.relative_improvement,\n    v1: { id: $('Calculate Winner Eligibility').first().json.v1_id, sends: $('Calculate Winner Eligibility').first().json.v1_sends, converted: $('Calculate Winner Eligibility').first().json.v1_converted, rate: $('Calculate Winner Eligibility').first().json.v1_rate },\n    v2: { id: $('Calculate Winner Eligibility').first().json.v2_id, sends: $('Calculate Winner Eligibility').first().json.v2_sends, converted: $('Calculate Winner Eligibility').first().json.v2_converted, rate: $('Calculate Winner Eligibility').first().json.v2_rate }\n  },\n  highlights: [{ text: 'A/B test winner declared for ' + $('Calculate Winner Eligibility').first().json.test_name + ' — ' + $('Calculate Winner Eligibility').first().json.relative_improvement + '% improvement' }]\n}) }}",
+        "options": {}
+      },
+      "id": "log-report",
+      "name": "Log to Intelligence Reports",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1920, 80]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log test result (no winner yet or not eligible)\nconst data = $input.first().json;\nreturn [{ json: {\n  status: 'no_winner',\n  test_id: data.test_id,\n  test_name: data.test_name,\n  reason: data.reason,\n  timestamp: new Date().toISOString()\n} }];"
+      },
+      "id": "log-no-winner",
+      "name": "Log No Winner",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1680, 300]
+    }
+  ],
+  "connections": {
+    "Daily 9pm CT": {
+      "main": [
+        [{ "node": "Fetch Active SMS/Email Tests", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Active SMS/Email Tests": {
+      "main": [
+        [{ "node": "Has Active Tests?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Has Active Tests?": {
+      "main": [
+        [{ "node": "Split Tests", "type": "main", "index": 0 }],
+        [{ "node": "No Active Tests", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Tests": {
+      "main": [
+        [{ "node": "Get Variant Send Counts", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Variant Send Counts": {
+      "main": [
+        [{ "node": "Calculate Winner Eligibility", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Winner Eligibility": {
+      "main": [
+        [{ "node": "Winner Found?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Winner Found?": {
+      "main": [
+        [{ "node": "Declare Winner", "type": "main", "index": 0 }],
+        [{ "node": "Log No Winner", "type": "main", "index": 0 }]
+      ]
+    },
+    "Declare Winner": {
+      "main": [
+        [{ "node": "Log to Intelligence Reports", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}

@@ -1,0 +1,254 @@
+{
+  "name": "TG-109-google-ads-daily-sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 12 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily 7am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate yesterday's date for sync\nconst now = new Date();\nconst yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);\nconst syncDate = yesterday.toISOString().split('T')[0];\n\nreturn [{ json: {\n  syncDate,\n  nowIso: now.toISOString()\n} }];"
+      },
+      "id": "calc-sync-date",
+      "name": "Calculate Sync Date",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "ads-configured",
+              "leftValue": "={{ $vars.TG_GOOGLE_ADS_CUSTOMER_ID }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-ads-configured",
+      "name": "Ads Configured?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Google Ads API not configured — graceful skip\nreturn [{ json: {\n  status: 'skipped',\n  reason: 'Google Ads API not configured — set TG_GOOGLE_ADS_CUSTOMER_ID variable to enable',\n  timestamp: new Date().toISOString()\n} }];"
+      },
+      "id": "skip-not-configured",
+      "name": "Skip - Not Configured",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build GAQL query for ad_group level metrics\nconst syncDate = $('Calculate Sync Date').first().json.syncDate;\n\nconst query = `SELECT campaign.id, campaign.name, ad_group.id, ad_group.name, metrics.impressions, metrics.clicks, metrics.conversions, metrics.cost_micros, metrics.conversions_value, metrics.ctr, metrics.average_cpc, metrics.search_impression_share FROM ad_group WHERE segments.date = '${syncDate}'`;\n\nreturn [{ json: {\n  query,\n  syncDate,\n  customerId: $vars.TG_GOOGLE_ADS_CUSTOMER_ID\n} }];"
+      },
+      "id": "build-gaql",
+      "name": "Build GAQL Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 180]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://googleads.googleapis.com/v17/customers/{{ $json.customerId }}/googleAds:searchStream",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_GOOGLE_ADS_ACCESS_TOKEN }}"
+            },
+            {
+              "name": "developer-token",
+              "value": "={{ $vars.TG_GOOGLE_ADS_DEV_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: $json.query }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-ads",
+      "name": "Fetch Google Ads Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 180],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform Google Ads API response to google_ads_daily schema\nconst response = $input.first().json;\nconst syncDate = $('Calculate Sync Date').first().json.syncDate;\n\n// Check for API error (continueOnFail)\nif (response.error || response.statusCode >= 400) {\n  return [{ json: {\n    status: 'error',\n    reason: 'Google Ads API call failed',\n    error: response.error || response.body || 'Unknown error',\n    syncDate\n  } }];\n}\n\n// Parse searchStream response — returns array of result batches\nconst body = response.body || response;\nconst results = Array.isArray(body) ? body : (body.results || []);\n\nif (!results.length) {\n  return [{ json: { status: 'no_data', syncDate, rows: 0 } }];\n}\n\n// Flatten all result batches\nconst rows = [];\nfor (const batch of results) {\n  const batchResults = batch.results || [batch];\n  for (const row of batchResults) {\n    const campaign = row.campaign || {};\n    const adGroup = row.adGroup || {};\n    const metrics = row.metrics || {};\n\n    const costMicros = parseInt(metrics.costMicros || '0', 10);\n    const cost = costMicros / 1000000;\n    const clicks = parseInt(metrics.clicks || '0', 10);\n    const impressions = parseInt(metrics.impressions || '0', 10);\n    const conversions = parseFloat(metrics.conversions || '0');\n    const conversionValue = parseFloat(metrics.conversionsValue || '0');\n\n    rows.push({\n      report_date: syncDate,\n      campaign_id: campaign.id || null,\n      campaign_name: campaign.name || null,\n      ad_group_id: adGroup.id || null,\n      ad_group_name: adGroup.name || null,\n      impressions,\n      clicks,\n      cost: Math.round(cost * 100) / 100,\n      conversions,\n      conversion_value: Math.round(conversionValue * 100) / 100,\n      ctr: parseFloat(metrics.ctr || '0'),\n      avg_cpc: clicks > 0 ? Math.round((cost / clicks) * 100) / 100 : 0,\n      roas: cost > 0 ? Math.round((conversionValue / cost) * 100) / 100 : 0,\n      search_impression_share: parseFloat(metrics.searchImpressionShare || '0')\n    });\n  }\n}\n\nreturn rows.map(r => ({ json: r }));"
+      },
+      "id": "transform-ads",
+      "name": "Transform Ads Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1160, 180]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-data",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "error",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "has-rows",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "no_data",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-has-data",
+      "name": "Has Valid Data?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1380, 180]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_ads_daily",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($input.all().map(i => i.json)) }}",
+        "options": {}
+      },
+      "id": "upsert-ads",
+      "name": "Upsert google_ads_daily",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1620, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log skip/error from Transform step\nconst data = $input.first().json;\nreturn [{ json: {\n  status: data.status || 'skipped',\n  reason: data.reason || data.error || 'No valid ad data to upsert',\n  syncDate: data.syncDate || $('Calculate Sync Date').first().json.syncDate,\n  timestamp: new Date().toISOString()\n} }];"
+      },
+      "id": "log-skip",
+      "name": "Log Skip/Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1620, 300]
+    }
+  ],
+  "connections": {
+    "Daily 7am CT": {
+      "main": [
+        [{ "node": "Calculate Sync Date", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Sync Date": {
+      "main": [
+        [{ "node": "Ads Configured?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Ads Configured?": {
+      "main": [
+        [{ "node": "Build GAQL Query", "type": "main", "index": 0 }],
+        [{ "node": "Skip - Not Configured", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build GAQL Query": {
+      "main": [
+        [{ "node": "Fetch Google Ads Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Google Ads Data": {
+      "main": [
+        [{ "node": "Transform Ads Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Transform Ads Data": {
+      "main": [
+        [{ "node": "Has Valid Data?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Has Valid Data?": {
+      "main": [
+        [{ "node": "Upsert google_ads_daily", "type": "main", "index": 0 }],
+        [{ "node": "Log Skip/Error", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}
