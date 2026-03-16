@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 Phase: 5 of 9 (Safety Nets & Foundation)
 Plan: 0 of TBD in current phase
 Status: Ready to plan
-Last activity: 2026-03-15 — Completed quick task 001: 2026 Job Log Book
+Last activity: 2026-03-15 — Completed quick task 002: 2026 Expense Tracker
 
 Progress: [=========.........] 9/? plans (M2 Phase 1 complete, M3 not started)
 
@@ -63,9 +63,10 @@ None yet.
 | # | Description | Date | Directory |
 |---|-------------|------|-----------|
 | 001 | 2026 TotalGuard Job Log Book (.xlsx) — 13-tab spreadsheet with dropdowns, conditional formatting, annual summary | 2026-03-15 | [001-2026-totalguard-job-log-book-xlsx](./quick/001-2026-totalguard-job-log-book-xlsx/) |
+| 002 | 2026 TotalGuard Expense Tracker (.xlsx) — 5-tab expense system with Schedule C tax tracking, mileage deduction, monthly summaries | 2026-03-15 | [002-2026-totalguard-expense-tracker-xlsx](./quick/002-2026-totalguard-expense-tracker-xlsx/) |
 
 ## Session Continuity
 
 Last session: 2026-03-15
-Stopped at: Completed quick task 001 (2026 Job Log Book)
+Stopped at: Completed quick task 002 (2026 Expense Tracker)
 Resume file: None
