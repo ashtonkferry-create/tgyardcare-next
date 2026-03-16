@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 4 of 4 (Intelligence Layer) — In progress
-Plan: 9 of 12 complete
+Plan: 10 of 12 complete
 Status: In progress
-Last activity: 2026-03-16 — Completed 04-09-PLAN.md (TG-119 Monthly Trends + TG-120 Channel ROI + TG-121 Learning Report)
+Last activity: 2026-03-16 — Completed 04-11-PLAN.md (A/B test integration into TG-83/84/85/91 + TG-94/95 logging)
 
-Progress: [=============================----] 30/33 plans
+Progress: [==============================---] 31/33 plans
 
 Executing Milestone 2: CRM Unification
 - Phase 0 (Fix Existing): Ready to execute
@@ -32,7 +32,7 @@ Executing Milestone 2: CRM Unification
   - 03-04: DONE — TG-98 + TG-99 + TG-101 SEO intelligence workflows [wave 2]
   - 03-05: DONE — TG-102 weekly SEO summary (pending deploy) [wave 3]
   - 03-06: DONE — Gap closure: TG-97/TG-102 schema fix, opportunity+staleness counts, 15 cities verified [wave 4]
-- Phase 4 (Intelligence Layer): In progress (9/12 plans)
+- Phase 4 (Intelligence Layer): In progress (10/12 plans)
   - 04-01: DONE — Migration 072 (5 new tables + 4 table extensions + RLS) [wave 1]
   - 04-02: DONE — TG-113 (GHL1BUPFZL8Ic6Bc) critical alert router + TG-105 (6qhihK1RPUzwk2pd) A/B test router [wave 1]
   - 04-03: DONE — TG-107 revenue sync daily + TG-108 KPI daily snapshot (13 metrics) [wave 1]
@@ -42,6 +42,7 @@ Executing Milestone 2: CRM Unification
   - 04-07: DONE — TG-114 weekly revenue attribution + TG-115 weekly A/B test results [wave 3]
   - 04-08: DONE — TG-116 weekly ad performance + TG-117 what got smarter flagship digest [wave 3]
   - 04-09: DONE — TG-119 monthly trends + TG-120 channel ROI + TG-121 monthly learning report [wave 4]
+  - 04-11: DONE — A/B test integration into TG-83/84/85/91 + TG-94/95 A/B logging [wave 5]
 
 Parallel: Milestone 3 (Billionaire Brand Transformation)
 - Phase 5-9: Not started
@@ -49,8 +50,8 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 30 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 9 Phase 4)
-- Last plan duration: ~3 minutes (04-09 TG-119 + TG-120 + TG-121 monthly reports)
+- Total plans completed: 31 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 10 Phase 4)
+- Last plan duration: ~4 minutes (04-11 A/B test integration into 6 workflows)
 - Total execution time: N/A
 
 *Updated after each plan completion*
