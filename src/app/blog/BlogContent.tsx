@@ -5,11 +5,13 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import CTASection from '@/components/CTASection';
 import Link from "next/link";
-import { Calendar, ArrowRight, Clock, Leaf, Droplets, TreePine, Snowflake, Scissors, Rss } from "lucide-react";
+import { Calendar, ArrowRight, Clock, Leaf, Droplets, TreePine, Snowflake, Scissors, Rss, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WebPageSchema } from "@/components/schemas/WebPageSchema";
+
+const POSTS_PER_PAGE = 9;
 
 interface BlogPost {
   id: string;
@@ -58,14 +60,25 @@ function getGradientForPost(index: number) {
 export default function BlogContent() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const { data, error } = await supabase
+      setLoading(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      const from = (currentPage - 1) * POSTS_PER_PAGE;
+      const to = from + POSTS_PER_PAGE - 1;
+
+      const { data, error, count } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, excerpt, published_at, content, category')
+        .select('id, title, slug, excerpt, published_at, content, category', { count: 'exact' })
         .eq('status', 'published')
-        .order('published_at', { ascending: false });
+        .order('published_at', { ascending: false })
+        .range(from, to);
 
       if (error) {
         console.error('Error fetching blog posts:', error);
@@ -74,11 +87,12 @@ export default function BlogContent() {
       }
 
       setBlogPosts(data || []);
+      setTotalCount(count ?? 0);
       setLoading(false);
     };
 
     fetchPosts();
-  }, []);
+  }, [currentPage]);
 
   return (
     <div className="min-h-screen" style={{ background: '#050d07' }}>
@@ -196,6 +210,65 @@ export default function BlogContent() {
           )}
         </div>
       </section>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <section className="pb-16" style={{ background: '#050d07' }}>
+          <div className="container mx-auto px-4">
+            <nav className="flex items-center justify-center gap-2" aria-label="Blog pagination">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium bg-white/[0.06] border border-white/10 text-white/70 hover:border-primary/30 hover:text-white hover:bg-white/[0.10] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white/[0.06] disabled:hover:border-white/10 disabled:hover:text-white/70"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </button>
+
+              {(() => {
+                const pages: (number | 'ellipsis-start' | 'ellipsis-end')[] = [];
+                if (totalPages <= 7) {
+                  for (let i = 1; i <= totalPages; i++) pages.push(i);
+                } else {
+                  pages.push(1);
+                  if (currentPage > 3) pages.push('ellipsis-start');
+                  const start = Math.max(2, currentPage - 1);
+                  const end = Math.min(totalPages - 1, currentPage + 1);
+                  for (let i = start; i <= end; i++) pages.push(i);
+                  if (currentPage < totalPages - 2) pages.push('ellipsis-end');
+                  pages.push(totalPages);
+                }
+                return pages.map((page) =>
+                  typeof page === 'string' ? (
+                    <span key={page} className="px-2 text-white/30">...</span>
+                  ) : (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`min-w-[40px] h-10 rounded-lg text-sm font-medium transition-all ${
+                        page === currentPage
+                          ? 'bg-primary text-white border border-primary'
+                          : 'bg-white/[0.06] border border-white/10 text-white/70 hover:border-primary/30 hover:text-white hover:bg-white/[0.10]'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                );
+              })()}
+
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium bg-white/[0.06] border border-white/10 text-white/70 hover:border-primary/30 hover:text-white hover:bg-white/[0.10] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white/[0.06] disabled:hover:border-white/10 disabled:hover:text-white/70"
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </nav>
+          </div>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="py-16" style={{ background: '#0a1a0e' }}>

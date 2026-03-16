@@ -12,7 +12,8 @@ const fs = require('fs');
 const path = require('path');
 
 const N8N_HOST = 'workelyai.app.n8n.cloud';
-const N8N_API_KEY = process.env.N8N_API_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNjcwODZiYS1iMjE2LTRhMGUtYjFmYS1hMGFiODk5YjQxZmQiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiZjZjOWNiYjYtNDFiMS00NjM4LWJlZWYtMzBlNDhmZjE3NzYxIiwiaWF0IjoxNzczMDI2ODI1fQ.dYpHKoxQWI9sGQ71KDQpsJ3vY-m2fJHTyXxbb_97SkI';
+const N8N_API_KEY = process.env.N8N_API_KEY;
+if (!N8N_API_KEY) { console.error('ERROR: N8N_API_KEY environment variable is required'); process.exit(1); }
 const WORKFLOWS_DIR = path.join(__dirname, '..', 'n8n-workflows');
 const DRY_RUN = process.argv.includes('--dry-run');
 
