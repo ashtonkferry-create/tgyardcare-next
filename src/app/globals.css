@@ -43,10 +43,18 @@ All colors MUST be HSL.
     --shadow-elevated: 0 10px 40px -10px hsl(142 76% 28% / 0.25);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* Seasonal accent colors (overridden by body class) */
+    /* Seasonal accent colors (overridden by body class or data-season attribute) */
     --seasonal-accent: 142 76% 28%;
     --seasonal-gradient-from: 142 76% 28%;
     --seasonal-gradient-to: 142 76% 20%;
+
+    /* Seasonal Theme Colors — Single Source of Truth
+       These --season-* variables provide a simplified API for components.
+       Default = spring/summer green. Overridden per season below. */
+    --season-accent: 142 76% 36%;
+    --season-accent-light: 142 71% 45%;
+    --season-badge-bg: 142 76% 36%;
+    --season-badge-text: 0 0% 100%;
 
     /* Typography fonts */
     --font-display: var(--font-clash-display), ui-sans-serif, system-ui, sans-serif;
@@ -66,18 +74,34 @@ All colors MUST be HSL.
   }
 
   /* ========== SEASONAL THEMES ========== */
+  /* Single source of truth for all seasonal colors.
+     Files with hardcoded seasonal colors still needing migration:
+     - src/components/FallHero.tsx (#d97706, #b45309, etc.)
+     - src/components/WinterHero.tsx (#3b82f6, #06b6d4, etc.)
+     - src/components/SummerHero.tsx (#22c55e, #16a34a, etc.)
+     - src/components/ConciergeConfirmation.tsx (#16a34a, #d97706)
+     - src/middleware.ts (#16a34a)
+     - src/contexts/SeasonalThemeContext.tsx (hardcoded accent values)
+  */
   
   /* SPRING THEME - Fresh greens and growth */
+  [data-season="spring"],
   body.season-spring {
     --seasonal-accent: 142 76% 28%;
     --seasonal-gradient-from: 142 76% 32%;
     --seasonal-gradient-to: 160 70% 24%;
     --accent: 142 76% 32%;
     --primary: 142 76% 28%;
+    --season-accent: 142 76% 36%;
+    --season-accent-light: 142 71% 45%;
+    --season-badge-bg: 142 76% 36%;
+    --season-badge-text: 0 0% 100%;
   }
+  [data-season="spring"] .seasonal-hero,
   body.season-spring .seasonal-hero {
     background: linear-gradient(135deg, hsl(142 76% 20%), hsl(160 60% 15%));
   }
+  [data-season="spring"] .seasonal-badge,
   body.season-spring .seasonal-badge {
     --tw-bg-opacity: 1;
     background-color: hsl(142 76% 36% / 0.15);
@@ -85,36 +109,51 @@ All colors MUST be HSL.
   }
 
   /* SUMMER THEME - Warm yellows and vibrant greens */
+  [data-season="summer"],
   body.season-summer {
     --seasonal-accent: 45 93% 47%;
     --seasonal-gradient-from: 45 93% 50%;
     --seasonal-gradient-to: 38 90% 40%;
     --accent: 45 93% 47%;
+    --season-accent: 142 76% 36%;
+    --season-accent-light: 142 71% 45%;
+    --season-badge-bg: 45 93% 47%;
+    --season-badge-text: 0 0% 100%;
   }
+  [data-season="summer"] .seasonal-hero,
   body.season-summer .seasonal-hero {
     background: linear-gradient(135deg, hsl(45 50% 15%), hsl(38 40% 12%));
   }
+  [data-season="summer"] .seasonal-badge,
   body.season-summer .seasonal-badge {
     background-color: hsl(45 93% 47% / 0.15);
     color: hsl(45 93% 40%);
   }
 
   /* FALL THEME - Warm oranges and reds */
+  [data-season="fall"],
   body.season-fall {
     --seasonal-accent: 24 95% 53%;
     --seasonal-gradient-from: 24 95% 55%;
     --seasonal-gradient-to: 15 90% 45%;
     --accent: 24 95% 53%;
+    --season-accent: 25 95% 53%;
+    --season-accent-light: 38 92% 50%;
+    --season-badge-bg: 25 95% 53%;
+    --season-badge-text: 0 0% 100%;
   }
+  [data-season="fall"] .seasonal-hero,
   body.season-fall .seasonal-hero {
     background: linear-gradient(135deg, hsl(24 40% 15%), hsl(15 35% 12%));
   }
+  [data-season="fall"] .seasonal-badge,
   body.season-fall .seasonal-badge {
     background-color: hsl(24 95% 53% / 0.15);
     color: hsl(24 95% 50%);
   }
 
   /* WINTER THEME - Cool blues and icy tones, fully dark */
+  [data-season="winter"],
   body.season-winter {
     --background: 220 40% 7%;
     --foreground: 210 20% 95%;
@@ -144,17 +183,25 @@ All colors MUST be HSL.
     --seasonal-accent: 200 98% 39%;
     --seasonal-gradient-from: 200 98% 45%;
     --seasonal-gradient-to: 210 90% 35%;
+    --season-accent: 217 91% 60%;
+    --season-accent-light: 213 94% 68%;
+    --season-badge-bg: 200 98% 45%;
+    --season-badge-text: 0 0% 100%;
   }
+  [data-season="winter"] .seasonal-hero,
   body.season-winter .seasonal-hero {
     background: linear-gradient(135deg, hsl(210 50% 12%), hsl(220 45% 8%));
   }
+  [data-season="winter"] .seasonal-badge,
   body.season-winter .seasonal-badge {
     background-color: hsl(200 98% 45% / 0.15);
     color: hsl(200 98% 50%);
   }
+  [data-season="winter"] .nav-seasonal,
   body.season-winter .nav-seasonal {
     border-color: hsl(200 98% 45% / 0.3);
   }
+  [data-season="winter"] footer,
   body.season-winter footer {
     background: linear-gradient(180deg, hsl(210 30% 10%), hsl(220 35% 8%));
   }
@@ -410,6 +457,16 @@ textarea:-webkit-autofill:focus {
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+  }
+
+  /* WCAG AA contrast enforcement for dark sections
+     Use .dark-section on any container with dark bg to ensure text passes 4.5:1 ratio */
+  .dark-section {
+    color: #f0f0f5;  /* passes AA on #0a0a0f (contrast ~18:1) */
+  }
+  .dark-section .text-muted,
+  .dark-section .text-secondary {
+    color: #a1a1aa;  /* zinc-400: passes AA on dark backgrounds (contrast ~7:1) */
   }
 
   /* Prevent layout shift from images */
