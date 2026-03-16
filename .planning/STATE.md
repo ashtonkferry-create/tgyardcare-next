@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 4 of 4 (Intelligence Layer) — In progress
-Plan: 7 of 12 complete
+Plan: 8 of 12 complete
 Status: In progress
-Last activity: 2026-03-16 — Completed 04-07-PLAN.md (TG-114 Revenue Weekly + TG-115 A/B Test Weekly)
+Last activity: 2026-03-16 — Completed 04-08-PLAN.md (TG-116 Weekly Ad Performance + TG-117 What Got Smarter)
 
-Progress: [============================-----] 28/33 plans
+Progress: [============================-----] 29/33 plans
 
 Executing Milestone 2: CRM Unification
 - Phase 0 (Fix Existing): Ready to execute
@@ -39,6 +39,8 @@ Executing Milestone 2: CRM Unification
   - 04-04: DONE — TG-109 (rD7Tiz6WgIOI8ndG) Google Ads sync stub + TG-106 (4LByKtLiF2hQO5Ut) A/B auto-winner [wave 1 COMPLETE]
   - 04-05: DONE — TG-110 anomaly detector + TG-111 ad budget guardian + TG-112 ad conversion watchdog [wave 2]
   - 04-06: DONE — TG-118 (rOeTPPi2kW6thURB) weekly intelligence assembler HTML email sub-workflow [wave 3]
+  - 04-07: DONE — TG-114 weekly revenue attribution + TG-115 weekly A/B test results [wave 3]
+  - 04-08: DONE — TG-116 weekly ad performance + TG-117 what got smarter flagship digest [wave 3]
   - 04-07: DONE — TG-114 weekly revenue attribution + TG-115 weekly A/B test report [wave 3]
 
 Parallel: Milestone 3 (Billionaire Brand Transformation)
@@ -47,7 +49,7 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 28 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 7 Phase 4)
+- Total plans completed: 29 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 8 Phase 4)
 - Last plan duration: ~3 minutes (04-07 TG-114 + TG-115 weekly reports)
 - Total execution time: N/A
 
@@ -161,6 +163,13 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 - [Phase 4-06]: TG-118 input: {report_title, report_subtitle, sections: [{type, items/title/headers/rows}]}
 - [Phase 4-06]: TG-118 section types: metrics, highlights, table, anomalies, actions
 - [Phase 4-06]: TG-118 returns {html, plain_text} — does NOT send email, caller passes to TG-95
+- [Phase 4-08]: TG-116 weekly ad performance: Monday 8 AM CT, aggregates google_ads_daily by campaign with WoW comparison
+- [Phase 4-08]: TG-116 estimates $150/conversion for ROAS calculation (configurable in code)
+- [Phase 4-08]: TG-116 graceful no-data path sends actionable report when no ads data exists
+- [Phase 4-08]: TG-117 "What Got Smarter" flagship digest: Monday 9 AM CT, runs after all other weekly reports
+- [Phase 4-08]: TG-117 replaces TG-67 (Weekly Owner Report) with intelligence superset
+- [Phase 4-08]: TG-117 reads stored sub-reports from intelligence_reports (revenue_attribution, ab_test_results, ad_performance)
+- [Phase 4-08]: TG-117 computes its own WoW anomalies from intelligence_metrics (independent from TG-110 daily)
 
 ### Pending Todos
 
@@ -188,5 +197,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 04-06-PLAN.md (TG-118 Weekly Intelligence Assembler) — Wave 3 started
+Stopped at: Completed 04-08-PLAN.md (TG-116 + TG-117 Weekly Reports) — Wave 3 in progress
 Resume file: None
