@@ -121,42 +121,113 @@ export const ChatBot = () => {
   const { promotions, getPromoIndex } = usePromoSettings();
   const currentPromo = promotions.length > 0 ? promotions[getPromoIndex()] : null;
 
-  const renderMessageWithLinks = (content: string, isUserMessage: boolean): ReactNode => {
-    if (isUserMessage) return content;
-
-    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const renderInlineFormatting = (text: string, keyPrefix: string): ReactNode[] => {
+    // Handle [links](url) and **bold** in a single pass
+    const inlineRegex = /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*/g;
     const parts: ReactNode[] = [];
     let lastIndex = 0;
     let match;
 
-    while ((match = linkRegex.exec(content)) !== null) {
+    while ((match = inlineRegex.exec(text)) !== null) {
       if (match.index > lastIndex) {
-        parts.push(content.slice(lastIndex, match.index));
+        parts.push(text.slice(lastIndex, match.index));
       }
 
-      const linkText = match[1];
-      const linkPath = match[2];
-
-      parts.push(
-        <a
-          key={match.index}
-          href={linkPath}
-          onClick={() => setIsOpen(false)}
-          className="inline-flex items-center gap-1 text-emerald-400 font-semibold hover:text-emerald-300 hover:underline transition-colors"
-        >
-          {linkText}
-          <ExternalLink className="h-2.5 w-2.5" />
-        </a>
-      );
+      if (match[1] && match[2]) {
+        // Link: [text](url)
+        parts.push(
+          <a
+            key={`${keyPrefix}-link-${match.index}`}
+            href={match[2]}
+            onClick={() => setIsOpen(false)}
+            className="inline-flex items-center gap-1 text-emerald-400 font-semibold hover:text-emerald-300 hover:underline transition-colors"
+          >
+            {match[1]}
+            <ExternalLink className="h-2.5 w-2.5" />
+          </a>
+        );
+      } else if (match[3]) {
+        // Bold: **text**
+        parts.push(
+          <strong key={`${keyPrefix}-bold-${match.index}`} className="font-semibold text-white">
+            {match[3]}
+          </strong>
+        );
+      }
 
       lastIndex = match.index + match[0].length;
     }
 
-    if (lastIndex < content.length) {
-      parts.push(content.slice(lastIndex));
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
     }
 
-    return parts.length > 0 ? parts : content;
+    return parts.length > 0 ? parts : [text];
+  };
+
+  const renderMessageWithLinks = (content: string, isUserMessage: boolean): ReactNode => {
+    if (isUserMessage) return content;
+
+    // Split into paragraphs by double newline
+    const paragraphs = content.split(/\n\n+/);
+
+    return paragraphs.map((paragraph, pIdx) => {
+      // Check if paragraph contains bullet lines
+      const lines = paragraph.split('\n');
+      const bulletLines = lines.filter(l => /^\s*[-•]\s+/.test(l));
+
+      if (bulletLines.length > 0) {
+        // Render as a mix of text and bullet items
+        const elements: ReactNode[] = [];
+        let currentBullets: string[] = [];
+
+        const flushBullets = () => {
+          if (currentBullets.length > 0) {
+            elements.push(
+              <ul key={`p${pIdx}-ul-${elements.length}`} className="space-y-1.5 my-1.5">
+                {currentBullets.map((bullet, bIdx) => (
+                  <li key={bIdx} className="flex items-start gap-2 text-sm">
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500/60 flex-shrink-0" />
+                    <span>{renderInlineFormatting(bullet, `p${pIdx}-b${bIdx}`)}</span>
+                  </li>
+                ))}
+              </ul>
+            );
+            currentBullets = [];
+          }
+        };
+
+        for (const line of lines) {
+          const bulletMatch = line.match(/^\s*[-•]\s+(.+)/);
+          if (bulletMatch) {
+            currentBullets.push(bulletMatch[1]);
+          } else {
+            flushBullets();
+            if (line.trim()) {
+              elements.push(
+                <span key={`p${pIdx}-t-${elements.length}`}>
+                  {renderInlineFormatting(line, `p${pIdx}-l${elements.length}`)}
+                </span>
+              );
+            }
+          }
+        }
+        flushBullets();
+
+        return (
+          <span key={`p-${pIdx}`} className={pIdx > 0 ? 'block mt-2.5' : undefined}>
+            {elements}
+          </span>
+        );
+      }
+
+      // Plain paragraph — just inline formatting
+      return (
+        <span key={`p-${pIdx}`} className={pIdx > 0 ? 'block mt-2.5' : undefined}>
+          {renderInlineFormatting(paragraph, `p${pIdx}`)}
+        </span>
+      );
+    });
   };
 
   const openingMessage = `Welcome to TotalGuard. ${getSeasonalGreeting()} What can I help you with today?`;
@@ -905,6 +976,21 @@ export const ChatBot = () => {
                 {isLoading && <TypingIndicator />}
 
                 {/* ===== QUICK REPLIES ===== */}
+                {/* Smart "Get a Quote" nudge after AI responses in idle state */}
+                {!showQuickReplies && !isLoading && quoteStep === 'idle' && messages.length > 1 && messages[messages.length - 1]?.role === 'assistant' && (
+                  <div className="pt-2">
+                    <div className="flex flex-wrap gap-2">
+                      <GlassChip
+                        onClick={() => startQuoteFlow('Get a quote')}
+                        icon={<Sparkles className="h-4 w-4" />}
+                        delay={0.1}
+                      >
+                        Get a Free Quote
+                      </GlassChip>
+                    </div>
+                  </div>
+                )}
+
                 {showQuickReplies && !isLoading && messages.length <= 1 && quoteStep === 'idle' && (
                   <div className="pt-2">
                     <div className="flex flex-wrap gap-2">
