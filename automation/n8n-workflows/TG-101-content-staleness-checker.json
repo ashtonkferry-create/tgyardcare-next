@@ -1,0 +1,192 @@
+{
+  "name": "TG-101-content-staleness-checker",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 5 * * 0"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Weekly Sunday Midnight CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate staleness threshold: 180 days (6 months) ago\nconst now = new Date();\nconst threshold = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);\nconst thresholdStr = threshold.toISOString();\nconst reportDate = now.toISOString().split('T')[0];\n\nreturn [{ json: { threshold: thresholdStr, reportDate } }];"
+      },
+      "id": "calc-threshold",
+      "name": "Calculate Staleness Threshold",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'SUPABASE_URL_PLACEHOLDER/rest/v1/blog_posts?select=id,title,slug,updated_at,category,target_keyword&status=eq.published&updated_at=lt.' + $json.threshold + '&order=updated_at.asc' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "get-stale-blogs",
+      "name": "Get Stale Blog Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'SUPABASE_URL_PLACEHOLDER/rest/v1/seo_location_pages?select=id,city,service_type,slug,updated_at,status&updated_at=lt.' + $json.threshold + '&order=updated_at.asc' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "get-stale-locations",
+      "name": "Get Stale Location Pages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 450]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build staleness report from both blog posts and location pages\nconst staleBlogs = $('Get Stale Blog Posts').first().json.body || [];\nconst staleLocations = $('Get Stale Location Pages').first().json.body || [];\nconst reportDate = $('Calculate Staleness Threshold').first().json.reportDate;\n\nconst totalStale = staleBlogs.length + staleLocations.length;\n\nif (totalStale === 0) {\n  return [{ json: { skipEmail: true, totalStale: 0 } }];\n}\n\n// Helper to calculate days since update\nfunction daysSince(dateStr) {\n  if (!dateStr) return 'N/A';\n  const d = new Date(dateStr);\n  const now = new Date();\n  return Math.floor((now - d) / (1000 * 60 * 60 * 24));\n}\n\n// Build blog posts table\nlet blogTable = '';\nif (staleBlogs.length > 0) {\n  let blogRows = '';\n  for (let i = 0; i < staleBlogs.length; i++) {\n    const b = staleBlogs[i];\n    const bg = i % 2 === 0 ? '#f9f9f9' : '#ffffff';\n    const days = daysSince(b.updated_at);\n    const lastUpdate = b.updated_at ? new Date(b.updated_at).toISOString().split('T')[0] : 'never';\n    blogRows += `<tr style=\"background:${bg}\">\n      <td style=\"padding:6px 8px;border:1px solid #ddd\">${b.title || b.slug}</td>\n      <td style=\"padding:6px 8px;border:1px solid #ddd\">${b.category || '-'}</td>\n      <td style=\"padding:6px 8px;border:1px solid #ddd;text-align:center\">${lastUpdate}</td>\n      <td style=\"padding:6px 8px;border:1px solid #ddd;text-align:center;color:#c00;font-weight:bold\">${days} days</td>\n    </tr>`;\n  }\n  blogTable = `\n    <h3 style=\"color:#2d5016;margin-top:20px\">Stale Blog Posts (${staleBlogs.length})</h3>\n    <table style=\"border-collapse:collapse;width:100%;font-size:13px\">\n      <thead><tr style=\"background:#2d5016;color:#fff\">\n        <th style=\"padding:8px;border:1px solid #ddd\">Title</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Category</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Last Updated</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Age</th>\n      </tr></thead>\n      <tbody>${blogRows}</tbody>\n    </table>`;\n}\n\n// Build location pages table\nlet locationTable = '';\nif (staleLocations.length > 0) {\n  let locRows = '';\n  for (let i = 0; i < staleLocations.length; i++) {\n    const l = staleLocations[i];\n    const bg = i % 2 === 0 ? '#f9f9f9' : '#ffffff';\n    const days = daysSince(l.updated_at);\n    const lastUpdate = l.updated_at ? new Date(l.updated_at).toISOString().split('T')[0] : 'never';\n    const serviceLabel = (l.service_type || '').replace(/_/g, ' ');\n    locRows += `<tr style=\"background:${bg}\">\n      <td style=\"padding:6px 8px;border:1px solid #ddd\">${l.city}</td>\n      <td style=\"padding:6px 8px;border:1px solid #ddd\">${serviceLabel}</td>\n      <td style=\"padding:6px 8px;border:1px solid #ddd\">${l.status || '-'}</td>\n      <td style=\"padding:6px 8px;border:1px solid #ddd;text-align:center\">${lastUpdate}</td>\n      <td style=\"padding:6px 8px;border:1px solid #ddd;text-align:center;color:#c00;font-weight:bold\">${days} days</td>\n    </tr>`;\n  }\n  locationTable = `\n    <h3 style=\"color:#2d5016;margin-top:20px\">Stale Location Pages (${staleLocations.length})</h3>\n    <table style=\"border-collapse:collapse;width:100%;font-size:13px\">\n      <thead><tr style=\"background:#2d5016;color:#fff\">\n        <th style=\"padding:8px;border:1px solid #ddd\">City</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Service</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Status</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Last Updated</th>\n        <th style=\"padding:8px;border:1px solid #ddd\">Age</th>\n      </tr></thead>\n      <tbody>${locRows}</tbody>\n    </table>`;\n}\n\nconst html = `\n<div style=\"font-family:Arial,sans-serif;max-width:900px;margin:0 auto\">\n  <h2 style=\"color:#2d5016\">TG-101 Content Staleness Report</h2>\n  <p style=\"color:#666\">Report date: ${reportDate} | ${totalStale} stale content items found (not updated in 6+ months)</p>\n  <p>Stale content can hurt SEO rankings. Google favors fresh, regularly updated content. Consider refreshing these pages with updated information, new statistics, or seasonal relevance.</p>\n  ${blogTable}\n  ${locationTable}\n  <h3 style=\"margin-top:20px;color:#2d5016\">Recommended Actions</h3>\n  <ul style=\"color:#444\">\n    <li>Update content with current year references and statistics</li>\n    <li>Add new sections or FAQs relevant to the topic</li>\n    <li>Refresh meta descriptions and title tags</li>\n    <li>Add internal links to newer content</li>\n    <li>Update any outdated pricing or service information</li>\n  </ul>\n  <p style=\"color:#888;font-size:12px;margin-top:16px\">Threshold: content not updated in 180+ days. Generated by TG-101.</p>\n</div>`;\n\nreturn [{ json: {\n  skipEmail: false,\n  totalStale,\n  to_email: 'totalguardllc@gmail.com',\n  subject: `[TG-101] Content Staleness Alert - ${totalStale} Pages Need Refresh (${reportDate})`,\n  html_body: html,\n  workflow_name: 'TG-101',\n  email_type: 'report'\n}}];"
+      },
+      "id": "build-report",
+      "name": "Build Staleness Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "skip-check",
+              "leftValue": "={{ $json.skipEmail }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-has-stale",
+      "name": "IF Has Stale Content",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "to_email": "={{ $json.to_email }}",
+            "subject": "={{ $json.subject }}",
+            "html_body": "={{ $json.html_body }}",
+            "workflow_name": "={{ $json.workflow_name }}",
+            "email_type": "={{ $json.email_type }}"
+          }
+        }
+      },
+      "id": "send-email",
+      "name": "Send via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1100, 200]
+    }
+  ],
+  "connections": {
+    "Weekly Sunday Midnight CT": {
+      "main": [
+        [{ "node": "Calculate Staleness Threshold", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Staleness Threshold": {
+      "main": [
+        [
+          { "node": "Get Stale Blog Posts", "type": "main", "index": 0 },
+          { "node": "Get Stale Location Pages", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Get Stale Blog Posts": {
+      "main": [
+        [{ "node": "Build Staleness Report", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Stale Location Pages": {
+      "main": [
+        [{ "node": "Build Staleness Report", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Staleness Report": {
+      "main": [
+        [{ "node": "IF Has Stale Content", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF Has Stale Content": {
+      "main": [
+        [{ "node": "Send via TG-95", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}
