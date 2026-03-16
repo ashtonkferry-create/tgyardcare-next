@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 5 of 9 (Safety Nets & Foundation)
-Plan: 4 of 7 complete (Phase 5) — 05-01, 05-02, 05-03, 05-04 done
+Plan: 5 of 7 complete (Phase 5) — 05-01, 05-02, 05-03, 05-04, 05-05 done
 Status: In progress
-Last activity: 2026-03-16 — Completed 05-04-PLAN.md (Supabase SSR + Auth Middleware)
+Last activity: 2026-03-16 — Completed 05-05-PLAN.md (Seasonal CSS + Brand Consistency)
 
-Progress M3: [████░░░] 4/7 plans (Phase 5)
+Progress M3: [█████░░] 5/7 plans (Phase 5)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -186,6 +186,10 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - [Phase 5-04]: Old client (src/integrations/supabase/client.ts) untouched — 57+ imports, migration later
 - [Phase 5-04]: Auth middleware uses cookie detection (-auth-token), not full Supabase client instantiation
 - [Phase 5-04]: /admin/login excluded from auth redirect; redirect param preserves original destination
+- [Phase 5-05]: Seasonal CSS variables (--season-accent, --season-accent-light) added as simplified API alongside --seasonal-accent
+- [Phase 5-05]: [data-season] attribute selectors added alongside body.season-* for dual theming approach
+- [Phase 5-05]: Brand name standardized to "TotalGuard Yard Care" in layout.tsx, seasonalConfig.ts, schema-config.ts (59 files remain for future cleanup)
+- [Phase 5-05]: Stat counters verified correct: 500+, 4.9, 12, 24hr (no changes needed)
 - [Phase 5-02]: Self-hosted Clash Display + General Sans via next/font/local (zero external font requests)
 - [Phase 5-02]: Typography scale CSS variables: --text-display-xl (72px) through --text-caption (12px)
 - [Phase 5-02]: Tailwind fontFamily.sans = General Sans, fontFamily.display = Clash Display
@@ -218,6 +222,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 05-04-PLAN.md (Supabase SSR clients + auth middleware)
+Stopped at: Completed 05-05-PLAN.md (Seasonal CSS + Brand Consistency)
 Resume file: None
-Next: 05-05, 05-06, 05-07 (remaining Phase 5 plans)
+Next: 05-06, 05-07 (remaining Phase 5 plans)
