@@ -74,9 +74,24 @@ Plans:
 - [x] 03-06-PLAN.md -- Gap closure: schema fix (TG-97/TG-102) + missing aggregation sources + city data verification
 
 ## Phase 4: Intelligence Layer
-**Goal**: Build 20+ workflows for self-improvement, revenue attribution, A/B testing, ad optimization, and AI learning reports. This is TTW's only 12-0 category — TG currently has zero.
+**Goal**: Build 21 workflows (TG-105 through TG-125) + 6 modifications for self-improvement, revenue attribution, A/B testing, ad optimization, and AI learning reports. This is TTW's only 12-0 category — TG currently has zero.
 **Impact**: TG becomes a self-optimizing system that gets smarter every week
-**Status**: Pending Phase 3
+**Status**: Planning complete — ready to execute
+**Plans:** 12 plans
+
+Plans:
+- [ ] 04-01-PLAN.md -- Migration 072: 5 new tables + 4 table extensions for Intelligence Layer [wave 1]
+- [ ] 04-02-PLAN.md -- TG-113 Critical Alert Router + TG-105 A/B Test Router (sub-workflows) [wave 1]
+- [ ] 04-03-PLAN.md -- TG-107 Revenue Sync Daily + TG-108 KPI Daily Snapshot [wave 1]
+- [ ] 04-04-PLAN.md -- TG-109 Google Ads Daily Sync (stub) + TG-106 A/B Test Auto-Winner [wave 1]
+- [ ] 04-05-PLAN.md -- TG-110 Anomaly Detector + TG-111 Ad Budget Guardian + TG-112 Ad Conversion Watchdog [wave 2]
+- [ ] 04-06-PLAN.md -- TG-118 Weekly Intelligence Assembler (shared HTML email builder) [wave 3]
+- [ ] 04-07-PLAN.md -- TG-114 Weekly Revenue Attribution + TG-115 Weekly A/B Test Report [wave 3]
+- [ ] 04-08-PLAN.md -- TG-116 Weekly Ad Performance + TG-117 Weekly What Got Smarter [wave 3]
+- [ ] 04-09-PLAN.md -- TG-119/120/121 Monthly Trend + Channel ROI + Learning Report [wave 4]
+- [ ] 04-10-PLAN.md -- TG-122/123/124/125 A/B Seed Manager + Workflow Health + Lead Recalibrator + Dashboard Updater [wave 5]
+- [ ] 04-11-PLAN.md -- Modify TG-83/84/85/91 for A/B testing + TG-94/95 A/B logging [wave 5]
+- [ ] 04-12-PLAN.md -- Retire TG-66/67 + Full Phase 4 Verification [wave 5]
 
 </details>
 
