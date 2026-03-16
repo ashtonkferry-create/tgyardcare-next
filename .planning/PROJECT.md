@@ -26,13 +26,39 @@ Turn TotalGuard into a fully automated marketing machine that captures every lea
 - **Service Areas**: Madison, Middleton, Waunakee, Monona, Sun Prairie, Fitchburg, Verona, McFarland, Cottage Grove, DeForest, Oregon, Stoughton
 
 ## Requirements
-1. Complete Supabase schema: 70+ tables, views, RPCs, RLS policies
-2. 88 n8n workflows across 10 categories, all prefixed TG-
-3. Jobber email bridge (no direct API access)
-4. Brevo email marketing: welcome series, nurture, cross-sell, seasonal, reengagement
-5. Review management: auto-request, AI responses, Google sync
-6. Field marketing: yard signs, door hangers, compliance tracking
-7. Social media: scheduling, AI captions, competitor monitoring
-8. SEO: keyword tracking, GBP automation, IndexNow, content refresh
-9. Owner reporting: daily KPI digest, weekly report, revenue forecast
-10. AI tools: Telegram bot, quoting engine, two-way SMS, voice agent sync
+
+### Validated
+- ✓ Complete Supabase schema: 70+ tables, views, RPCs, RLS policies — M1
+- ✓ 88 n8n workflows across 10 categories, all prefixed TG- — M1
+- ✓ Revenue Engine: TG-83 through TG-91 (quote follow-ups, collections, missed call, plans, SMS, fertilizer, email marketing) — M2/Phase 1
+
+### Active — M2 (Automation Gap Closer)
+- [ ] CRM Unification (Phase 2)
+- [ ] SEO Domination (Phase 3)
+- [ ] Intelligence Layer (Phase 4)
+
+### Active — M3 (Billionaire Brand Transformation)
+- [ ] Fix production bugs (broken counters, Supabase errors)
+- [ ] Premium typography (replace Inter)
+- [ ] Text contrast/readability improvements
+- [ ] Hero video background
+- [ ] Server Components conversion (SSR/SEO)
+- [ ] Instant quote calculator
+- [ ] Visual transformation gallery (20+ before/after)
+- [ ] Customer dashboard portal
+- [ ] Interactive service area map
+- [ ] Annual plan configurator
+- [ ] Referral engine
+- [ ] Content hub / education center
+
+## Current Milestone: M3 Billionaire Brand Transformation
+
+**Goal:** Transform tgyardcare.com from a functional local business site into a billion-dollar brand experience — fixing production bugs, upgrading design quality, and adding conversion-multiplying features.
+
+**Target features:**
+- Production bug fixes (broken counters, 14 Supabase errors)
+- Premium design upgrade (typography, text contrast, hero video)
+- Performance optimization (Server Components, SSR)
+- Conversion engine (instant quote calculator, annual plan builder)
+- Trust infrastructure (transformation gallery, interactive map)
+- Retention & growth (customer portal, referral engine, content hub)

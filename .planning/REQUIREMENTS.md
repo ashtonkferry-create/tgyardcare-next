@@ -134,26 +134,80 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Traceability
 
-Updated during roadmap creation.
+Updated during roadmap creation (2026-03-15).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 through FOUND-10 | Phase 5 | Pending |
-| TYPO-01 through TYPO-05 | Phase 5 | Pending |
-| HERO-01 through HERO-06 | Phase 6 | Pending |
-| PERF-01 through PERF-05 | Phase 6 | Pending |
-| QUOTE-01 through QUOTE-07 | Phase 7 | Pending |
-| MAP-01 through MAP-05 | Phase 7 | Pending |
-| PLAN-01 through PLAN-06 | Phase 7 | Pending |
-| PORT-01 through PORT-08 | Phase 8 | Pending |
-| REF-01 through REF-06 | Phase 8 | Pending |
-| CONT-01 through CONT-06 | Phase 9 | Pending |
+| FOUND-01 | Phase 5 | Pending |
+| FOUND-02 | Phase 5 | Pending |
+| FOUND-03 | Phase 5 | Pending |
+| FOUND-04 | Phase 5 | Pending |
+| FOUND-05 | Phase 5 | Pending |
+| FOUND-06 | Phase 5 | Pending |
+| FOUND-07 | Phase 5 | Pending |
+| FOUND-08 | Phase 5 | Pending |
+| FOUND-09 | Phase 5 | Pending |
+| FOUND-10 | Phase 5 | Pending |
+| TYPO-01 | Phase 5 | Pending |
+| TYPO-02 | Phase 5 | Pending |
+| TYPO-03 | Phase 5 | Pending |
+| TYPO-04 | Phase 5 | Pending |
+| TYPO-05 | Phase 5 | Pending |
+| HERO-01 | Phase 6 | Pending |
+| HERO-02 | Phase 6 | Pending |
+| HERO-03 | Phase 6 | Pending |
+| HERO-04 | Phase 6 | Pending |
+| HERO-05 | Phase 6 | Pending |
+| HERO-06 | Phase 6 | Pending |
+| PERF-01 | Phase 6 | Pending |
+| PERF-02 | Phase 6 | Pending |
+| PERF-03 | Phase 6 | Pending |
+| PERF-04 | Phase 6 | Pending |
+| PERF-05 | Phase 6 | Pending |
+| QUOTE-01 | Phase 7 | Pending |
+| QUOTE-02 | Phase 7 | Pending |
+| QUOTE-03 | Phase 7 | Pending |
+| QUOTE-04 | Phase 7 | Pending |
+| QUOTE-05 | Phase 7 | Pending |
+| QUOTE-06 | Phase 7 | Pending |
+| QUOTE-07 | Phase 7 | Pending |
+| MAP-01 | Phase 7 | Pending |
+| MAP-02 | Phase 7 | Pending |
+| MAP-03 | Phase 7 | Pending |
+| MAP-04 | Phase 7 | Pending |
+| MAP-05 | Phase 7 | Pending |
+| PLAN-01 | Phase 7 | Pending |
+| PLAN-02 | Phase 7 | Pending |
+| PLAN-03 | Phase 7 | Pending |
+| PLAN-04 | Phase 7 | Pending |
+| PLAN-05 | Phase 7 | Pending |
+| PLAN-06 | Phase 7 | Pending |
+| PORT-01 | Phase 8 | Pending |
+| PORT-02 | Phase 8 | Pending |
+| PORT-03 | Phase 8 | Pending |
+| PORT-04 | Phase 8 | Pending |
+| PORT-05 | Phase 8 | Pending |
+| PORT-06 | Phase 8 | Pending |
+| PORT-07 | Phase 8 | Pending |
+| PORT-08 | Phase 8 | Pending |
+| REF-01 | Phase 8 | Pending |
+| REF-02 | Phase 8 | Pending |
+| REF-03 | Phase 8 | Pending |
+| REF-04 | Phase 8 | Pending |
+| REF-05 | Phase 8 | Pending |
+| REF-06 | Phase 8 | Pending |
+| CONT-01 | Phase 9 | Pending |
+| CONT-02 | Phase 9 | Pending |
+| CONT-03 | Phase 9 | Pending |
+| CONT-04 | Phase 9 | Pending |
+| CONT-05 | Phase 9 | Pending |
+| CONT-06 | Phase 9 | Pending |
 
 **Coverage:**
-- v1 requirements: 57 total
-- Mapped to phases: 57
-- Unmapped: 0 ✓
+- v1 requirements: 64 total
+- Mapped to phases: 64
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-15*
-*Last updated: 2026-03-15 after research synthesis*
+*Last updated: 2026-03-15 — roadmap created, traceability expanded per-requirement*
