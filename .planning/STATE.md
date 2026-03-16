@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 4 of 4 (Intelligence Layer) — In progress
-Plan: 8 of 12 complete
+Plan: 9 of 12 complete
 Status: In progress
-Last activity: 2026-03-16 — Completed 04-08-PLAN.md (TG-116 Weekly Ad Performance + TG-117 What Got Smarter)
+Last activity: 2026-03-16 — Completed 04-09-PLAN.md (TG-119 Monthly Trends + TG-120 Channel ROI + TG-121 Learning Report)
 
-Progress: [============================-----] 29/33 plans
+Progress: [=============================----] 30/33 plans
 
 Executing Milestone 2: CRM Unification
 - Phase 0 (Fix Existing): Ready to execute
@@ -32,7 +32,7 @@ Executing Milestone 2: CRM Unification
   - 03-04: DONE — TG-98 + TG-99 + TG-101 SEO intelligence workflows [wave 2]
   - 03-05: DONE — TG-102 weekly SEO summary (pending deploy) [wave 3]
   - 03-06: DONE — Gap closure: TG-97/TG-102 schema fix, opportunity+staleness counts, 15 cities verified [wave 4]
-- Phase 4 (Intelligence Layer): In progress (7/12 plans)
+- Phase 4 (Intelligence Layer): In progress (9/12 plans)
   - 04-01: DONE — Migration 072 (5 new tables + 4 table extensions + RLS) [wave 1]
   - 04-02: DONE — TG-113 (GHL1BUPFZL8Ic6Bc) critical alert router + TG-105 (6qhihK1RPUzwk2pd) A/B test router [wave 1]
   - 04-03: DONE — TG-107 revenue sync daily + TG-108 KPI daily snapshot (13 metrics) [wave 1]
@@ -41,7 +41,7 @@ Executing Milestone 2: CRM Unification
   - 04-06: DONE — TG-118 (rOeTPPi2kW6thURB) weekly intelligence assembler HTML email sub-workflow [wave 3]
   - 04-07: DONE — TG-114 weekly revenue attribution + TG-115 weekly A/B test results [wave 3]
   - 04-08: DONE — TG-116 weekly ad performance + TG-117 what got smarter flagship digest [wave 3]
-  - 04-07: DONE — TG-114 weekly revenue attribution + TG-115 weekly A/B test report [wave 3]
+  - 04-09: DONE — TG-119 monthly trends + TG-120 channel ROI + TG-121 monthly learning report [wave 4]
 
 Parallel: Milestone 3 (Billionaire Brand Transformation)
 - Phase 5-9: Not started
@@ -49,8 +49,8 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 29 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 8 Phase 4)
-- Last plan duration: ~3 minutes (04-07 TG-114 + TG-115 weekly reports)
+- Total plans completed: 30 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 9 Phase 4)
+- Last plan duration: ~3 minutes (04-09 TG-119 + TG-120 + TG-121 monthly reports)
 - Total execution time: N/A
 
 *Updated after each plan completion*
@@ -170,6 +170,12 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 - [Phase 4-08]: TG-117 replaces TG-67 (Weekly Owner Report) with intelligence superset
 - [Phase 4-08]: TG-117 reads stored sub-reports from intelligence_reports (revenue_attribution, ab_test_results, ad_performance)
 - [Phase 4-08]: TG-117 computes its own WoW anomalies from intelligence_metrics (independent from TG-110 daily)
+- [Phase 4-09]: TG-119 monthly trend analysis: 1st of month 8 AM CT, compares prev month vs 2 months ago across all KPIs
+- [Phase 4-09]: TG-120 monthly channel ROI: 1st of month 8 AM CT, calculates per-channel revenue/cost/ROI%/leads/cost-per-lead
+- [Phase 4-09]: TG-120 normalizes 7 channels: google_organic, google_ads, referral, direct, nextdoor, facebook, yard_sign
+- [Phase 4-09]: TG-121 monthly learning report: 1st of month 9 AM CT (1hr after TG-119/120), aggregates all monthly intelligence
+- [Phase 4-09]: TG-121 pulls from intelligence_reports + ab_tests (winners) + anomaly_log (detection count)
+- [Phase 4-09]: All 3 monthly workflows use TG-118 for HTML + TG-95 for email + store to intelligence_reports
 
 ### Pending Todos
 
@@ -197,5 +203,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 04-08-PLAN.md (TG-116 + TG-117 Weekly Reports) — Wave 3 in progress
+Stopped at: Completed 04-09-PLAN.md (TG-119 + TG-120 + TG-121 Monthly Reports) — Wave 4 in progress
 Resume file: None
