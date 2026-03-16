@@ -237,7 +237,7 @@
     {
       "parameters": {
         "from": "+16089953554",
-        "to": "OWNER_PHONE",
+        "to": "+19206296934",
         "message": "=New blog published: \"{{ $('Validate + Structure').first().json.title }}\" — tgyardcare.com/blog/{{ $('Validate + Structure').first().json.slug }}"
       },
       "id": "sms-notify",
