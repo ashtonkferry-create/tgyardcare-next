@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 Phase: 5 of 9 (Safety Nets & Foundation)
 Plan: 0 of TBD in current phase
 Status: Ready to plan
-Last activity: 2026-03-15 — Completed quick task 002: 2026 Expense Tracker
+Last activity: 2026-03-16 — Completed full spreadsheet stack (quick tasks 003-007)
 
 Progress: [=========.........] 9/? plans (M2 Phase 1 complete, M3 not started)
 
@@ -64,9 +64,14 @@ None yet.
 |---|-------------|------|-----------|
 | 001 | 2026 TotalGuard Job Log Book (.xlsx) — 13-tab spreadsheet with dropdowns, conditional formatting, annual summary | 2026-03-15 | [001-2026-totalguard-job-log-book-xlsx](./quick/001-2026-totalguard-job-log-book-xlsx/) |
 | 002 | 2026 TotalGuard Expense Tracker (.xlsx) — 5-tab expense system with Schedule C tax tracking, mileage deduction, monthly summaries | 2026-03-15 | [002-2026-totalguard-expense-tracker-xlsx](./quick/002-2026-totalguard-expense-tracker-xlsx/) |
+| 003 | Revenue & Income Tracker (.xlsx) — 3-tab revenue log with service breakdown, monthly summary, collection rates | 2026-03-16 | — |
+| 004 | P&L Dashboard (.xlsx) — 2-tab monthly P&L with quarterly summary, gross/net margin tracking | 2026-03-16 | — |
+| 005 | Accounts Receivable (.xlsx) — 2-tab AR tracker with aging summary, days outstanding, follow-up dates | 2026-03-16 | — |
+| 006 | Equipment & Asset Inventory (.xlsx) — 2-tab asset tracker with depreciation, maintenance log, 4 items pre-populated | 2026-03-16 | — |
+| 007 | Customer Database (.xlsx) — 2-tab CRM lite with customer summary, by-city/by-source breakdowns | 2026-03-16 | — |
 
 ## Session Continuity
 
-Last session: 2026-03-15
-Stopped at: Completed quick task 002 (2026 Expense Tracker)
+Last session: 2026-03-16
+Stopped at: Completed full spreadsheet stack (7 total — job log, expenses, revenue, P&L, AR, equipment, customers)
 Resume file: None
