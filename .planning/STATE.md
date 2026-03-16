@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 3 of 4 (SEO Domination)
-Plan: 4 of 5 complete
+Plan: 5 of 5 nearly complete (03-03 done, 03-05 pending)
 Status: In progress
-Last activity: 2026-03-16 — Completed 03-04-PLAN.md (SEO Intelligence Workflows)
+Last activity: 2026-03-16 — Completed 03-03-PLAN.md (SEO Alert Workflows)
 
 Progress: [===================.] 19/20 plans
 
@@ -28,7 +28,7 @@ Executing Milestone 2: CRM Unification
 - Phase 3 (SEO Domination): In progress (4/5 plans)
   - 03-01: DONE — Migration 071 (index_coverage_log + seo_content_gaps) + TG-96 (Vt8uzm8RGy3QXv3B, ACTIVE) [wave 1]
   - 03-02: DONE — TG-103 (igtaJUnj9xDXcV2B) + TG-104 (qzRRPT7goiYxJsxL) content pipeline [wave 1]
-  - 03-03: Pending
+  - 03-03: DONE — TG-97 (NPxVFCf05a15PjBH, ACTIVE) rank drop detector + TG-100 (pending deploy) index coverage [wave 2]
   - 03-04: DONE — TG-98 + TG-99 + TG-101 SEO intelligence workflows [wave 2]
   - 03-05: Pending
 - Phase 4: Not started
@@ -39,8 +39,8 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18 (9 M2-Phase 1 + 5 M2-Phase 2 + 4 Phase 3)
-- Last plan duration: ~5 minutes (03-04)
+- Total plans completed: 19 (9 M2-Phase 1 + 5 M2-Phase 2 + 5 Phase 3)
+- Last plan duration: ~12 minutes (03-03)
 - Total execution time: N/A
 
 *Updated after each plan completion*
@@ -98,6 +98,13 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 - [Phase 3-01]: GSC Bearer token is placeholder -- needs Google OAuth setup before first run
 - [Phase 3-01]: Migration 071 applied -- index_coverage_log + seo_content_gaps tables created
 - [Phase 3-01]: n8n activate endpoint: POST /api/v1/workflows/{id}/activate (not PATCH, not PUT)
+- [Phase 3-03]: TG-97 workflow ID on n8n: NPxVFCf05a15PjBH (ACTIVE) -- rank drop + CTR anomaly detector
+- [Phase 3-03]: TG-97 is sub-workflow triggered by TG-96 via executeWorkflow (not cron)
+- [Phase 3-03]: executeWorkflowTrigger must use typeVersion 1 (v1.1 fails activation with "missing required parameters")
+- [Phase 3-03]: Alert thresholds: urgent >= 10 pos drop + >= 50 impressions, warning 5-9 pos + >= 20 impressions, CTR > 30% drop
+- [Phase 3-03]: TG-100 index coverage monitor built but deployment blocked by n8n API rate limit
+- [Phase 3-03]: TG-96 local JSON updated with TG-97 real ID; n8n update pending API access
+- [Phase 3-03]: n8n API rate limit: ~10 calls per session before 401 lockout (plan deployments carefully)
 - [Phase 3-04]: TG-98 content gap detector — queries GSC for impressions without dedicated pages, upserts to seo_content_gaps
 - [Phase 3-04]: TG-99 ranking opportunity detector — report-only, no DB storage (targets existing pages pos 4-20)
 - [Phase 3-04]: TG-101 content staleness checker — checks blog_posts + seo_location_pages for updated_at < 180 days
@@ -114,6 +121,7 @@ None yet.
 - WI Parcel REST API endpoint needs testing with real Madison addresses before Phase 7 planning
 - Jobber client hub styling capability must be investigated before Phase 8 planning
 - TypeScript error count unknown until `tsc --noEmit` runs in Phase 5
+- n8n API rate limit hit during 03-03: TG-100 deployment + TG-96 update pending when API access restores
 
 ### Quick Tasks Completed
 
@@ -130,5 +138,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 03-04-PLAN.md (SEO Intelligence Workflows)
+Stopped at: Completed 03-03-PLAN.md (SEO Alert Workflows)
 Resume file: None
