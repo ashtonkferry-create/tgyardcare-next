@@ -154,43 +154,41 @@ export function SeasonalThemeProvider({ children }: { children: ReactNode }) {
   const [allSlides, setAllSlides] = useState<SeasonalSlide[]>([]);
   const [allServices, setAllServices] = useState<PriorityService[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
   const [localPreviewSeason, setLocalPreviewSeason] = useState<Season | null>(null);
 
   const fetchData = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
+    setIsLoading(true);
 
-      // Fetch all data in parallel
-      const [settingsRes, overrideRes, slidesRes, servicesRes] = await Promise.all([
-        supabase.from('season_settings').select('*'),
-        supabase.from('season_override').select('*').limit(1).single(),
-        supabase.from('seasonal_slides').select('*').eq('is_active', true).order('slide_order'),
-        supabase.from('seasonal_priority_services').select('*').eq('is_active', true).order('service_order'),
-      ]);
+    // Fetch all data in parallel — each query handled independently
+    const [settingsRes, overrideRes, slidesRes, servicesRes] = await Promise.allSettled([
+      supabase.from('season_settings').select('*'),
+      supabase.from('season_override').select('*').limit(1).maybeSingle(),
+      supabase.from('seasonal_slides').select('*').eq('is_active', true).order('slide_order'),
+      supabase.from('seasonal_priority_services').select('*').eq('is_active', true).order('service_order'),
+    ]);
 
-      if (settingsRes.data && settingsRes.data.length > 0) {
-        setSeasonSettings(settingsRes.data as SeasonSettings[]);
-      }
-
-      if (overrideRes.data) {
-        setOverride(overrideRes.data as SeasonOverride);
-      }
-
-      if (slidesRes.data) {
-        setAllSlides(slidesRes.data as SeasonalSlide[]);
-      }
-
-      if (servicesRes.data) {
-        setAllServices(servicesRes.data as PriorityService[]);
-      }
-    } catch (err) {
-      console.warn('Failed to fetch seasonal data:', err);
-      setError('Failed to load seasonal settings');
-    } finally {
-      setIsLoading(false);
+    // season_settings: use DB data if available, otherwise keep FALLBACK_SETTINGS
+    if (settingsRes.status === 'fulfilled' && settingsRes.value.data && settingsRes.value.data.length > 0) {
+      setSeasonSettings(settingsRes.value.data as SeasonSettings[]);
     }
+
+    // season_override: use DB data if available, otherwise keep default override
+    if (overrideRes.status === 'fulfilled' && overrideRes.value.data) {
+      setOverride(overrideRes.value.data as SeasonOverride);
+    }
+
+    // seasonal_slides: use DB data if available, otherwise keep empty (fallback slides used downstream)
+    if (slidesRes.status === 'fulfilled' && slidesRes.value.data) {
+      setAllSlides(slidesRes.value.data as SeasonalSlide[]);
+    }
+
+    // seasonal_priority_services: use DB data if available, otherwise keep empty (fallback services used downstream)
+    if (servicesRes.status === 'fulfilled' && servicesRes.value.data) {
+      setAllServices(servicesRes.value.data as PriorityService[]);
+    }
+
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
