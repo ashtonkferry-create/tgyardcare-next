@@ -1,0 +1,373 @@
+{
+  "name": "TG-108-kpi-daily-snapshot",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 11 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily 6am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate date ranges for various metric windows\nconst now = new Date();\nconst today = now.toISOString().split('T')[0];\n\nconst yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);\nconst yesterdayStr = yesterday.toISOString().split('T')[0];\nconst yesterdayStart = yesterdayStr + 'T00:00:00Z';\nconst yesterdayEnd = yesterdayStr + 'T23:59:59.999Z';\n\nconst sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);\nconst sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0] + 'T00:00:00Z';\n\nconst thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);\nconst thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0] + 'T00:00:00Z';\n\nreturn [{ json: {\n  today,\n  yesterdayStr,\n  yesterdayStart,\n  yesterdayEnd,\n  sevenDaysAgoStr,\n  thirtyDaysAgoStr,\n  nowIso: now.toISOString()\n} }];"
+      },
+      "id": "calc-dates",
+      "name": "Calculate Date Ranges",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Prefer",
+              "value": "count=exact"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,source,status,created_at"
+            },
+            {
+              "name": "limit",
+              "value": "0"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-leads-total",
+      "name": "Count Total Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 100],
+      "notes": "count=exact + limit=0 returns count in content-range header without fetching rows"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Prefer",
+              "value": "count=exact"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,source,status,created_at"
+            },
+            {
+              "name": "created_at",
+              "value": "=gte.{{ $('Calculate Date Ranges').first().json.sevenDaysAgoStr }}"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-leads-7d",
+      "name": "Fetch Leads 7-Day",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300],
+      "notes": "Fetch leads from last 7 days with status for conversion rate calculation"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/revenue_attribution",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "revenue,attributed_at"
+            },
+            {
+              "name": "attributed_at",
+              "value": "=gte.{{ $('Calculate Date Ranges').first().json.thirtyDaysAgoStr }}"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-revenue-30d",
+      "name": "Fetch Revenue 30-Day",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 500],
+      "notes": "Fetch 30-day revenue for avg_job_value and revenue_total calculations"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_sends",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,status,delivered_at,sent_at"
+            },
+            {
+              "name": "and",
+              "value": "=(sent_at.gte.{{ $('Calculate Date Ranges').first().json.yesterdayStart }},sent_at.lte.{{ $('Calculate Date Ranges').first().json.yesterdayEnd }})"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-sms-yesterday",
+      "name": "Fetch SMS Yesterday",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 700],
+      "notes": "Fetch yesterday's SMS sends for response rate calculation"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/email_sends",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,opened_at,sent_at"
+            },
+            {
+              "name": "and",
+              "value": "=(sent_at.gte.{{ $('Calculate Date Ranges').first().json.yesterdayStart }},sent_at.lte.{{ $('Calculate Date Ranges').first().json.yesterdayEnd }})"
+            }
+          ]
+        },
+        "options": {
+          "fullResponse": true
+        }
+      },
+      "id": "fetch-email-yesterday",
+      "name": "Fetch Email Yesterday",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 900],
+      "notes": "Fetch yesterday's email sends for open rate calculation"
+    },
+    {
+      "parameters": {
+        "mode": "wait",
+        "options": {}
+      },
+      "id": "wait-all",
+      "name": "Wait For All Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [720, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate all KPI metrics from the fetched data\nconst dates = $('Calculate Date Ranges').first().json;\n\n// === LEADS TOTAL ===\nconst leadsCountHeader = $('Count Total Leads').first().json.headers?.['content-range'] || '';\nconst leadsTotal = parseInt(leadsCountHeader.split('/')[1] || '0', 10) || 0;\n\n// === LEADS 7-DAY (for conversion) ===\nconst leads7d = $('Fetch Leads 7-Day').first().json.body || [];\nconst leads7dTotal = Array.isArray(leads7d) ? leads7d.length : 0;\nconst leads7dConverted = Array.isArray(leads7d) ? leads7d.filter(l => l.status === 'booked' || l.status === 'completed').length : 0;\nconst conversionRate = leads7dTotal > 0 ? Math.round((leads7dConverted / leads7dTotal) * 10000) / 100 : 0;\n\n// === LEADS BY SOURCE (7-day) ===\nconst sourceMap = {};\nif (Array.isArray(leads7d)) {\n  for (const lead of leads7d) {\n    const src = (lead.source || 'unknown').toLowerCase();\n    sourceMap[src] = (sourceMap[src] || 0) + 1;\n  }\n}\n\n// === REVENUE ===\nconst revenue30d = $('Fetch Revenue 30-Day').first().json.body || [];\nconst revenueArr = Array.isArray(revenue30d) ? revenue30d : [];\nconst revenueTotal = revenueArr.reduce((sum, r) => sum + (parseFloat(r.revenue) || 0), 0);\nconst avgJobValue = revenueArr.length > 0 ? Math.round((revenueTotal / revenueArr.length) * 100) / 100 : 0;\n\n// Revenue today (from yesterday's TG-107 sync)\nconst todayRevenue = revenueArr\n  .filter(r => r.attributed_at && r.attributed_at.startsWith(dates.yesterdayStr))\n  .reduce((sum, r) => sum + (parseFloat(r.revenue) || 0), 0);\n\n// === SMS RESPONSE RATE (yesterday) ===\nconst smsData = $('Fetch SMS Yesterday').first().json.body || [];\nconst smsArr = Array.isArray(smsData) ? smsData : [];\nconst smsTotal = smsArr.length;\nconst smsDelivered = smsArr.filter(s => s.delivered_at !== null).length;\nconst smsResponseRate = smsTotal > 0 ? Math.round((smsDelivered / smsTotal) * 10000) / 100 : 0;\n\n// === EMAIL OPEN RATE (yesterday) ===\nconst emailData = $('Fetch Email Yesterday').first().json.body || [];\nconst emailArr = Array.isArray(emailData) ? emailData : [];\nconst emailTotal = emailArr.length;\nconst emailOpened = emailArr.filter(e => e.opened_at !== null).length;\nconst emailOpenRate = emailTotal > 0 ? Math.round((emailOpened / emailTotal) * 10000) / 100 : 0;\n\n// === QUOTE CONVERSION RATE (7-day, quoted -> booked) ===\nconst quoted7d = Array.isArray(leads7d) ? leads7d.filter(l => l.status === 'quoted' || l.status === 'booked' || l.status === 'completed').length : 0;\nconst bookedFromQuote7d = Array.isArray(leads7d) ? leads7d.filter(l => l.status === 'booked' || l.status === 'completed').length : 0;\nconst quoteConversionRate = quoted7d > 0 ? Math.round((bookedFromQuote7d / quoted7d) * 10000) / 100 : 0;\n\n// Build all metrics for upsert\nconst metricDate = dates.today;\nconst metrics = [\n  { metric_date: metricDate, metric_name: 'leads_total', metric_value: leadsTotal },\n  { metric_date: metricDate, metric_name: 'revenue_total', metric_value: Math.round(todayRevenue * 100) / 100 },\n  { metric_date: metricDate, metric_name: 'avg_job_value', metric_value: avgJobValue },\n  { metric_date: metricDate, metric_name: 'conversion_rate', metric_value: conversionRate },\n  { metric_date: metricDate, metric_name: 'sms_response_rate', metric_value: smsResponseRate },\n  { metric_date: metricDate, metric_name: 'email_open_rate', metric_value: emailOpenRate },\n  { metric_date: metricDate, metric_name: 'quote_conversion_rate', metric_value: quoteConversionRate },\n  { metric_date: metricDate, metric_name: 'leads_by_source_google_organic', metric_value: sourceMap['google_organic'] || sourceMap['google organic'] || sourceMap['organic'] || 0 },\n  { metric_date: metricDate, metric_name: 'leads_by_source_google_ads', metric_value: sourceMap['google_ads'] || sourceMap['google ads'] || sourceMap['lsa'] || 0 },\n  { metric_date: metricDate, metric_name: 'leads_by_source_referral', metric_value: sourceMap['referral'] || 0 },\n  { metric_date: metricDate, metric_name: 'leads_by_source_direct', metric_value: sourceMap['direct'] || sourceMap['website'] || 0 },\n  { metric_date: metricDate, metric_name: 'leads_by_source_nextdoor', metric_value: sourceMap['nextdoor'] || 0 },\n  { metric_date: metricDate, metric_name: 'leads_by_source_facebook', metric_value: sourceMap['facebook'] || 0 }\n];\n\nreturn [{ json: { metrics, metricDate, summary: {\n  leadsTotal,\n  todayRevenue: Math.round(todayRevenue * 100) / 100,\n  avgJobValue,\n  conversionRate,\n  smsResponseRate,\n  emailOpenRate,\n  quoteConversionRate,\n  metricsCount: metrics.length\n} } }];"
+      },
+      "id": "calculate-kpis",
+      "name": "Calculate All KPIs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [940, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/intelligence_metrics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.metrics) }}"
+      },
+      "id": "upsert-metrics",
+      "name": "Upsert KPI Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, 500],
+      "notes": "Upsert all KPI metrics. UNIQUE index on (metric_date, metric_name) enables merge-duplicates."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log completion summary\nconst data = $('Calculate All KPIs').first().json;\nreturn [{ json: {\n  status: 'complete',\n  metricDate: data.metricDate,\n  metricsUpserted: data.metrics.length,\n  summary: data.summary,\n  completedAt: new Date().toISOString()\n} }];"
+      },
+      "id": "log-summary",
+      "name": "Log KPI Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1380, 500]
+    }
+  ],
+  "connections": {
+    "Daily 6am CT": {
+      "main": [
+        [{ "node": "Calculate Date Ranges", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Date Ranges": {
+      "main": [
+        [
+          { "node": "Count Total Leads", "type": "main", "index": 0 },
+          { "node": "Fetch Leads 7-Day", "type": "main", "index": 0 },
+          { "node": "Fetch Revenue 30-Day", "type": "main", "index": 0 },
+          { "node": "Fetch SMS Yesterday", "type": "main", "index": 0 },
+          { "node": "Fetch Email Yesterday", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Count Total Leads": {
+      "main": [
+        [{ "node": "Wait For All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Leads 7-Day": {
+      "main": [
+        [{ "node": "Wait For All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Revenue 30-Day": {
+      "main": [
+        [{ "node": "Wait For All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch SMS Yesterday": {
+      "main": [
+        [{ "node": "Wait For All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Email Yesterday": {
+      "main": [
+        [{ "node": "Wait For All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait For All Data": {
+      "main": [
+        [{ "node": "Calculate All KPIs", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate All KPIs": {
+      "main": [
+        [{ "node": "Upsert KPI Metrics", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert KPI Metrics": {
+      "main": [
+        [{ "node": "Log KPI Summary", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
+}
