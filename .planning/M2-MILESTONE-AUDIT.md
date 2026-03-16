@@ -1,12 +1,13 @@
 ---
 milestone: M2
 audited: 2026-03-16T22:30:00Z
-status: gaps_found
+re_audited: 2026-03-16T23:00:00Z
+status: tech_debt
 scores:
   requirements: N/A (M2 uses success criteria, not formal requirements)
-  phases: 4/4 (Phase 0 not executed)
-  integration: 3/6 critical issues
-  flows: 3/6 E2E flows broken or conditional
+  phases: 5/5 (Phase 0 not executed, Phase 4.1 gap closure complete)
+  integration: 0/0 critical issues (all 7 resolved by Phase 4.1)
+  flows: 0/0 broken flows (all resolved by Phase 4.1)
 gaps:
   integration:
     - "W1: TG-76 call-tg94 has literal placeholder TG94_WORKFLOW_ID in local JSON"
