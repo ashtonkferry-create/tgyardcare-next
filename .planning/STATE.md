@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 4 of 4 (Intelligence Layer) — In progress
-Plan: 5 of 12 complete
+Plan: 6 of 12 complete
 Status: In progress
-Last activity: 2026-03-16 — Completed 04-05-PLAN.md (Wave 2 Monitoring Guardrails)
+Last activity: 2026-03-16 — Completed 04-06-PLAN.md (TG-118 Weekly Intelligence Assembler)
 
-Progress: [==========================-------] 26/33 plans
+Progress: [===========================------] 27/33 plans
 
 Executing Milestone 2: CRM Unification
 - Phase 0 (Fix Existing): Ready to execute
@@ -32,12 +32,13 @@ Executing Milestone 2: CRM Unification
   - 03-04: DONE — TG-98 + TG-99 + TG-101 SEO intelligence workflows [wave 2]
   - 03-05: DONE — TG-102 weekly SEO summary (pending deploy) [wave 3]
   - 03-06: DONE — Gap closure: TG-97/TG-102 schema fix, opportunity+staleness counts, 15 cities verified [wave 4]
-- Phase 4 (Intelligence Layer): In progress (5/12 plans)
+- Phase 4 (Intelligence Layer): In progress (6/12 plans)
   - 04-01: DONE — Migration 072 (5 new tables + 4 table extensions + RLS) [wave 1]
   - 04-02: DONE — TG-113 (GHL1BUPFZL8Ic6Bc) critical alert router + TG-105 (6qhihK1RPUzwk2pd) A/B test router [wave 1]
   - 04-03: DONE — TG-107 revenue sync daily + TG-108 KPI daily snapshot (13 metrics) [wave 1]
   - 04-04: DONE — TG-109 (rD7Tiz6WgIOI8ndG) Google Ads sync stub + TG-106 (4LByKtLiF2hQO5Ut) A/B auto-winner [wave 1 COMPLETE]
   - 04-05: DONE — TG-110 anomaly detector + TG-111 ad budget guardian + TG-112 ad conversion watchdog [wave 2]
+  - 04-06: DONE — TG-118 (rOeTPPi2kW6thURB) weekly intelligence assembler HTML email sub-workflow [wave 3]
 
 Parallel: Milestone 3 (Billionaire Brand Transformation)
 - Phase 5-9: Not started
@@ -45,8 +46,8 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 5 Phase 4)
-- Last plan duration: ~3 minutes (04-05 Wave 2 monitoring guardrails)
+- Total plans completed: 27 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 6 Phase 4)
+- Last plan duration: ~2 minutes (04-06 TG-118 intelligence assembler)
 - Total execution time: N/A
 
 *Updated after each plan completion*
@@ -155,6 +156,10 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 - [Phase 4-05]: TG-111/TG-112 use $vars.TG_GOOGLE_ADS_CUSTOMER_ID check for graceful skip (same pattern as TG-109)
 - [Phase 4-05]: TG-111 default daily budget: $50 via $vars.TG_GOOGLE_ADS_DAILY_BUDGET
 - [Phase 4-05]: Wave 2 COMPLETE — 3 monitoring workflows: TG-110, TG-111, TG-112
+- [Phase 4-06]: TG-118 workflow ID on n8n: rOeTPPi2kW6thURB (ACTIVE) -- shared HTML email assembler sub-workflow
+- [Phase 4-06]: TG-118 input: {report_title, report_subtitle, sections: [{type, items/title/headers/rows}]}
+- [Phase 4-06]: TG-118 section types: metrics, highlights, table, anomalies, actions
+- [Phase 4-06]: TG-118 returns {html, plain_text} — does NOT send email, caller passes to TG-95
 
 ### Pending Todos
 
@@ -182,5 +187,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 04-05-PLAN.md (Wave 2 Monitoring Guardrails) — Wave 2 COMPLETE, ready for Wave 3
+Stopped at: Completed 04-06-PLAN.md (TG-118 Weekly Intelligence Assembler) — Wave 3 started
 Resume file: None
