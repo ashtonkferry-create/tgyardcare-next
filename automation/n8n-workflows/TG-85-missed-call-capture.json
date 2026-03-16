@@ -1,4 +1,5 @@
 {
+  "id": "VYKUqHGwurLvozsd",
   "name": "TG-85-missed-call-capture",
   "nodes": [
     {
@@ -12,7 +13,10 @@
       "name": "Quo Call Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [0, 0],
+      "position": [
+        0,
+        0
+      ],
       "webhookId": "tg85-missed-call"
     },
     {
@@ -23,18 +27,28 @@
       "name": "Parse Quo Webhook",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 0]
+      "position": [
+        220,
+        0
+      ]
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
           "conditions": [
             {
               "id": "missed-check",
               "leftValue": "={{ $json.is_missed }}",
               "rightValue": true,
-              "operator": { "type": "boolean", "operation": "equals" }
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
             }
           ],
           "combinator": "and"
@@ -44,7 +58,10 @@
       "name": "Is Missed Call?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [440, 0]
+      "position": [
+        440,
+        0
+      ]
     },
     {
       "parameters": {
@@ -53,10 +70,22 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Prefer", "value": "return=representation" }
+            {
+              "name": "apikey",
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
+            }
           ]
         },
         "sendBody": true,
@@ -67,7 +96,10 @@
       "name": "Log Missed Call",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [660, -100],
+      "position": [
+        660,
+        -100
+      ],
       "continueOnFail": true
     },
     {
@@ -77,8 +109,14 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" }
+            {
+              "name": "apikey",
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
+            }
           ]
         }
       },
@@ -86,7 +124,10 @@
       "name": "Check Existing Lead",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [880, -100],
+      "position": [
+        880,
+        -100
+      ],
       "alwaysOutputData": true
     },
     {
@@ -97,18 +138,28 @@
       "name": "Process Lead Result",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1100, -100]
+      "position": [
+        1100,
+        -100
+      ]
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
           "conditions": [
             {
               "id": "lead-exists",
               "leftValue": "={{ $json.has_lead }}",
               "rightValue": false,
-              "operator": { "type": "boolean", "operation": "equals" }
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
             }
           ],
           "combinator": "and"
@@ -118,7 +169,10 @@
       "name": "Need New Lead?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [1320, -100]
+      "position": [
+        1320,
+        -100
+      ]
     },
     {
       "parameters": {
@@ -127,21 +181,36 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Prefer", "value": "return=representation" }
+            {
+              "name": "apikey",
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
+            }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"phone\": \"{{ $('Process Lead Result').item.json.from_phone }}\",\n  \"first_name\": \"{{ $('Parse Quo Webhook').item.json.caller_name ? $('Parse Quo Webhook').item.json.caller_name.split(' ')[0] : 'Unknown' }}\",\n  \"last_name\": \"{{ $('Parse Quo Webhook').item.json.caller_name ? $('Parse Quo Webhook').item.json.caller_name.split(' ').slice(1).join(' ') : '' }}\",\n  \"source\": \"phone\",\n  \"status\": \"new\",\n  \"lead_score\": 30,\n  \"lead_tier\": \"standard\"\n}"
+        "jsonBody": "={\n  \"to_phone\": \"{{ $('Process Lead Result').item.json.from_phone }}\",\n  \"first_name\": \"{{ $('Parse Quo Webhook').item.json.caller_name ? $('Parse Quo Webhook').item.json.caller_name.split(' ')[0] : 'Unknown' }}\",\n  \"last_name\": \"{{ $('Parse Quo Webhook').item.json.caller_name ? $('Parse Quo Webhook').item.json.caller_name.split(' ').slice(1).join(' ') : '' }}\",\n  \"source\": \"phone\",\n  \"status\": \"new\",\n  \"lead_score\": 30,\n  \"lead_tier\": \"standard\"\n}"
       },
       "id": "tg85-create-lead",
       "name": "Create New Lead",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1540, -200],
+      "position": [
+        1540,
+        -200
+      ],
       "continueOnFail": true
     },
     {
@@ -151,9 +220,22 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "apikey",
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
+            }
           ]
         },
         "sendBody": true,
@@ -164,18 +246,28 @@
       "name": "Check SMS Consent",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1760, -100]
+      "position": [
+        1760,
+        -100
+      ]
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
           "conditions": [
             {
               "id": "consent-check",
               "leftValue": "={{ $json }}",
               "rightValue": true,
-              "operator": { "type": "boolean", "operation": "equals" }
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
             }
           ],
           "combinator": "and"
@@ -185,7 +277,10 @@
       "name": "Has SMS Consent?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [1980, -100]
+      "position": [
+        1980,
+        -100
+      ]
     },
     {
       "parameters": {
@@ -194,21 +289,36 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Prefer", "value": "return=minimal" }
+            {
+              "name": "apikey",
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
+            }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"phone\": \"{{ $('Process Lead Result').item.json.from_phone }}\",\n  \"workflow_name\": \"TG-85-missed-call-capture\",\n  \"message_body\": \"TotalGuard Yard Care missed your call. We handle lawn mowing, fertilization, aeration, overseeding, weed control, mulching, pruning, leaf & snow removal across Madison, WI. Reply with your address for a free estimate \\u2014 we schedule within 24 hours, guaranteed.\",\n  \"status\": \"pending\"\n}"
+        "jsonBody": "={\n  \"to_phone\": \"{{ $('Process Lead Result').item.json.from_phone }}\",\n  \"workflow_name\": \"TG-85-missed-call-capture\",\n  \"message_body\": \"TotalGuard Yard Care missed your call. We handle lawn mowing, fertilization, aeration, overseeding, weed control, mulching, pruning, leaf & snow removal across Madison, WI. Reply with your address for a free estimate \\u2014 we schedule within 24 hours, guaranteed.\",\n  \"status\": \"pending\"\n}"
       },
       "id": "tg85-log-sms",
       "name": "Log SMS Send",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2200, -200],
+      "position": [
+        2200,
+        -200
+      ],
       "continueOnFail": true
     },
     {
@@ -218,8 +328,10 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Authorization", "value": "QUO_API_KEY" },
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -230,7 +342,10 @@
       "name": "Send Auto-Reply via Quo",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2420, -200],
+      "position": [
+        2420,
+        -200
+      ],
       "continueOnFail": true
     },
     {
@@ -240,10 +355,22 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Prefer", "value": "return=minimal" }
+            {
+              "name": "apikey",
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
+            }
           ]
         },
         "sendBody": true,
@@ -254,75 +381,212 @@
       "name": "Update Missed Call Record",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2640, -200],
+      "position": [
+        2640,
+        -200
+      ],
       "continueOnFail": true
     },
     {
-      "parameters": { "respondWith": "text", "responseBody": "OK" },
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK"
+      },
       "id": "tg85-respond-ok",
       "name": "Respond OK",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [2860, -200]
+      "position": [
+        2860,
+        -200
+      ]
     },
     {
-      "parameters": { "respondWith": "text", "responseBody": "OK - not a missed call" },
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK - not a missed call"
+      },
       "id": "tg85-respond-skip",
       "name": "Respond Skip",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [660, 100]
+      "position": [
+        660,
+        100
+      ]
     }
   ],
   "connections": {
     "Quo Call Webhook": {
-      "main": [[{ "node": "Parse Quo Webhook", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Parse Quo Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Parse Quo Webhook": {
-      "main": [[{ "node": "Is Missed Call?", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Is Missed Call?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Is Missed Call?": {
       "main": [
-        [{ "node": "Log Missed Call", "type": "main", "index": 0 }],
-        [{ "node": "Respond Skip", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Log Missed Call",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Skip",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Log Missed Call": {
-      "main": [[{ "node": "Check Existing Lead", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Check Existing Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Check Existing Lead": {
-      "main": [[{ "node": "Process Lead Result", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Process Lead Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Process Lead Result": {
-      "main": [[{ "node": "Need New Lead?", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Need New Lead?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Need New Lead?": {
       "main": [
-        [{ "node": "Create New Lead", "type": "main", "index": 0 }],
-        [{ "node": "Check SMS Consent", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Create New Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check SMS Consent",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Create New Lead": {
-      "main": [[{ "node": "Check SMS Consent", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Check SMS Consent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Check SMS Consent": {
-      "main": [[{ "node": "Has SMS Consent?", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Has SMS Consent?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Has SMS Consent?": {
       "main": [
-        [{ "node": "Log SMS Send", "type": "main", "index": 0 }],
-        [{ "node": "Log SMS Send", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Log SMS Send",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log SMS Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Log SMS Send": {
-      "main": [[{ "node": "Send Auto-Reply via Quo", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Send Auto-Reply via Quo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Send Auto-Reply via Quo": {
-      "main": [[{ "node": "Update Missed Call Record", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Missed Call Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Missed Call Record": {
-      "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "settings": { "executionOrder": "v1" }
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  }
 }

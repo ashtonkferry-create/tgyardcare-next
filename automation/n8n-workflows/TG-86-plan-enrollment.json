@@ -1,4 +1,5 @@
 {
+  "id": "wJvqFV6PyGvUZccX",
   "name": "TG-86-plan-enrollment",
   "nodes": [
     {
@@ -34,7 +35,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         }
@@ -57,7 +62,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         }
@@ -93,7 +102,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+              "value": "{{SUPABASE_SECRET}}"
             },
             {
               "name": "Content-Type",
@@ -101,7 +110,11 @@
             },
             {
               "name": "Prefer",
-              "value": "return=representation"
+              "value": "return=minimal"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
@@ -122,23 +135,23 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.brevo.com/v3/smtp/email",
+        "url": "https://api.resend.com/emails",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "api-key",
-              "value": "BREVO_API_KEY"
-            },
-            {
               "name": "Content-Type",
               "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "{{SUPABASE_SECRET}}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"workelyhelp@gmail.com\" },\n  \"to\": [{ \"email\": \"{{ $json.customer_email }}\", \"name\": \"{{ $json.customer_name }}\" }],\n  \"subject\": \"Welcome to your TotalGuard {{ $json.plan_name }} plan!\",\n  \"htmlContent\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>Welcome to TotalGuard!</h2><p>Hi {{ $json.customer_name }},</p><p>You are now enrolled in the <strong>{{ $json.plan_name }}</strong> plan.</p><ul><li><strong>Start date:</strong> {{ $json.start_date }}</li><li><strong>Coverage through:</strong> {{ $json.end_date }}</li></ul><p>We will take care of everything on schedule. If you ever have questions, just reply to this email or call 608-535-6057.</p><p>Thank you for trusting TotalGuard with your yard!</p><p>The TotalGuard Team</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $json.customer_email }}\"],\n  \"subject\": \"Welcome to your TotalGuard {{ $json.plan_name }} plan!\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>Welcome to TotalGuard!</h2><p>Hi {{ $json.customer_name }},</p><p>You are now enrolled in the <strong>{{ $json.plan_name }}</strong> plan.</p><ul><li><strong>Start date:</strong> {{ $json.start_date }}</li><li><strong>Coverage through:</strong> {{ $json.end_date }}</li></ul><p>We will take care of everything on schedule. If you ever have questions, just reply to this email or call 608-535-6057.</p><p>Thank you for trusting TotalGuard with your yard!</p><p>The TotalGuard Team</p></div>\"\n}"
       },
       "id": "tg86-send-email",
       "name": "Send Welcome Email",
@@ -225,6 +238,10 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
   }
 }

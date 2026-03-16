@@ -1,10 +1,10 @@
 {
-  "id": "2IB0qFPgBm0YxNtP",
-  "name": "TG-88-on-my-way-sms",
+  "id": "3gQKfREf9c9cyE0w",
+  "name": "TG-89-invoice-delivery-sms-email",
   "nodes": [
     {
       "parameters": {},
-      "id": "tg88-trigger",
+      "id": "tg89-trigger",
       "name": "When Called by TG-05",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
@@ -42,7 +42,7 @@
         "specifyBody": "json",
         "jsonBody": "={\"p_phone\": \"{{ $json.customer_phone }}\"}"
       },
-      "id": "tg88-check-consent",
+      "id": "tg89-check-consent",
       "name": "Check SMS Consent",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -73,7 +73,7 @@
           "combinator": "and"
         }
       },
-      "id": "tg88-if-consent",
+      "id": "tg89-if-consent",
       "name": "Has SMS Consent?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
@@ -109,9 +109,9 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"to_phone\": \"{{ $('When Called by TG-05').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-88-on-my-way-sms\",\n  \"message_body\": \"Hi {{ $('When Called by TG-05').item.json.customer_name || 'there' }}! The TotalGuard crew is on the way to {{ $('When Called by TG-05').item.json.address || 'your property' }}. ETA approximately 15-30 minutes. Questions? Call 608-535-6057\",\n  \"status\": \"pending\"\n}"
+        "jsonBody": "={\n  \"to_phone\": \"{{ $('When Called by TG-05').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-89-invoice-delivery\",\n  \"message_body\": \"Hi {{ $('When Called by TG-05').item.json.customer_name || 'there' }}! Your TotalGuard invoice{{ $('When Called by TG-05').item.json.amount ? ' for $' + $('When Called by TG-05').item.json.amount : '' }} has been sent to your email. Questions? Call 608-535-6057\",\n  \"status\": \"pending\"\n}"
       },
-      "id": "tg88-log-send",
+      "id": "tg89-log-sms",
       "name": "Log SMS Send",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -125,10 +125,10 @@
       "parameters": {
         "from": "+16089953554",
         "to": "={{ $('When Called by TG-05').item.json.customer_phone }}",
-        "message": "=Hi {{ $('When Called by TG-05').item.json.customer_name || 'there' }}! The TotalGuard crew is on the way to {{ $('When Called by TG-05').item.json.address || 'your property' }}. ETA approximately 15-30 minutes. Questions? Call 608-535-6057"
+        "message": "=Hi {{ $('When Called by TG-05').item.json.customer_name || 'there' }}! Your TotalGuard invoice{{ $('When Called by TG-05').item.json.amount ? ' for $' + $('When Called by TG-05').item.json.amount : '' }} has been sent to your email. Questions? Call 608-535-6057"
       },
-      "id": "tg88-send-sms",
-      "name": "Send On My Way SMS",
+      "id": "tg89-send-sms",
+      "name": "Send Invoice SMS",
       "type": "n8n-nodes-base.twilio",
       "typeVersion": 1,
       "position": [
@@ -142,76 +142,6 @@
           "name": "TG - Twilio"
         }
       }
-    },
-    {
-      "parameters": {
-        "method": "PATCH",
-        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/sms_sends?phone=eq.{{ $('When Called by TG-05').item.json.customer_phone }}&workflow_name=eq.TG-88-on-my-way-sms&status=eq.pending",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "apikey",
-              "value": "{{SUPABASE_SECRET}}"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            },
-            {
-              "name": "Prefer",
-              "value": "return=minimal"
-            },
-            {
-              "name": "Authorization",
-              "value": "{{SUPABASE_SECRET}}"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\"status\": \"sent\", \"twilio_sid\": \"{{ $json.sid || '' }}\"}"
-      },
-      "id": "tg88-update-status",
-      "name": "Update Send Status",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1100,
-        -100
-      ],
-      "continueOnFail": true
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict"
-          },
-          "conditions": [
-            {
-              "id": "has-email-tg88",
-              "leftValue": "={{ $('When Called by TG-05').item.json.customer_email }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notEquals"
-              }
-            }
-          ],
-          "combinator": "and"
-        }
-      },
-      "id": "tg88-if-email",
-      "name": "Has Email?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [
-        660,
-        100
-      ]
     },
     {
       "parameters": {
@@ -232,29 +162,29 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('When Called by TG-05').item.json.customer_email }}\"],\n  \"subject\": \"TotalGuard is on the way\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('When Called by TG-05').item.json.customer_name || 'there' }},</p><p>We're heading to your property now. We'll be there shortly.</p><p>Questions? Call <strong>608-535-6057</strong>.</p><p>The TotalGuard Team</p></div>\"\n}"
+        "jsonBody": "={\n  \"from\": \"TotalGuard Yard Care <hello@tgyardcare.com>\",\n  \"to\": [\"{{ $('When Called by TG-05').item.json.customer_email }}\"],\n  \"subject\": \"Your TotalGuard Invoice{{ $('When Called by TG-05').item.json.jobber_id ? ' #' + $('When Called by TG-05').item.json.jobber_id : '' }}\",\n  \"html\": \"<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'><h2 style='color:#16a34a;'>TotalGuard Yard Care</h2><p>Hi {{ $('When Called by TG-05').item.json.customer_name || 'there' }},</p><p>Your invoice{{ $('When Called by TG-05').item.json.amount ? ' for <strong>$' + $('When Called by TG-05').item.json.amount + '</strong>' : '' }} for {{ $('When Called by TG-05').item.json.service || 'your recent service' }} is ready.</p><p>You can view and pay your invoice through the Jobber client hub link in your original invoice email.</p><p>If you have any questions, please don't hesitate to reach out:</p><ul><li>Phone: 608-535-6057</li><li>Email: totalguardllc@gmail.com</li></ul><p>Thank you for choosing TotalGuard!</p><p style='color:#888;font-size:12px;'>TotalGuard Yard Care LLC | Madison, WI</p></div>\"\n}"
       },
-      "id": "tg88-email-fallback",
-      "name": "Send On My Way Email",
+      "id": "tg89-send-email",
+      "name": "Send Invoice Email",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        880,
-        100
+        660,
+        200
       ],
       "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "return [{ json: { status: 'no_sms_consent_no_email', phone: $('When Called by TG-05').item.json.customer_phone } }];"
+        "jsCode": "return [{ json: { status: 'completed', sms_sent: true, email_sent: true } }];"
       },
-      "id": "tg88-no-consent",
-      "name": "No Consent No Email - Skip",
+      "id": "tg89-done",
+      "name": "Done",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        880,
-        300
+        1100,
+        0
       ]
     }
   ],
@@ -292,7 +222,7 @@
         ],
         [
           {
-            "node": "Has Email?",
+            "node": "Send Invoice Email",
             "type": "main",
             "index": 0
           }
@@ -303,36 +233,29 @@
       "main": [
         [
           {
-            "node": "Send On My Way SMS",
+            "node": "Send Invoice SMS",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Send On My Way SMS": {
+    "Send Invoice SMS": {
       "main": [
         [
           {
-            "node": "Update Send Status",
+            "node": "Send Invoice Email",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Has Email?": {
+    "Send Invoice Email": {
       "main": [
         [
           {
-            "node": "Send On My Way Email",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "No Consent No Email - Skip",
+            "node": "Done",
             "type": "main",
             "index": 0
           }
