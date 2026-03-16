@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 4 of 4 (Intelligence Layer) — In progress
-Plan: 1 of 12 complete
+Plan: 3 of 12 complete
 Status: In progress
-Last activity: 2026-03-16 — Completed 04-01-PLAN.md (Intelligence Layer Schema)
+Last activity: 2026-03-16 — Completed 04-03-PLAN.md (Daily Data Pipelines)
 
-Progress: [=======================-----------] 22/33 plans
+Progress: [========================---------] 24/33 plans
 
 Executing Milestone 2: CRM Unification
 - Phase 0 (Fix Existing): Ready to execute
@@ -32,8 +32,9 @@ Executing Milestone 2: CRM Unification
   - 03-04: DONE — TG-98 + TG-99 + TG-101 SEO intelligence workflows [wave 2]
   - 03-05: DONE — TG-102 weekly SEO summary (pending deploy) [wave 3]
   - 03-06: DONE — Gap closure: TG-97/TG-102 schema fix, opportunity+staleness counts, 15 cities verified [wave 4]
-- Phase 4 (Intelligence Layer): In progress (1/12 plans)
+- Phase 4 (Intelligence Layer): In progress (3/12 plans)
   - 04-01: DONE — Migration 072 (5 new tables + 4 table extensions + RLS) [wave 1]
+  - 04-03: DONE — TG-107 revenue sync daily + TG-108 KPI daily snapshot (13 metrics) [wave 1]
 
 Parallel: Milestone 3 (Billionaire Brand Transformation)
 - Phase 5-9: Not started
@@ -41,8 +42,8 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 1 Phase 4)
-- Last plan duration: ~4 minutes (04-01 intelligence schema)
+- Total plans completed: 24 (9 M2-Phase 1 + 5 M2-Phase 2 + 6 Phase 3 + 1 Phase 3 gap closure + 3 Phase 4)
+- Last plan duration: ~3 minutes (04-03 daily data pipelines)
 - Total execution time: N/A
 
 *Updated after each plan completion*
@@ -125,6 +126,11 @@ Parallel: Milestone 3 (Billionaire Brand Transformation)
 - [Phase 4-01]: intelligence_reports.report_type CHECK expanded to 8 types (includes learning_report, what_got_smarter for later plans)
 - [Phase 4-01]: ab_tests extended with channel/min_sends_per_variant/auto_winner/winner columns
 - [Phase 4-01]: email_sends and sms_sends extended with ab_test_id/ab_variant_id for A/B tracking
+- [Phase 4-03]: TG-107 revenue sync: 5 AM CT daily, matches jobber_email_events payments to leads by email/phone
+- [Phase 4-03]: TG-108 KPI snapshot: 6 AM CT daily, 13 metrics including leads_total, revenue, conversion, SMS/email rates, 6x source breakdown
+- [Phase 4-03]: revenue_attribution table has no workflow_attribution column — removed from TG-107 output
+- [Phase 4-03]: PostgREST date range filtering: use `and=(col.gte.X,col.lte.Y)` not duplicate param names
+- [Phase 4-03]: SMS "response rate" proxied by delivered_at (sms_sends has no reply tracking column)
 
 ### Pending Todos
 
@@ -152,5 +158,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 04-01-PLAN.md (Intelligence Layer Schema) — Phase 4 started
+Stopped at: Completed 04-03-PLAN.md (Daily Data Pipelines) — Phase 4 wave 1 continuing
 Resume file: None
