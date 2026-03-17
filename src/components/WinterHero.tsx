@@ -1,28 +1,92 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from "next/link";
 import Image from "next/image";
+import { motion, type Variants } from 'framer-motion';
 import { Phone, Shield, Star, CheckCircle2, Snowflake, ArrowRight, Zap } from 'lucide-react';
 import heroSnowPlow from '@/assets/hero-snow-plow.png';
 import { SEASONAL_STATS, SITE_STATS, getSeasonLabel } from '@/lib/seasonalConfig';
 import { MobileValueChips } from '@/components/MobileValueStrip';
 
-function imgSrc(img: string | { src: string }): string {
-  return typeof img === 'string' ? img : img.src;
-}
+/** Stagger container variant */
+const stagger: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
+
+/** Fade-up child variant */
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.25, 0.4, 0.25, 1] },
+  },
+};
 
 export function WinterHero() {
   const stats = SEASONAL_STATS.winter;
+  const sectionRef = useRef<HTMLElement>(null);
+  const [scrollY, setScrollY] = useState(0);
+
+  // Parallax scroll effect — moves background layers at different rate
+  useEffect(() => {
+    function handleScroll() {
+      if (sectionRef.current) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        if (rect.bottom > 0) {
+          setScrollY(window.scrollY * 0.3);
+        }
+      }
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 overflow-hidden min-h-[600px] lg:min-h-[700px]">
+    <section
+      ref={sectionRef}
+      className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 overflow-hidden min-h-[600px] lg:min-h-[700px]"
+    >
+      {/*
+        VIDEO SWAP SLOT:
+        Replace the static background + snow particles with a <video> element
+        for a cinematic looping hero. Use poster={heroSnowPlow.src} for fallback.
+        <video autoPlay muted loop playsInline poster={heroSnowPlow.src}
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/videos/winter-hero.mp4" type="video/mp4" />
+        </video>
+      */}
+
+      {/* Parallax background layer */}
+      <div
+        className="absolute inset-0 will-change-transform"
+        style={{ transform: `translateY(${scrollY}px)` }}
+      >
+        {/* Hero background image — full bleed, parallax-shifted */}
+        <Image
+          src={heroSnowPlow}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
+          priority
+          sizes="100vw"
+          fill
+        />
+      </div>
+
+      {/* Gradient overlay for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-slate-900/60" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-transparent" />
+
       {/* Animated Snow Particles - Premium Effect with 3-tier variety */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none motion-reduce:hidden">
         {[...Array(40)].map((_, i) => {
           const startY = Math.random() * 100;
           const left = Math.random() * 100;
-          // 3-tier system: 60% small, 30% medium, 10% large
           const tier = i < 24 ? 'small' : i < 36 ? 'medium' : 'large';
           const size =
             tier === 'small' ? 1 + Math.random() * 1 :
@@ -74,56 +138,60 @@ export function WinterHero() {
       <div className="container mx-auto px-4 sm:px-6 relative z-10 py-12 sm:py-16 md:py-20 lg:py-24">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center max-w-7xl mx-auto">
 
-          {/* Content Column */}
-          <div className="order-1 flex flex-col justify-center animate-fade-in">
+          {/* Content Column — Staggered Framer Motion reveal */}
+          <motion.div
+            className="order-1 flex flex-col justify-center"
+            variants={stagger}
+            initial="hidden"
+            animate="visible"
+          >
             {/* Urgency Badge with Glow */}
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500/25 to-cyan-500/25 backdrop-blur-md text-white px-4 py-2.5 rounded-full text-sm font-semibold mb-6 border border-cyan-400/40 w-fit shadow-lg shadow-cyan-500/20">
+            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500/25 to-cyan-500/25 backdrop-blur-md text-white px-4 py-2.5 rounded-full text-sm font-semibold mb-6 border border-cyan-400/40 w-fit shadow-lg shadow-cyan-500/20">
               <Snowflake className="h-4 w-4 text-cyan-300 animate-spin" style={{ animationDuration: '8s' }} />
               <span className="text-cyan-100">{getSeasonLabel('winter')}</span>
               <span className="w-1.5 h-1.5 bg-cyan-300 rounded-full animate-pulse" />
               <span className="text-amber-300 font-bold">Limited Contracts</span>
-            </div>
+            </motion.div>
 
             {/* Main Headline - Problem-First */}
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-5 leading-[1.1]">
-              <span className="inline-block animate-fade-in" style={{ animationDelay: '0.1s' }}>Don't Get</span>{' '}
-              <span className="inline-block bg-gradient-to-r from-cyan-300 via-blue-300 to-cyan-300 bg-clip-text text-transparent animate-fade-in animate-frost-text-glow bg-[length:200%_auto]" style={{ animationDelay: '0.2s', animation: 'gradient-shift 3s ease infinite, fade-in 0.3s ease-out 0.2s both' }}>
+            <motion.h1 variants={fadeUp} className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-5 leading-[1.1]">
+              <span className="inline-block">Don&apos;t Get</span>{' '}
+              <span className="inline-block bg-gradient-to-r from-cyan-300 via-blue-300 to-cyan-300 bg-clip-text text-transparent bg-[length:200%_auto]" style={{ animation: 'gradient-shift 3s ease infinite' }}>
                 Snowed In.
               </span>
-            </h1>
+            </motion.h1>
 
             {/* Value Prop Subhead */}
-            <p className="text-lg md:text-xl text-blue-100/90 mb-4 animate-fade-in leading-relaxed" style={{ animationDelay: '0.3s' }}>
-              Lock in your snow contract before the first storm. We show up when others don't.
-              <span className="block mt-1 text-cyan-300 font-semibold">Residential & commercial. 24/7 response.</span>
-            </p>
+            <motion.p variants={fadeUp} className="text-lg md:text-xl text-blue-100/90 mb-4 leading-relaxed">
+              Lock in your snow contract before the first storm. We show up when others don&apos;t.
+              <span className="block mt-1 text-cyan-300 font-semibold">Residential &amp; commercial. 24/7 response.</span>
+            </motion.p>
 
             {/* MOBILE: Compact trust chips */}
-            <div className="lg:hidden mb-4">
+            <motion.div variants={fadeUp} className="lg:hidden mb-4">
               <MobileValueChips />
-            </div>
+            </motion.div>
 
             {/* Value Props with Hover Effects */}
-            <ul className="space-y-3 mb-6 text-blue-100/90">
+            <motion.ul variants={fadeUp} className="space-y-3 mb-6 text-blue-100/90">
               {[
-                'Seasonal contracts—no per-storm scramble',
+                'Seasonal contracts\u2014no per-storm scramble',
                 'Same driveway. Same crew. Every storm.',
                 'Ice management and salting included'
               ].map((item, i) => (
                 <li
                   key={i}
-                  className="flex items-start gap-3 group animate-fade-in hover:translate-x-1 transition-transform duration-200"
-                  style={{ animationDelay: `${0.4 + i * 0.1}s` }}
+                  className="flex items-start gap-3 group hover:translate-x-1 transition-transform duration-200"
                 >
                   <CheckCircle2 className="h-5 w-5 text-cyan-400 flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
                   <span className="text-base md:text-lg">{item}</span>
                 </li>
               ))}
-            </ul>
+            </motion.ul>
 
-            {/* Trust Chips with Hover — desktop only (mobile uses MobileValueChips above) */}
-            <div className="hidden lg:flex flex-wrap gap-2 mb-6 animate-fade-in" style={{ animationDelay: '0.7s' }}>
-              {['80+ Reviews', '4.9★ Rating', 'Fully Insured'].map((chip) => (
+            {/* Trust Chips with Hover — desktop only */}
+            <motion.div variants={fadeUp} className="hidden lg:flex flex-wrap gap-2 mb-6">
+              {['80+ Reviews', '4.9\u2605 Rating', 'Fully Insured'].map((chip) => (
                 <span
                   key={chip}
                   className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-white px-3.5 py-2 rounded-full text-sm font-medium border border-white/20 hover:bg-white/15 hover:border-cyan-400/40 transition-all duration-300 cursor-default"
@@ -132,10 +200,10 @@ export function WinterHero() {
                   {chip}
                 </span>
               ))}
-            </div>
+            </motion.div>
 
             {/* Premium CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-6 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 mb-6">
               <Button
                 size="lg"
                 className="group animate-shimmer-btn bg-gradient-to-r from-primary via-cyan-400 to-primary bg-[length:200%_auto] hover:from-blue-600 hover:to-cyan-600 text-white text-base font-bold px-7 h-14 shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-[1.02] tap-target relative overflow-hidden"
@@ -161,10 +229,10 @@ export function WinterHero() {
                   (608) 535-6057
                 </a>
               </Button>
-            </div>
+            </motion.div>
 
             {/* Social Proof with Animation */}
-            <div className="flex flex-wrap items-center gap-4 pt-2 animate-fade-in" style={{ animationDelay: '0.9s' }}>
+            <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-4 pt-2">
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-2.5">
                   {['J', 'M', 'S', '+'].map((letter, i) => (
@@ -200,11 +268,16 @@ export function WinterHero() {
                   <span className="text-blue-200/60 text-[10px] lg:text-xs">Google</span>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Hero Image Column */}
-          <div className="order-2 relative lg:flex lg:items-center animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <motion.div
+            className="order-2 relative lg:flex lg:items-center"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.3, ease: 'easeOut' }}
+          >
             {/* Premium Glow Effect */}
             <div className="absolute -inset-8 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/20 rounded-3xl blur-3xl animate-pulse" />
 
@@ -236,7 +309,7 @@ export function WinterHero() {
                 {stats.badgeText}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 
