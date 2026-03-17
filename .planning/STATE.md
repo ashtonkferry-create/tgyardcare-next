@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 6 of 9 (Brand Transformation & Visual Impact)
-Plan: 4 of 6 in Phase 6 (06-01, 06-02, 06-04 complete)
+Plan: 4 of 6 in Phase 6 (06-01, 06-02, 06-04 complete; 06-01 re-executed with cinematic hero treatment)
 Status: In progress
-Last activity: 2026-03-16 — Completed 06-02-PLAN.md (ServicesCarousel, BeforeAfterPreview, ServiceStandard, HowItWorks extraction)
+Last activity: 2026-03-17 — Completed 06-01-PLAN.md (JSON-LD baseline + hero/stats/services extraction + cinematic hero treatment)
 
-Progress M3: [████████░] 9+ plans (Phase 5 complete, Phase 6 in progress)
+Progress M3: [████████░] 10+ plans (Phase 5 complete, Phase 6 in progress)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -46,7 +46,7 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
   - 05-06: DONE — Playwright smoke tests (10 pages) + cron audit (41 jobs) [wave 3]
   - 05-07: DONE — Final verification (12/12 checks pass) [wave 4]
 - Phase 6 (Brand Transformation): IN PROGRESS
-  - 06-01: DONE -- StatsStrip, ScrollRevealWrapper, home/ directory [wave 1]
+  - 06-01: DONE -- JSON-LD baseline + HeroSection/StatsStrip(server)/SeasonalServicesSection/ScrollRevealWrapper + cinematic hero treatment (parallax, stagger, video swap slot) [wave 1]
   - 06-02: DONE -- ServicesCarousel, BeforeAfterPreview, ServiceStandard, HowItWorks extraction [wave 1]
   - 06-04: DONE -- ComparisonSlider component + 21 transformation pairs across 8 categories [wave 1]
 - Phase 7-9: Not started
@@ -55,7 +55,7 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 
 **Velocity:**
 - Total plans completed: 37 (9 Phase 1 + 5 Phase 2 + 6 Phase 3 + 12 Phase 4 + 1 Phase 4.1 + 1 Phase 3 gap + 3 Phase 6)
-- Last plan duration: ~6 minutes (06-02 component extraction)
+- Last plan duration: ~12 minutes (06-01 JSON-LD + extraction + cinematic hero treatment)
 - Total execution time: N/A
 
 *Updated after each plan completion*
@@ -211,6 +211,10 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - [Phase 5-07]: 12/12 automated checks pass, TypeScript actual 84 (budget 85)
 - [Phase 5-fix]: 5 missing Supabase tables created via migration (season_settings, season_override, seasonal_slides, seasonal_priority_services, promo_settings) — eliminates all 14 console 404 errors
 - [Phase 5-fix]: usePromoSettings.ts .single() → .maybeSingle() + console.warn removed
+- [Phase 6-01]: ScrollRevealWrapper supports legacy `animation` prop for backward compat with existing BeforeAfterPreview.tsx
+- [Phase 6-01]: Parallax via useEffect + useState (not CSS scroll-timeline) for universal browser support
+- [Phase 6-01]: Framer Motion Variants must be explicitly typed (`const fadeUp: Variants`) to avoid TS errors
+- [Phase 6-01]: HomeContent.tsx NOT modified — new components ready for integration in 06-03 assembly plan
 
 ### Pending Todos
 
@@ -238,7 +242,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16
-Stopped at: Completed 06-02-PLAN.md
+Last session: 2026-03-17
+Stopped at: Completed 06-01-PLAN.md (re-execution with cinematic hero treatment)
 Resume file: None
 Next: Continue Phase 6 plans (06-03 assembly, 06-05, 06-06)
