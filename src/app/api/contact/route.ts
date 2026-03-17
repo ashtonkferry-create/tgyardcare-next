@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
             email: data.email,
             phone: data.phone,
             address: data.address,
-            service: '',
+            service: data.service ?? '',
             source: 'contact_form',
             notes: data.message,
           }),

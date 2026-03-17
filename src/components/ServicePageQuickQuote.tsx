@@ -31,6 +31,8 @@ function validateFields(fields: FormFields): FieldErrors {
 
   if (!fields.name.trim() || fields.name.trim().length < 2) {
     errors.name = 'Name must be at least 2 characters';
+  } else if (!/^[a-zA-Z\s'-]+$/.test(fields.name.trim())) {
+    errors.name = 'Name can only contain letters, spaces, hyphens, and apostrophes.';
   }
 
   if (!fields.email.trim() || !EMAIL_REGEX.test(fields.email.trim())) {
@@ -343,6 +345,7 @@ export default function ServicePageQuickQuote({
                     {/* Form-level error */}
                     {errors.form && (
                       <p
+                        role="alert"
                         style={{
                           display: 'flex',
                           alignItems: 'center',

@@ -33,7 +33,13 @@ export const contactFormSchema = z.object({
     .string()
     .trim()
     .min(10, { message: "Message must be at least 10 characters" })
-    .max(2000, { message: "Message must be less than 2000 characters" })
+    .max(2000, { message: "Message must be less than 2000 characters" }),
+
+  service: z
+    .string()
+    .trim()
+    .max(100, { message: "Service must be less than 100 characters" })
+    .optional()
 });
 
 export type ContactFormData = z.infer<typeof contactFormSchema>;
