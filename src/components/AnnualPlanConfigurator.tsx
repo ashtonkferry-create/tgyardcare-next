@@ -241,19 +241,22 @@ export default function AnnualPlanConfigurator() {
         return seasons && Object.values(seasons).some(Boolean);
       });
 
-      await submitLead.mutateAsync({
-        first_name: state.contactForm.firstName,
-        last_name: state.contactForm.lastName,
-        email: state.contactForm.email,
-        phone: state.contactForm.phone,
-        address: state.contactForm.address || undefined,
-        service_id: firstEntry?.id ?? '',
-        location_id: null,
-        notes: buildNotes(),
-        referral_source: 'annual_plan_configurator',
-      });
-
-      setSubmitSuccess(true);
+      try {
+        await submitLead.mutateAsync({
+          first_name: state.contactForm.firstName,
+          last_name: state.contactForm.lastName,
+          email: state.contactForm.email,
+          phone: state.contactForm.phone,
+          address: state.contactForm.address || undefined,
+          service_id: firstEntry?.id ?? '',
+          location_id: null,
+          notes: buildNotes(),
+          referral_source: 'annual_plan_configurator',
+        });
+        setSubmitSuccess(true);
+      } catch {
+        // submitLead.isError handles the UI
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [services, state, selectedServiceCount, pricing.discountActive, submitLead],
@@ -378,6 +381,7 @@ export default function AnnualPlanConfigurator() {
                           key={season.id}
                           type="button"
                           disabled={!available}
+                          aria-label={!available ? `${season.label} — not available for ${service.name}` : season.label}
                           onClick={() =>
                             dispatch({
                               type: 'TOGGLE_SERVICE_SEASON',
@@ -555,7 +559,7 @@ export default function AnnualPlanConfigurator() {
                           <div className="flex justify-center gap-0.5 mt-1 flex-wrap">
                             {active.slice(0, 3).map((svc, i) => (
                               <span
-                                key={i}
+                                key={svc.color}
                                 className="w-1.5 h-1.5 rounded-full"
                                 style={{ backgroundColor: svc.color }}
                               />
