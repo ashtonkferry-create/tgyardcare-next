@@ -4,7 +4,7 @@ import GalleryContent from './GalleryContent';
 export const metadata: Metadata = {
   title: 'Project Gallery | 33+ Real Transformations | TotalGuard Madison',
   description: "Browse 33+ real before & after photos from TotalGuard Yard Care projects across Madison WI. Lawn mowing, mulching, gutters, pruning, seasonal cleanup — no stock photos.",
-  keywords: 'before after lawn care Madison, lawn transformation photos, landscaping portfolio Madison WI, yard makeover gallery, professional lawn results, garden bed photos, gutter cleaning before after',
+  keywords: 'before after lawn care Madison, lawn transformation photos, landscaping portfolio Madison WI, yard makeover gallery, professional lawn results, garden bed photos, gutter cleaning before after, property transformation comparison, yard care before and after slider, Madison lawn makeover',
   alternates: {
     canonical: 'https://tgyardcare.com/gallery',
   },
