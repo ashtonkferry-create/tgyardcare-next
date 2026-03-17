@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Transform tgyardcare.com into a billion-dollar brand experience that converts at 3-5x current rates while protecting existing SEO rankings and lead flow.
-**Current focus:** M3 Phase 5 (Safety Nets & Foundation) — In Progress
+**Current focus:** M3 Phase 6 (Brand Transformation & Visual Impact) — Next
 
 ## Current Position
 
-Phase: 5 of 9 (Safety Nets & Foundation)
-Plan: 6 of 7 complete (Phase 5) — 05-01, 05-02, 05-03, 05-04, 05-05, 05-06 done
-Status: In progress
-Last activity: 2026-03-16 — Completed 05-06-PLAN.md (Smoke Tests + Cron Audit)
+Phase: 5 of 9 complete, Phase 6 next
+Plan: 7 of 7 complete (Phase 5) — all done
+Status: Phase 5 complete
+Last activity: 2026-03-16 — Phase 5 verified, all 12 automated checks pass
 
-Progress M3: [██████░] 6/7 plans (Phase 5)
+Progress M3: [███████] 7/7 plans (Phase 5 complete)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -37,9 +37,16 @@ COMPLETED Milestone 2: Automation Gap Closer
 - Phase 4.1 (M2 Integration Fixes): COMPLETE (1/1 plan) — fixed W1/W2/S1/S2/S3/S4/D2
 
 Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
-- Phase 5 (Safety Nets & Foundation): IN PROGRESS (1/7 plans)
+- Phase 5 (Safety Nets & Foundation): COMPLETE (7/7 plans)
   - 05-01: DONE — Promise.allSettled + maybeSingle in SeasonalThemeContext [wave 1]
-- Phase 6-9: Not started
+  - 05-02: DONE — Self-hosted Clash Display + General Sans via next/font/local [wave 1]
+  - 05-03: DONE — TypeScript error budget (85 baseline, actual 84) [wave 1]
+  - 05-04: DONE — @supabase/ssr server+browser clients + auth middleware [wave 2]
+  - 05-05: DONE — Seasonal CSS consolidation + brand name + contrast utilities [wave 2]
+  - 05-06: DONE — Playwright smoke tests (10 pages) + cron audit (41 jobs) [wave 3]
+  - 05-07: DONE — Final verification (12/12 checks pass) [wave 4]
+- Phase 6 (Brand Transformation): Not started
+- Phase 7-9: Not started
 
 ## Performance Metrics
 
@@ -198,6 +205,9 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - [Phase 5-06]: Strict console error assertion (empty array) — Plan 01 already fixed silent fallbacks
 - [Phase 5-06]: 41 cron jobs documented; 2 potential redundancies identified (gbp-post vs gbp-post-publisher, seo-audit vs seo-crawl+seo-score)
 - [Phase 5-06]: FOUND-09 (SEO baseline) deferred to Phase 6+ pending GSC credential rotation
+- [Phase 5-07]: 12/12 automated checks pass, TypeScript actual 84 (budget 85)
+- [Phase 5-fix]: 5 missing Supabase tables created via migration (season_settings, season_override, seasonal_slides, seasonal_priority_services, promo_settings) — eliminates all 14 console 404 errors
+- [Phase 5-fix]: usePromoSettings.ts .single() → .maybeSingle() + console.warn removed
 
 ### Pending Todos
 
@@ -226,6 +236,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 05-06-PLAN.md (Smoke Tests + Cron Audit)
+Stopped at: Phase 5 complete, verified, pushed to origin
 Resume file: None
-Next: 05-07 (final Phase 5 plan)
+Next: Phase 6 (Brand Transformation & Visual Impact)

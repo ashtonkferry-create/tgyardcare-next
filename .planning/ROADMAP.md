@@ -126,7 +126,7 @@ Plans:
 - Integer phases (5, 6, 7, 8, 9): Planned milestone work
 - Decimal phases (5.1, 6.1): Urgent insertions if needed (marked with INSERTED)
 
-- [ ] **Phase 5: Safety Nets & Foundation** - Fix production bugs, harden the codebase, establish design tokens and server-side patterns
+- [x] **Phase 5: Safety Nets & Foundation** - Fix production bugs, harden the codebase, establish design tokens and server-side patterns
 - [ ] **Phase 6: Brand Transformation & Visual Impact** - Hero video, before/after gallery, Server Component conversion, premium typography in action
 - [ ] **Phase 7: Conversion Features** - Instant quote calculator, interactive service area map, annual plan configurator
 - [ ] **Phase 8: Customer Retention Layer** - Auth-protected customer portal, referral engine with tracking
@@ -144,7 +144,17 @@ Plans:
   3. All page headings render in Clash Display and body text renders in General Sans — no Inter, no font-loading flash
   4. Light text on dark backgrounds passes WCAG AA contrast check on every section of the homepage and service pages
   5. Running `tsc --noEmit` produces a cataloged error list with an established budget — new code in Phase 6+ adds zero new errors
-**Plans**: TBD
+**Status**: Complete
+**Plans:** 7 plans
+
+Plans:
+- [x] 05-01-PLAN.md -- Supabase error resilience (Promise.allSettled + silent fallbacks)
+- [x] 05-02-PLAN.md -- Typography foundation (Clash Display + General Sans self-hosted)
+- [x] 05-03-PLAN.md -- TypeScript error budget (85 baseline)
+- [x] 05-04-PLAN.md -- Supabase SSR clients + auth middleware
+- [x] 05-05-PLAN.md -- Seasonal CSS + brand consistency + contrast utilities
+- [x] 05-06-PLAN.md -- Playwright smoke tests (10 pages) + cron audit
+- [x] 05-07-PLAN.md -- Final verification checkpoint (12/12 checks pass)
 
 ### Phase 6: Brand Transformation & Visual Impact
 **Goal**: Visitors land on a homepage with cinematic video hero, can browse 20+ before/after transformation photos with interactive sliders, and experience a server-rendered page that loads fast and ranks well in Google.
@@ -207,7 +217,7 @@ Plans:
 | 3. SEO Domination | M2 | 6/6 | Complete | 2026-03-16 |
 | 4. Intelligence Layer | M2 | 12/12 | Complete | 2026-03-16 |
 | 4.1 M2 Integration Fixes | M2 | 1/1 | Complete | 2026-03-16 |
-| 5. Safety Nets & Foundation | M3 | 0/? | Not started | - |
+| 5. Safety Nets & Foundation | M3 | 7/7 | Complete | 2026-03-16 |
 | 6. Brand Transformation | M3 | 0/? | Not started | - |
 | 7. Conversion Features | M3 | 0/? | Not started | - |
 | 8. Customer Retention | M3 | 0/? | Not started | - |

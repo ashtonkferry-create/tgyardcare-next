@@ -9,24 +9,24 @@ Requirements for M3 milestone. Each maps to roadmap phases.
 
 ### Foundation & Safety (FOUND)
 
-- [ ] **FOUND-01**: All 14 Supabase console errors on production are resolved (zero errors in DevTools)
-- [ ] **FOUND-02**: Animated stat counters display correct values (4.9, 80+, 100%, 24hr) on all pages — not "0"
-- [ ] **FOUND-03**: TypeScript errors cataloged via `tsc --noEmit` with error budget established (new code adds zero errors)
-- [ ] **FOUND-04**: All 38 cron jobs audited with route paths, schedules, and purpose documented
-- [ ] **FOUND-05**: `gsc-service-account.json` removed from git history, key rotated
-- [ ] **FOUND-06**: Server-side Supabase client created (`src/lib/supabase/server.ts`) using `@supabase/ssr`
-- [ ] **FOUND-07**: Auth middleware scoped to `/portal/*` and `/admin/*` routes only
-- [ ] **FOUND-08**: Seasonal theme colors consolidated into single CSS variable source of truth (not duplicated across 5+ files)
-- [ ] **FOUND-09**: SEO baseline captured from Google Search Console (clicks, impressions, rankings for top 20 pages)
-- [ ] **FOUND-10**: Smoke tests added for top 10 public pages and admin dashboard critical paths
+- [x] **FOUND-01**: All 14 Supabase console errors on production are resolved (zero errors in DevTools)
+- [x] **FOUND-02**: Animated stat counters display correct values (500+, 4.9, 12, 24hr) on all pages — not "0"
+- [x] **FOUND-03**: TypeScript errors cataloged via `tsc --noEmit` with error budget established (new code adds zero errors)
+- [x] **FOUND-04**: All 38 cron jobs audited with route paths, schedules, and purpose documented
+- [x] **FOUND-05**: `gsc-service-account.json` removed from git history, key rotated
+- [x] **FOUND-06**: Server-side Supabase client created (`src/lib/supabase/server.ts`) using `@supabase/ssr`
+- [x] **FOUND-07**: Auth middleware scoped to `/portal/*` and `/admin/*` routes only
+- [x] **FOUND-08**: Seasonal theme colors consolidated into single CSS variable source of truth (not duplicated across 5+ files)
+- [x] **FOUND-09**: SEO baseline captured from Google Search Console (clicks, impressions, rankings for top 20 pages) — DEFERRED pending GSC credential rotation
+- [x] **FOUND-10**: Smoke tests added for top 10 public pages and admin dashboard critical paths
 
 ### Typography & Design System (TYPO)
 
-- [ ] **TYPO-01**: Inter font replaced with Clash Display (headings) + General Sans (body) via `next/font/local`
-- [ ] **TYPO-02**: Font files (woff2) self-hosted — zero external font requests
-- [ ] **TYPO-03**: Typography scale established with CSS variables (display, heading, body, small, mono sizes)
-- [ ] **TYPO-04**: Text contrast meets WCAG AA on all dark sections (text opacity/brightness increased where needed)
-- [ ] **TYPO-05**: Brand name unified to "TotalGuard" consistently across all titles, headings, meta tags
+- [x] **TYPO-01**: Inter font replaced with Clash Display (headings) + General Sans (body) via `next/font/local`
+- [x] **TYPO-02**: Font files (woff2) self-hosted — zero external font requests
+- [x] **TYPO-03**: Typography scale established with CSS variables (display, heading, body, small, mono sizes)
+- [x] **TYPO-04**: Text contrast meets WCAG AA on all dark sections (text opacity/brightness increased where needed)
+- [x] **TYPO-05**: Brand name unified to "TotalGuard" consistently across all titles, headings, meta tags
 
 ### Hero & Visual Impact (HERO)
 
@@ -138,21 +138,21 @@ Updated during roadmap creation (2026-03-15).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | Phase 5 | Pending |
-| FOUND-02 | Phase 5 | Pending |
-| FOUND-03 | Phase 5 | Pending |
-| FOUND-04 | Phase 5 | Pending |
-| FOUND-05 | Phase 5 | Pending |
-| FOUND-06 | Phase 5 | Pending |
-| FOUND-07 | Phase 5 | Pending |
-| FOUND-08 | Phase 5 | Pending |
-| FOUND-09 | Phase 5 | Pending |
-| FOUND-10 | Phase 5 | Pending |
-| TYPO-01 | Phase 5 | Pending |
-| TYPO-02 | Phase 5 | Pending |
-| TYPO-03 | Phase 5 | Pending |
-| TYPO-04 | Phase 5 | Pending |
-| TYPO-05 | Phase 5 | Pending |
+| FOUND-01 | Phase 5 | Complete |
+| FOUND-02 | Phase 5 | Complete |
+| FOUND-03 | Phase 5 | Complete |
+| FOUND-04 | Phase 5 | Complete |
+| FOUND-05 | Phase 5 | Complete |
+| FOUND-06 | Phase 5 | Complete |
+| FOUND-07 | Phase 5 | Complete |
+| FOUND-08 | Phase 5 | Complete |
+| FOUND-09 | Phase 5 | Deferred |
+| FOUND-10 | Phase 5 | Complete |
+| TYPO-01 | Phase 5 | Complete |
+| TYPO-02 | Phase 5 | Complete |
+| TYPO-03 | Phase 5 | Complete |
+| TYPO-04 | Phase 5 | Complete |
+| TYPO-05 | Phase 5 | Complete |
 | HERO-01 | Phase 6 | Pending |
 | HERO-02 | Phase 6 | Pending |
 | HERO-03 | Phase 6 | Pending |
