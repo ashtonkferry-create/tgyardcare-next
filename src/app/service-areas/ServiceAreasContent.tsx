@@ -1,6 +1,7 @@
 'use client';
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import CTASection from '@/components/CTASection';
@@ -10,6 +11,16 @@ import { MapPin, CheckCircle2, Phone, Star, ArrowRight, Sparkles, Award, Scissor
 import { type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+
+const ServiceAreaMap = dynamic(
+  () => import('@/components/ServiceAreaMap').then((m) => m.ServiceAreaMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ height: '500px' }} className="animate-pulse bg-white/5 rounded-xl" />
+    ),
+  }
+);
 
 const serviceAreas = [
   "Madison",
@@ -275,24 +286,11 @@ export default function ServiceAreasContent() {
               </p>
             </div>
 
-            <div className="overflow-hidden border-2 border-white/10 rounded-xl">
-              <div style={{ height: "600px", background: '#060f1a' }}>
-                <iframe
-                  title="TotalGuard Yard Care service area map - Madison, Middleton, Waunakee Wisconsin and surrounding areas"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d93276.28645682166!2d-89.54097545!3d43.0747610!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8806536d3a2019ff%3A0x4e0cfcb5ba484198!2sMadison%2C%20WI!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus&z=11"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </div>
-              <div className="bg-white/[0.04] p-6 border-t border-white/10">
-                <p className="text-sm text-white/60 text-center">
-                  <strong className="text-white">Coverage includes:</strong> Madison, Middleton, Waunakee, Monona, Sun Prairie, Fitchburg, Verona, McFarland, Cottage Grove, DeForest, Oregon, and Stoughton
-                </p>
-              </div>
+            <ServiceAreaMap height="600px" />
+            <div className="bg-white/[0.04] p-6 border border-white/10 rounded-b-xl -mt-3">
+              <p className="text-sm text-white/60 text-center">
+                <strong className="text-white">Click any city</strong> to explore our services there. Coverage includes Madison, Middleton, Waunakee, Monona, Sun Prairie, Fitchburg, Verona, McFarland, Cottage Grove, DeForest, Oregon, and Stoughton.
+              </p>
             </div>
 
             {/* Additional Local SEO Content */}
