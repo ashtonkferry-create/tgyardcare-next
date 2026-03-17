@@ -1,5 +1,22 @@
 import type { Metadata } from 'next';
-import HomeContent from './HomeContent';
+import { ScrollProgress } from '@/components/ScrollProgress';
+import { WebPageSchema } from '@/components/schemas/WebPageSchema';
+import Navigation from '@/components/Navigation';
+import { HeroSection } from '@/components/home/HeroSection';
+import { StatsStrip } from '@/components/home/StatsStrip';
+import { SeasonalServicesSection } from '@/components/home/SeasonalServicesSection';
+import { WhyMadisonTrust } from '@/components/WhyMadisonTrust';
+import { ServicesCarousel } from '@/components/home/ServicesCarousel';
+import { FullSeasonContract } from '@/components/FullSeasonContract';
+import { BeforeAfterPreview } from '@/components/home/BeforeAfterPreview';
+import { SectionDivider } from '@/components/SectionTransition';
+import { GoogleReviewsSection } from '@/components/GoogleReviewsSection';
+import { ComparisonTable } from '@/components/ComparisonTable';
+import { ServiceStandard } from '@/components/home/ServiceStandard';
+import { HowItWorks } from '@/components/home/HowItWorks';
+import LatestBlogPosts from '@/components/blog/LatestBlogPosts';
+import CTASection from '@/components/CTASection';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: '#1 Lawn Care in Madison WI — 4.9★ Rated | TotalGuard Yard Care',
@@ -16,5 +33,54 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <HomeContent />;
+  return (
+    <div className="min-h-screen bg-background">
+      <ScrollProgress variant="minimal" />
+      <WebPageSchema name="TotalGuard Yard Care" description="Madison's most reliable lawn care and landscaping" url="/" />
+      <Navigation showPromoBanner />
+
+      {/* Server-rendered sr-only section — visible in view-source, indexable by search engines */}
+      <section className="sr-only" aria-label="Business Summary">
+        <p>TotalGuard Yard Care provides professional lawn care and yard maintenance services in Madison, Middleton, Waunakee, and Dane County, Wisconsin. We assign the same crew to your property every visit for consistent quality. Services include mowing, fertilization, gutter cleaning, snow removal, and seasonal cleanups. Call (608) 535-6057 for a free quote.</p>
+      </section>
+
+      {/* Client island — season-aware hero with parallax */}
+      <HeroSection />
+
+      {/* Client island — animated stat counters */}
+      <StatsStrip />
+
+      {/* Client island — needs seasonal context for service prioritization */}
+      <SeasonalServicesSection />
+
+      <WhyMadisonTrust />
+
+      {/* Client island — carousel interaction state */}
+      <ServicesCarousel />
+
+      <FullSeasonContract />
+
+      {/* Server component — static before/after content */}
+      <BeforeAfterPreview />
+
+      <SectionDivider />
+      <GoogleReviewsSection />
+      <ComparisonTable />
+
+      {/* Server component — static service standard grid */}
+      <ServiceStandard />
+
+      {/* Server component — wraps client ProcessTimeline */}
+      <HowItWorks />
+
+      <section className="py-16 md:py-20" style={{ background: '#0a1a0e' }}>
+        <div className="container mx-auto px-4">
+          <LatestBlogPosts />
+        </div>
+      </section>
+
+      <CTASection />
+      <Footer showCloser={false} />
+    </div>
+  );
 }
