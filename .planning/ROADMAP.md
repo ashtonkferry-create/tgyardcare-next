@@ -179,7 +179,14 @@ Plans:
   3. Interactive map displays all 12 Dane County service cities with highlighted boundaries, and clicking a city navigates to its location page
   4. User can toggle services on/off by season in the annual plan configurator and sees a 12-month calendar with bundle pricing that updates in real-time
   5. "Lock In My Plan" and "Get Exact Quote" CTAs both capture lead data (name, email, phone, address, selections) to Supabase
-**Plans**: TBD
+**Plans:** 5 plans
+
+Plans:
+- [ ] 07-01-PLAN.md -- Install leaflet + geocoding server action + city boundaries data + DB migration [wave 1]
+- [ ] 07-02-PLAN.md -- Interactive ServiceAreaMap component + service-areas page integration [wave 2]
+- [ ] 07-03-PLAN.md -- AddressAutocomplete component + QuoteFlow enhancement [wave 2]
+- [ ] 07-04-PLAN.md -- AnnualPlanConfigurator with season toggles, calendar, bundle pricing, lead capture [wave 2]
+- [ ] 07-05-PLAN.md -- Page integration + build verification + visual QA checkpoint [wave 3]
 
 ### Phase 8: Customer Retention Layer
 **Goal**: Existing customers can log in to a branded portal to view their service history, upcoming schedule, and invoices — and can share a referral link that gives both parties $50 off.
@@ -238,7 +245,7 @@ Plans:
 | 4.1 M2 Integration Fixes | M2 | 1/1 | Complete | 2026-03-16 |
 | 5. Safety Nets & Foundation | M3 | 7/7 | Complete | 2026-03-16 |
 | 6. Brand Transformation | M3 | 6/6 | Complete | 2026-03-17 |
-| 7. Conversion Features | M3 | 0/? | Not started | - |
+| 7. Conversion Features | M3 | 0/5 | Planning complete | - |
 | 8. Customer Retention | M3 | 0/? | Not started | - |
 | 9. Content & SEO Growth | M3 | 0/? | Not started | - |
 | 10. SEO Dominance Engine | M3 | 0/? | Not started | - |
