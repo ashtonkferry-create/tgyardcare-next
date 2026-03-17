@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 7 of 10 (Conversion Features)
-Plan: 4 of 5 in Phase 7
-Status: In progress
-Last activity: 2026-03-17 — Completed 07-04-PLAN.md (Annual Plan Configurator)
+Plan: 5 of 5 in Phase 7 (auto tasks complete; human-verify checkpoint pending)
+Status: Awaiting checkpoint approval
+Last activity: 2026-03-17 — Completed 07-05-PLAN.md (Annual Plan Integration + Build Verification)
 
-Progress M3: [███████████████░] 16+ plans (Phase 5 complete, Phase 6 complete, Phase 7: 3/5)
+Progress M3: [████████████████░] 18+ plans (Phase 5 complete, Phase 6 complete, Phase 7: 4/5 committed + checkpoint pending)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -55,6 +55,7 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - Phase 7 (Conversion Features): IN PROGRESS (1/5 plans)
   - 07-01: DONE -- leaflet + react-leaflet + Mapbox geocoding server action + 12-city GeoJSON + migration 073 [wave 1]
   - 07-04: DONE -- AnnualPlanConfigurator: season toggles, 12-month calendar, Supabase bundle pricing (15% at 3+), lead capture [wave 2]
+  - 07-05: DONE (auto tasks) -- /annual-plan page + homepage CTA banner; build passes (138 pages, 0 TS errors); checkpoint pending visual QA [wave 3]
   - 07-03: DONE -- AddressAutocomplete component + QuoteFlow address-first step with auto-location matching [wave 2]
   - 07-02: DONE -- ServiceAreaMap Leaflet component + service-areas page integration (replaces Google Maps iframe) [wave 2]
 - Phase 8-10: Not started
@@ -239,6 +240,9 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - [Phase 7-02]: CartoDB dark_all tiles for brand-consistent dark map theme
 - [Phase 7-02]: Leaflet ssr:false via next/dynamic pattern with shimmer loading placeholder
 - [Phase 7-02]: Polygon hover uses setStyle (not React state) to avoid re-renders
+- [Phase 7-05]: Annual-plan page uses page.tsx Server Component wrapper + AnnualPlanContent.tsx client island (same as service-areas pattern)
+- [Phase 7-05]: Homepage CTA for annual plan placed between HowItWorks and LatestBlogPosts as border-primary/20 banner card (non-disruptive)
+- [Phase 7-05]: tsc --noEmit exits 0 post-build (skipLibCheck + non-strict tsconfig; 84-error count was from .next/types during dev mode)
 
 ### Pending Todos
 
@@ -267,6 +271,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 07-04-PLAN.md (Annual Plan Configurator)
+Stopped at: 07-05-PLAN.md auto tasks complete — awaiting checkpoint:human-verify
 Resume file: None
-Next: Continue Phase 7 plans (07-05 remaining)
+Next: User approves visual QA checkpoint → Phase 7 complete → Begin Phase 8 (Portal + Referral)
