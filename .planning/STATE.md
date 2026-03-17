@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 7 of 10 (Conversion Features)
-Plan: 3 of 5 in Phase 7
+Plan: 4 of 5 in Phase 7
 Status: In progress
-Last activity: 2026-03-17 — Completed 07-03-PLAN.md (Address Autocomplete Integration)
+Last activity: 2026-03-17 — Completed 07-04-PLAN.md (Annual Plan Configurator)
 
-Progress M3: [██████████████░] 15+ plans (Phase 5 complete, Phase 6 complete, Phase 7: 2/5)
+Progress M3: [███████████████░] 16+ plans (Phase 5 complete, Phase 6 complete, Phase 7: 3/5)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -54,6 +54,7 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
   - 06-06: DONE -- Final verification (84 TS errors, 12 JSON-LD occurrences, server components confirmed) [wave 3]
 - Phase 7 (Conversion Features): IN PROGRESS (1/5 plans)
   - 07-01: DONE -- leaflet + react-leaflet + Mapbox geocoding server action + 12-city GeoJSON + migration 073 [wave 1]
+  - 07-04: DONE -- AnnualPlanConfigurator: season toggles, 12-month calendar, Supabase bundle pricing (15% at 3+), lead capture [wave 2]
   - 07-03: DONE -- AddressAutocomplete component + QuoteFlow address-first step with auto-location matching [wave 2]
   - 07-02: DONE -- ServiceAreaMap Leaflet component + service-areas page integration (replaces Google Maps iframe) [wave 2]
 - Phase 8-10: Not started
@@ -232,6 +233,9 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - [Phase 7-01]: 12 Dane County city boundaries as simplified rectangles in src/data/daneCountyBoundaries.ts
 - [Phase 7-01]: Migration 073: leads.selected_services jsonb column (not yet applied to production)
 - [Phase 7-01]: MAPBOX_ACCESS_TOKEN env var required for geocoding (graceful empty-array fallback if missing)
+- [Phase 7-04]: AnnualPlanConfigurator stores service selections in notes field (human-readable) — LeadInsert type lacks selected_services jsonb
+- [Phase 7-04]: Bundle pricing uses better-tier midpoint * 12 * (selectedSeasonCount / 4) for proportional annual estimate
+- [Phase 7-04]: 15% bundle discount threshold: 3+ services selected
 - [Phase 7-02]: CartoDB dark_all tiles for brand-consistent dark map theme
 - [Phase 7-02]: Leaflet ssr:false via next/dynamic pattern with shimmer loading placeholder
 - [Phase 7-02]: Polygon hover uses setStyle (not React state) to avoid re-renders
@@ -263,6 +267,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 07-02-PLAN.md (Interactive Service Area Map)
+Stopped at: Completed 07-04-PLAN.md (Annual Plan Configurator)
 Resume file: None
-Next: Continue Phase 7 plans (07-03, 07-04, 07-05)
+Next: Continue Phase 7 plans (07-05 remaining)
