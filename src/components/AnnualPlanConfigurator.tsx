@@ -444,7 +444,7 @@ export default function AnnualPlanConfigurator() {
                           <div className="flex justify-center gap-0.5 mt-1 flex-wrap">
                             {active.slice(0, 3).map((svc) => (
                               <span
-                                key={svc.color}
+                                key={svc.emoji}
                                 className="w-1.5 h-1.5 rounded-full"
                                 style={{ backgroundColor: svc.color }}
                               />
@@ -503,11 +503,9 @@ export default function AnnualPlanConfigurator() {
                     )}
                     <span className="relative">Get My Custom Quote</span>
                   </button>
-                  {!state.showContactForm && (
-                    <p className="text-center text-xs mt-2" style={{ color: 'rgba(255,255,255,0.30)' }}>
-                      We&apos;ll reach out to discuss your property and get you scheduled.
-                    </p>
-                  )}
+                  <p className="text-center text-xs mt-2" style={{ color: 'rgba(255,255,255,0.30)' }}>
+                    We&apos;ll reach out to discuss your property and get you scheduled.
+                  </p>
                 </motion.div>
               ) : (
                 <motion.form
