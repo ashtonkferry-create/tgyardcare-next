@@ -3,7 +3,7 @@
 ## Milestones
 
 - [x] **M2: Automation Gap Closer** - Phases 0-4.1 (complete)
-- [ ] **M3: Billionaire Brand Transformation** - Phases 5-9 (planned)
+- [ ] **M3: Billionaire Brand Transformation** - Phases 5-10 (planned)
 
 ---
 
@@ -131,6 +131,7 @@ Plans:
 - [ ] **Phase 7: Conversion Features** - Instant quote calculator, interactive service area map, annual plan configurator
 - [ ] **Phase 8: Customer Retention Layer** - Auth-protected customer portal, referral engine with tracking
 - [ ] **Phase 9: Content & SEO Growth** - Blog categories/tags, Madison lawn care hub, seasonal content surfacing
+- [ ] **Phase 10: SEO Dominance Engine** - 96 city-service pages, 1,200+ internal links, linkable assets, breadcrumbs
 
 ## Phase Details
 
@@ -203,6 +204,24 @@ Plans:
   4. Every blog post and guide page includes a contextual lead magnet CTA (e.g., "Get your free lawn care checklist") that captures email to Supabase
 **Plans**: TBD
 
+### Phase 10: SEO Dominance Engine
+**Goal**: Own every "[service] [city] wi" search result in Dane County with 96 city-service pages, 1,200+ contextual internal links, 3 linkable assets, and visible breadcrumbs — transforming TotalGuard from a local business site into the undisputed authority for yard care in the Madison metro area.
+**Depends on**: Phase 9 (content hub provides blog auto-linking foundation), Phase 6 (server-rendered pages)
+**Design Doc**: docs/plans/2026-03-17-seo-dominance-engine-design.md
+**Success Criteria** (what must be TRUE):
+  1. All 96 city-service pages live with unique per-city content (neighborhoods, challenges, FAQs) — no templated/duplicate content
+  2. Every service page has a "Serving Across Dane County" section linking to all 12 city variants
+  3. Every city-service page has "More Services in {City}" (7 links) and "Also Serving Nearby" (3-4 adjacent city links)
+  4. Existing 12 location pages link to city-specific service pages instead of generic service pages
+  5. Blog posts auto-link service/city keywords via InlineServiceLinks component (max 3 per keyword)
+  6. Visible breadcrumbs render on every page type (service, city-service, location, blog)
+  7. Dane County Lawn Care Cost Guide 2026 live at /lawn-care-costs-dane-county with pricing tables
+  8. Seasonal Lawn Calendar live at /seasonal-lawn-calendar-madison with month-by-month guide
+  9. Interactive Service Area Map live at /service-area-map with clickable city regions
+  10. Sitemap includes all 96 new pages at priority 0.85 + 3 assets at priority 0.7
+  11. Each city-service page has LocalBusiness + Service + BreadcrumbList + FAQPage schema
+**Plans**: TBD
+
 ---
 
 ## Progress
@@ -222,3 +241,4 @@ Plans:
 | 7. Conversion Features | M3 | 0/? | Not started | - |
 | 8. Customer Retention | M3 | 0/? | Not started | - |
 | 9. Content & SEO Growth | M3 | 0/? | Not started | - |
+| 10. SEO Dominance Engine | M3 | 0/? | Not started | - |
