@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 ## Current Position
 
 Phase: 6 of 9 (Brand Transformation & Visual Impact)
-Plan: 4 of 6 in Phase 6 (06-01, 06-02, 06-04 complete; 06-01 re-executed with cinematic hero treatment)
+Plan: 5 of 6 in Phase 6 (06-01, 06-02, 06-03, 06-04 complete)
 Status: In progress
-Last activity: 2026-03-17 — Completed 06-01-PLAN.md (JSON-LD baseline + hero/stats/services extraction + cinematic hero treatment)
+Last activity: 2026-03-17 — Completed 06-03-PLAN.md (Server Component assembly)
 
 Progress M3: [████████░] 10+ plans (Phase 5 complete, Phase 6 in progress)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
@@ -48,6 +48,7 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - Phase 6 (Brand Transformation): IN PROGRESS
   - 06-01: DONE -- JSON-LD baseline + HeroSection/StatsStrip(server)/SeasonalServicesSection/ScrollRevealWrapper + cinematic hero treatment (parallax, stagger, video swap slot) [wave 1]
   - 06-02: DONE -- ServicesCarousel, BeforeAfterPreview, ServiceStandard, HowItWorks extraction [wave 1]
+  - 06-03: DONE -- Server Component page.tsx assembly (3 server + 4 client islands, 7 JSON-LD preserved) [wave 2]
   - 06-04: DONE -- ComparisonSlider component + 21 transformation pairs across 8 categories [wave 1]
 - Phase 7-9: Not started
 
@@ -215,6 +216,10 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - [Phase 6-01]: Parallax via useEffect + useState (not CSS scroll-timeline) for universal browser support
 - [Phase 6-01]: Framer Motion Variants must be explicitly typed (`const fadeUp: Variants`) to avoid TS errors
 - [Phase 6-01]: HomeContent.tsx NOT modified — new components ready for integration in 06-03 assembly plan
+- [Phase 6-03]: page.tsx is now a Server Component — no 'use client', imports 11 components directly
+- [Phase 6-03]: HomeContent.tsx renamed to HomeContent.backup.tsx (not deleted) for rollback reference
+- [Phase 6-03]: StatsStrip kept as client island (Framer Motion scroll-reveal needs browser state)
+- [Phase 6-03]: Server components (BeforeAfterPreview, ServiceStandard, HowItWorks) render without JavaScript
 
 ### Pending Todos
 
@@ -243,6 +248,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 06-01-PLAN.md (re-execution with cinematic hero treatment)
+Stopped at: Completed 06-03-PLAN.md (Server Component assembly)
 Resume file: None
-Next: Continue Phase 6 plans (06-03 assembly, 06-05, 06-06)
+Next: Continue Phase 6 plans (06-05, 06-06)
