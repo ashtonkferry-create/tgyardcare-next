@@ -341,6 +341,34 @@ export default function ServicesContent() {
         );
       })}
 
+      {/* ── BUNDLE & SAVE STRIP ── */}
+      <div className="container mx-auto px-4 sm:px-6 my-8">
+        <div
+          className="rounded-2xl px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+          style={{
+            background: 'rgba(34,197,94,0.05)',
+            border: '1px solid rgba(34,197,94,0.15)',
+            borderLeft: '4px solid #22c55e',
+          }}
+        >
+          <div>
+            <p className="text-white font-semibold text-sm mb-0.5">
+              💰 Bundle any 3+ services and save 15% automatically
+            </p>
+            <p className="text-gray-500 text-xs">
+              Build a custom annual plan with exactly the services you need — price updates in real time.
+            </p>
+          </div>
+          <Link
+            href="/annual-plan"
+            className="flex-shrink-0 inline-flex items-center gap-2 text-sm font-semibold transition-all duration-200 hover:gap-3 whitespace-nowrap"
+            style={{ color: '#4ade80' }}
+          >
+            Build your custom plan →
+          </Link>
+        </div>
+      </div>
+
       {/* ── TOTALGUARD STANDARD ── */}
       <section className="py-20 md:py-28" style={{ background: bg.hero }}>
         <div className="container mx-auto px-4">
