@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Transform tgyardcare.com into a billion-dollar brand experience that converts at 3-5x current rates while protecting existing SEO rankings and lead flow.
-**Current focus:** M3 Phase 7 (Conversion Features) — Next
+**Current focus:** M3 Phase 7 (Conversion Features) — Executing
 
 ## Current Position
 
 Phase: 7 of 10 (Conversion Features)
-Plan: 0 of ? in Phase 7
-Status: Planning
-Last activity: 2026-03-17 — Phase 6 complete (6/6 plans), Phase 7 planning
+Plan: 1 of 5 in Phase 7
+Status: In progress
+Last activity: 2026-03-17 — Completed 07-01-PLAN.md (Shared Infrastructure)
 
-Progress M3: [████████████░] 13+ plans (Phase 5 complete, Phase 6 complete, Phase 7 planning)
+Progress M3: [█████████████░] 14+ plans (Phase 5 complete, Phase 6 complete, Phase 7: 1/5)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -52,7 +52,8 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
   - 06-04: DONE -- ComparisonSlider component + 21 transformation pairs across 8 categories [wave 1]
   - 06-05: DONE -- Gallery page (comparison sliders added then removed per user request, portfolio grid remains) [wave 2]
   - 06-06: DONE -- Final verification (84 TS errors, 12 JSON-LD occurrences, server components confirmed) [wave 3]
-- Phase 7 (Conversion Features): PLANNING
+- Phase 7 (Conversion Features): IN PROGRESS (1/5 plans)
+  - 07-01: DONE -- leaflet + react-leaflet + Mapbox geocoding server action + 12-city GeoJSON + migration 073 [wave 1]
 - Phase 8-10: Not started
 
 ## Performance Metrics
@@ -224,6 +225,12 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - [Phase 6-03]: StatsStrip kept as client island (Framer Motion scroll-reveal needs browser state)
 - [Phase 6-03]: Server components (BeforeAfterPreview, ServiceStandard, HowItWorks) render without JavaScript
 
+- [Phase 7-01]: Mapbox Geocoding v6 server action at src/lib/geocoding.ts — proximity bias Madison WI
+- [Phase 7-01]: leaflet@1.9.4 + react-leaflet@5.0.0 + @types/leaflet@1.9.21 installed
+- [Phase 7-01]: 12 Dane County city boundaries as simplified rectangles in src/data/daneCountyBoundaries.ts
+- [Phase 7-01]: Migration 073: leads.selected_services jsonb column (not yet applied to production)
+- [Phase 7-01]: MAPBOX_ACCESS_TOKEN env var required for geocoding (graceful empty-array fallback if missing)
+
 ### Pending Todos
 
 None yet.
@@ -251,6 +258,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 06-03-PLAN.md (Server Component assembly)
+Stopped at: Completed 07-01-PLAN.md (Shared Infrastructure)
 Resume file: None
-Next: Continue Phase 6 plans (06-05, 06-06)
+Next: Continue Phase 7 plans (07-02 quote autocomplete, 07-03 interactive map, 07-04 annual plan configurator)
