@@ -2,15 +2,36 @@
 
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import CTASection from '@/components/CTASection';
 import AnnualPlanConfigurator from '@/components/AnnualPlanConfigurator';
 import { WebPageSchema } from '@/components/schemas/WebPageSchema';
-import { Calendar, Tag, CheckCircle2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-const benefits = [
-  { icon: Calendar, label: 'Year-round coverage', desc: 'Spring through winter — every season handled' },
-  { icon: Tag, label: 'Save 15% instantly', desc: 'Bundle 3+ services and see your discount applied live' },
-  { icon: CheckCircle2, label: 'Lock in pricing', desc: 'Your rate is guaranteed for the full plan year' },
+const TRUST_ITEMS = [
+  { label: '4.9★ Google Rating' },
+  { label: '80+ Madison Families' },
+  { label: '15% Bundle Savings' },
+  { label: 'Fully Insured' },
+  { label: 'Locked-In Pricing' },
+];
+
+// Deterministic particle positions to avoid hydration mismatches
+const PARTICLES = [
+  { left: '6%',  top: '25%', size: 3, opacity: 0.3, duration: 5.2, delay: 0 },
+  { left: '12%', top: '60%', size: 2, opacity: 0.2, duration: 6.8, delay: 1.2 },
+  { left: '19%', top: '40%', size: 4, opacity: 0.35, duration: 4.5, delay: 0.5 },
+  { left: '25%', top: '70%', size: 2, opacity: 0.2, duration: 7.1, delay: 2.0 },
+  { left: '31%', top: '30%', size: 3, opacity: 0.25, duration: 5.8, delay: 0.8 },
+  { left: '38%', top: '55%', size: 2, opacity: 0.3, duration: 6.3, delay: 1.5 },
+  { left: '44%', top: '20%', size: 5, opacity: 0.2, duration: 4.9, delay: 0.3 },
+  { left: '50%', top: '65%', size: 3, opacity: 0.25, duration: 5.5, delay: 1.8 },
+  { left: '56%', top: '35%', size: 2, opacity: 0.3, duration: 7.2, delay: 0.6 },
+  { left: '63%', top: '75%', size: 4, opacity: 0.2, duration: 4.7, delay: 2.2 },
+  { left: '69%', top: '45%', size: 3, opacity: 0.28, duration: 6.0, delay: 1.0 },
+  { left: '75%', top: '28%', size: 2, opacity: 0.22, duration: 5.3, delay: 0.4 },
+  { left: '81%', top: '58%', size: 3, opacity: 0.3, duration: 6.7, delay: 1.6 },
+  { left: '88%', top: '38%', size: 4, opacity: 0.25, duration: 5.1, delay: 0.9 },
+  { left: '93%', top: '68%', size: 2, opacity: 0.2, duration: 7.4, delay: 2.4 },
+  { left: '97%', top: '22%', size: 3, opacity: 0.28, duration: 4.8, delay: 1.3 },
 ];
 
 export default function AnnualPlanContent() {
@@ -25,79 +46,164 @@ export default function AnnualPlanContent() {
       {/* AI/Answer Engine summary */}
       <section className="sr-only" aria-label="Annual Plan Summary">
         <p>
-          TotalGuard Yard Care offers customizable annual lawn care plans for Madison, Wisconsin and surrounding Dane County
-          communities. Select services by season — spring, summer, fall, and winter. Customers who bundle 3 or more services
-          receive a 15% discount. Use the interactive configurator to see your annual price estimate and submit a lead to lock in
-          your plan.
+          TotalGuard Yard Care offers customizable annual lawn care plans for Madison, Wisconsin and surrounding
+          Dane County communities. Select services by season — spring, summer, fall, and winter. Customers who
+          bundle 3 or more services receive a 15% discount. Use the interactive configurator to see your annual
+          price estimate and submit a lead to lock in your plan.
         </p>
       </section>
 
       <Navigation />
 
-      {/* Hero */}
-      <section className="relative py-20 md:py-28 overflow-hidden">
+      {/* ═══ HERO ═══ */}
+      <section className="relative overflow-hidden pt-24 pb-16 md:pt-32 md:pb-20">
+        {/* Background gradient */}
         <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom right, #050d07, #061a10)' }}
-        >
-          {/* Subtle dot grid */}
-          <div className="absolute inset-0 opacity-10">
-            <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="plan-grid" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-                  <circle cx="30" cy="30" r="1.5" fill="hsl(var(--primary))" opacity="0.6" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#plan-grid)" />
-            </svg>
-          </div>
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'linear-gradient(160deg, #050d07 0%, #061a10 40%, #050d07 100%)' }}
+        />
+
+        {/* Radial glow from bottom center */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse 80% 60% at 50% 80%, rgba(34,197,94,0.08) 0%, transparent 70%)',
+          }}
+        />
+
+        {/* Dot grid */}
+        <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
+          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="hero-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                <circle cx="20" cy="20" r="1" fill="#22c55e" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#hero-grid)" />
+          </svg>
         </div>
+
+        {/* Floating particles — deterministic positions */}
+        {PARTICLES.map((p, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              width: p.size,
+              height: p.size,
+              left: p.left,
+              top: p.top,
+              background: `rgba(34,197,94,${p.opacity})`,
+            }}
+            animate={{
+              y: [0, -28, 0],
+              opacity: [p.opacity * 0.5, p.opacity, p.opacity * 0.5],
+            }}
+            transition={{
+              duration: p.duration,
+              repeat: Infinity,
+              delay: p.delay,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm border border-primary/20 text-primary px-5 py-2.5 rounded-full text-sm font-bold mb-6">
-              <Tag className="h-4 w-4" />
-              Save 15% with a Bundle Plan
-            </div>
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex justify-center mb-6"
+            >
+              <div
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase"
+                style={{
+                  background: 'rgba(34,197,94,0.08)',
+                  border: '1px solid rgba(34,197,94,0.25)',
+                  color: '#4ade80',
+                }}
+              >
+                Custom Annual Lawn Care
+              </div>
+            </motion.div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              Build Your Custom{' '}
-              <span className="text-primary">Annual Lawn Care Plan</span>
-            </h1>
+            {/* H1 */}
+            <motion.h1
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.05] tracking-tight"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              Build Your Plan.{' '}
+              <span
+                className="bg-clip-text text-transparent"
+                style={{ backgroundImage: 'linear-gradient(135deg, #4ade80, #22c55e, #16a34a)' }}
+              >
+                Lock In Your Price.
+              </span>
+            </motion.h1>
 
-            <p className="text-lg md:text-xl text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Toggle services by season, see your price instantly, and lock in your plan for the year.
-            </p>
+            {/* Subheadline */}
+            <motion.p
+              className="text-lg md:text-xl leading-relaxed mb-8 max-w-2xl mx-auto"
+              style={{ color: 'rgba(255,255,255,0.55)' }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Choose your services by season and watch your annual cost update in real time.
+              Bundle 3+ services to unlock{' '}
+              <strong className="text-emerald-400">15% off — applied automatically.</strong>
+            </motion.p>
 
-            {/* Benefit strip */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-              {benefits.map(({ icon: Icon, label, desc }) => (
-                <div
-                  key={label}
-                  className="flex flex-col items-center gap-2 p-4 bg-white/[0.05] border border-white/10 rounded-xl"
+            {/* Trust strip */}
+            <motion.div
+              className="flex flex-wrap justify-center gap-x-5 gap-y-2 mb-10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.35 }}
+            >
+              {TRUST_ITEMS.map((item, i) => (
+                <span
+                  key={i}
+                  className="flex items-center gap-1.5 text-sm"
+                  style={{ color: 'rgba(255,255,255,0.4)' }}
                 >
-                  <Icon className="h-6 w-6 text-primary" />
-                  <span className="text-sm font-bold text-white">{label}</span>
-                  <span className="text-xs text-white/50 text-center">{desc}</span>
-                </div>
+                  <span className="w-1 h-1 rounded-full" style={{ background: '#22c55e' }} />
+                  {item.label}
+                </span>
               ))}
-            </div>
+            </motion.div>
+
+            {/* Scroll anchor CTA */}
+            <motion.a
+              href="#configurator"
+              className="inline-flex items-center gap-2 text-sm font-semibold transition-all duration-200"
+              style={{ color: '#4ade80' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              whileHover={{ y: 3 }}
+            >
+              Start Building
+              <motion.span
+                animate={{ y: [0, 4, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                ↓
+              </motion.span>
+            </motion.a>
           </div>
         </div>
       </section>
 
-      {/* Configurator */}
-      <section className="py-6 pb-20" style={{ background: '#050d07' }}>
-        <div className="container mx-auto px-4">
-          <AnnualPlanConfigurator />
-        </div>
+      {/* ═══ CONFIGURATOR ═══ */}
+      <section id="configurator" className="pb-32 pt-6" style={{ background: '#050d07' }}>
+        <AnnualPlanConfigurator />
       </section>
-
-      <CTASection
-        title="Want a quote instead? We'll respond by tomorrow."
-        description="Not sure which services you need? Call or message us and we'll build a plan together."
-        variant="compact"
-      />
 
       <Footer showCloser={false} />
     </div>
