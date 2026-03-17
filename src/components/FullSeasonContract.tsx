@@ -503,6 +503,25 @@ export function FullSeasonContract() {
               </motion.a>
             </div>
 
+            {/* Secondary: custom plan builder */}
+            <motion.div
+              className="mt-4 flex justify-center"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 1.3 }}
+            >
+              <Link
+                href="/annual-plan"
+                className="inline-flex items-center gap-2 text-sm font-medium transition-all duration-200 hover:gap-3"
+                style={{ color: 'rgba(212,168,85,0.65)' }}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                Or build your own custom plan
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </motion.div>
+
             {/* Trust line */}
             <motion.p
               className="mt-8 text-slate-500 text-sm max-w-xl mx-auto"
