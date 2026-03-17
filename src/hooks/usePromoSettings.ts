@@ -28,7 +28,7 @@ const getCurrentSeason = async (): Promise<Season> => {
       .from('season_override')
       .select('active_override, preview_mode, preview_season')
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (override) {
       // Check for preview mode
