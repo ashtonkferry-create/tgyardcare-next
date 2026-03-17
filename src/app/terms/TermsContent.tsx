@@ -19,7 +19,7 @@ export default function TermsContent() {
 
           <div className="prose prose-lg max-w-none text-muted-foreground space-y-8">
             <p className="text-sm text-muted-foreground">
-              Last updated: March 13, 2026
+              Last updated: March 17, 2026
             </p>
 
             <section>
@@ -83,36 +83,29 @@ export default function TermsContent() {
               </p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold text-foreground mb-4">SMS/Text Messaging Terms</h2>
+            <section id="sms-terms">
+              <h2 className="text-xl font-semibold text-foreground mb-4">SMS/Text Message Terms</h2>
               <p>
-                <strong>Program Name:</strong> TotalGuard Yard Care SMS Notifications
-              </p>
-              <p className="mt-4">
-                <strong>Program Description:</strong> By providing your phone number through our website contact form at tgyardcare.com/contact, by phone when booking a service, or through any other communication channel, you consent to receive text messages from TotalGuard Yard Care. These messages may include:
+                By providing your phone number on our contact form, during a phone call, or through any other communication channel, you consent to receive service-related text messages from TotalGuard Yard Care LLC. These messages may include:
               </p>
               <ul className="list-disc pl-6 space-y-2 mt-4">
-                <li>Appointment confirmations and reminders</li>
-                <li>Service updates and scheduling changes</li>
+                <li>Service appointment confirmations and reminders</li>
+                <li>On-my-way notifications when your crew is en route</li>
+                <li>Invoice and payment notifications</li>
+                <li>Seasonal service recommendations</li>
                 <li>Quote follow-ups and responses to your inquiries</li>
-                <li>Review requests after completed services</li>
-                <li>Seasonal service promotions and availability updates</li>
-                <li>Weather-related service notifications</li>
               </ul>
               <p className="mt-4">
-                <strong>Message Frequency:</strong> Message frequency varies. You may receive up to 10 messages per month depending on your service activity, seasonal promotions, and scheduling updates.
+                Message frequency varies based on your service schedule and interactions. Message and data rates may apply.
               </p>
               <p className="mt-4">
-                <strong>Message and Data Rates:</strong> Message and data rates may apply. Check with your mobile carrier for details about your text messaging plan.
+                To opt out of text messages at any time, reply <strong>STOP</strong> to any message. After opting out, you will receive one final confirmation message. You may opt back in by texting <strong>START</strong> or by contacting us directly.
               </p>
               <p className="mt-4">
-                <strong>Opt-Out:</strong> You may opt out of receiving text messages at any time by replying <strong>STOP</strong> to any message. After opting out, you will receive a one-time confirmation message and no further texts will be sent.
-              </p>
-              <p className="mt-4">
-                <strong>Help:</strong> For help or questions about our SMS program, reply <strong>HELP</strong> to any message, call us at (608) 535-6057, or email totalguardllc@gmail.com.
+                For questions about our SMS program, contact us at <a href="mailto:totalguardllc@gmail.com" className="underline hover:opacity-80 transition-opacity">totalguardllc@gmail.com</a> or call <a href="tel:608-535-6057" className="underline hover:opacity-80 transition-opacity">(608) 535-6057</a>.
               </p>
               <p className="mt-4 p-4 bg-muted rounded-lg border border-border font-medium text-foreground">
-                We will never share your phone number or opt-in data with third parties for marketing purposes. Your consent information is used solely for providing TotalGuard Yard Care services. See our <a href="/privacy" className="underline hover:opacity-80 transition-opacity">Privacy Policy</a> for full details.
+                Your phone number and opt-in consent are never shared with third parties for marketing purposes. See our <a href="/privacy" className="underline hover:opacity-80 transition-opacity">Privacy Policy</a> for full details.
               </p>
             </section>
 
