@@ -24,7 +24,9 @@ export function useFeaturedReviews(limit = 3) {
   return useQuery({
     queryKey: ['reviews', 'featured', limit],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('curated_reviews')
         .select('*')
         .eq('is_featured', true)
@@ -32,7 +34,7 @@ export function useFeaturedReviews(limit = 3) {
         .limit(limit);
 
       if (error) throw error;
-      return data as CuratedReview[];
+      return (data as unknown as CuratedReview[]);
     },
     staleTime: 1000 * 60 * 10,
   });
@@ -43,13 +45,15 @@ export function useAllReviews() {
   return useQuery({
     queryKey: ['reviews', 'all'],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('curated_reviews')
         .select('*')
         .order('review_date', { ascending: false });
 
       if (error) throw error;
-      return data as CuratedReview[];
+      return (data as unknown as CuratedReview[]);
     },
     staleTime: 1000 * 60 * 10,
   });
@@ -60,14 +64,16 @@ export function useReviewsByLocation(locationId: string) {
   return useQuery({
     queryKey: ['reviews', 'location', locationId],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('curated_reviews')
         .select('*')
         .eq('location_id', locationId)
         .order('review_date', { ascending: false });
 
       if (error) throw error;
-      return data as CuratedReview[];
+      return (data as unknown as CuratedReview[]);
     },
     staleTime: 1000 * 60 * 10,
     enabled: !!locationId,
@@ -79,19 +85,22 @@ export function useReviewStats() {
   return useQuery({
     queryKey: ['reviews', 'stats'],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('curated_reviews')
         .select('rating');
 
       if (error) throw error;
-      if (!data || data.length === 0) {
+      const rows = data as unknown as { rating: number }[];
+      if (!rows || rows.length === 0) {
         return { average: 0, count: 0 };
       }
 
-      const sum = data.reduce((acc, r) => acc + r.rating, 0);
+      const sum = rows.reduce((acc, r) => acc + r.rating, 0);
       return {
-        average: Math.round((sum / data.length) * 10) / 10,
-        count: data.length,
+        average: Math.round((sum / rows.length) * 10) / 10,
+        count: rows.length,
       } as ReviewStats;
     },
     staleTime: 1000 * 60 * 10,

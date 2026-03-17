@@ -47,14 +47,14 @@ export default function Performance() {
 
   const fetchAudits = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('performance_audits')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(20) as { data: PerformanceAudit[] | null; error: Error | null };
 
       if (error) throw error;
-      setAudits(data || []);
+      setAudits((data as PerformanceAudit[]) || []);
     } catch (error) {
       console.error('Error fetching audits:', error);
       toast({

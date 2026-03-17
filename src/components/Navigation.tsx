@@ -9,7 +9,7 @@ import {
   Shield, ArrowRight, Users, Award, Droplets, Building2,
   TreePine, CheckCircle2, Clock, FileText, Layers, type LucideIcon,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useSeasonalTheme, type Season } from "@/contexts/SeasonalThemeContext";
@@ -22,7 +22,7 @@ const dropdownVariants = {
   hidden: { opacity: 0, y: -8, scale: 0.97 },
   visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } },
   exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.15, ease: [0.55, 0.06, 0.68, 0.19] } },
-};
+} as Variants;
 
 // ---------------------------------------------------------------------------
 // Types

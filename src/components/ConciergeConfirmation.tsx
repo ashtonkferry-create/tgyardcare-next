@@ -248,7 +248,7 @@ export function ConciergeConfirmation({
   const trackUpsellClick = useCallback(
     async (serviceName: string, slug: string) => {
       try {
-        await supabase.from('upsell_clicks').insert({
+        await (supabase as any).from('upsell_clicks').insert({
           service_name: serviceName,
           service_slug: slug,
           season: activeSeason,

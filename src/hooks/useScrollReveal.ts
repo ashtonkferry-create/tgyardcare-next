@@ -7,6 +7,7 @@ export function useScrollReveal(options?: { once?: boolean; margin?: string; amo
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, {
     once: options?.once ?? true,
+    // @ts-ignore -- MarginType template literal mismatch with string union
     margin: options?.margin ?? '-80px',
     amount: options?.amount ?? 0.2,
   });

@@ -32,14 +32,16 @@ export function useServices() {
   return useQuery({
     queryKey: ['services'],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('services')
         .select('*')
         .eq('is_active', true)
         .order('display_order');
 
       if (error) throw error;
-      return data as Service[];
+      return (data as unknown as Service[]);
     },
     staleTime: 1000 * 60 * 10, // 10 minutes
   });
@@ -50,7 +52,9 @@ export function useServiceBySlug(slug: string) {
   return useQuery({
     queryKey: ['services', slug],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('services')
         .select('*')
         .eq('slug', slug)
@@ -58,7 +62,7 @@ export function useServiceBySlug(slug: string) {
         .maybeSingle();
 
       if (error) throw error;
-      return data as Service | null;
+      return (data as unknown as Service | null);
     },
     staleTime: 1000 * 60 * 10,
     enabled: !!slug,
@@ -71,7 +75,9 @@ export function useServiceWithDetails(slug: string) {
     queryKey: ['services', slug, 'details'],
     queryFn: async () => {
       // Get service
-      const { data: service, error: serviceError } = await supabase
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
+      const { data: serviceRaw, error: serviceError } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('services')
         .select('*')
         .eq('slug', slug)
@@ -79,10 +85,13 @@ export function useServiceWithDetails(slug: string) {
         .single();
 
       if (serviceError) throw serviceError;
+      const service = serviceRaw as unknown as Service | null;
       if (!service) return null;
 
       // Get details
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data: details, error: detailsError } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('service_details')
         .select('*')
         .eq('service_id', service.id)
@@ -92,7 +101,7 @@ export function useServiceWithDetails(slug: string) {
 
       return {
         ...service,
-        details: details || [],
+        details: (details as unknown as ServiceDetail[]) || [],
       } as ServiceWithDetails;
     },
     staleTime: 1000 * 60 * 10,

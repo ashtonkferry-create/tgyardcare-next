@@ -30,14 +30,16 @@ export function useBusinessInfo() {
   return useQuery({
     queryKey: ['business-info'],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('business_info')
         .select('*')
         .limit(1)
         .single();
 
       if (error) throw error;
-      return data as BusinessInfo;
+      return (data as unknown as BusinessInfo);
     },
     staleTime: 1000 * 60 * 30, // 30 minutes
   });
@@ -48,14 +50,17 @@ export function useSiteConfig() {
   return useQuery({
     queryKey: ['site-config'],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('site_config')
         .select('key, value');
 
       if (error) throw error;
 
+      const rows = (data as unknown as { key: string; value: string }[]) ?? [];
       const config: SiteConfig = {};
-      for (const row of data ?? []) {
+      for (const row of rows) {
         config[row.key] = row.value;
       }
       return config;
@@ -69,14 +74,16 @@ export function useSiteConfigValue(key: string) {
   return useQuery({
     queryKey: ['site-config', key],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('site_config')
         .select('value')
         .eq('key', key)
         .single();
 
       if (error) return null;
-      return data?.value ?? null;
+      return (data as unknown as { value: string } | null)?.value ?? null;
     },
     staleTime: 1000 * 60 * 10,
     enabled: !!key,

@@ -37,14 +37,16 @@ export function useAllSEOData() {
   return useQuery({
     queryKey: ['page-seo', 'all'],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('page_seo')
         .select('*')
         .order('page_type')
         .order('page_name');
-      
+
       if (error) throw error;
-      return data as PageSEO[];
+      return (data as unknown as PageSEO[]);
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -55,14 +57,16 @@ export function useSEOByPath(path: string) {
   return useQuery({
     queryKey: ['page-seo', path],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('page_seo')
         .select('*')
         .eq('page_path', path)
         .maybeSingle();
-      
+
       if (error) throw error;
-      return data as PageSEO | null;
+      return (data as unknown as PageSEO | null);
     },
     staleTime: 1000 * 60 * 10, // 10 minutes
     enabled: !!path,
@@ -72,18 +76,20 @@ export function useSEOByPath(path: string) {
 // Update SEO data
 export function useUpdateSEO() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: PageSEOUpdate }) => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('page_seo')
         .update(updates as any)
         .eq('id', id)
         .select()
         .single();
-      
+
       if (error) throw error;
-      return data as PageSEO;
+      return (data as unknown as PageSEO);
     },
     onSuccess: (data) => {
       // Update both the full list and the specific path cache
@@ -96,17 +102,19 @@ export function useUpdateSEO() {
 // Create new SEO entry
 export function useCreateSEO() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (newPage: Omit<PageSEO, 'id' | 'created_at' | 'updated_at' | 'last_modified_by'>) => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('page_seo')
         .insert([newPage as any])
         .select()
         .single();
-      
+
       if (error) throw error;
-      return data as PageSEO;
+      return (data as unknown as PageSEO);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['page-seo', 'all'] });
@@ -117,14 +125,16 @@ export function useCreateSEO() {
 // Delete SEO entry
 export function useDeleteSEO() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('page_seo')
         .delete()
         .eq('id', id);
-      
+
       if (error) throw error;
     },
     onSuccess: () => {

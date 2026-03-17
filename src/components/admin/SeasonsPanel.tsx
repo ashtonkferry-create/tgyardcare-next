@@ -32,7 +32,7 @@ export default function SeasonsPanel() {
   const set = async (value: SeasonName) => {
     setSaving(true);
     const { error } = await supabase.from("season_override")
-      .upsert({ id: 1, active_override: value, updated_at: new Date().toISOString() });
+      .upsert({ id: "1", active_override: value, updated_at: new Date().toISOString() });
     if (error) toast.error("Failed to update season");
     else {
       setActive(value);

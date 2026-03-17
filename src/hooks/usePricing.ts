@@ -41,7 +41,9 @@ export function usePricingByService(serviceId: string, locationId?: string) {
   return useQuery({
     queryKey: ['pricing', serviceId, locationId],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       let query = supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('pricing')
         .select('*')
         .eq('service_id', serviceId)
@@ -50,14 +52,16 @@ export function usePricingByService(serviceId: string, locationId?: string) {
         .order('lot_size_min', { ascending: true, nullsFirst: true });
 
       if (locationId) {
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         query = query.or(`location_id.eq.${locationId},location_id.is.null`);
       } else {
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         query = query.is('location_id', null);
       }
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Pricing[];
+      return (data as unknown as Pricing[]);
     },
     staleTime: 1000 * 60 * 10,
     enabled: !!serviceId,
@@ -71,7 +75,9 @@ export function useSeasonalModifier(serviceId: string) {
   return useQuery({
     queryKey: ['seasonal-modifiers', serviceId, currentMonth],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('seasonal_modifiers')
         .select('*')
         .eq('service_id', serviceId)
@@ -80,7 +86,8 @@ export function useSeasonalModifier(serviceId: string) {
         .limit(1);
 
       if (error) throw error;
-      return data?.[0] as SeasonalModifier | null;
+      const rows = data as unknown as SeasonalModifier[];
+      return rows?.[0] ?? null;
     },
     staleTime: 1000 * 60 * 60, // 1 hour
     enabled: !!serviceId,
@@ -92,7 +99,9 @@ export function useStartingPrice(serviceId: string) {
   return useQuery({
     queryKey: ['pricing', serviceId, 'starting'],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('pricing')
         .select('price_min')
         .eq('service_id', serviceId)
@@ -102,7 +111,8 @@ export function useStartingPrice(serviceId: string) {
         .limit(1);
 
       if (error) throw error;
-      return data?.[0]?.price_min ?? null;
+      const rows = data as unknown as { price_min: number }[];
+      return rows?.[0]?.price_min ?? null;
     },
     staleTime: 1000 * 60 * 10,
     enabled: !!serviceId,

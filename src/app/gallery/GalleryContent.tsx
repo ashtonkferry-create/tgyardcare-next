@@ -80,7 +80,7 @@ export default function GalleryContent() {
 
   return (
     <div className="min-h-screen text-white" style={{ background: bg.page }}>
-      <GallerySchema images={galleryImages.filter(img => typeof img.src === 'string').map(img => img.src as string)} />
+      <GallerySchema images={galleryImages.filter(img => typeof img.src === 'string').map(img => ({ url: img.src as string, caption: img.title || '' }))} />
       <WebPageSchema name="Work Gallery" description="Before and after photos of our lawn care work in Madison, WI" url="/gallery" />
       <Navigation />
 

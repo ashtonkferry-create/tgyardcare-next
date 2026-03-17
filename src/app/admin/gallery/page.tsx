@@ -49,7 +49,7 @@ export default function GalleryManager() {
       .from("user_roles")
       .select("role")
       .eq("user_id", session.user.id)
-      .single();
+      .single() as { data: { role: string } | null };
 
     if (!roles || roles.role !== "admin") {
       toast.error("Access denied");
@@ -59,13 +59,13 @@ export default function GalleryManager() {
 
   const fetchGalleryItems = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("gallery_items")
         .select("*")
-        .order("display_order", { ascending: true });
+        .order("display_order", { ascending: true }) as { data: GalleryItem[] | null; error: Error | null };
 
       if (error) throw error;
-      setGalleryItems(data || []);
+      setGalleryItems((data as GalleryItem[]) || []);
     } catch (error) {
       console.error("Error fetching gallery items:", error);
       toast.error("Failed to load gallery items");
@@ -105,7 +105,7 @@ export default function GalleryManager() {
         .getPublicUrl(filePath);
 
       // Insert into database
-      const { error: insertError } = await supabase
+      const { error: insertError } = await (supabase as any)
         .from("gallery_items")
         .insert({
           image_url: publicUrl,
@@ -141,7 +141,7 @@ export default function GalleryManager() {
       await supabase.storage.from("gallery").remove([fileName]);
 
       // Delete from database
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("gallery_items")
         .delete()
         .eq("id", id);

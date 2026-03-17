@@ -72,7 +72,9 @@ export function useSubmitLead() {
       // Calculate score if not provided
       const lead_score = submission.lead_score ?? calculateLeadScore(submission);
 
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('leads')
         .insert({
           first_name: submission.first_name,
@@ -91,14 +93,14 @@ export function useSubmitLead() {
           referral_source: submission.referral_source || null,
           quoted_price: submission.quoted_price || null,
           lead_score,
-          status: 'new',
+          status: 'new' as const,
         })
         .select()
         .single();
 
       if (error) throw error;
       if (!data) throw new Error('Lead created but no data returned — please try again.');
-      return data as Lead;
+      return (data as unknown as Lead);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });

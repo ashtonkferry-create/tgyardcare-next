@@ -1139,7 +1139,7 @@ export const ChatBot = () => {
                       <Button
                         onClick={async () => {
                           try {
-                            await supabase.from('chatbot_feedback').insert({
+                            await (supabase as any).from('chatbot_feedback').insert({
                               session_id: sessionId,
                               rating: feedbackRating,
                               feedback_text: feedbackText.trim() || null,

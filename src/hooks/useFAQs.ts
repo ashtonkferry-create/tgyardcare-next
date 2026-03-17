@@ -16,8 +16,9 @@ export function useFAQsByService(serviceId: string) {
   return useQuery({
     queryKey: ['faqs', 'service', serviceId],
     queryFn: async () => {
-      // @ts-expect-error -- Supabase generated types cause deep instantiation
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('faqs')
         .select('*')
         .eq('service_id', serviceId)
@@ -25,7 +26,7 @@ export function useFAQsByService(serviceId: string) {
         .order('display_order');
 
       if (error) throw error;
-      return data as FAQ[];
+      return (data as unknown as FAQ[]);
     },
     staleTime: 1000 * 60 * 10,
     enabled: !!serviceId,
@@ -37,14 +38,16 @@ export function useFAQsByLocation(locationId: string) {
   return useQuery({
     queryKey: ['faqs', 'location', locationId],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('faqs')
         .select('*')
         .eq('location_id', locationId)
         .order('display_order');
 
       if (error) throw error;
-      return data as FAQ[];
+      return (data as unknown as FAQ[]);
     },
     staleTime: 1000 * 60 * 10,
     enabled: !!locationId,
@@ -56,7 +59,9 @@ export function useFAQsByServiceAndLocation(serviceId: string, locationId: strin
   return useQuery({
     queryKey: ['faqs', 'combined', serviceId, locationId],
     queryFn: async () => {
+      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
       const { data, error } = await supabase
+        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
         .from('faqs')
         .select('*')
         .or(
@@ -67,7 +72,7 @@ export function useFAQsByServiceAndLocation(serviceId: string, locationId: strin
         .order('display_order');
 
       if (error) throw error;
-      return data as FAQ[];
+      return (data as unknown as FAQ[]);
     },
     staleTime: 1000 * 60 * 10,
     enabled: !!serviceId && !!locationId,

@@ -35,7 +35,7 @@ function extractMeta(html: string, path: string): PageMeta {
   const h1 = h1TextMatch ? h1TextMatch[1].replace(/<[^>]+>/g, "").trim() : null;
 
   // Images missing alt
-  const imgTags = html.match(/<img[^>]+>/gi) ?? [];
+  const imgTags = (html.match(/<img[^>]+>/gi) ?? []) as string[];
   const imagesMissingAlt = imgTags.filter(tag => {
     const altMatch = tag.match(/alt=["']([^"']*)["']/i);
     return !altMatch || altMatch[1].trim() === "";

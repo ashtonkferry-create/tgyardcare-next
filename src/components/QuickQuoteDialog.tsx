@@ -217,7 +217,7 @@ function GlowInput({
 }: {
   icon: typeof User;
   label: string;
-  theme: typeof themes.summer;
+  theme: (typeof themes)[keyof typeof themes];
   delay: number;
   completed: boolean;
   onFieldBlur: () => void;

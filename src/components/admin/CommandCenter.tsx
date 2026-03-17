@@ -109,7 +109,7 @@ export default function CommandCenter() {
       .order("seo_score", { ascending: false }).limit(10)
       .then(({ data, error }) => {
         if (error) { console.error("Page scores fetch failed:", error.message); return; }
-        setPageScores(data ?? []);
+        setPageScores((data as typeof pageScores) ?? []);
       });
 
     // Fetch dynamic page count
