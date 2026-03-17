@@ -128,7 +128,7 @@ Plans:
 
 - [x] **Phase 5: Safety Nets & Foundation** - Fix production bugs, harden the codebase, establish design tokens and server-side patterns
 - [x] **Phase 6: Brand Transformation & Visual Impact** - Hero video, before/after gallery, Server Component conversion, premium typography in action
-- [ ] **Phase 7: Conversion Features** - Instant quote calculator, interactive service area map, annual plan configurator
+- [x] **Phase 7: Conversion Features** - Instant quote calculator, interactive service area map, annual plan configurator
 - [ ] **Phase 8: Customer Retention Layer** - Auth-protected customer portal, referral engine with tracking
 - [ ] **Phase 9: Content & SEO Growth** - Blog categories/tags, Madison lawn care hub, seasonal content surfacing
 - [ ] **Phase 10: SEO Dominance Engine** - 96 city-service pages, 1,200+ internal links, linkable assets, breadcrumbs
@@ -182,11 +182,11 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
-- [ ] 07-01-PLAN.md -- Install leaflet + geocoding server action + city boundaries data + DB migration [wave 1]
-- [ ] 07-02-PLAN.md -- Interactive ServiceAreaMap component + service-areas page integration [wave 2]
-- [ ] 07-03-PLAN.md -- AddressAutocomplete component + QuoteFlow enhancement [wave 2]
-- [ ] 07-04-PLAN.md -- AnnualPlanConfigurator with season toggles, calendar, bundle pricing, lead capture [wave 2]
-- [ ] 07-05-PLAN.md -- Page integration + build verification + visual QA checkpoint [wave 3]
+- [x] 07-01-PLAN.md -- Install leaflet + geocoding server action + city boundaries data + DB migration [wave 1]
+- [x] 07-02-PLAN.md -- Interactive ServiceAreaMap component + service-areas page integration [wave 2]
+- [x] 07-03-PLAN.md -- AddressAutocomplete component + QuoteFlow enhancement [wave 2]
+- [x] 07-04-PLAN.md -- AnnualPlanConfigurator with season toggles, calendar, bundle pricing, lead capture [wave 2]
+- [x] 07-05-PLAN.md -- Page integration + build verification + visual QA checkpoint [wave 3]
 
 ### Phase 8: Customer Retention Layer
 **Goal**: Existing customers can log in to a branded portal to view their service history, upcoming schedule, and invoices — and can share a referral link that gives both parties $50 off.
@@ -245,7 +245,7 @@ Plans:
 | 4.1 M2 Integration Fixes | M2 | 1/1 | Complete | 2026-03-16 |
 | 5. Safety Nets & Foundation | M3 | 7/7 | Complete | 2026-03-16 |
 | 6. Brand Transformation | M3 | 6/6 | Complete | 2026-03-17 |
-| 7. Conversion Features | M3 | 0/5 | Planning complete | - |
+| 7. Conversion Features | M3 | 5/5 | Complete | 2026-03-17 |
 | 8. Customer Retention | M3 | 0/? | Not started | - |
 | 9. Content & SEO Growth | M3 | 0/? | Not started | - |
 | 10. SEO Dominance Engine | M3 | 0/? | Not started | - |

@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Transform tgyardcare.com into a billion-dollar brand experience that converts at 3-5x current rates while protecting existing SEO rankings and lead flow.
-**Current focus:** M3 Phase 7 (Conversion Features) — Executing
+**Current focus:** M3 Phase 8 (Customer Retention Layer) — Planning
 
 ## Current Position
 
-Phase: 7 of 10 (Conversion Features)
-Plan: 5 of 5 in Phase 7 (auto tasks complete; human-verify checkpoint pending)
-Status: Awaiting checkpoint approval
-Last activity: 2026-03-17 — Completed 07-05-PLAN.md (Annual Plan Integration + Build Verification)
+Phase: 8 of 10 (Customer Retention Layer)
+Plan: 0 of ? in Phase 8 (not started)
+Status: Phase 7 complete — Phase 8 ready to plan
+Last activity: 2026-03-17 — Phase 7 verified and closed (9/9 must-haves passed, user QA approved)
 
-Progress M3: [████████████████░] 18+ plans (Phase 5 complete, Phase 6 complete, Phase 7: 4/5 committed + checkpoint pending)
+Progress M3: [████████████████████░] 23/? plans (Phase 5 complete, Phase 6 complete, Phase 7 complete)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -52,13 +52,14 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
   - 06-04: DONE -- ComparisonSlider component + 21 transformation pairs across 8 categories [wave 1]
   - 06-05: DONE -- Gallery page (comparison sliders added then removed per user request, portfolio grid remains) [wave 2]
   - 06-06: DONE -- Final verification (84 TS errors, 12 JSON-LD occurrences, server components confirmed) [wave 3]
-- Phase 7 (Conversion Features): IN PROGRESS (1/5 plans)
+- Phase 7 (Conversion Features): COMPLETE (5/5 plans, user QA approved 2026-03-17)
   - 07-01: DONE -- leaflet + react-leaflet + Mapbox geocoding server action + 12-city GeoJSON + migration 073 [wave 1]
   - 07-04: DONE -- AnnualPlanConfigurator: season toggles, 12-month calendar, Supabase bundle pricing (15% at 3+), lead capture [wave 2]
   - 07-05: DONE (auto tasks) -- /annual-plan page + homepage CTA banner; build passes (138 pages, 0 TS errors); checkpoint pending visual QA [wave 3]
   - 07-03: DONE -- AddressAutocomplete component + QuoteFlow address-first step with auto-location matching [wave 2]
   - 07-02: DONE -- ServiceAreaMap Leaflet component + service-areas page integration (replaces Google Maps iframe) [wave 2]
-- Phase 8-10: Not started
+- Phase 8 (Customer Retention Layer): Not started — ready to plan
+- Phase 9-10: Not started
 
 ## Performance Metrics
 
@@ -271,6 +272,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: 07-05-PLAN.md auto tasks complete — awaiting checkpoint:human-verify
+Stopped at: Phase 7 verification complete
 Resume file: None
-Next: User approves visual QA checkpoint → Phase 7 complete → Begin Phase 8 (Portal + Referral)
+Next: Begin Phase 8 (Customer Retention Layer) — customer portal + referral engine
