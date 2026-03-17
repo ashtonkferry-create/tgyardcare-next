@@ -1,9 +1,10 @@
 'use client';
 
-import { useReducer, useMemo, useState } from 'react';
+import { useReducer, useMemo, useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import { useServices, type Service } from '@/hooks/useServices';
+import { useServices } from '@/hooks/useServices';
 import { useSubmitLead } from '@/hooks/useLeads';
 import { type Pricing } from '@/hooks/usePricing';
 
@@ -11,48 +12,57 @@ import { type Pricing } from '@/hooks/usePricing';
 
 type Season = 'spring' | 'summer' | 'fall' | 'winter';
 
-const SEASONS = [
-  { id: 'spring' as Season, label: 'Spring', months: ['Mar', 'Apr', 'May'], color: '#22c55e' },
-  { id: 'summer' as Season, label: 'Summer', months: ['Jun', 'Jul', 'Aug'], color: '#eab308' },
-  { id: 'fall' as Season, label: 'Fall', months: ['Sep', 'Oct', 'Nov'], color: '#f97316' },
-  { id: 'winter' as Season, label: 'Winter', months: ['Dec', 'Jan', 'Feb'], color: '#38bdf8' },
-] as const;
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const SEASONS: { id: Season; label: string; color: string }[] = [
+  { id: 'spring', label: 'Spring', color: '#22c55e' },
+  { id: 'summer', label: 'Summer', color: '#eab308' },
+  { id: 'fall',   label: 'Fall',   color: '#f97316' },
+  { id: 'winter', label: 'Winter', color: '#38bdf8' },
+];
 
 const MONTH_TO_SEASON: Record<string, Season> = {
   Jan: 'winter', Feb: 'winter', Mar: 'spring', Apr: 'spring', May: 'spring',
   Jun: 'summer', Jul: 'summer', Aug: 'summer', Sep: 'fall', Oct: 'fall',
-  Nov: 'fall', Dec: 'winter',
+  Nov: 'fall',   Dec: 'winter',
 };
 
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 const SEASON_COLORS: Record<Season, string> = {
-  spring: '#22c55e',
-  summer: '#eab308',
-  fall: '#f97316',
-  winter: '#38bdf8',
+  spring: '#22c55e', summer: '#eab308', fall: '#f97316', winter: '#38bdf8',
 };
 
 const BUNDLE_DISCOUNT = 0.15;
-const BUNDLE_MIN_SERVICES = 3;
+const BUNDLE_MIN = 3;
 
-/* ─────────────────────── State Management ─────────────────────── */
+/* Static fallback — renders immediately, Supabase enriches on load */
+const STATIC_SERVICES: {
+  id: string;
+  name: string;
+  desc: string;
+  emoji: string;
+  availableSeasons: Season[];
+}[] = [
+  { id: 'mowing',        name: 'Lawn Mowing',              emoji: '🌿', desc: 'Weekly or bi-weekly cuts, edging & trimming included.',        availableSeasons: ['spring','summer','fall'] },
+  { id: 'fertilization', name: 'Fertilization & Weed Control', emoji: '🌱', desc: 'Custom treatment program for a thick, weed-free lawn.',    availableSeasons: ['spring','summer','fall'] },
+  { id: 'aeration',      name: 'Aeration & Overseeding',   emoji: '🌾', desc: 'Core aeration + seed for a dense, healthy lawn.',             availableSeasons: ['spring','fall'] },
+  { id: 'spring-cleanup',name: 'Spring Cleanup',            emoji: '🌸', desc: 'Full property reset after winter — debris, beds, edging.',    availableSeasons: ['spring'] },
+  { id: 'fall-cleanup',  name: 'Fall Cleanup',              emoji: '🍂', desc: 'Leaf removal, bed clearing, and winter prep.',                availableSeasons: ['fall'] },
+  { id: 'mulching',      name: 'Mulching',                  emoji: '🪵', desc: 'Fresh mulch installation for garden beds and trees.',         availableSeasons: ['spring','fall'] },
+  { id: 'snow-removal',  name: 'Snow Removal',              emoji: '❄️', desc: 'Driveway, walkway, and parking area snow & ice clearing.',    availableSeasons: ['winter'] },
+  { id: 'gutter-cleaning',name: 'Gutter Cleaning',          emoji: '🏠', desc: 'Full gutter flush, downspout clear, and debris removal.',     availableSeasons: ['spring','fall'] },
+];
+
+/* ─────────────────────── State ─────────────────────── */
 
 interface PlanState {
   selections: Record<string, Record<Season, boolean>>;
-  contactForm: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    address: string;
-  };
+  contactForm: { firstName: string; lastName: string; email: string; phone: string; address: string };
   showContactForm: boolean;
 }
 
 type PlanAction =
   | { type: 'TOGGLE_SERVICE_SEASON'; serviceId: string; season: Season }
-  | { type: 'TOGGLE_ALL_SEASONS'; serviceId: string }
+  | { type: 'TOGGLE_ALL_SEASONS'; serviceId: string; availableSeasons: Season[] }
   | { type: 'UPDATE_CONTACT'; field: keyof PlanState['contactForm']; value: string }
   | { type: 'SHOW_CONTACT_FORM' }
   | { type: 'HIDE_CONTACT_FORM' };
@@ -81,25 +91,15 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
     }
     case 'TOGGLE_ALL_SEASONS': {
       const existing = state.selections[action.serviceId] ?? { spring: false, summer: false, fall: false, winter: false };
-      const allSelected = existing.spring && existing.summer && existing.fall && existing.winter;
-      return {
-        ...state,
-        selections: {
-          ...state.selections,
-          [action.serviceId]: {
-            spring: !allSelected,
-            summer: !allSelected,
-            fall: !allSelected,
-            winter: !allSelected,
-          },
-        },
-      };
+      const allSelected = action.availableSeasons.every((s) => existing[s]);
+      const updated: Record<Season, boolean> = { spring: false, summer: false, fall: false, winter: false };
+      for (const s of action.availableSeasons) {
+        updated[s] = !allSelected;
+      }
+      return { ...state, selections: { ...state.selections, [action.serviceId]: updated } };
     }
     case 'UPDATE_CONTACT':
-      return {
-        ...state,
-        contactForm: { ...state.contactForm, [action.field]: action.value },
-      };
+      return { ...state, contactForm: { ...state.contactForm, [action.field]: action.value } };
     case 'SHOW_CONTACT_FORM':
       return { ...state, showContactForm: true };
     case 'HIDE_CONTACT_FORM':
@@ -109,7 +109,7 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
   }
 }
 
-/* ─────────────────────── Pricing Calculation ─────────────────────── */
+/* ─────────────────────── Pricing ─────────────────────── */
 
 interface PricingResult {
   monthlyEstimate: number;
@@ -117,6 +117,7 @@ interface PricingResult {
   savings: number;
   discountActive: boolean;
   originalAnnual: number;
+  selectedServiceCount: number;
 }
 
 function calculateBundlePricing(
@@ -127,27 +128,19 @@ function calculateBundlePricing(
   let selectedServiceCount = 0;
 
   for (const [serviceId, seasons] of Object.entries(selections)) {
-    const selectedSeasonCount = Object.values(seasons).filter(Boolean).length;
-    if (selectedSeasonCount === 0) continue;
-
+    const activeCount = Object.values(seasons).filter(Boolean).length;
+    if (activeCount === 0) continue;
     selectedServiceCount++;
 
-    // Find 'better' tier pricing, fall back to first available
     const servicePricing = allPricing.filter((p) => p.service_id === serviceId);
-    const betterTier = servicePricing.find((p) => p.tier === 'better');
-    const fallbackTier = servicePricing[0];
-    const tier = betterTier ?? fallbackTier;
-
+    const tier = servicePricing.find((p) => p.tier === 'better') ?? servicePricing[0];
     if (!tier) continue;
 
-    // Midpoint price * proportion of year selected
     const midpoint = (tier.price_min + tier.price_max) / 2;
-    // Monthly contribution scaled by fraction of seasons selected
-    const annualContribution = midpoint * 12 * (selectedSeasonCount / 4);
-    totalAnnual += annualContribution;
+    totalAnnual += midpoint * 12 * (activeCount / 4);
   }
 
-  const discountActive = selectedServiceCount >= BUNDLE_MIN_SERVICES;
+  const discountActive = selectedServiceCount >= BUNDLE_MIN;
   const savings = discountActive ? totalAnnual * BUNDLE_DISCOUNT : 0;
   const finalAnnual = totalAnnual - savings;
 
@@ -157,399 +150,639 @@ function calculateBundlePricing(
     savings: Math.round(savings),
     discountActive,
     originalAnnual: Math.round(totalAnnual),
+    selectedServiceCount,
   };
 }
 
-/* ─────────────────────── Component ─────────────────────── */
+/* ─────────────────────── Main Component ─────────────────────── */
 
 export default function AnnualPlanConfigurator() {
   const [state, dispatch] = useReducer(planReducer, initialState);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Fetch services
-  const { data: services, isLoading: servicesLoading } = useServices();
+  const { data: dbServices } = useServices();
+  const submitLead = useSubmitLead();
 
-  // Fetch all active pricing in one query
-  // @ts-ignore -- Supabase deep type instantiation with 163+ tables
-  const { data: allPricing } = useQuery({
+  // @ts-ignore -- Supabase deep type instantiation
+  const { data: allPricing } = useQuery<Pricing[]>({
     queryKey: ['pricing-all-active'],
     queryFn: async () => {
-      // @ts-ignore -- Supabase deep type instantiation with 163+ tables
-      const { data, error } = await supabase
-        // @ts-ignore -- Supabase deep type instantiation with 163+ tables
-        .from('pricing')
-        .select('*')
-        .eq('is_active', true);
+      // @ts-ignore
+      const { data, error } = await supabase.from('pricing').select('*').eq('is_active', true);
       if (error) throw error;
       return (data as unknown as Pricing[]) ?? [];
     },
     staleTime: 1000 * 60 * 10,
   });
 
-  // Lead submission
-  const submitLead = useSubmitLead();
+  // Merge Supabase IDs onto static services (match by name slug)
+  const services = useMemo(() => {
+    if (!dbServices) return STATIC_SERVICES;
+    return STATIC_SERVICES.map((s) => {
+      const match = dbServices.find(
+        (d) =>
+          d.name.toLowerCase().replace(/\s+/g, '-').includes(s.id.split('-')[0]) ||
+          s.name.toLowerCase().includes(d.name.toLowerCase().split(' ')[0])
+      );
+      return match ? { ...s, id: match.id } : s;
+    });
+  }, [dbServices]);
 
-  // Pricing calculation
   const pricing = useMemo(
     () => calculateBundlePricing(state.selections, allPricing ?? []),
     [state.selections, allPricing],
   );
 
-  // Services with at least 1 season selected
-  const selectedServiceEntries = useMemo(() => {
-    if (!services) return [];
-    return services
-      .filter((s) => {
-        const seasons = state.selections[s.id];
-        return seasons && Object.values(seasons).some(Boolean);
-      })
-      .map((s) => ({
-        serviceId: s.id,
-        serviceName: s.name,
-        seasons: Object.entries(state.selections[s.id] ?? {})
-          .filter(([, v]) => v)
-          .map(([k]) => k),
-      }));
-  }, [services, state.selections]);
+  const selectedServiceCount = pricing.selectedServiceCount;
 
-  // Active services per month (for calendar)
+  // Active services per month (for mini calendar)
   const monthActiveServices = useMemo(() => {
-    const result: Record<string, { name: string; color: string }[]> = {};
+    const result: Record<string, { emoji: string; color: string }[]> = {};
     for (const month of MONTHS) {
       result[month] = [];
       const season = MONTH_TO_SEASON[month];
-      if (!services) continue;
       for (const svc of services) {
         if (state.selections[svc.id]?.[season]) {
-          result[month].push({ name: svc.name, color: SEASON_COLORS[season] });
+          result[month].push({ emoji: svc.emoji, color: SEASON_COLORS[season] });
         }
       }
     }
     return result;
   }, [services, state.selections]);
 
-  const selectedServiceCount = selectedServiceEntries.length;
-
-  // Build human-readable notes for lead
   function buildNotes(): string {
-    if (selectedServiceEntries.length === 0) return 'Annual Plan: No services selected';
+    const entries = services.filter((s) => {
+      const seasons = state.selections[s.id];
+      return seasons && Object.values(seasons).some(Boolean);
+    });
+    if (entries.length === 0) return 'Annual Plan: No services selected';
     return (
       'Annual Plan: ' +
-      selectedServiceEntries.map((e) => `${e.serviceName} (${e.seasons.join(', ')})`).join(', ') +
-      (pricing.discountActive ? ` | 15% bundle discount applied` : '')
+      entries
+        .map((s) => {
+          const activeSeas = Object.entries(state.selections[s.id] ?? {})
+            .filter(([, v]) => v)
+            .map(([k]) => k)
+            .join(', ');
+          return `${s.name} (${activeSeas})`;
+        })
+        .join(', ') +
+      (pricing.discountActive ? ' | 15% bundle discount applied' : '')
     );
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (selectedServiceEntries.length === 0) return;
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (selectedServiceCount === 0) return;
 
-    const firstServiceId = selectedServiceEntries[0].serviceId;
+      const firstEntry = services.find((s) => {
+        const seasons = state.selections[s.id];
+        return seasons && Object.values(seasons).some(Boolean);
+      });
 
-    await submitLead.mutateAsync({
-      first_name: state.contactForm.firstName,
-      last_name: state.contactForm.lastName,
-      email: state.contactForm.email,
-      phone: state.contactForm.phone,
-      address: state.contactForm.address || undefined,
-      service_id: firstServiceId,
-      location_id: null,
-      notes: buildNotes(),
-      referral_source: 'annual_plan_configurator',
-    });
+      await submitLead.mutateAsync({
+        first_name: state.contactForm.firstName,
+        last_name: state.contactForm.lastName,
+        email: state.contactForm.email,
+        phone: state.contactForm.phone,
+        address: state.contactForm.address || undefined,
+        service_id: firstEntry?.id ?? '',
+        location_id: null,
+        notes: buildNotes(),
+        referral_source: 'annual_plan_configurator',
+      });
 
-    setSubmitSuccess(true);
-  }
+      setSubmitSuccess(true);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [services, state, selectedServiceCount, pricing.discountActive, submitLead],
+  );
 
-  /* ─────────────── Render Helpers ─────────────── */
-
-  function renderSeasonToggle(service: Service, season: typeof SEASONS[number]) {
-    const active = state.selections[service.id]?.[season.id] ?? false;
-    return (
-      <button
-        key={season.id}
-        type="button"
-        onClick={() => dispatch({ type: 'TOGGLE_SERVICE_SEASON', serviceId: service.id, season: season.id })}
-        className="px-3 py-1.5 text-sm rounded-full font-medium transition-all duration-200"
-        style={
-          active
-            ? { backgroundColor: season.color, color: '#fff', boxShadow: `0 0 12px ${season.color}40` }
-            : { backgroundColor: 'rgba(255,255,255,0.05)', color: '#9ca3af' }
-        }
-      >
-        {season.label}
-      </button>
-    );
-  }
-
-  /* ─────────────── Loading State ─────────────── */
-
-  if (servicesLoading) {
-    return (
-      <section className="bg-[#0a0a0f] py-16 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-white/10 rounded w-80 mx-auto" />
-            <div className="h-4 bg-white/5 rounded w-60 mx-auto" />
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-16 bg-[#1a1a24] rounded-xl" />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  /* ─────────────── Success State ─────────────── */
-
+  /* ─── Success State ─── */
   if (submitSuccess) {
     return (
-      <section className="bg-[#0a0a0f] py-16 px-4">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="bg-[#1a1a24] border border-emerald-500/30 rounded-2xl p-10">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
-              <svg className="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-display font-bold text-white mb-2">Plan Locked In!</h3>
-            <p className="text-gray-400">
-              We will reach out within 24 hours with your personalized annual plan and exact pricing.
-            </p>
+      <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+          className="rounded-3xl p-10 max-w-md mx-auto"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(34,197,94,0.3)' }}
+        >
+          <div
+            className="w-16 h-16 mx-auto mb-5 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(34,197,94,0.15)' }}
+          >
+            <svg className="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
           </div>
-        </div>
-      </section>
+          <h3 className="text-2xl font-bold text-white mb-2">Plan Locked In!</h3>
+          <p className="text-gray-400">
+            We'll reach out within 24 hours with your personalized annual plan and exact pricing.
+          </p>
+        </motion.div>
+      </div>
     );
   }
 
-  /* ─────────────── Main Render ─────────────── */
-
+  /* ─── Main Layout ─── */
   return (
-    <section className="bg-[#0a0a0f] py-16 px-4" id="annual-plan">
-      <div className="max-w-5xl mx-auto space-y-10">
-        {/* Header */}
-        <div className="text-center space-y-3">
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-white">
-            Build Your Annual Plan
-          </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Select services by season and see your bundle pricing update in real time.
-            {selectedServiceCount < BUNDLE_MIN_SERVICES && (
-              <span className="block mt-1 text-emerald-400 text-sm">
-                Add {BUNDLE_MIN_SERVICES - selectedServiceCount} more service{BUNDLE_MIN_SERVICES - selectedServiceCount !== 1 ? 's' : ''} to unlock 15% bundle discount
-              </span>
-            )}
-          </p>
-        </div>
+    <div id="configurator" className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8 xl:gap-12">
 
-        {/* ─── Section A: Service / Season Toggle Grid ─── */}
-        <div className="space-y-3">
-          {(services ?? []).map((service) => {
-            const svcSeasons = state.selections[service.id] ?? { spring: false, summer: false, fall: false, winter: false };
-            const allSelected = svcSeasons.spring && svcSeasons.summer && svcSeasons.fall && svcSeasons.winter;
-            return (
-              <div
-                key={service.id}
-                className="bg-[#1a1a24] border border-white/10 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3"
-              >
-                <div className="sm:w-48 flex-shrink-0">
-                  <span className="text-white font-semibold text-sm">{service.name}</span>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 flex-1">
-                  <button
-                    type="button"
-                    onClick={() => dispatch({ type: 'TOGGLE_ALL_SEASONS', serviceId: service.id })}
-                    className={`px-3 py-1.5 text-xs rounded-full font-medium border transition-all duration-200 ${
-                      allSelected
-                        ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10'
-                        : 'border-white/20 text-gray-500 hover:border-white/40'
-                    }`}
-                  >
-                    All Year
-                  </button>
-                  {SEASONS.map((season) => renderSeasonToggle(service, season))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* ─── Section B: 12-Month Calendar Preview ─── */}
+        {/* ═══ LEFT: Service Card Grid ═══ */}
         <div>
-          <h3 className="text-lg font-display font-semibold text-white mb-4">Your 12-Month Calendar</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {MONTHS.map((month) => {
-              const season = MONTH_TO_SEASON[month];
-              const activeServices = monthActiveServices[month] ?? [];
+          <div className="mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">Choose Your Services</h2>
+            <p className="text-gray-400 text-sm">
+              Toggle seasons for each service. Bundle 3+ to unlock 15% off.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {services.map((service, index) => {
+              const svcSeasons = state.selections[service.id] ?? {
+                spring: false,
+                summer: false,
+                fall: false,
+                winter: false,
+              };
+              const hasAnySelected = service.availableSeasons.some((s) => svcSeasons[s]);
+              const allAvailSelected = service.availableSeasons.every((s) => svcSeasons[s]);
+
+              // Dominant active season color for glow
+              const activeSeason = SEASONS.find((s) => svcSeasons[s.id]);
+              const glowColor = activeSeason?.color ?? 'transparent';
+
               return (
-                <div
-                  key={month}
-                  className="rounded-xl border border-white/10 p-3 min-h-[100px] transition-all duration-200"
-                  style={{ backgroundColor: activeServices.length > 0 ? `${SEASON_COLORS[season]}10` : '#111118' }}
+                <motion.div
+                  key={service.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.06 }}
+                  className="rounded-2xl p-5 transition-all duration-300"
+                  style={{
+                    background: hasAnySelected ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)',
+                    border: hasAnySelected
+                      ? '1px solid rgba(255,255,255,0.15)'
+                      : '1px solid rgba(255,255,255,0.07)',
+                    boxShadow: hasAnySelected ? `0 0 32px ${glowColor}25` : 'none',
+                  }}
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <span
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: SEASON_COLORS[season] }}
-                    />
-                    <span className="text-white text-sm font-semibold">{month}</span>
-                  </div>
-                  {activeServices.length === 0 ? (
-                    <span className="text-gray-600 text-xs">Rest</span>
-                  ) : (
-                    <div className="space-y-1">
-                      {activeServices.map((svc, i) => (
-                        <div key={i} className="flex items-center gap-1.5">
-                          <span
-                            className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: svc.color }}
-                          />
-                          <span className="text-gray-300 text-xs truncate">{svc.name}</span>
-                        </div>
-                      ))}
+                  {/* Header */}
+                  <div className="flex items-start gap-3 mb-3">
+                    <span className="text-2xl flex-shrink-0">{service.emoji}</span>
+                    <div>
+                      <h3 className="text-white font-semibold text-sm leading-tight">{service.name}</h3>
+                      <p className="text-gray-500 text-xs mt-0.5 leading-relaxed">{service.desc}</p>
                     </div>
-                  )}
-                </div>
+                  </div>
+
+                  {/* Season toggles */}
+                  <div className="flex flex-wrap gap-1.5 mt-3">
+                    {/* All Year shortcut */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        dispatch({
+                          type: 'TOGGLE_ALL_SEASONS',
+                          serviceId: service.id,
+                          availableSeasons: service.availableSeasons,
+                        })
+                      }
+                      className="px-2.5 py-1 text-xs rounded-full font-medium transition-all duration-200"
+                      style={
+                        allAvailSelected
+                          ? {
+                              background: 'rgba(255,255,255,0.15)',
+                              color: '#fff',
+                              border: '1px solid rgba(255,255,255,0.3)',
+                            }
+                          : {
+                              background: 'transparent',
+                              color: '#6b7280',
+                              border: '1px solid rgba(255,255,255,0.1)',
+                            }
+                      }
+                    >
+                      All Year
+                    </button>
+
+                    {SEASONS.map((season) => {
+                      const available = service.availableSeasons.includes(season.id);
+                      const active = svcSeasons[season.id];
+                      return (
+                        <button
+                          key={season.id}
+                          type="button"
+                          disabled={!available}
+                          onClick={() =>
+                            dispatch({
+                              type: 'TOGGLE_SERVICE_SEASON',
+                              serviceId: service.id,
+                              season: season.id,
+                            })
+                          }
+                          className="px-2.5 py-1 text-xs rounded-full font-medium transition-all duration-200"
+                          style={
+                            !available
+                              ? {
+                                  background: 'transparent',
+                                  color: '#374151',
+                                  border: '1px solid rgba(255,255,255,0.05)',
+                                  cursor: 'not-allowed',
+                                  opacity: 0.4,
+                                }
+                              : active
+                              ? {
+                                  backgroundColor: season.color,
+                                  color: '#fff',
+                                  boxShadow: `0 0 10px ${season.color}60`,
+                                  border: `1px solid ${season.color}`,
+                                  transform: 'scale(1.05)',
+                                }
+                              : {
+                                  background: 'rgba(255,255,255,0.05)',
+                                  color: '#9ca3af',
+                                  border: '1px solid rgba(255,255,255,0.1)',
+                                }
+                          }
+                        >
+                          {season.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
               );
             })}
           </div>
         </div>
 
-        {/* ─── Section C: Pricing Summary + CTA ─── */}
-        <div className="bg-[#1a1a24] border border-white/10 rounded-2xl p-6 md:p-8">
-          {selectedServiceCount === 0 ? (
-            <div className="text-center py-4">
-              <p className="text-gray-500">Select services above to see your annual pricing</p>
+        {/* ═══ RIGHT: Sticky Plan Panel ═══ */}
+        <div className="mt-8 lg:mt-0">
+          <div
+            className="lg:sticky lg:top-6 rounded-2xl p-6 transition-all duration-300"
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              backdropFilter: 'blur(20px)',
+              border:
+                selectedServiceCount > 0
+                  ? '1px solid rgba(255,255,255,0.12)'
+                  : '1px solid rgba(255,255,255,0.07)',
+            }}
+          >
+            <h3 className="text-white font-bold text-lg mb-5">Your Annual Plan</h3>
+
+            {/* Bundle Progress */}
+            <div className="mb-5">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs text-gray-400">
+                  {selectedServiceCount < BUNDLE_MIN
+                    ? `Add ${BUNDLE_MIN - selectedServiceCount} more service${
+                        BUNDLE_MIN - selectedServiceCount !== 1 ? 's' : ''
+                      } for 15% off`
+                    : '15% bundle discount unlocked \u2713'}
+                </span>
+                <span
+                  className="text-xs font-bold"
+                  style={{ color: selectedServiceCount >= BUNDLE_MIN ? '#22c55e' : '#6b7280' }}
+                >
+                  {selectedServiceCount}/{BUNDLE_MIN}
+                </span>
+              </div>
+              <div
+                className="h-1.5 rounded-full overflow-hidden"
+                style={{ background: 'rgba(255,255,255,0.08)' }}
+              >
+                <motion.div
+                  className="h-full rounded-full"
+                  animate={{ width: `${Math.min((selectedServiceCount / BUNDLE_MIN) * 100, 100)}%` }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  style={{
+                    background:
+                      selectedServiceCount >= BUNDLE_MIN
+                        ? 'linear-gradient(90deg, #22c55e, #16a34a)'
+                        : 'linear-gradient(90deg, #4b5563, #6b7280)',
+                    boxShadow:
+                      selectedServiceCount >= BUNDLE_MIN ? '0 0 12px rgba(34,197,94,0.4)' : 'none',
+                  }}
+                />
+              </div>
             </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Pricing display */}
-              <div className="text-center space-y-2">
-                <div className="flex items-baseline justify-center gap-3">
-                  <span className="text-4xl md:text-5xl font-display font-bold text-white">
-                    ~${pricing.monthlyEstimate.toLocaleString()}
-                  </span>
-                  <span className="text-gray-400">/month</span>
-                </div>
-                <p className="text-gray-400">
-                  ~${pricing.annualEstimate.toLocaleString()}/year
-                  {pricing.discountActive && (
-                    <span className="ml-2 line-through text-gray-600">
-                      ${pricing.originalAnnual.toLocaleString()}
-                    </span>
-                  )}
-                </p>
-                {pricing.discountActive && (
-                  <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-4 py-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-emerald-400 text-sm font-medium">
-                      You save ${pricing.savings.toLocaleString()} (15% bundle discount)
-                    </span>
-                  </div>
-                )}
-              </div>
 
-              {/* Selected services summary */}
-              <div className="flex flex-wrap justify-center gap-2">
-                {selectedServiceEntries.map((entry) => (
-                  <span
-                    key={entry.serviceId}
-                    className="bg-white/5 border border-white/10 rounded-full px-3 py-1 text-xs text-gray-300"
+            {/* Price Display */}
+            <div
+              className="text-center py-4 border-y mb-5"
+              style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+            >
+              {selectedServiceCount === 0 ? (
+                <p className="text-gray-600 text-sm py-2">Select services to see pricing</p>
+              ) : (
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={pricing.monthlyEstimate}
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    {entry.serviceName} ({entry.seasons.join(', ')})
-                  </span>
-                ))}
-              </div>
+                    <div className="flex items-baseline justify-center gap-2">
+                      <span className="text-5xl font-bold text-white">
+                        ~${pricing.monthlyEstimate.toLocaleString()}
+                      </span>
+                      <span className="text-gray-400 text-sm">/mo</span>
+                    </div>
+                    <div className="mt-1 flex items-center justify-center gap-2">
+                      {pricing.discountActive && (
+                        <span className="text-gray-500 text-sm line-through">
+                          ${Math.round(pricing.originalAnnual / 12).toLocaleString()}/mo
+                        </span>
+                      )}
+                      <span className="text-gray-400 text-sm">
+                        ~${pricing.annualEstimate.toLocaleString()}/year
+                      </span>
+                    </div>
+                    {pricing.discountActive && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full text-xs font-semibold"
+                        style={{
+                          background: 'rgba(34,197,94,0.15)',
+                          border: '1px solid rgba(34,197,94,0.3)',
+                          color: '#4ade80',
+                        }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        You save ${pricing.savings.toLocaleString()}/year
+                      </motion.div>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              )}
+            </div>
 
-              {/* CTAs */}
+            {/* Mini Calendar */}
+            {selectedServiceCount > 0 && (
+              <div className="mb-5">
+                <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wide">
+                  Your Coverage
+                </p>
+                <div className="grid grid-cols-4 gap-1">
+                  {MONTHS.map((month) => {
+                    const active = monthActiveServices[month] ?? [];
+                    const season = MONTH_TO_SEASON[month];
+                    return (
+                      <div
+                        key={month}
+                        className="rounded-lg p-1.5 text-center transition-colors duration-200"
+                        style={{
+                          background:
+                            active.length > 0
+                              ? `${SEASON_COLORS[season]}15`
+                              : 'rgba(255,255,255,0.03)',
+                          border:
+                            active.length > 0
+                              ? `1px solid ${SEASON_COLORS[season]}30`
+                              : '1px solid rgba(255,255,255,0.05)',
+                        }}
+                      >
+                        <div className="text-xs text-gray-400 font-medium">{month}</div>
+                        {active.length > 0 && (
+                          <div className="flex justify-center gap-0.5 mt-1 flex-wrap">
+                            {active.slice(0, 3).map((svc, i) => (
+                              <span
+                                key={i}
+                                className="w-1.5 h-1.5 rounded-full"
+                                style={{ backgroundColor: svc.color }}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* CTA */}
+            <AnimatePresence mode="wait">
               {!state.showContactForm ? (
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <motion.div
+                  key="cta"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="space-y-2"
+                >
                   <button
                     type="button"
+                    disabled={selectedServiceCount === 0}
                     onClick={() => dispatch({ type: 'SHOW_CONTACT_FORM' })}
-                    className="px-8 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_24px_rgba(16,185,129,0.3)]"
+                    className="w-full relative overflow-hidden rounded-xl py-3.5 px-6 font-bold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{
+                      background:
+                        selectedServiceCount > 0
+                          ? 'linear-gradient(135deg, #22c55e, #16a34a)'
+                          : '#1f2937',
+                      boxShadow:
+                        selectedServiceCount > 0 ? '0 0 28px rgba(34,197,94,0.3)' : 'none',
+                    }}
                   >
-                    Lock In My Plan
+                    {/* Shimmer overlay */}
+                    {selectedServiceCount > 0 && (
+                      <motion.div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                          background:
+                            'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%)',
+                        }}
+                        animate={{ x: ['-100%', '200%'] }}
+                        transition={{
+                          duration: 2.5,
+                          repeat: Infinity,
+                          repeatDelay: 1.5,
+                          ease: 'linear',
+                        }}
+                      />
+                    )}
+                    <span className="relative">Lock In My Plan</span>
                   </button>
                   <button
                     type="button"
+                    disabled={selectedServiceCount === 0}
                     onClick={() => dispatch({ type: 'SHOW_CONTACT_FORM' })}
-                    className="px-8 py-3.5 rounded-xl border border-white/20 text-gray-300 hover:text-white hover:border-white/40 font-medium transition-all duration-200"
+                    className="w-full py-2.5 px-6 rounded-xl text-sm font-medium transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ border: '1px solid rgba(255,255,255,0.1)', color: '#9ca3af' }}
                   >
                     Get Exact Quote
                   </button>
-                </div>
+                </motion.div>
               ) : (
-                /* Contact Form */
-                <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <input
-                      type="text"
-                      required
-                      placeholder="First name"
-                      value={state.contactForm.firstName}
-                      onChange={(e) => dispatch({ type: 'UPDATE_CONTACT', field: 'firstName', value: e.target.value })}
-                      className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
-                    />
-                    <input
-                      type="text"
-                      required
-                      placeholder="Last name"
-                      value={state.contactForm.lastName}
-                      onChange={(e) => dispatch({ type: 'UPDATE_CONTACT', field: 'lastName', value: e.target.value })}
-                      className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
-                    />
+                <motion.form
+                  key="form"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  onSubmit={handleSubmit}
+                  className="space-y-3 overflow-hidden"
+                >
+                  <div className="grid grid-cols-2 gap-2">
+                    {(['firstName', 'lastName'] as const).map((field, i) => (
+                      <input
+                        key={field}
+                        type="text"
+                        required
+                        placeholder={i === 0 ? 'First name' : 'Last name'}
+                        value={state.contactForm[field]}
+                        onChange={(e) =>
+                          dispatch({ type: 'UPDATE_CONTACT', field, value: e.target.value })
+                        }
+                        className="rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none transition-colors"
+                        style={{
+                          background: 'rgba(255,255,255,0.06)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                        }}
+                      />
+                    ))}
                   </div>
                   <input
                     type="email"
                     required
                     placeholder="Email"
                     value={state.contactForm.email}
-                    onChange={(e) => dispatch({ type: 'UPDATE_CONTACT', field: 'email', value: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                    onChange={(e) =>
+                      dispatch({ type: 'UPDATE_CONTACT', field: 'email', value: e.target.value })
+                    }
+                    className="w-full rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none transition-colors"
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                    }}
                   />
                   <input
                     type="tel"
                     required
                     placeholder="Phone"
                     value={state.contactForm.phone}
-                    onChange={(e) => dispatch({ type: 'UPDATE_CONTACT', field: 'phone', value: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                    onChange={(e) =>
+                      dispatch({ type: 'UPDATE_CONTACT', field: 'phone', value: e.target.value })
+                    }
+                    className="w-full rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none transition-colors"
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                    }}
                   />
                   <input
                     type="text"
-                    placeholder="Service address"
+                    placeholder="Service address (optional)"
                     value={state.contactForm.address}
-                    onChange={(e) => dispatch({ type: 'UPDATE_CONTACT', field: 'address', value: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                    onChange={(e) =>
+                      dispatch({ type: 'UPDATE_CONTACT', field: 'address', value: e.target.value })
+                    }
+                    className="w-full rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none transition-colors"
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                    }}
                   />
-                  <div className="flex gap-3">
+                  <div className="flex gap-2">
                     <button
                       type="submit"
                       disabled={submitLead.isPending}
-                      className="flex-1 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_24px_rgba(16,185,129,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 py-3 rounded-xl font-bold text-white text-sm transition-all duration-200 disabled:opacity-50"
+                      style={{
+                        background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                        boxShadow: '0 0 20px rgba(34,197,94,0.25)',
+                      }}
                     >
-                      {submitLead.isPending ? 'Submitting...' : 'Lock In My Plan'}
+                      {submitLead.isPending ? 'Submitting\u2026' : 'Lock In My Plan'}
                     </button>
                     <button
                       type="button"
                       onClick={() => dispatch({ type: 'HIDE_CONTACT_FORM' })}
-                      className="px-4 py-3 rounded-xl border border-white/10 text-gray-400 hover:text-white transition-colors"
+                      className="px-4 py-3 rounded-xl text-gray-500 hover:text-gray-300 transition-colors text-sm"
+                      style={{ border: '1px solid rgba(255,255,255,0.08)' }}
                     >
-                      Cancel
+                      &#x2715;
                     </button>
                   </div>
                   {submitLead.isError && (
-                    <p className="text-red-400 text-sm text-center">
+                    <p className="text-red-400 text-xs text-center">
                       Something went wrong. Please try again.
                     </p>
                   )}
-                </form>
+                </motion.form>
               )}
-            </div>
-          )}
+            </AnimatePresence>
+
+            {/* Trust micro-line */}
+            <p className="text-center text-gray-600 text-xs mt-4">
+              80+ Madison families &middot; 4.9&#x2605; Google &middot; Fully insured
+            </p>
+          </div>
         </div>
       </div>
-    </section>
+
+      {/* ═══ Mobile Sticky Bottom Bar ═══ */}
+      <AnimatePresence>
+        {selectedServiceCount > 0 && !state.showContactForm && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="lg:hidden fixed bottom-0 inset-x-0 z-50 px-4 pb-4 pt-3"
+            style={{
+              background:
+                'linear-gradient(to top, rgba(5,13,7,0.98) 60%, transparent)',
+            }}
+          >
+            <div
+              className="rounded-2xl p-4 flex items-center justify-between gap-4"
+              style={{
+                background: 'rgba(20,30,22,0.95)',
+                border: '1px solid rgba(34,197,94,0.2)',
+                backdropFilter: 'blur(16px)',
+              }}
+            >
+              <div>
+                <div className="text-white font-bold text-xl">
+                  ~$
+                  {pricing.monthlyEstimate > 0
+                    ? pricing.monthlyEstimate.toLocaleString()
+                    : '\u2014'}
+                  <span className="text-gray-400 text-sm font-normal">/mo</span>
+                </div>
+                {pricing.discountActive && (
+                  <div className="text-emerald-400 text-xs font-semibold">
+                    15% off applied \u2713
+                  </div>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  dispatch({ type: 'SHOW_CONTACT_FORM' });
+                  document.getElementById('configurator')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="relative overflow-hidden rounded-xl py-3 px-6 font-bold text-white text-sm flex-shrink-0"
+                style={{
+                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                  boxShadow: '0 0 20px rgba(34,197,94,0.3)',
+                }}
+              >
+                Lock In My Plan
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
