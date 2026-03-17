@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { Check, ChevronRight, ChevronLeft, Loader2, Calendar, Home, MapPin, Mail, Phone, User, AlertCircle } from 'lucide-react';
+import { AddressAutocomplete } from '@/components/AddressAutocomplete';
 import { ConciergeConfirmation } from '@/components/ConciergeConfirmation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 
 // Step definitions
 const STEPS = [
+  { id: 'address', label: 'Address', icon: MapPin },
   { id: 'service', label: 'Service', icon: Check },
   { id: 'property', label: 'Property', icon: Home },
   { id: 'frequency', label: 'Frequency', icon: Calendar },
@@ -70,7 +72,7 @@ interface FormData {
 }
 
 export function QuoteFlow({ initialService, initialTier, onComplete, className = '' }: QuoteFlowProps) {
-  const [currentStep, setCurrentStep] = useState<StepId>('service');
+  const [currentStep, setCurrentStep] = useState<StepId>('address');
   const [formData, setFormData] = useState<FormData>({
     serviceId: '',
     serviceName: '',
@@ -152,6 +154,33 @@ export function QuoteFlow({ initialService, initialTier, onComplete, className =
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
+  // Handle address autocomplete selection
+  const handleAddressSelect = useCallback((address: {
+    full_address: string;
+    city: string;
+    state: string;
+    zip: string;
+    coordinates: [number, number];
+  }) => {
+    const updates: Partial<FormData> = {
+      address: address.full_address,
+      city: address.city,
+      zip: address.zip,
+    };
+
+    // Try to match city against locations list to auto-set locationId
+    if (locations && locations.length > 0) {
+      const matchedLocation = locations.find(
+        (loc) => loc.name.toLowerCase() === address.city.toLowerCase()
+      );
+      if (matchedLocation) {
+        updates.locationId = matchedLocation.id;
+      }
+    }
+
+    updateForm(updates);
+  }, [locations, updateForm]);
+
   // Submit handler
   const handleSubmit = async () => {
     const leadData: LeadInsert = {
@@ -208,6 +237,8 @@ export function QuoteFlow({ initialService, initialTier, onComplete, className =
   // Validation
   const isStepValid = (step: StepId): boolean => {
     switch (step) {
+      case 'address':
+        return true; // Skippable — user can enter address later
       case 'service':
         return !!formData.serviceId;
       case 'property':
@@ -226,6 +257,42 @@ export function QuoteFlow({ initialService, initialTier, onComplete, className =
   // Render step content
   const renderStepContent = () => {
     switch (currentStep) {
+      case 'address':
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold">Where is your property?</h2>
+              <p className="text-muted-foreground">Start typing to find your address</p>
+            </div>
+
+            <AddressAutocomplete
+              onSelect={handleAddressSelect}
+              defaultValue={formData.address}
+              placeholder="Enter your street address..."
+            />
+
+            {formData.address && (
+              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-5 w-5 text-emerald-500 mt-0.5 shrink-0" />
+                  <div className="text-sm">
+                    <div className="font-medium text-[#f0f0f5]">{formData.address}</div>
+                    {formData.city && (
+                      <div className="text-[#8888a0]">
+                        {formData.city}{formData.zip ? `, ${formData.zip}` : ''}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <p className="text-center text-xs text-muted-foreground">
+              You can also skip this step and enter your address later
+            </p>
+          </div>
+        );
+
       case 'service':
         return (
           <div className="space-y-4">
