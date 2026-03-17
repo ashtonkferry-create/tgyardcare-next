@@ -23,6 +23,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
 import { CrossSellGrid } from "@/components/CrossSellGrid";
 import { TrustStrip } from "@/components/TrustStrip";
+import ServicePageQuickQuote from '@/components/ServicePageQuickQuote';
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
 
@@ -100,6 +101,8 @@ export default function MulchingContent() {
           </div>
         </div>
       </section>
+
+      <ServicePageQuickQuote serviceName="Mulching" serviceSlug="mulching" />
 
       {/* ═══════════════════════════════════════════════════════════════════
           TRUST STRIP — Immediate credibility

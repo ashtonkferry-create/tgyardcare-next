@@ -21,6 +21,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
 import { CrossSellGrid } from "@/components/CrossSellGrid";
 import { TrustStrip } from "@/components/TrustStrip";
+import ServicePageQuickQuote from '@/components/ServicePageQuickQuote';
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
 
@@ -96,6 +97,8 @@ export default function PruningContent() {
             </ScrollReveal>
           </div>
         </section>
+
+        <ServicePageQuickQuote serviceName="Tree & Shrub Pruning" serviceSlug="pruning" />
 
         {/* ═══════════════════════════════════════════════════════════════════
             TRUST STRIP — Immediate credibility

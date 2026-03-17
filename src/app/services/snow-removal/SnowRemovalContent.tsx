@@ -21,6 +21,7 @@ import { AmbientParticles } from "@/components/AmbientParticles";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
 import { TrustStrip } from "@/components/TrustStrip";
+import ServicePageQuickQuote from '@/components/ServicePageQuickQuote';
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { MobilePricingPreview } from '@/components/mobile/MobilePricingPreview';
 import { cn } from '@/lib/utils';
@@ -112,6 +113,8 @@ export default function SnowRemovalContent() {
             </ScrollReveal>
           </div>
         </section>
+
+        <ServicePageQuickQuote serviceName="Snow Removal" serviceSlug="snow-removal" />
 
         {/* ═══════════════════════════════════════════════════════════════════
             TRUST STRIP — Immediate credibility

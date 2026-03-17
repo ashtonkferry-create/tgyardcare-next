@@ -8,6 +8,7 @@ import { ScrollProgress } from "@/components/ScrollProgress";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
 import { TrustStrip } from "@/components/TrustStrip";
+import ServicePageQuickQuote from '@/components/ServicePageQuickQuote';
 import { AmbientParticles } from "@/components/AmbientParticles";
 import { ResidentialProblemSection, ResidentialSolutionSection } from "@/components/ResidentialSections";
 import { Button } from "@/components/ui/button";
@@ -175,6 +176,8 @@ export default function HardscapingContent() {
           </ScrollReveal>
         </div>
       </section>
+
+      <ServicePageQuickQuote serviceName="Hardscaping" serviceSlug="hardscaping" />
 
       {/* Trust Strip */}
       <TrustStrip variant="dark" />

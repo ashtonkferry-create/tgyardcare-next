@@ -21,6 +21,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
 import { CrossSellGrid } from "@/components/CrossSellGrid";
 import { TrustStrip } from "@/components/TrustStrip";
+import ServicePageQuickQuote from '@/components/ServicePageQuickQuote';
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
 
@@ -97,6 +98,8 @@ export default function GutterCleaningContent() {
           </div>
         </div>
       </section>
+
+      <ServicePageQuickQuote serviceName="Gutter Cleaning" serviceSlug="gutter-cleaning" />
 
       {/* ═══════════════════════════════════════════════════════════════════
           TRUST STRIP — Immediate credibility
