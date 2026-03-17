@@ -19,6 +19,7 @@ import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
 import { AmbientParticles } from "@/components/AmbientParticles";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
+import { CrossSellGrid } from "@/components/CrossSellGrid";
 import { TrustStrip } from "@/components/TrustStrip";
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
@@ -401,7 +402,7 @@ export default function SpringCleanupContent() {
               <GlassCard variant="accent" hover="glow" className="text-center p-8 md:p-10">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Madison-Area Spring Cleanup Pricing</h2>
                 <div className="flex items-baseline justify-center gap-1 mb-4">
-                  <span className="text-5xl md:text-6xl font-bold text-primary">$200</span>
+                  <span className="text-5xl md:text-6xl font-bold text-primary">$125</span>
                   <span className="text-2xl text-white/60">&ndash;</span>
                   <span className="text-5xl md:text-6xl font-bold text-primary">$500</span>
                   <span className="text-white/60 text-lg ml-1">/visit</span>
@@ -434,39 +435,16 @@ export default function SpringCleanupContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           RELATED SERVICES — Cross-sell
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20" style={{ background: '#050d07' }}>
-        <div className="container mx-auto px-4">
-          <ScrollReveal>
-            <h2 className="text-3xl font-bold text-white mb-4 text-center">
-              Pair With These Services
-            </h2>
-            <p className="text-center text-white/60 mb-10 max-w-2xl mx-auto">
-              Many Madison homeowners combine spring cleanup with these related services for maximum growing season impact:
-            </p>
-          </ScrollReveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-5 max-w-5xl mx-auto">
-            {[
-              { href: "/services/mulching", title: "Mulch Refresh", desc: "Complete the polished look" },
-              { href: "/services/aeration", title: "Spring Aeration", desc: "Break up compacted soil for deeper roots" },
-              { href: "/services/fertilization", title: "First Fertilizer", desc: "Feed your lawn for rapid green-up" },
-              { href: "/services/herbicide", title: "Pre-Emergent", desc: "Stop weeds before they start" },
-            ].map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.08}>
-                <Link href={item.href} className="block group">
-                  <GlassCard hover="lift" className="text-center h-full">
-                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
-                    <p className="text-sm text-white/60">{item.desc}</p>
-                    <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                    </span>
-                  </GlassCard>
-                </Link>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CrossSellGrid
+        heading="Pair With These Services"
+        subheading="Many Madison homeowners combine spring cleanup with these related services for maximum growing season impact:"
+        items={[
+          { href: "/services/mulching", title: "Mulch Refresh", desc: "Complete the polished look", price: "$50/yd" },
+          { href: "/services/aeration", title: "Spring Aeration", desc: "Break up compacted soil for deeper roots", price: "$75/visit" },
+          { href: "/services/fertilization", title: "First Fertilizer", desc: "Feed your lawn for rapid green-up", price: "$95/visit" },
+          { href: "/services/herbicide", title: "Pre-Emergent", desc: "Stop weeds before they start", price: "$95/visit" },
+        ]}
+      />
 
       <ResidentialHomeownerTypesSection serviceName="spring cleanup" />
       <ResidentialExpectationsSection serviceName="spring cleanup" />

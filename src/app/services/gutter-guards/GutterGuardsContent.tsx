@@ -18,6 +18,7 @@ import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
 import { AmbientParticles } from "@/components/AmbientParticles";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
+import { CrossSellGrid } from "@/components/CrossSellGrid";
 import { TrustStrip } from "@/components/TrustStrip";
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
@@ -394,36 +395,14 @@ export default function GutterGuardsContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           RELATED SERVICES — Cross-sell
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20" style={{ background: '#050d07' }}>
-        <div className="container mx-auto px-4">
-          <ScrollReveal>
-            <h2 className="text-3xl font-bold text-white mb-4 text-center">
-              Complete Home Protection
-            </h2>
-            <p className="text-center text-white/60 mb-10 max-w-2xl mx-auto">
-              Gutter guards are one part of protecting your home from water damage:
-            </p>
-          </ScrollReveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
-            {[
-              { href: "/services/gutter-cleaning", title: "Gutter Cleaning", desc: "One-time cleaning before guard installation or if you're not ready for guards yet" },
-              { href: "/services/fall-cleanup", title: "Fall Cleanup", desc: "Comprehensive fall property prep including leaf removal" },
-            ].map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.08}>
-                <Link href={item.href} className="block group">
-                  <GlassCard hover="lift" className="text-center h-full">
-                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
-                    <p className="text-sm text-white/60">{item.desc}</p>
-                    <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                    </span>
-                  </GlassCard>
-                </Link>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CrossSellGrid
+        heading="Complete Home Protection"
+        subheading="Gutter guards are one part of protecting your home from water damage:"
+        items={[
+          { href: "/services/gutter-cleaning", title: "Gutter Cleaning", desc: "One-time cleaning before guard installation or if you're not ready for guards yet", price: "$135" },
+          { href: "/services/fall-cleanup", title: "Fall Cleanup", desc: "Comprehensive fall property prep including leaf removal", price: "$150/visit" },
+        ]}
+      />
 
       <ResidentialHomeownerTypesSection serviceName="gutter guard installation" />
       <ResidentialExpectationsSection serviceName="gutter guard installation" />

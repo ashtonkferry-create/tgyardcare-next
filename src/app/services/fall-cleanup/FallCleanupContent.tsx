@@ -19,6 +19,7 @@ import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
 import { AmbientParticles } from "@/components/AmbientParticles";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
+import { CrossSellGrid } from "@/components/CrossSellGrid";
 import { TrustStrip } from "@/components/TrustStrip";
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
@@ -434,39 +435,16 @@ export default function FallCleanupContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           RELATED SERVICES — Cross-sell
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20">
-        <div className="container mx-auto px-4">
-          <ScrollReveal>
-            <h2 className="text-3xl font-bold text-white mb-4 text-center">
-              Pair With These Services
-            </h2>
-            <p className="text-center text-white/60 mb-10 max-w-2xl mx-auto">
-              Many Madison homeowners combine fall cleanup with these related services for complete winter preparation:
-            </p>
-          </ScrollReveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-5 max-w-5xl mx-auto">
-            {[
-              { href: "/services/gutter-cleaning", title: "Gutter Cleaning", desc: "Prevent ice dams and water damage" },
-              { href: "/services/aeration", title: "Fall Aeration", desc: "Break up compacted soil for deeper roots" },
-              { href: "/services/fertilization", title: "Winterizer Fertilizer", desc: "Feed your lawn for spring green-up" },
-              { href: "/services/snow-removal", title: "Snow Removal", desc: "Seamless winter coverage" },
-            ].map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.08}>
-                <Link href={item.href} className="block group">
-                  <GlassCard hover="lift" className="text-center h-full">
-                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
-                    <p className="text-sm text-white/60">{item.desc}</p>
-                    <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                    </span>
-                  </GlassCard>
-                </Link>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CrossSellGrid
+        heading="Pair With These Services"
+        subheading="Many Madison homeowners combine fall cleanup with these related services for complete winter preparation:"
+        items={[
+          { href: "/services/gutter-cleaning", title: "Gutter Cleaning", desc: "Prevent ice dams and water damage", price: "$135" },
+          { href: "/services/aeration", title: "Fall Aeration", desc: "Break up compacted soil for deeper roots", price: "$75/visit" },
+          { href: "/services/fertilization", title: "Winterizer Fertilizer", desc: "Feed your lawn for spring green-up", price: "$95/visit" },
+          { href: "/services/snow-removal", title: "Snow Removal", desc: "Seamless winter coverage", price: "$50/visit" },
+        ]}
+      />
 
       <ResidentialHomeownerTypesSection serviceName="fall cleanup" />
       <ResidentialExpectationsSection serviceName="fall cleanup" />

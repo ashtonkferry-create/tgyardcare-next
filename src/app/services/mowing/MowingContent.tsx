@@ -21,6 +21,7 @@ import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
 import { AmbientParticles } from "@/components/AmbientParticles";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
+import { CrossSellGrid } from "@/components/CrossSellGrid";
 import { TrustStrip } from "@/components/TrustStrip";
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
@@ -389,9 +390,9 @@ export default function MowingContent() {
               <GlassCard variant="accent" hover="glow" className="text-center p-8 md:p-10">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Madison-Area Mowing Pricing</h2>
                 <div className="flex items-baseline justify-center gap-1 mb-4">
-                  <span className="text-5xl md:text-6xl font-bold text-primary">$35</span>
+                  <span className="text-5xl md:text-6xl font-bold text-primary">$55</span>
                   <span className="text-2xl text-white/60">&ndash;</span>
-                  <span className="text-5xl md:text-6xl font-bold text-primary">$65</span>
+                  <span className="text-5xl md:text-6xl font-bold text-primary">$85</span>
                   <span className="text-white/60 text-lg ml-1">/visit</span>
                 </div>
                 <p className="text-white/60 mb-6 leading-relaxed">
@@ -422,39 +423,16 @@ export default function MowingContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           RELATED SERVICES — Cross-sell
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20">
-        <div className="container mx-auto px-4">
-          <ScrollReveal>
-            <h2 className="text-3xl font-bold text-white mb-4 text-center">
-              Enhance Your Lawn Care
-            </h2>
-            <p className="text-center text-white/60 mb-10 max-w-2xl mx-auto">
-              Mowing is the foundation&mdash;but these services take your lawn to the next level:
-            </p>
-          </ScrollReveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-5 max-w-5xl mx-auto">
-            {[
-              { href: "/services/fertilization", title: "Fertilization", desc: "Feed your lawn for thick, green growth" },
-              { href: "/services/aeration", title: "Aeration", desc: "Break up compacted soil for deeper roots" },
-              { href: "/services/weeding", title: "Weeding", desc: "Keep your beds weed-free" },
-              { href: "/services/mulching", title: "Mulching", desc: "Complete the polished look" },
-            ].map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.08}>
-                <Link href={item.href} className="block group">
-                  <GlassCard hover="lift" className="text-center h-full">
-                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
-                    <p className="text-sm text-white/60">{item.desc}</p>
-                    <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                    </span>
-                  </GlassCard>
-                </Link>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CrossSellGrid
+        heading="Enhance Your Lawn Care"
+        subheading="Mowing is the foundation — these services take your lawn to the next level:"
+        items={[
+          { href: "/services/fertilization", title: "Fertilization", desc: "Feed your lawn for thick, green growth", price: "$95/visit" },
+          { href: "/services/aeration", title: "Aeration", desc: "Break up compacted soil for deeper roots", price: "$75/visit" },
+          { href: "/services/weeding", title: "Weeding", desc: "Keep your beds weed-free", price: "$40/visit" },
+          { href: "/services/mulching", title: "Mulching", desc: "Complete the polished look", price: "$50/yd" },
+        ]}
+      />
 
       <ResidentialHomeownerTypesSection serviceName="lawn mowing" />
       <ResidentialExpectationsSection serviceName="lawn mowing" />

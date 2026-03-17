@@ -19,6 +19,7 @@ import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
 import { AmbientParticles } from "@/components/AmbientParticles";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
+import { CrossSellGrid } from "@/components/CrossSellGrid";
 import { TrustStrip } from "@/components/TrustStrip";
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
@@ -370,31 +371,13 @@ export default function GutterCleaningContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           RELATED SERVICE — Cross-sell
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20" style={{ background: '#050d07' }}>
-        <div className="container mx-auto px-4">
-          <ScrollReveal>
-            <h2 className="text-3xl font-bold text-white mb-4 text-center">
-              Tired of Cleaning Gutters Twice a Year?
-            </h2>
-            <p className="text-center text-white/60 mb-8 max-w-2xl mx-auto">
-              Consider gutter guards&mdash;they reduce cleaning frequency by up to 90%:
-            </p>
-          </ScrollReveal>
-          <ScrollReveal delay={0.1}>
-            <div className="max-w-md mx-auto">
-              <Link href="/services/gutter-guards" className="block group">
-                <GlassCard hover="lift" className="text-center">
-                  <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-primary transition-colors">Gutter Guard Installation</h3>
-                  <p className="text-white/60">One-time investment that pays for itself in 3-5 years. Never climb a ladder again.</p>
-                  <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Learn About Gutter Guards <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                  </span>
-                </GlassCard>
-              </Link>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
+      <CrossSellGrid
+        heading="Tired of Cleaning Gutters Twice a Year?"
+        subheading="Consider gutter guards — they reduce cleaning frequency by up to 90%:"
+        items={[
+          { href: "/services/gutter-guards", title: "Gutter Guard Installation", desc: "One-time investment that pays for itself in 3-5 years. Never climb a ladder again.", price: "$600" },
+        ]}
+      />
 
       <ResidentialHomeownerTypesSection serviceName="gutter cleaning" />
       <ResidentialExpectationsSection serviceName="gutter cleaning" />

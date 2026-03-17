@@ -20,6 +20,7 @@ import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
 import { AmbientParticles } from "@/components/AmbientParticles";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
+import { CrossSellGrid } from "@/components/CrossSellGrid";
 import { TrustStrip } from "@/components/TrustStrip";
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
@@ -414,9 +415,9 @@ export default function HerbicideContent() {
               <GlassCard variant="accent" hover="glow" className="text-center p-8 md:p-10">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Weed Control Pricing</h2>
                 <div className="flex items-baseline justify-center gap-1 mb-4">
-                  <span className="text-5xl md:text-6xl font-bold text-primary">$75</span>
+                  <span className="text-5xl md:text-6xl font-bold text-primary">$95</span>
                   <span className="text-2xl text-white/60">-</span>
-                  <span className="text-5xl md:text-6xl font-bold text-primary">$150</span>
+                  <span className="text-5xl md:text-6xl font-bold text-primary">$200</span>
                   <span className="text-white/60 text-lg ml-1">/application</span>
                 </div>
                 <p className="text-white/60 mb-6 leading-relaxed">
@@ -447,38 +448,15 @@ export default function HerbicideContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           RELATED SERVICES — Cross-sell
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20">
-        <div className="container mx-auto px-4">
-          <ScrollReveal>
-            <h2 className="text-3xl font-bold text-white mb-4 text-center">
-              Complete Your Lawn Health Program
-            </h2>
-            <p className="text-center text-white/60 mb-10 max-w-2xl mx-auto">
-              Weed control works best as part of a comprehensive lawn care approach:
-            </p>
-          </ScrollReveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
-            {[
-              { href: "/services/fertilization", title: "Fertilization", desc: "Thick grass naturally crowds out weeds" },
-              { href: "/services/aeration", title: "Aeration", desc: "Healthier roots mean a stronger lawn" },
-              { href: "/services/mowing", title: "Weekly Mowing", desc: "Proper mowing height suppresses weed growth" },
-            ].map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.08}>
-                <Link href={item.href} className="block group">
-                  <GlassCard hover="lift" className="text-center h-full">
-                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
-                    <p className="text-sm text-white/60">{item.desc}</p>
-                    <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                    </span>
-                  </GlassCard>
-                </Link>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CrossSellGrid
+        heading="Complete Your Lawn Health Program"
+        subheading="Weed control works best as part of a comprehensive lawn care approach:"
+        items={[
+          { href: "/services/fertilization", title: "Fertilization", desc: "Thick grass naturally crowds out weeds", price: "$95/visit" },
+          { href: "/services/aeration", title: "Aeration", desc: "Healthier roots mean a stronger lawn", price: "$75/visit" },
+          { href: "/services/mowing", title: "Weekly Mowing", desc: "Proper mowing height suppresses weed growth", price: "$55/visit" },
+        ]}
+      />
 
       <ResidentialHomeownerTypesSection serviceName="herbicide" />
       <ResidentialExpectationsSection serviceName="herbicide" />

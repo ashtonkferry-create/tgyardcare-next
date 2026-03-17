@@ -20,6 +20,7 @@ import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
 import { AmbientParticles } from "@/components/AmbientParticles";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
+import { CrossSellGrid } from "@/components/CrossSellGrid";
 import { TrustStrip } from "@/components/TrustStrip";
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
@@ -469,39 +470,16 @@ export default function GardenBedsContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           RELATED SERVICES — Cross-sell
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20">
-        <div className="container mx-auto px-4">
-          <ScrollReveal>
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold mb-4 text-white">Pair With These Services</h2>
-              <p className="text-white/60 mb-10">
-                Complete your property transformation with these related services:
-              </p>
-            </div>
-          </ScrollReveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-5 max-w-5xl mx-auto">
-            {[
-              { href: "/services/mulching", title: "Mulching", desc: "Complete the polished look" },
-              { href: "/services/weeding", title: "Regular Weeding", desc: "Keep beds weed-free all season" },
-              { href: "/services/pruning", title: "Shrub Pruning", desc: "Shape and maintain plants" },
-              { href: "/services/mowing", title: "Lawn Mowing", desc: "Full property care" },
-            ].map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.08}>
-                <Link href={item.href} className="block group">
-                  <GlassCard hover="lift" className="text-center h-full">
-                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
-                    <p className="text-sm text-white/60">{item.desc}</p>
-                    <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                    </span>
-                  </GlassCard>
-                </Link>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CrossSellGrid
+        heading="Pair With These Services"
+        subheading="Complete your property transformation with these related services:"
+        items={[
+          { href: "/services/mulching", title: "Mulching", desc: "Complete the polished look", price: "$50/yd" },
+          { href: "/services/weeding", title: "Regular Weeding", desc: "Keep beds weed-free all season", price: "$40/visit" },
+          { href: "/services/pruning", title: "Shrub Pruning", desc: "Shape and maintain plants", price: "$75" },
+          { href: "/services/mowing", title: "Lawn Mowing", desc: "Full property care", price: "$55/visit" },
+        ]}
+      />
 
       <ResidentialHomeownerTypesSection serviceName="garden bed" />
       <ResidentialExpectationsSection serviceName="garden bed" />

@@ -18,6 +18,7 @@ import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
 import { AmbientParticles } from "@/components/AmbientParticles";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
+import { CrossSellGrid } from "@/components/CrossSellGrid";
 import { TrustStrip } from "@/components/TrustStrip";
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
@@ -62,7 +63,7 @@ export default function FertilizationContent() {
           <div className="max-w-3xl">
             <ScrollReveal>
               <div className="inline-flex items-center bg-white/10 backdrop-blur-sm border border-white/10 text-white/80 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-                Starting at $50/visit
+                Starting at $95/visit
               </div>
             </ScrollReveal>
             <ScrollReveal delay={0.1}>
@@ -446,38 +447,15 @@ export default function FertilizationContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           RELATED SERVICES — Cross-sell
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20">
-        <div className="container mx-auto px-4">
-          <ScrollReveal>
-            <h2 className="text-3xl font-bold text-white mb-4 text-center">
-              Complete Your Lawn Health Program
-            </h2>
-            <p className="text-center text-white/60 mb-10 max-w-2xl mx-auto">
-              Fertilization works best with these complementary services:
-            </p>
-          </ScrollReveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
-            {[
-              { href: "/services/aeration", title: "Aeration", desc: "Nutrients reach roots faster after aeration" },
-              { href: "/services/herbicide", title: "Weed Control", desc: "Clear weeds so fertilizer feeds your grass, not weeds" },
-              { href: "/services/mowing", title: "Weekly Mowing", desc: "Proper mowing height maximizes fertilizer benefits" },
-            ].map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.08}>
-                <Link href={item.href} className="block group">
-                  <GlassCard hover="lift" className="text-center h-full">
-                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
-                    <p className="text-sm text-white/60">{item.desc}</p>
-                    <span className="inline-flex items-center text-primary text-sm font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Learn More <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                    </span>
-                  </GlassCard>
-                </Link>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CrossSellGrid
+        heading="Complete Your Lawn Health Program"
+        subheading="Fertilization works best with these complementary services:"
+        items={[
+          { href: "/services/aeration", title: "Aeration", desc: "Nutrients reach roots faster after aeration", price: "$75/visit" },
+          { href: "/services/herbicide", title: "Weed Control", desc: "Clear weeds so fertilizer feeds your grass, not weeds", price: "$95/visit" },
+          { href: "/services/mowing", title: "Weekly Mowing", desc: "Proper mowing height maximizes fertilizer benefits", price: "$55/visit" },
+        ]}
+      />
 
       <ResidentialHomeownerTypesSection serviceName="fertilization" />
       <ResidentialExpectationsSection serviceName="fertilization" />
