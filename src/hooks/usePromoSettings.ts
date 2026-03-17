@@ -71,8 +71,8 @@ const getCurrentSeason = async (): Promise<Season> => {
         }
       }
     }
-  } catch (err) {
-    console.warn('Failed to fetch season settings for promos:', err);
+  } catch {
+    // Silent fallback — season determined by month below
   }
 
   // Fallback based on month
@@ -108,8 +108,8 @@ export const usePromoSettings = () => {
       );
 
       setPromotions(seasonalPromos.length > 0 ? seasonalPromos : FALLBACK_PROMOTIONS.filter(p => p.seasons.includes(activeSeason)));
-    } catch (err) {
-      console.warn('Failed to fetch promotions, using fallback:', err);
+    } catch {
+      // Silent fallback — use hardcoded promotions
       const fallbackSeason = await getCurrentSeason();
       setCurrentSeason(fallbackSeason);
       setPromotions(FALLBACK_PROMOTIONS.filter(p => p.seasons.includes(fallbackSeason)));
