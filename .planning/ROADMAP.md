@@ -127,7 +127,7 @@ Plans:
 - Decimal phases (5.1, 6.1): Urgent insertions if needed (marked with INSERTED)
 
 - [x] **Phase 5: Safety Nets & Foundation** - Fix production bugs, harden the codebase, establish design tokens and server-side patterns
-- [ ] **Phase 6: Brand Transformation & Visual Impact** - Hero video, before/after gallery, Server Component conversion, premium typography in action
+- [x] **Phase 6: Brand Transformation & Visual Impact** - Hero video, before/after gallery, Server Component conversion, premium typography in action
 - [ ] **Phase 7: Conversion Features** - Instant quote calculator, interactive service area map, annual plan configurator
 - [ ] **Phase 8: Customer Retention Layer** - Auth-protected customer portal, referral engine with tracking
 - [ ] **Phase 9: Content & SEO Growth** - Blog categories/tags, Madison lawn care hub, seasonal content surfacing
@@ -237,7 +237,7 @@ Plans:
 | 4. Intelligence Layer | M2 | 12/12 | Complete | 2026-03-16 |
 | 4.1 M2 Integration Fixes | M2 | 1/1 | Complete | 2026-03-16 |
 | 5. Safety Nets & Foundation | M3 | 7/7 | Complete | 2026-03-16 |
-| 6. Brand Transformation | M3 | 0/? | Not started | - |
+| 6. Brand Transformation | M3 | 6/6 | Complete | 2026-03-17 |
 | 7. Conversion Features | M3 | 0/? | Not started | - |
 | 8. Customer Retention | M3 | 0/? | Not started | - |
 | 9. Content & SEO Growth | M3 | 0/? | Not started | - |

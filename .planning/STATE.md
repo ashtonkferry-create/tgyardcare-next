@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Transform tgyardcare.com into a billion-dollar brand experience that converts at 3-5x current rates while protecting existing SEO rankings and lead flow.
-**Current focus:** M3 Phase 6 (Brand Transformation & Visual Impact) — Next
+**Current focus:** M3 Phase 7 (Conversion Features) — Next
 
 ## Current Position
 
-Phase: 6 of 9 (Brand Transformation & Visual Impact)
-Plan: 5 of 6 in Phase 6 (06-01, 06-02, 06-03, 06-04 complete)
-Status: In progress
-Last activity: 2026-03-17 — Completed 06-03-PLAN.md (Server Component assembly)
+Phase: 7 of 10 (Conversion Features)
+Plan: 0 of ? in Phase 7
+Status: Planning
+Last activity: 2026-03-17 — Phase 6 complete (6/6 plans), Phase 7 planning
 
-Progress M3: [████████░] 10+ plans (Phase 5 complete, Phase 6 in progress)
+Progress M3: [████████████░] 13+ plans (Phase 5 complete, Phase 6 complete, Phase 7 planning)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -45,12 +45,15 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
   - 05-05: DONE — Seasonal CSS consolidation + brand name + contrast utilities [wave 2]
   - 05-06: DONE — Playwright smoke tests (10 pages) + cron audit (41 jobs) [wave 3]
   - 05-07: DONE — Final verification (12/12 checks pass) [wave 4]
-- Phase 6 (Brand Transformation): IN PROGRESS
-  - 06-01: DONE -- JSON-LD baseline + HeroSection/StatsStrip(server)/SeasonalServicesSection/ScrollRevealWrapper + cinematic hero treatment (parallax, stagger, video swap slot) [wave 1]
+- Phase 6 (Brand Transformation): COMPLETE
+  - 06-01: DONE -- JSON-LD baseline + HeroSection/StatsStrip(server)/SeasonalServicesSection/ScrollRevealWrapper + cinematic hero treatment [wave 1]
   - 06-02: DONE -- ServicesCarousel, BeforeAfterPreview, ServiceStandard, HowItWorks extraction [wave 1]
   - 06-03: DONE -- Server Component page.tsx assembly (3 server + 4 client islands, 7 JSON-LD preserved) [wave 2]
   - 06-04: DONE -- ComparisonSlider component + 21 transformation pairs across 8 categories [wave 1]
-- Phase 7-9: Not started
+  - 06-05: DONE -- Gallery page (comparison sliders added then removed per user request, portfolio grid remains) [wave 2]
+  - 06-06: DONE -- Final verification (84 TS errors, 12 JSON-LD occurrences, server components confirmed) [wave 3]
+- Phase 7 (Conversion Features): PLANNING
+- Phase 8-10: Not started
 
 ## Performance Metrics
 
