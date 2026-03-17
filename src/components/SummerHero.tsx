@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from '@/components/ui/button';
@@ -27,25 +26,8 @@ const fadeUp: Variants = {
 };
 
 export function SummerHero() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [scrollY, setScrollY] = useState(0);
-
-  // Parallax scroll effect
-  useEffect(() => {
-    function handleScroll() {
-      if (sectionRef.current) {
-        const rect = sectionRef.current.getBoundingClientRect();
-        if (rect.bottom > 0) {
-          setScrollY(window.scrollY * 0.3);
-        }
-      }
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
-    <section ref={sectionRef} className="relative bg-[#1a3a2a] overflow-hidden">
+    <section className="relative bg-[#1a3a2a] overflow-hidden">
       {/*
         VIDEO SWAP SLOT:
         Replace the static background image with a <video> for cinematic looping hero.
@@ -59,21 +41,16 @@ export function SummerHero() {
       {/* MOBILE-FIRST: Reduced min-height for faster value delivery */}
       <div className="min-h-[500px] sm:min-h-[550px] lg:min-h-[650px]">
 
-        {/* Parallax background layer */}
-        <div
-          className="absolute inset-0 will-change-transform"
-          style={{ transform: `translateY(${scrollY}px)` }}
-        >
-          <Image
-            src={heroSummerMowing}
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 w-full h-full object-cover opacity-20"
-            priority
-            sizes="100vw"
-            fill
-          />
-        </div>
+        {/* Static background image */}
+        <Image
+          src={heroSummerMowing}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
+          priority
+          sizes="100vw"
+          fill
+        />
 
         {/* Gradient overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#1a3a2a]/95 via-[#1a3a2a]/80 to-[#1a3a2a]/60" />

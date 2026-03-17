@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
-import { X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import CTASection from '@/components/CTASection';
@@ -14,10 +12,8 @@ import { ScrollReveal } from '@/components/ScrollReveal';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { AmbientParticles } from '@/components/AmbientParticles';
 import { ImageLightbox } from '@/components/ImageLightbox';
-import { ComparisonSlider } from '@/components/gallery/ComparisonSlider';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
 import { galleryImages, categories, resolveImageSrc, type GalleryCategory } from '@/lib/galleryData';
-import { transformations, serviceCategories, type ServiceCategory } from '@/lib/transformationData';
 import { cn } from '@/lib/utils';
 
 const seasonalAccent = {
@@ -64,25 +60,6 @@ export default function GalleryContent() {
   const [activeCategory, setActiveCategory] = useState<GalleryCategory>('all');
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-
-  // Transformation comparison state
-  const [activeService, setActiveService] = useState<ServiceCategory | 'all'>('all');
-  const [fullscreenPair, setFullscreenPair] = useState<typeof transformations[number] | null>(null);
-
-  const filteredTransformations = useMemo(
-    () => activeService === 'all' ? transformations : transformations.filter(t => t.service === activeService),
-    [activeService]
-  );
-
-  const openFullscreen = useCallback((pair: typeof transformations[number]) => {
-    setFullscreenPair(pair);
-    document.body.style.overflow = 'hidden';
-  }, []);
-
-  const closeFullscreen = useCallback(() => {
-    setFullscreenPair(null);
-    document.body.style.overflow = 'unset';
-  }, []);
 
   const filteredImages = useMemo(
     () => activeCategory === 'all' ? galleryImages : galleryImages.filter(img => img.category === activeCategory),
@@ -139,93 +116,6 @@ export default function GalleryContent() {
           </ScrollReveal>
         </div>
       </section>
-
-      {/* ── BEFORE & AFTER TRANSFORMATIONS ── */}
-      <section className="py-16 md:py-20" style={{ background: bg.section }}>
-        <div className="container mx-auto px-4 max-w-7xl">
-          <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-4">
-              Before &amp; After Transformations
-            </h2>
-          </ScrollReveal>
-          <ScrollReveal delay={0.06}>
-            <p className="text-white/50 text-center text-lg max-w-2xl mx-auto mb-10">
-              Drag the slider to see the difference our services make across Madison-area neighborhoods.
-            </p>
-          </ScrollReveal>
-
-          {/* Service category filter pills */}
-          <ScrollReveal delay={0.1}>
-            <div className="flex flex-wrap justify-center gap-3 mb-10">
-              <button
-                onClick={() => setActiveService('all')}
-                className={cn(
-                  'px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300',
-                  activeService === 'all'
-                    ? seasonalPillActive[activeSeason]
-                    : 'bg-white/[0.06] text-white/60 hover:text-white hover:bg-white/[0.1] border border-white/[0.08]'
-                )}
-              >
-                All
-              </button>
-              {serviceCategories.map((cat) => (
-                <button
-                  key={cat.value}
-                  onClick={() => setActiveService(cat.value)}
-                  className={cn(
-                    'px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300',
-                    activeService === cat.value
-                      ? seasonalPillActive[activeSeason]
-                      : 'bg-white/[0.06] text-white/60 hover:text-white hover:bg-white/[0.1] border border-white/[0.08]'
-                  )}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-          </ScrollReveal>
-
-          {/* Transformation grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            {filteredTransformations.map((pair, index) => (
-              <ScrollReveal key={pair.id} delay={Math.min(index * 0.08, 0.4)}>
-                <div
-                  className={cn(
-                    'group relative rounded-2xl overflow-hidden border border-white/[0.08] cursor-pointer',
-                    'hover:-translate-y-1 hover:shadow-2xl transition-all duration-500',
-                    seasonalHoverBorder[activeSeason]
-                  )}
-                  onClick={() => openFullscreen(pair)}
-                >
-                  <ComparisonSlider
-                    beforeSrc={pair.beforeSrc}
-                    afterSrc={pair.afterSrc}
-                    beforeAlt={pair.beforeAlt}
-                    afterAlt={pair.afterAlt}
-                    neighborhood={pair.neighborhood}
-                  />
-                  {pair.description && (
-                    <p className="text-sm text-white/40 px-4 py-3 bg-black/30">
-                      {pair.description}
-                    </p>
-                  )}
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-
-          {filteredTransformations.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-white/50 text-lg">No transformations in this category yet. Check back soon!</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ── SECTION DIVIDER ── */}
-      <div className="flex justify-center py-8" style={{ background: bg.page }}>
-        <div className="h-1 w-24 rounded-full" style={{ background: acc.solid }} />
-      </div>
 
       {/* ── CATEGORY FILTER BAR ── */}
       <section className="py-8 md:py-12" style={{ background: bg.page }}>
@@ -326,58 +216,6 @@ export default function GalleryContent() {
           </div>
         </div>
       </section>
-
-      {/* ── TRANSFORMATION FULLSCREEN ── */}
-      <AnimatePresence>
-        {fullscreenPair && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center p-4"
-            onClick={closeFullscreen}
-          >
-            <button
-              onClick={closeFullscreen}
-              className="absolute top-4 right-4 z-50 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-              aria-label="Close fullscreen"
-            >
-              <X className="w-6 h-6 text-white" />
-            </button>
-
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.25, ease: [0.25, 0.4, 0.25, 1] }}
-              className="w-full max-w-4xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ComparisonSlider
-                beforeSrc={fullscreenPair.beforeSrc}
-                afterSrc={fullscreenPair.afterSrc}
-                beforeAlt={fullscreenPair.beforeAlt}
-                afterAlt={fullscreenPair.afterAlt}
-                neighborhood={fullscreenPair.neighborhood}
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15, duration: 0.3 }}
-              className="mt-4 text-center"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <p className="text-white font-semibold text-lg">{fullscreenPair.neighborhood}</p>
-              {fullscreenPair.description && (
-                <p className="text-white/50 text-sm mt-1">{fullscreenPair.description}</p>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* ── LIGHTBOX ── */}
       {selectedIndex !== null && (
