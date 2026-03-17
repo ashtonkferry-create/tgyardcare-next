@@ -94,6 +94,10 @@ export default function OregonContent() {
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <span className="font-bold">100% Guaranteed</span>
               </div>
+              <div className="flex items-center gap-2 text-white">
+                <Users className="h-5 w-5 text-primary" />
+                <span className="font-bold">21 Oregon Families</span>
+              </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="text-lg font-bold bg-primary hover:bg-primary/90" asChild>

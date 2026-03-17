@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Phone, ArrowRight, MapPin, CheckCircle2, Star } from "lucide-react";
+import { Phone, ArrowRight, MapPin, CheckCircle2, Star, Users } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { LocationPageSchemas } from "@/components/schemas/LocationPageSchemas";
@@ -79,6 +79,10 @@ export default function MiddletonContent() {
               <div className="flex items-center gap-2 text-white">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
                 <span className="font-bold">100% Guaranteed</span>
+              </div>
+              <div className="flex items-center gap-2 text-white">
+                <Users className="h-5 w-5 text-primary" />
+                <span className="font-bold">47 Middleton Families</span>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
