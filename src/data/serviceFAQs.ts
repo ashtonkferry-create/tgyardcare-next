@@ -21,7 +21,7 @@ export const mowingFAQs = [
   },
   {
     question: "How much does lawn mowing service cost?",
-    answer: "Pricing depends on lawn size, terrain, and service frequency. Most residential properties range from $30-60 per cut. Contact us for a free, no-obligation quote tailored to your property."
+    answer: "Pricing depends on lawn size, terrain, and service frequency. Most residential properties range from $50-85 per cut. Contact us for a free, no-obligation quote tailored to your property."
   }
 ];
 

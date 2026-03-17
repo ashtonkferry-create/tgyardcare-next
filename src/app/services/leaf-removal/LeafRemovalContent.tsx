@@ -74,7 +74,7 @@ export default function LeafRemovalContent() {
           <div className="max-w-3xl">
             <ScrollReveal>
               <div className="inline-flex items-center bg-white/10 backdrop-blur-sm border border-white/10 text-white/80 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-                Starting at $75/visit
+                Starting at $95/visit
               </div>
             </ScrollReveal>
             <ScrollReveal delay={0.1}>

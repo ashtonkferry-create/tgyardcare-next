@@ -31,7 +31,7 @@ export const SERVICE_CONFIGS: Record<string, ServiceSchemaConfig> = {
     longDescription: 'TotalGuard Yard Care delivers precision lawn mowing to 500+ Madison-area properties. Every visit includes mowing at the correct height, edging along all hard surfaces, trimming around obstacles, and blowing clippings off paved areas. Same trusted crew every time. No contracts.',
     keywords: ['lawn mowing Madison WI', 'grass cutting', 'weekly mowing service', 'lawn care'],
     seasonality: 'summer',
-    priceRange: { low: 30, high: 60, unit: 'per cut' },
+    priceRange: { low: 50, high: 85, unit: 'per cut' },
     howToSteps: [
       { name: 'Request a Free Quote', text: 'Contact us by phone at 608-535-6057 or through our online form. We ask about your property size and mowing preferences.' },
       { name: 'Property Assessment', text: 'We evaluate your lawn size, terrain, and any obstacles to provide accurate pricing.' },
@@ -95,7 +95,7 @@ export const SERVICE_CONFIGS: Record<string, ServiceSchemaConfig> = {
     longDescription: 'TotalGuard Yard Care applies professional-grade granular fertilizer on a season-appropriate schedule. Spring programs focus on quick green-up and root stimulation. Fall programs build deep root reserves for winter. Overseeding included in fall applications.',
     keywords: ['lawn fertilization Madison WI', 'overseeding Dane County', 'lawn treatment'],
     seasonality: 'year-round',
-    priceRange: { low: 50, high: 120, unit: 'per application' },
+    priceRange: { low: 95, high: 225, unit: 'per application' },
     howToSteps: [
       { name: 'Lawn Assessment', text: 'Call 608-535-6057 to schedule. We inspect your lawn for thin spots, color issues, and soil conditions to determine the right nutrient blend.' },
       { name: 'Custom Program Design', text: 'We build a seasonal fertilization schedule tailored to your grass type — typically 4-5 applications from early spring through late fall for Wisconsin lawns.' },
@@ -143,7 +143,7 @@ export const SERVICE_CONFIGS: Record<string, ServiceSchemaConfig> = {
     longDescription: 'TotalGuard Yard Care removes all winter debris, dead plant material, and matted leaves. We dethatch heavy thatch buildup, re-edge garden beds, and clear hardscapes. First mowing of the season included. Your yard goes from winter-worn to season-ready in one visit.',
     keywords: ['spring cleanup Madison WI', 'spring yard cleanup Dane County', 'spring lawn service'],
     seasonality: 'spring',
-    priceRange: { low: 175, high: 450, unit: 'per cleanup' },
+    priceRange: { low: 125, high: 500, unit: 'per cleanup' },
     howToSteps: [
       { name: 'Book Your Spring Slot', text: 'Call 608-535-6057 or book online as early as March. Spring cleanup slots fill fast — we schedule based on snow melt and ground conditions in your area.' },
       { name: 'Winter Debris Removal', text: 'We clear all sticks, branches, litter, and dead plant material that accumulated over the Wisconsin winter from lawn, beds, and hardscapes.' },

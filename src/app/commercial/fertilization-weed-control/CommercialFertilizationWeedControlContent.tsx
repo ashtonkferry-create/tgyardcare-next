@@ -171,7 +171,7 @@ export default function CommercialFertilizationWeedControlContent() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10 text-white/90 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-              Starting at $80/application
+              Starting at $145/application
             </div>
             <p className="text-accent font-semibold mb-3 text-sm md:text-base tracking-wide uppercase">Commercial Turf Management</p>
             <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 md:mb-6">

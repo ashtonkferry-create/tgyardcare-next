@@ -244,7 +244,7 @@ export function LocalFAQSection({
   const defaultFaqs: LocalFAQ[] = [
     {
       question: `How much does lawn care cost in ${cityName}?`,
-      answer: `Most ${cityName} residential properties pay $40-$80 per mowing visit depending on lot size. Full-service seasonal packages range from $150-$400/month and include mowing, trimming, and blowing.`
+      answer: `Most ${cityName} residential properties pay $50-$85 per mowing visit depending on lot size. Full-service seasonal packages range from $150-$400/month and include mowing, trimming, and blowing.`
     },
     {
       question: `Do you provide service throughout ${cityName}?`,
