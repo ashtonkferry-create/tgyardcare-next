@@ -1,12 +1,9 @@
 'use client';
 
 import { useReducer, useMemo, useState, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '@/integrations/supabase/client';
 import { useServices } from '@/hooks/useServices';
 import { useSubmitLead } from '@/hooks/useLeads';
-import { type Pricing } from '@/hooks/usePricing';
 
 /* ─────────────────────── Types & Constants ─────────────────────── */
 
@@ -30,9 +27,6 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
 const SEASON_COLORS: Record<Season, string> = {
   spring: '#22c55e', summer: '#eab308', fall: '#f97316', winter: '#38bdf8',
 };
-
-const BUNDLE_DISCOUNT = 0.15;
-const BUNDLE_MIN = 3;
 
 /* Static fallback — renders immediately, Supabase enriches on load */
 const STATIC_SERVICES: {
@@ -109,51 +103,6 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
   }
 }
 
-/* ─────────────────────── Pricing ─────────────────────── */
-
-interface PricingResult {
-  monthlyEstimate: number;
-  annualEstimate: number;
-  savings: number;
-  discountActive: boolean;
-  originalAnnual: number;
-  selectedServiceCount: number;
-}
-
-function calculateBundlePricing(
-  selections: Record<string, Record<Season, boolean>>,
-  allPricing: Pricing[],
-): PricingResult {
-  let totalAnnual = 0;
-  let selectedServiceCount = 0;
-
-  for (const [serviceId, seasons] of Object.entries(selections)) {
-    const activeCount = Object.values(seasons).filter(Boolean).length;
-    if (activeCount === 0) continue;
-    selectedServiceCount++;
-
-    const servicePricing = allPricing.filter((p) => p.service_id === serviceId);
-    const tier = servicePricing.find((p) => p.tier === 'better') ?? servicePricing[0];
-    if (!tier) continue;
-
-    const midpoint = (tier.price_min + tier.price_max) / 2;
-    totalAnnual += midpoint * 12 * (activeCount / 4);
-  }
-
-  const discountActive = selectedServiceCount >= BUNDLE_MIN;
-  const savings = discountActive ? totalAnnual * BUNDLE_DISCOUNT : 0;
-  const finalAnnual = totalAnnual - savings;
-
-  return {
-    monthlyEstimate: Math.round(finalAnnual / 12),
-    annualEstimate: Math.round(finalAnnual),
-    savings: Math.round(savings),
-    discountActive,
-    originalAnnual: Math.round(totalAnnual),
-    selectedServiceCount,
-  };
-}
-
 /* ─────────────────────── Main Component ─────────────────────── */
 
 export default function AnnualPlanConfigurator() {
@@ -162,18 +111,6 @@ export default function AnnualPlanConfigurator() {
 
   const { data: dbServices } = useServices();
   const submitLead = useSubmitLead();
-
-  // @ts-ignore -- Supabase deep type instantiation
-  const { data: allPricing } = useQuery<Pricing[]>({
-    queryKey: ['pricing-all-active'],
-    queryFn: async () => {
-      // @ts-ignore
-      const { data, error } = await supabase.from('pricing').select('*').eq('is_active', true);
-      if (error) throw error;
-      return (data as unknown as Pricing[]) ?? [];
-    },
-    staleTime: 1000 * 60 * 10,
-  });
 
   // Merge Supabase IDs onto static services (match by name slug)
   const services = useMemo(() => {
@@ -188,12 +125,11 @@ export default function AnnualPlanConfigurator() {
     });
   }, [dbServices]);
 
-  const pricing = useMemo(
-    () => calculateBundlePricing(state.selections, allPricing ?? []),
-    [state.selections, allPricing],
-  );
-
-  const selectedServiceCount = pricing.selectedServiceCount;
+  const selectedServiceCount = useMemo(() => {
+    return Object.values(state.selections).filter((seasons) =>
+      Object.values(seasons).some(Boolean)
+    ).length;
+  }, [state.selections]);
 
   // Active services per month (for mini calendar)
   const monthActiveServices = useMemo(() => {
@@ -226,8 +162,7 @@ export default function AnnualPlanConfigurator() {
             .join(', ');
           return `${s.name} (${activeSeas})`;
         })
-        .join(', ') +
-      (pricing.discountActive ? ' | 15% bundle discount applied' : '')
+        .join(', ')
     );
   }
 
@@ -259,7 +194,7 @@ export default function AnnualPlanConfigurator() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [services, state, selectedServiceCount, pricing.discountActive, submitLead],
+    [services, state, selectedServiceCount, submitLead],
   );
 
   /* ─── Success State ─── */
@@ -281,9 +216,9 @@ export default function AnnualPlanConfigurator() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h3 className="text-2xl font-bold text-white mb-2">Plan Locked In!</h3>
+          <h3 className="text-2xl font-bold text-white mb-2">Request Received!</h3>
           <p className="text-gray-400">
-            We'll reach out within 24 hours with your personalized annual plan and exact pricing.
+            We&apos;ll reach out within 24 hours to discuss your property and provide an exact quote.
           </p>
         </motion.div>
       </div>
@@ -300,7 +235,7 @@ export default function AnnualPlanConfigurator() {
           <div className="mb-6">
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">Choose Your Services</h2>
             <p className="text-gray-400 text-sm">
-              Toggle seasons for each service. Bundle 3+ to unlock 15% off.
+              Toggle seasons for each service you want. We&apos;ll build a custom quote for your property.
             </p>
           </div>
 
@@ -438,95 +373,45 @@ export default function AnnualPlanConfigurator() {
                   : '1px solid rgba(255,255,255,0.07)',
             }}
           >
-            <h3 className="text-white font-bold text-lg mb-5">Your Annual Plan</h3>
+            <h3 className="text-white font-bold text-lg mb-5 uppercase tracking-wide">Your Service Wishlist</h3>
 
-            {/* Bundle Progress */}
-            <div className="mb-5">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs text-gray-400">
-                  {selectedServiceCount < BUNDLE_MIN
-                    ? `Add ${BUNDLE_MIN - selectedServiceCount} more service${
-                        BUNDLE_MIN - selectedServiceCount !== 1 ? 's' : ''
-                      } for 15% off`
-                    : '15% bundle discount unlocked \u2713'}
-                </span>
-                <span
-                  className="text-xs font-bold"
-                  style={{ color: selectedServiceCount >= BUNDLE_MIN ? '#22c55e' : '#6b7280' }}
-                >
-                  {selectedServiceCount}/{BUNDLE_MIN}
-                </span>
-              </div>
-              <div
-                className="h-1.5 rounded-full overflow-hidden"
-                style={{ background: 'rgba(255,255,255,0.08)' }}
-              >
-                <motion.div
-                  className="h-full rounded-full"
-                  animate={{ width: `${Math.min((selectedServiceCount / BUNDLE_MIN) * 100, 100)}%` }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
-                  style={{
-                    background:
-                      selectedServiceCount >= BUNDLE_MIN
-                        ? 'linear-gradient(90deg, #22c55e, #16a34a)'
-                        : 'linear-gradient(90deg, #4b5563, #6b7280)',
-                    boxShadow:
-                      selectedServiceCount >= BUNDLE_MIN ? '0 0 12px rgba(34,197,94,0.4)' : 'none',
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Price Display */}
+            {/* Selected services list */}
             <div
-              className="text-center py-4 border-y mb-5"
+              className="border-y py-4 mb-5"
               style={{ borderColor: 'rgba(255,255,255,0.08)' }}
             >
-              {selectedServiceCount === 0 ? (
-                <p className="text-gray-600 text-sm py-2">Select services to see pricing</p>
-              ) : (
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={pricing.monthlyEstimate}
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div className="flex items-baseline justify-center gap-2">
-                      <span className="text-5xl font-bold text-white">
-                        ~${pricing.monthlyEstimate.toLocaleString()}
-                      </span>
-                      <span className="text-gray-400 text-sm">/mo</span>
-                    </div>
-                    <div className="mt-1 flex items-center justify-center gap-2">
-                      {pricing.discountActive && (
-                        <span className="text-gray-500 text-sm line-through">
-                          ${Math.round(pricing.originalAnnual / 12).toLocaleString()}/mo
-                        </span>
-                      )}
-                      <span className="text-gray-400 text-sm">
-                        ~${pricing.annualEstimate.toLocaleString()}/year
-                      </span>
-                    </div>
-                    {pricing.discountActive && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full text-xs font-semibold"
-                        style={{
-                          background: 'rgba(34,197,94,0.15)',
-                          border: '1px solid rgba(34,197,94,0.3)',
-                          color: '#4ade80',
-                        }}
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        You save ${pricing.savings.toLocaleString()}/year
-                      </motion.div>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              )}
+              {(() => {
+                const selected = Object.entries(state.selections).filter(([, seasons]) =>
+                  Object.values(seasons).some(Boolean)
+                );
+                if (selected.length === 0) {
+                  return (
+                    <p className="text-sm text-center py-2" style={{ color: 'rgba(255,255,255,0.30)' }}>
+                      Select services on the left to start building your wishlist.
+                    </p>
+                  );
+                }
+                return (
+                  <div className="space-y-2 py-1">
+                    {selected.map(([serviceId, seasons]) => {
+                      const activeSeasons = (Object.entries(seasons) as [string, boolean][])
+                        .filter(([, active]) => active)
+                        .map(([s]) => s.charAt(0).toUpperCase() + s.slice(1));
+                      const svc = STATIC_SERVICES.find(s => s.id === serviceId) ?? services.find(s => s.id === serviceId);
+                      if (!svc) return null;
+                      return (
+                        <div key={serviceId} className="flex items-start gap-2 text-sm">
+                          <span className="text-base leading-tight">{svc.emoji}</span>
+                          <div className="min-w-0">
+                            <span className="text-white/80 font-medium">{svc.name}</span>
+                            <span className="text-white/40 text-xs ml-1">— {activeSeasons.join(', ')}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Mini Calendar */}
@@ -557,7 +442,7 @@ export default function AnnualPlanConfigurator() {
                         <div className="text-xs text-gray-400 font-medium">{month}</div>
                         {active.length > 0 && (
                           <div className="flex justify-center gap-0.5 mt-1 flex-wrap">
-                            {active.slice(0, 3).map((svc, i) => (
+                            {active.slice(0, 3).map((svc) => (
                               <span
                                 key={svc.color}
                                 className="w-1.5 h-1.5 rounded-full"
@@ -587,14 +472,16 @@ export default function AnnualPlanConfigurator() {
                     type="button"
                     disabled={selectedServiceCount === 0}
                     onClick={() => dispatch({ type: 'SHOW_CONTACT_FORM' })}
-                    className="w-full relative overflow-hidden rounded-xl py-3.5 px-6 font-bold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full relative overflow-hidden rounded-xl py-3.5 px-6 font-bold text-white transition-all duration-200"
                     style={{
                       background:
                         selectedServiceCount > 0
-                          ? 'linear-gradient(135deg, #22c55e, #16a34a)'
+                          ? 'linear-gradient(135deg, #f59e0b, #d97706)'
                           : '#1f2937',
                       boxShadow:
-                        selectedServiceCount > 0 ? '0 0 28px rgba(34,197,94,0.3)' : 'none',
+                        selectedServiceCount > 0 ? '0 0 28px rgba(245,158,11,0.3)' : 'none',
+                      opacity: selectedServiceCount === 0 ? 0.5 : 1,
+                      cursor: selectedServiceCount === 0 ? 'not-allowed' : 'pointer',
                     }}
                   >
                     {/* Shimmer overlay */}
@@ -614,17 +501,13 @@ export default function AnnualPlanConfigurator() {
                         }}
                       />
                     )}
-                    <span className="relative">Lock In My Plan</span>
+                    <span className="relative">Get My Custom Quote</span>
                   </button>
-                  <button
-                    type="button"
-                    disabled={selectedServiceCount === 0}
-                    onClick={() => dispatch({ type: 'SHOW_CONTACT_FORM' })}
-                    className="w-full py-2.5 px-6 rounded-xl text-sm font-medium transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ border: '1px solid rgba(255,255,255,0.1)', color: '#9ca3af' }}
-                  >
-                    Get Exact Quote
-                  </button>
+                  {!state.showContactForm && (
+                    <p className="text-center text-xs mt-2" style={{ color: 'rgba(255,255,255,0.30)' }}>
+                      We&apos;ll reach out to discuss your property and get you scheduled.
+                    </p>
+                  )}
                 </motion.div>
               ) : (
                 <motion.form
@@ -684,7 +567,8 @@ export default function AnnualPlanConfigurator() {
                   />
                   <input
                     type="text"
-                    placeholder="Service address (optional)"
+                    required
+                    placeholder="Property Address"
                     value={state.contactForm.address}
                     onChange={(e) =>
                       dispatch({ type: 'UPDATE_CONTACT', field: 'address', value: e.target.value })
@@ -701,11 +585,11 @@ export default function AnnualPlanConfigurator() {
                       disabled={submitLead.isPending}
                       className="flex-1 py-3 rounded-xl font-bold text-white text-sm transition-all duration-200 disabled:opacity-50"
                       style={{
-                        background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                        boxShadow: '0 0 20px rgba(34,197,94,0.25)',
+                        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                        boxShadow: '0 0 20px rgba(245,158,11,0.25)',
                       }}
                     >
-                      {submitLead.isPending ? 'Submitting\u2026' : 'Lock In My Plan'}
+                      {submitLead.isPending ? 'Submitting\u2026' : 'Get My Custom Quote'}
                     </button>
                     <button
                       type="button"
@@ -751,23 +635,17 @@ export default function AnnualPlanConfigurator() {
               className="rounded-2xl p-4 flex items-center justify-between gap-4"
               style={{
                 background: 'rgba(20,30,22,0.95)',
-                border: '1px solid rgba(34,197,94,0.2)',
+                border: '1px solid rgba(245,158,11,0.2)',
                 backdropFilter: 'blur(16px)',
               }}
             >
               <div>
-                <div className="text-white font-bold text-xl">
-                  ~$
-                  {pricing.monthlyEstimate > 0
-                    ? pricing.monthlyEstimate.toLocaleString()
-                    : '\u2014'}
-                  <span className="text-gray-400 text-sm font-normal">/mo</span>
+                <div className="text-white font-bold text-base">
+                  {selectedServiceCount} service{selectedServiceCount !== 1 ? 's' : ''} selected
                 </div>
-                {pricing.discountActive && (
-                  <div className="text-emerald-400 text-xs font-semibold">
-                    15% off applied \u2713
-                  </div>
-                )}
+                <div className="text-amber-400 text-xs font-medium">
+                  Ready for a custom quote
+                </div>
               </div>
               <button
                 type="button"
@@ -777,11 +655,11 @@ export default function AnnualPlanConfigurator() {
                 }}
                 className="relative overflow-hidden rounded-xl py-3 px-6 font-bold text-white text-sm flex-shrink-0"
                 style={{
-                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                  boxShadow: '0 0 20px rgba(34,197,94,0.3)',
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  boxShadow: '0 0 20px rgba(245,158,11,0.3)',
                 }}
               >
-                Lock In My Plan
+                Get My Custom Quote
               </button>
             </div>
           </motion.div>

@@ -9,9 +9,9 @@ import { motion } from 'framer-motion';
 const TRUST_ITEMS = [
   { label: '4.9★ Google Rating' },
   { label: '80+ Madison Families' },
-  { label: '15% Bundle Savings' },
+  { label: 'Custom Property Quotes' },
   { label: 'Fully Insured' },
-  { label: 'Locked-In Pricing' },
+  { label: 'No Contracts Required' },
 ];
 
 // Deterministic particle positions to avoid hydration mismatches
@@ -47,9 +47,9 @@ export default function AnnualPlanContent() {
       <section className="sr-only" aria-label="Annual Plan Summary">
         <p>
           TotalGuard Yard Care offers customizable annual lawn care plans for Madison, Wisconsin and surrounding
-          Dane County communities. Select services by season — spring, summer, fall, and winter. Customers who
-          bundle 3 or more services receive a 15% discount. Use the interactive configurator to see your annual
-          price estimate and submit a lead to lock in your plan.
+          Dane County communities. Select services by season — spring, summer, fall, and winter. Use the
+          interactive configurator to build your service wishlist and submit a request — we&apos;ll call with a
+          custom quote built for your exact property.
         </p>
       </section>
 
@@ -142,7 +142,7 @@ export default function AnnualPlanContent() {
                 className="bg-clip-text text-transparent"
                 style={{ backgroundImage: 'linear-gradient(135deg, #4ade80, #22c55e, #16a34a)' }}
               >
-                Lock In Your Price.
+                Get Your Quote.
               </span>
             </motion.h1>
 
@@ -154,9 +154,8 @@ export default function AnnualPlanContent() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              Choose your services by season and watch your annual cost update in real time.
-              Bundle 3+ services to unlock{' '}
-              <strong className="text-emerald-400">15% off — applied automatically.</strong>
+              Tell us what you want. We&apos;ll call with a price built for your exact property.
+              Choose your services by season and submit — we handle everything from there.
             </motion.p>
 
             {/* Trust strip */}
