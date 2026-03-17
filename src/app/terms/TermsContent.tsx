@@ -99,7 +99,7 @@ export default function TermsContent() {
                 Message frequency varies based on your service schedule and interactions. Message and data rates may apply.
               </p>
               <p className="mt-4">
-                To opt out of text messages at any time, reply <strong>STOP</strong> to any message. After opting out, you will receive one final confirmation message. You may opt back in by texting <strong>START</strong> or by contacting us directly.
+                To opt out of text messages at any time, reply <strong>STOP</strong> to any message. After opting out, you will receive one final confirmation message. You may opt back in by texting <strong>START</strong> or by contacting us directly. For help, reply <strong>HELP</strong> to any message or contact us using the information below.
               </p>
               <p className="mt-4">
                 For questions about our SMS program, contact us at <a href="mailto:totalguardllc@gmail.com" className="underline hover:opacity-80 transition-opacity">totalguardllc@gmail.com</a> or call <a href="tel:608-535-6057" className="underline hover:opacity-80 transition-opacity">(608) 535-6057</a>.
