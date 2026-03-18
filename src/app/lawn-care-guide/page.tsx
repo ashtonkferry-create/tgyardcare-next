@@ -213,7 +213,7 @@ export default function LawnCareGuidePage() {
   const currentMonth = new Date().getMonth(); // 0-11
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <WebPageSchema
         name="Madison Lawn Care Guide 2026"
         description="The complete lawn care guide for Madison, Wisconsin homeowners. Monthly calendar, seasonal tips, and local expertise."
@@ -244,7 +244,7 @@ export default function LawnCareGuidePage() {
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'linear-gradient(160deg, #050d07 0%, #061a10 40%, #050d07 100%)',
+              'linear-gradient(160deg, #052e16 0%, #0a3520 40%, #052e16 100%)',
           }}
         />
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
