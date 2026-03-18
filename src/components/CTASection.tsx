@@ -70,7 +70,7 @@ export default function CTASection({
               <p className="text-white/70">{description}</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button size="lg" className="w-full sm:w-auto font-bold bg-amber-500 hover:bg-amber-400 text-black" asChild>
+              <Button size="lg" className="w-full sm:w-auto font-bold bg-green-500 hover:bg-green-400 text-white" asChild>
                 <Link href="/contact">
                   Get Quote <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
@@ -128,7 +128,7 @@ export default function CTASection({
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
                 size="lg"
-                className="w-full sm:w-auto text-base md:text-lg font-bold px-6 md:px-8 py-3 md:py-4 h-auto animate-shimmer-btn bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] text-black"
+                className="w-full sm:w-auto text-base md:text-lg font-bold px-6 md:px-8 py-3 md:py-4 h-auto animate-shimmer-btn bg-gradient-to-r from-green-500 via-emerald-400 to-green-500 bg-[length:200%_auto] text-white"
                 asChild
               >
                 <Link href="/contact">

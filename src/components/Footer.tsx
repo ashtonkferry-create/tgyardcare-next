@@ -210,7 +210,7 @@ export default function Footer({
             >
               <Button
                 size="lg"
-                className="text-base md:text-lg font-bold px-8 py-4 h-auto animate-shimmer-btn bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] text-black rounded-xl shadow-xl shadow-amber-500/20 hover:shadow-2xl hover:shadow-amber-500/30 transition-shadow"
+                className="text-base md:text-lg font-bold px-8 py-4 h-auto animate-shimmer-btn bg-gradient-to-r from-green-500 via-emerald-400 to-green-500 bg-[length:200%_auto] text-white rounded-xl shadow-xl shadow-green-500/20 hover:shadow-2xl hover:shadow-green-500/30 transition-shadow"
                 asChild
               >
                 <Link href="/contact">

@@ -144,14 +144,14 @@ export function FullSeasonContract() {
   return (
     <section
       className="relative py-20 md:py-32 overflow-hidden"
-      style={{ backgroundColor: "#0A0A0F" }}
+      style={{ backgroundColor: "#050d07" }}
     >
       {/* ── Background: dot grid + warm radial glow ── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           backgroundImage:
-            "radial-gradient(circle, #D4A855 1px, transparent 1px)",
+            "radial-gradient(circle, #22c55e 1px, transparent 1px)",
           backgroundSize: "32px 32px",
           opacity: 0.04,
         }}
@@ -160,7 +160,7 @@ export function FullSeasonContract() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse at center 60%, rgba(212,168,85,0.08) 0%, transparent 70%)",
+            "radial-gradient(ellipse at center 60%, rgba(34,197,94,0.08) 0%, transparent 70%)",
         }}
       />
 
@@ -180,9 +180,9 @@ export function FullSeasonContract() {
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold tracking-wide"
               style={{
                 background:
-                  "linear-gradient(135deg, rgba(212,168,85,0.15), rgba(245,200,66,0.08))",
-                border: "1px solid rgba(212,168,85,0.4)",
-                color: "#D4A855",
+                  "linear-gradient(135deg, rgba(34,197,94,0.15), rgba(74,222,128,0.08))",
+                border: "1px solid rgba(34,197,94,0.4)",
+                color: "#22c55e",
               }}
             >
               <Crown className="h-4 w-4" />
@@ -203,7 +203,7 @@ export function FullSeasonContract() {
                 className="bg-clip-text text-transparent"
                 style={{
                   backgroundImage:
-                    "linear-gradient(135deg, #D4A855, #F5C842)",
+                    "linear-gradient(135deg, #22c55e, #4ade80)",
                 }}
               >
                 Full Season
@@ -372,7 +372,7 @@ export function FullSeasonContract() {
                 className="absolute top-0 h-full w-[15%] rounded-full"
                 style={{
                   background:
-                    "linear-gradient(90deg, transparent, #F5C842, transparent)",
+                    "linear-gradient(90deg, transparent, #22c55e, transparent)",
                   opacity: 0.6,
                 }}
                 animate={{ left: ["-15%", "100%"] }}
@@ -434,17 +434,17 @@ export function FullSeasonContract() {
                     className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4"
                     style={{
                       background:
-                        "linear-gradient(135deg, rgba(212,168,85,0.15), rgba(245,200,66,0.08))",
+                        "linear-gradient(135deg, rgba(34,197,94,0.15), rgba(74,222,128,0.08))",
                     }}
                   >
                     <StatIcon
                       className="h-6 w-6"
-                      style={{ color: "#D4A855" }}
+                      style={{ color: "#22c55e" }}
                     />
                   </div>
                   <div
                     className="text-4xl md:text-5xl font-bold mb-2"
-                    style={{ color: "#F5C842" }}
+                    style={{ color: "#4ade80" }}
                   >
                     <AnimatedCounter
                       end={stat.value}
@@ -478,10 +478,10 @@ export function FullSeasonContract() {
                   className="font-bold text-sm md:text-lg px-6 sm:px-10 py-5 md:py-6 rounded-full group"
                   style={{
                     background:
-                      "linear-gradient(135deg, #D4A855, #F5C842)",
-                    color: "#0A0A0F",
+                      "linear-gradient(135deg, #16a34a, #22c55e)",
+                    color: "#ffffff",
                     boxShadow:
-                      "0 10px 40px -10px rgba(212,168,85,0.4)",
+                      "0 10px 40px -10px rgba(34,197,94,0.4)",
                   }}
                   asChild
                 >
@@ -514,7 +514,7 @@ export function FullSeasonContract() {
               <Link
                 href="/annual-plan"
                 className="inline-flex items-center gap-2 text-sm font-medium transition-all duration-200 hover:gap-3"
-                style={{ color: 'rgba(212,168,85,0.65)' }}
+                style={{ color: 'rgba(34,197,94,0.65)' }}
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 Or build your own custom plan
