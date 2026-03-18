@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { WebPageSchema } from '@/components/schemas/WebPageSchema';
 import { BreadcrumbSchema } from '@/components/schemas/BreadcrumbSchema';
 import Link from 'next/link';
-import { getCityServiceParams, parseCityServiceSlug, CITY_SERVICE_SERVICES, CITY_SERVICE_CITIES } from '@/data/cityServiceConfig';
+import { getCityServiceParams, parseCityService, SERVICES, CITIES } from '@/data/cityServiceConfig';
 
 export function generateStaticParams() {
   return getCityServiceParams();
@@ -17,7 +17,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { cityService } = await params;
-  const content = parseCityServiceSlug(cityService);
+  const content = parseCityService(cityService);
   if (!content) return {};
   const { service, city } = content;
   const title = `${service.name} in ${city.name}, WI | TotalGuard Yard Care`;
@@ -32,17 +32,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CityServicePage({ params }: Props) {
   const { cityService } = await params;
-  const content = parseCityServiceSlug(cityService);
+  const content = parseCityService(cityService);
   if (!content) notFound();
 
   const { service, city } = content;
 
   // Other services in this city
-  const otherServices = CITY_SERVICE_SERVICES.filter(s => s.slug !== service.slug);
+  const otherServices = SERVICES.filter(s => s.slug !== service.slug);
 
   // Nearby cities (same service)
-  const nearbyCities = city.nearbySlugs
-    .map(slug => CITY_SERVICE_CITIES.find(c => c.slug === slug))
+  const nearbyCities = city.nearbySlug
+    .map(slug => CITIES.find(c => c.slug === slug))
     .filter((c): c is NonNullable<typeof c> => c !== undefined);
 
   const faqs = [
