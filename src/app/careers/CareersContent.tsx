@@ -190,7 +190,7 @@ export default function CareersContent() {
   const careersContactUrl = "/contact?service=careers";
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <JobPostingSchema title="Lawn Care Technician" description="Join the TotalGuard team as a lawn care technician. Perform mowing, trimming, mulching, and seasonal cleanup services for residential and commercial properties in the Madison, WI area." datePosted="2026-01-15" />
       <JobPostingSchema title="Crew Leader" description="Lead a team of lawn care professionals at TotalGuard Yard Care. Manage daily routes, ensure quality standards, and deliver exceptional service to our clients in Dane County." datePosted="2026-01-15" />
       <WebPageSchema name="Careers at TotalGuard Yard Care" description="Join Madison's most reliable yard care team" url="/careers" />
@@ -202,7 +202,7 @@ export default function CareersContent() {
       </section>
 
       {/* Hero Section */}
-      <section className="relative pt-24 md:pt-28 pb-16 md:pb-24 overflow-hidden" style={{ background: '#050d07' }}>
+      <section className="relative pt-24 md:pt-28 pb-16 md:pb-24 overflow-hidden" style={{ background: '#052e16' }}>
         {/* Background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-500/[0.07] rounded-full blur-3xl" />
@@ -275,7 +275,7 @@ export default function CareersContent() {
       </section>
 
       {/* Why Work With Us */}
-      <section className="py-16 md:py-24" style={{ background: '#0a1a0e' }}>
+      <section className="py-16 md:py-24" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -302,7 +302,7 @@ export default function CareersContent() {
       </section>
 
       {/* Company Culture & Values */}
-      <section className="py-16 md:py-24" style={{ background: '#050d07' }}>
+      <section className="py-16 md:py-24" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -329,7 +329,7 @@ export default function CareersContent() {
       </section>
 
       {/* Open Positions */}
-      <section id="open-positions" className="py-16 md:py-24 scroll-mt-20" style={{ background: '#0a1a0e' }}>
+      <section id="open-positions" className="py-16 md:py-24 scroll-mt-20" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -402,7 +402,7 @@ export default function CareersContent() {
       </section>
 
       {/* Hiring Process */}
-      <section className="py-16 md:py-24" style={{ background: '#050d07' }}>
+      <section className="py-16 md:py-24" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -437,7 +437,7 @@ export default function CareersContent() {
       </section>
 
       {/* Who We're Looking For */}
-      <section className="py-16 md:py-24" style={{ background: '#0a1a0e' }}>
+      <section className="py-16 md:py-24" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
@@ -465,7 +465,7 @@ export default function CareersContent() {
       </section>
 
       {/* Benefits & Opportunities */}
-      <section className="py-16 md:py-24" style={{ background: '#050d07' }}>
+      <section className="py-16 md:py-24" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
@@ -492,7 +492,7 @@ export default function CareersContent() {
       </section>
 
       {/* Service Areas - for SEO */}
-      <section className="py-16 md:py-20" style={{ background: '#0a1a0e' }}>
+      <section className="py-16 md:py-20" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
@@ -519,7 +519,7 @@ export default function CareersContent() {
       </section>
 
       {/* Equal Opportunity Statement */}
-      <section className="py-12 border-t border-white/10" style={{ background: '#050d07' }}>
+      <section className="py-12 border-t border-white/10" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h3 className="text-lg font-semibold text-white mb-3">
@@ -536,7 +536,7 @@ export default function CareersContent() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-16 md:py-24" style={{ background: '#050d07' }}>
+      <section className="py-16 md:py-24" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <div className="bg-white/[0.05] border border-white/10 rounded-2xl p-10 backdrop-blur-sm">

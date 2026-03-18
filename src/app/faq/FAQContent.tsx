@@ -97,7 +97,7 @@ export default function FAQContent() {
   const totalFAQs = filteredCategories.reduce((sum, cat) => sum + cat.faqs.length, 0);
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildFAQPageSchema(allFAQsForSchema)) }} />
       <WebPageSchema name="Frequently Asked Questions" description="Common questions about lawn care services in Madison, WI" url="/faq" />
       <Navigation showPromoBanner />
@@ -108,7 +108,7 @@ export default function FAQContent() {
       </section>
 
       {/* Hero Section */}
-      <section className="py-16 md:py-24" style={{ background: '#050d07' }}>
+      <section className="py-16 md:py-24" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
@@ -168,7 +168,7 @@ export default function FAQContent() {
       </section>
 
       {/* FAQ Content */}
-      <section className="py-16 md:py-24" style={{ background: '#050d07' }}>
+      <section className="py-16 md:py-24" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-4xl mx-auto">
             {totalFAQs === 0 ? (
@@ -234,7 +234,7 @@ export default function FAQContent() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16" style={{ background: '#050d07' }}>
+      <section className="py-16" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center bg-white/[0.06] border-2 border-primary/30 rounded-2xl p-8 md:p-12 shadow-xl">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">

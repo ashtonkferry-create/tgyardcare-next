@@ -148,7 +148,7 @@ export default function BlogContent() {
   }, [currentPage, activeCategory]);
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <WebPageSchema
         name="Blog"
         description="Lawn care tips and guides for Madison homeowners"
@@ -166,7 +166,7 @@ export default function BlogContent() {
       </section>
 
       {/* Hero */}
-      <section className="pt-24 pb-16 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)', background: '#050d07' }}>
+      <section className="pt-24 pb-16 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)', background: '#052e16' }}>
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-3 mb-6">
             <span
@@ -236,7 +236,7 @@ export default function BlogContent() {
       </section>
 
       {/* Blog Grid */}
-      <section className="py-16 md:py-20" style={{ background: '#050d07' }}>
+      <section className="py-16 md:py-20" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <SeasonalContentBanner />
 
@@ -389,7 +389,7 @@ export default function BlogContent() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <section className="pb-16" style={{ background: '#050d07' }}>
+        <section className="pb-16" style={{ background: '#052e16' }}>
           <div className="container mx-auto px-4">
             <nav className="flex items-center justify-center gap-2" aria-label="Blog pagination">
               <button

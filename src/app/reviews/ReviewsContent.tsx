@@ -21,9 +21,9 @@ const seasonalAccent = {
 
 const seasonalBg = {
   summer: {
-    hero:    'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 70%), linear-gradient(to bottom, #050d07, #0a1a0e, #060e08)',
-    page:    '#050d07',
-    section: '#0a1a0e',
+    hero:    'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(16,185,129,0.25) 0%, transparent 70%), linear-gradient(to bottom, #052e16, #0a3520, #0a3520)',
+    page:    '#052e16',
+    section: '#0a3520',
   },
   fall: {
     hero:    'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(245,158,11,0.15) 0%, transparent 70%), linear-gradient(to bottom, #0d0900, #1a1000, #0d0900)',

@@ -60,7 +60,7 @@ const areaFeatures = [
 
 export default function ServiceAreasContent() {
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <ItemListSchema items={[
         { name: 'Madison', url: 'https://tgyardcare.com/locations/madison', position: 1 },
         { name: 'Middleton', url: 'https://tgyardcare.com/locations/middleton', position: 2 },
@@ -86,7 +86,7 @@ export default function ServiceAreasContent() {
       {/* Hero with Map Background */}
       <section className="relative py-24 overflow-hidden">
         {/* Animated Map Background */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom right, #050d07, #060f1a)' }}>
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom right, #052e16, #0a2a3a)' }}>
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
               <defs>
@@ -143,7 +143,7 @@ export default function ServiceAreasContent() {
       </section>
 
       {/* Why Choose TotalGuard in Your Area */}
-      <section className="py-20" style={{ background: '#0a1a0e' }}>
+      <section className="py-20" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-16">
@@ -187,7 +187,7 @@ export default function ServiceAreasContent() {
       </section>
 
       {/* Service Areas Grid */}
-      <section className="py-20" style={{ background: '#050d07' }}>
+      <section className="py-20" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
@@ -220,7 +220,7 @@ export default function ServiceAreasContent() {
       </section>
 
       {/* All Services Available */}
-      <section className="py-20" style={{ background: '#0a1a0e' }}>
+      <section className="py-20" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-16">
@@ -274,7 +274,7 @@ export default function ServiceAreasContent() {
       </section>
 
       {/* Interactive Map Section */}
-      <section className="py-20" style={{ background: '#050d07' }}>
+      <section className="py-20" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">

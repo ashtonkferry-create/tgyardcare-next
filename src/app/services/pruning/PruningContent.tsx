@@ -46,7 +46,7 @@ export default function PruningContent() {
       ]} />
       <ServicePageSchemas slug="pruning" faqs={pruningFAQs} />
       <WebPageSchema name="Bush Trimming and Pruning" description="Professional bush trimming and shrub pruning in Madison and Dane County WI" url="/services/pruning" />
-      <div className="min-h-screen flex flex-col" style={{ background: '#050d07' }}>
+      <div className="min-h-screen flex flex-col" style={{ background: '#052e16' }}>
         <Navigation />
 
         {/* TL;DR for AI/Answer Engines */}
@@ -64,8 +64,8 @@ export default function PruningContent() {
             role="img"
             aria-label="Professional bush trimming and pruning service showing well-maintained shrubs in Madison Wisconsin"
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0a1f14]/90 via-[#0a1f14]/50 to-[#0a1f14]/85" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(10,31,20,0.4)_100%)]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#052e16]/90 via-[#052e16]/50 to-[#052e16]/85" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(5,46,22,0.4)_100%)]" />
           </div>
           <AmbientParticles density="sparse" />
           <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
@@ -86,7 +86,7 @@ export default function PruningContent() {
             </ScrollReveal>
             <ScrollReveal delay={0.3}>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
-                <Button size="lg" asChild className="text-base md:text-lg font-bold animate-shimmer-btn bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] text-black">
+                <Button size="lg" asChild className="text-base md:text-lg font-bold animate-shimmer-btn bg-gradient-to-r from-green-500 via-emerald-400 to-green-500 bg-[length:200%_auto] text-white">
                   <Link href="/contact?service=pruning">Get My Free Quote <ArrowRight className="ml-2 h-5 w-5" /></Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild className="text-base md:text-lg border-white/30 text-white hover:bg-white/10">
@@ -105,8 +105,8 @@ export default function PruningContent() {
           <div
             className="max-w-xl mx-auto rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6"
             style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.10)',
               borderLeft: '4px solid #22c55e',
             }}
           >
@@ -162,7 +162,7 @@ export default function PruningContent() {
 
         {/* Who This Is For — Quick qualifier */}
         <ScrollReveal>
-          <section className="py-6 border-b border-border" style={{ background: '#0a1a0e' }}>
+          <section className="py-6 border-b border-border" style={{ background: '#0a3520' }}>
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto text-center">
                 <p className="text-base md:text-lg text-white/60">
@@ -200,7 +200,7 @@ export default function PruningContent() {
         {/* ═══════════════════════════════════════════════════════════════════
             WHAT'S INCLUDED — Visual checklist
         ════════════════════════════════════════════════════════════════════ */}
-        <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
+        <section className="py-14 md:py-20" style={{ background: '#0a3520' }}>
           <div className="container mx-auto px-4 max-w-4xl">
             <ScrollReveal>
               <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-white">
@@ -238,7 +238,7 @@ export default function PruningContent() {
         {/* ═══════════════════════════════════════════════════════════════════
             WHEN TO PRUNE — Seasonal knowledge
         ════════════════════════════════════════════════════════════════════ */}
-        <section className="py-14 md:py-20" style={{ background: '#050d07' }}>
+        <section className="py-14 md:py-20" style={{ background: '#052e16' }}>
           <div className="container mx-auto px-4 max-w-4xl">
             <ScrollReveal>
               <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">
@@ -318,7 +318,7 @@ export default function PruningContent() {
         {/* ═══════════════════════════════════════════════════════════════════
             BENEFITS — Professional pruning
         ════════════════════════════════════════════════════════════════════ */}
-        <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
+        <section className="py-14 md:py-20" style={{ background: '#0a3520' }}>
           <div className="container mx-auto px-4 max-w-4xl">
             <ScrollReveal>
               <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">
@@ -363,7 +363,7 @@ export default function PruningContent() {
         {/* ═══════════════════════════════════════════════════════════════════
             WHY CHOOSE US — Final trust
         ════════════════════════════════════════════════════════════════════ */}
-        <section className="py-14 md:py-20" style={{ background: '#050d07' }}>
+        <section className="py-14 md:py-20" style={{ background: '#052e16' }}>
           <div className="container mx-auto px-4 max-w-4xl">
             <ScrollReveal>
               <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-white">
@@ -399,7 +399,7 @@ export default function PruningContent() {
         {/* ═══════════════════════════════════════════════════════════════════
             PRICING — Cinematic pricing card
         ════════════════════════════════════════════════════════════════════ */}
-        <section className={cn("py-14 md:py-20", MOBILE_ORDER.PRICING)} style={{ background: '#0a1a0e' }}>
+        <section className={cn("py-14 md:py-20", MOBILE_ORDER.PRICING)} style={{ background: '#0a3520' }}>
           <div className="container mx-auto px-4 max-w-4xl">
             <ScrollReveal>
               <div className="max-w-2xl mx-auto">

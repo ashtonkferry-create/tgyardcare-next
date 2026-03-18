@@ -44,7 +44,7 @@ export default function LeafRemovalContent() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#050d07' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#052e16' }}>
       <BreadcrumbSchema items={[
         { name: 'Home', url: 'https://tgyardcare.com' },
         { name: 'Services', url: 'https://tgyardcare.com/services' },
@@ -70,8 +70,8 @@ export default function LeafRemovalContent() {
           role="img"
           aria-label="Professional leaf removal service showing leaf blower clearing colorful autumn leaves from residential lawn in Madison Wisconsin"
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a1f14]/90 via-[#0a1f14]/50 to-[#0a1f14]/85" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(10,31,20,0.4)_100%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#052e16]/90 via-[#052e16]/50 to-[#052e16]/85" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(5,46,22,0.4)_100%)]" />
         </div>
         <AmbientParticles density="sparse" />
         <div className="container mx-auto px-4 relative z-10">
@@ -93,7 +93,7 @@ export default function LeafRemovalContent() {
             </ScrollReveal>
             <ScrollReveal delay={0.3}>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-                <Button size="lg" className="text-base md:text-lg font-bold animate-shimmer-btn bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] text-black" asChild>
+                <Button size="lg" className="text-base md:text-lg font-bold animate-shimmer-btn bg-gradient-to-r from-green-500 via-emerald-400 to-green-500 bg-[length:200%_auto] text-white" asChild>
                   <Link href="/contact?service=leaf-removal">Get My Free Quote <ArrowRight className="ml-2 h-5 w-5" /></Link>
                 </Button>
                 <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 text-base md:text-lg" asChild>
@@ -113,8 +113,8 @@ export default function LeafRemovalContent() {
         <div
           className="max-w-xl mx-auto rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6"
           style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.10)',
             borderLeft: '4px solid #22c55e',
           }}
         >
@@ -170,7 +170,7 @@ export default function LeafRemovalContent() {
 
       {/* Who This Is For */}
       <ScrollReveal>
-        <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
+        <section className="py-14 md:py-20" style={{ background: '#0a3520' }}>
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <ScrollReveal>
@@ -234,7 +234,7 @@ export default function LeafRemovalContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           WHAT'S INCLUDED — Visual checklist
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
+      <section className="py-14 md:py-20" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
@@ -273,7 +273,7 @@ export default function LeafRemovalContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           HOW IT WORKS — Animated process timeline
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20" style={{ background: '#050d07' }}>
+      <section className="py-14 md:py-20" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
@@ -320,7 +320,7 @@ export default function LeafRemovalContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           BENEFITS — Why remove leaves before winter
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
+      <section className="py-14 md:py-20" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
@@ -354,7 +354,7 @@ export default function LeafRemovalContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           TIMING & FREQUENCY — Seasonal knowledge
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20" style={{ background: '#050d07' }}>
+      <section className="py-14 md:py-20" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
@@ -427,7 +427,7 @@ export default function LeafRemovalContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           WHAT MAKES US DIFFERENT — Final trust
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20" style={{ background: '#050d07' }}>
+      <section className="py-14 md:py-20" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
@@ -462,7 +462,7 @@ export default function LeafRemovalContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           PRICING — Clear, cinematic pricing card
       ════════════════════════════════════════════════════════════════════ */}
-      <section className={cn("py-14 md:py-20", MOBILE_ORDER.PRICING)} style={{ background: '#050d07' }}>
+      <section className={cn("py-14 md:py-20", MOBILE_ORDER.PRICING)} style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <div className="max-w-2xl mx-auto">

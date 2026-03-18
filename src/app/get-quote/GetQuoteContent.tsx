@@ -15,7 +15,7 @@ export default function GetQuoteContent() {
   }, []);
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <ContactPageSchema />
       <WebPageSchema
         name="Get a Free Quote"
