@@ -74,6 +74,10 @@ export default function MadisonContent() {
               <MapPin className="h-4 w-4 mr-2" />
               Madison, Wisconsin
             </div>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4 text-xs font-semibold" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', color: '#a7f3d0' }}>
+              <span>📍</span>
+              Serving Madison, WI
+            </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               Madison&apos;s Premier <span className="text-primary">Lawn Care Service</span>
             </h1>

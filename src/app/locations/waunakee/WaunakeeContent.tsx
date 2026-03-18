@@ -59,6 +59,10 @@ export default function WaunakeeContent() {
               <MapPin className="h-4 w-4 mr-2" />
               Waunakee, Wisconsin
             </div>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4 text-xs font-semibold" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', color: '#a7f3d0' }}>
+              <span>📍</span>
+              Serving Waunakee, WI
+            </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               Waunakee&apos;s <span className="text-primary">Premier Lawn Care</span> Service
             </h1>
