@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Transform tgyardcare.com into a billion-dollar brand experience that converts at 3-5x current rates while protecting existing SEO rankings and lead flow.
-**Current focus:** M3 Phase 8 (Customer Retention Layer) — Planning
+**Current focus:** M3 Phase 10 (SEO Dominance Engine) — In progress
 
 ## Current Position
 
-Phase: 8 of 10 (Customer Retention Layer)
-Plan: 0 of ? in Phase 8 (not started)
-Status: Phase 7 complete — Phase 8 ready to plan
-Last activity: 2026-03-17 — Phase 7 verified and closed (9/9 must-haves passed, user QA approved)
+Phase: 10 of 10 (SEO Dominance Engine)
+Plan: 1 of ? in Phase 10 (10-01 DONE)
+Status: Phase 10 in progress — 10-01 complete
+Last activity: 2026-03-18 — Completed 10-01 city-service data config (96 pages foundation)
 
-Progress M3: [████████████████████░] 23/? plans (Phase 5 complete, Phase 6 complete, Phase 7 complete)
+Progress M3: [█████████████████████░] 24/? plans (Phase 5 complete, Phase 6 complete, Phase 7 complete, Phase 10 in progress)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -59,7 +59,9 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
   - 07-03: DONE -- AddressAutocomplete component + QuoteFlow address-first step with auto-location matching [wave 2]
   - 07-02: DONE -- ServiceAreaMap Leaflet component + service-areas page integration (replaces Google Maps iframe) [wave 2]
 - Phase 8 (Customer Retention Layer): Not started — ready to plan
-- Phase 9-10: Not started
+- Phase 9 (Content SEO Growth): Not started
+- Phase 10 (SEO Dominance Engine): IN PROGRESS
+  - 10-01: DONE -- cityServiceConfig.ts rewrite: 8 services × 12 cities, 96 params, parseCityService, getCityServiceContent, generateFAQs [wave 1]
 
 ## Performance Metrics
 
@@ -271,7 +273,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17
-Stopped at: Phase 7 verification complete
+Last session: 2026-03-18
+Stopped at: Completed 10-01-PLAN.md (city-service data config, 96 pages foundation)
 Resume file: None
 Next: Begin Phase 8 (Customer Retention Layer) — customer portal + referral engine
