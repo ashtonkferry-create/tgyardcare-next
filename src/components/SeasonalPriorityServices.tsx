@@ -55,8 +55,8 @@ interface DarkTheme {
 
 const darkThemes: Record<string, DarkTheme> = {
   summer: {
-    sectionBg: 'from-[#071a0e] via-[#0a1f14] to-[#071a0e]',
-    ambientGlow: 'rgba(34, 197, 94, 0.04)',
+    sectionBg: 'from-green-950 via-[#0a3520] to-green-950',
+    ambientGlow: 'rgba(34, 197, 94, 0.12)',
     accent: 'text-green-400',
     accentBg: 'bg-green-400/10',
     accentBorder: 'border-green-400/20',
@@ -471,7 +471,7 @@ export function SeasonalPriorityServices() {
 
   if (isLoading) {
     return (
-      <section className="py-20 md:py-28 bg-gradient-to-b from-[#071a0e] via-[#0a1f14] to-[#071a0e]">
+      <section className="py-20 md:py-28 bg-gradient-to-b from-green-950 via-[#0a3520] to-green-950">
         <div className="container mx-auto px-4">
           <div className="animate-pulse text-center">
             <div className="h-8 w-64 bg-white/[0.06] rounded mb-4 mx-auto" />
