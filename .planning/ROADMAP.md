@@ -130,7 +130,7 @@ Plans:
 - [x] **Phase 6: Brand Transformation & Visual Impact** - Hero video, before/after gallery, Server Component conversion, premium typography in action
 - [x] **Phase 7: Conversion Features** - Instant quote calculator, interactive service area map, annual plan configurator
 - [x] **Phase 8: Customer Retention Layer** - Auth-protected customer portal, referral engine with tracking
-- [ ] **Phase 9: Content & SEO Growth** - Blog categories/tags, Madison lawn care hub, seasonal content surfacing
+- [x] **Phase 9: Content & SEO Growth** - Blog categories/tags, Madison lawn care hub, seasonal content surfacing
 - [ ] **Phase 10: SEO Dominance Engine** - 96 city-service pages, 1,200+ internal links, linkable assets, breadcrumbs
 
 ## Phase Details
@@ -216,7 +216,12 @@ Plans:
   2. "Madison Lawn Care Guide" hub page aggregates all educational content as a single authoritative resource with internal linking
   3. Seasonal content surfaces automatically based on current time of year (spring content in March-May, fall content in September-November)
   4. Every blog post and guide page includes a contextual lead magnet CTA (e.g., "Get your free lawn care checklist") that captures email to Supabase
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+- [x] 09-01 -- Blog category migration + lawn care guide hub page
+- [x] 09-02 -- Seasonal content banner, lead magnet CTA, email subscribers table
+- [x] 09-03 -- Phase 9 verification (build passes, all routes present)
 
 ### Phase 10: SEO Dominance Engine
 **Goal**: Own every "[service] [city] wi" search result in Dane County with 96 city-service pages, 1,200+ contextual internal links, 3 linkable assets, and visible breadcrumbs — transforming TotalGuard from a local business site into the undisputed authority for yard care in the Madison metro area.
@@ -254,5 +259,5 @@ Plans:
 | 6. Brand Transformation | M3 | 6/6 | Complete | 2026-03-17 |
 | 7. Conversion Features | M3 | 5/5 | Complete | 2026-03-17 |
 | 8. Customer Retention | M3 | 5/5 | Complete | 2026-03-18 |
-| 9. Content & SEO Growth | M3 | 0/? | Not started | - |
+| 9. Content & SEO Growth | M3 | 3/3 | Complete | 2026-03-18 |
 | 10. SEO Dominance Engine | M3 | 0/? | Not started | - |

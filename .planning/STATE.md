@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Transform tgyardcare.com into a billion-dollar brand experience that converts at 3-5x current rates while protecting existing SEO rankings and lead flow.
-**Current focus:** M3 Phase 9 (Content & SEO Growth) — Ready to plan
+**Current focus:** M3 Phase 10 (SEO Dominance Engine) — Ready to plan
 
 ## Current Position
 
-Phase: 9 of 10 (Content & SEO Growth)
-Plan: 0 of ? in Phase 9 (not started)
-Status: Phase 8 complete — Phase 9 ready to plan
-Last activity: 2026-03-18 — Phase 8 complete (5/5 plans, portal + referral engine)
+Phase: 10 of 10 (SEO Dominance Engine)
+Plan: 0 of ? in Phase 10 (not started)
+Status: Phase 9 complete — Phase 10 ready to plan
+Last activity: 2026-03-18 — Phase 9 complete (3/3 plans, blog categories + lawn care guide + lead magnets)
 
-Progress M3: [█████████████████████████░░░░░░░] 28/? plans (Phase 5-8 complete)
+Progress M3: [████████████████████████████░░░░] 31/? plans (Phase 5-9 complete)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -256,6 +256,13 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - [Phase 8-04]: /api/portal/request-service — inserts to service_requests
 - [Phase 8-04]: /r/[code] referral landing page — uses SUPABASE_SERVICE_ROLE_KEY for public referrer lookup + dynamic OG metadata
 - [Phase 8-04]: Referral program: $50 off for both referrer and referred customer
+- [Phase 9-01]: Blog category seeding via slug pattern matching (seasonal-tips, service-guides, how-to, local-guides, lawn-care default)
+- [Phase 9-01]: /lawn-care-guide: comprehensive Madison WI guide with FAQPage schema, monthly calendar, common problems, service links
+- [Phase 9-01]: BlogContent.tsx upgraded: Framer Motion layoutId tab animation, URL search param category filtering, glass card design
+- [Phase 9-01]: Suspense boundary added to blog page.tsx for useSearchParams compatibility (Next.js 15)
+- [Phase 9-02]: email_subscribers table with RLS (public insert only), /api/subscribe upsert route
+- [Phase 9-02]: LeadMagnetCTA: season-aware email capture component, rendered on every blog post
+- [Phase 9-02]: SeasonalContentBanner: auto-dismissible, localStorage-persisted per season, rendered on blog index
 
 ### Pending Todos
 
@@ -284,6 +291,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-18
-Stopped at: Phase 8 complete (5/5 plans)
+Stopped at: Phase 9 complete (3/3 plans)
 Resume file: None
-Next: Begin Phase 9 (Content & SEO Growth) — blog categories, Madison lawn care hub, seasonal content
+Next: Begin Phase 10 (SEO Dominance Engine) — 96 city-service pages, internal link web, linkable assets
