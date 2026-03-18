@@ -13,6 +13,7 @@ import { WebPageSchema } from '@/components/schemas/WebPageSchema';
 import SocialShareButtons from '@/components/blog/SocialShareButtons';
 import RelatedPosts from '@/components/blog/RelatedPosts';
 import PostNavigation from '@/components/blog/PostNavigation';
+import LeadMagnetCTA from '@/components/LeadMagnetCTA';
 
 interface DynamicBlogContentProps {
   title: string;
@@ -136,6 +137,9 @@ export default function DynamicBlogContent({
             className="blog-dynamic-content"
             dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           />
+
+          {/* Lead Magnet */}
+          <LeadMagnetCTA source={`blog-${slug}`} />
 
           {/* Social Share */}
           <SocialShareButtons title={title} slug={slug} excerpt={excerpt} />
