@@ -38,8 +38,8 @@ const seasonalCheck = {
 
 const seasonalBg = {
   summer: {
-    page:    '#050d07',
-    section: '#0a1a0e',
+    page:    '#052e16',
+    section: '#0a3520',
   },
   fall: {
     page:    '#0d0900',
@@ -165,8 +165,8 @@ export default function CommercialSeasonalContent() {
           role="img"
           aria-label="Professional commercial seasonal cleanup and maintenance for property managers in Madison, Wisconsin"
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a1f14]/90 via-[#0a1f14]/50 to-[#0a1f14]/85" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(10,31,20,0.4)_100%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#052e16]/90 via-[#052e16]/50 to-[#052e16]/85" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(5,46,22,0.4)_100%)]" />
         </div>
         <AmbientParticles density="sparse" />
         <div className="container mx-auto px-4 relative z-10">
@@ -182,7 +182,7 @@ export default function CommercialSeasonalContent() {
               Scheduled seasonal transitions with clear scope, completion dates, and documentation. No surprises at budget time, no open-ended timelines.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-              <Link href="/contact?service=commercial-seasonal" className="inline-flex items-center justify-center h-12 px-8 text-base md:text-lg font-bold rounded-lg animate-shimmer-btn bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] text-black shadow-lg hover:shadow-amber-500/25 transition-shadow">
+              <Link href="/contact?service=commercial-seasonal" className="inline-flex items-center justify-center h-12 px-8 text-base md:text-lg font-bold rounded-lg animate-shimmer-btn bg-gradient-to-r from-green-500 via-emerald-400 to-green-500 bg-[length:200%_auto] text-white shadow-lg hover:shadow-green-500/25 transition-shadow">
                 Request Commercial Quote <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900 text-base md:text-lg" asChild>

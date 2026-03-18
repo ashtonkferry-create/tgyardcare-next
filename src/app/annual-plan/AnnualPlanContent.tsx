@@ -36,7 +36,7 @@ const PARTICLES = [
 
 export default function AnnualPlanContent() {
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <WebPageSchema
         name="Build Your Custom Annual Lawn Care Plan"
         description="Toggle lawn care services by season, see your price instantly, and lock in an annual plan with TotalGuard Yard Care."
@@ -60,7 +60,7 @@ export default function AnnualPlanContent() {
         {/* Background gradient */}
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: 'linear-gradient(160deg, #050d07 0%, #061a10 40%, #050d07 100%)' }}
+          style={{ background: 'linear-gradient(160deg, #052e16 0%, #0a3520 40%, #052e16 100%)' }}
         />
 
         {/* Radial glow from bottom center */}
@@ -200,7 +200,7 @@ export default function AnnualPlanContent() {
       </section>
 
       {/* ═══ SEASON GUIDE STRIP ═══ */}
-      <section className="pb-8 pt-2" style={{ background: '#050d07' }}>
+      <section className="pb-8 pt-2" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto">
             {[
@@ -232,7 +232,7 @@ export default function AnnualPlanContent() {
       </section>
 
       {/* ═══ CONFIGURATOR ═══ */}
-      <section id="configurator" className="pb-32 pt-4" style={{ background: '#050d07' }}>
+      <section id="configurator" className="pb-32 pt-4" style={{ background: '#052e16' }}>
         <AnnualPlanConfigurator />
       </section>
 

@@ -61,7 +61,7 @@ export default async function CityServicePage({ params }: Props) {
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <WebPageSchema
         name={`${service.name} in ${city.name}, WI`}
         description={`Professional ${service.name.toLowerCase()} serving ${city.name}, Wisconsin. ${city.characteristics.split('.')[0]}.`}
@@ -103,7 +103,7 @@ export default async function CityServicePage({ params }: Props) {
 
       {/* HERO */}
       <section className="relative overflow-hidden pt-24 pb-16">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(160deg, #050d07 0%, #061a10 40%, #050d07 100%)' }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(160deg, #052e16 0%, #0a3520 40%, #052e16 100%)' }} />
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 80%, rgba(34,197,94,0.07) 0%, transparent 70%)' }} />
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
           <svg className="w-full h-full"><defs><pattern id="cs-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="#22c55e" /></pattern></defs><rect width="100%" height="100%" fill="url(#cs-grid)" /></svg>
@@ -151,7 +151,7 @@ export default async function CityServicePage({ params }: Props) {
           <div className="flex flex-wrap gap-4">
             <Link href="/get-quote"
               className="px-8 py-4 rounded-2xl text-base font-bold transition-all duration-200"
-              style={{ background: '#22c55e', color: '#050d07' }}>
+              style={{ background: '#22c55e', color: '#052e16' }}>
               Get Free {city.name} Quote &rarr;
             </Link>
             <a href="tel:+16085356057"
@@ -174,7 +174,7 @@ export default async function CityServicePage({ params }: Props) {
           </p>
           <div className="space-y-4">
             {city.yardChallenges.map((challenge, i) => (
-              <div key={i} className="flex items-start gap-4 p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(34,197,94,0.08)' }}>
+              <div key={i} className="flex items-start gap-4 p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(34,197,94,0.08)' }}>
                 <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)' }}>
                   <span style={{ color: '#22c55e', fontSize: '16px' }}>{'\u2713'}</span>
                 </div>
@@ -200,7 +200,7 @@ export default async function CityServicePage({ params }: Props) {
                 {n}
               </span>
             ))}
-            <span className="px-4 py-2 rounded-full text-sm" style={{ color: 'rgba(255,255,255,0.35)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <span className="px-4 py-2 rounded-full text-sm" style={{ color: 'rgba(255,255,255,0.35)', border: '1px solid rgba(255,255,255,0.10)' }}>
               + all surrounding areas
             </span>
           </div>
@@ -239,7 +239,7 @@ export default async function CityServicePage({ params }: Props) {
               <p className="text-sm font-medium text-white mb-2">Schedule: <span style={{ color: '#4ade80' }}>{service.seasonality}</span></p>
               <Link href="/get-quote"
                 className="block text-center py-3 rounded-xl text-sm font-bold mt-6 transition-all duration-200"
-                style={{ background: '#22c55e', color: '#050d07' }}>
+                style={{ background: '#22c55e', color: '#052e16' }}>
                 Get {city.name} Quote &rarr;
               </Link>
             </div>
@@ -259,7 +259,7 @@ export default async function CityServicePage({ params }: Props) {
                 key={nearbyCity.slug}
                 href={`/${service.slug}-${nearbyCity.slug}-wi`}
                 className="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)' }}
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)' }}
               >
                 {nearbyCity.name}
                 <span className="transition-transform group-hover:translate-x-1" style={{ color: '#22c55e' }}>&rarr;</span>
@@ -281,7 +281,7 @@ export default async function CityServicePage({ params }: Props) {
                 key={svc.slug}
                 href={`/${svc.slug}-${city.slug}-wi`}
                 className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm transition-all duration-200 group"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)' }}
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)' }}
               >
                 <span>{svc.emoji}</span>
                 <span className="truncate">{svc.shortName}</span>
@@ -299,7 +299,7 @@ export default async function CityServicePage({ params }: Props) {
           </h2>
           <div className="space-y-4">
             {faqs.map(faq => (
-              <div key={faq.q} className="p-6 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div key={faq.q} className="p-6 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <h3 className="text-base font-bold text-white mb-2">{faq.q}</h3>
                 <p className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>{faq.a}</p>
               </div>
@@ -320,7 +320,7 @@ export default async function CityServicePage({ params }: Props) {
           </p>
           <Link href="/get-quote"
             className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl text-base font-bold transition-all duration-200"
-            style={{ background: '#22c55e', color: '#050d07' }}>
+            style={{ background: '#22c55e', color: '#052e16' }}>
             Get My Free {city.name} Quote &rarr;
           </Link>
           <p className="mt-4 text-sm" style={{ color: 'rgba(255,255,255,0.3)' }}>Or call (608) 535-6057 &bull; No contracts required</p>

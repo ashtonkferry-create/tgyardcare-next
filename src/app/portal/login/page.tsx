@@ -35,7 +35,7 @@ export default function PortalLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#050d07' }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#052e16' }}>
       {/* Background radial glow */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background: 'radial-gradient(ellipse 60% 40% at 50% 60%, rgba(34,197,94,0.06) 0%, transparent 70%)'
@@ -102,7 +102,7 @@ export default function PortalLogin() {
           transition={{ duration: 0.5, delay: 0.35 }}
           className="rounded-2xl p-8"
           style={{
-            background: 'rgba(255,255,255,0.03)',
+            background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(34,197,94,0.12)',
             backdropFilter: 'blur(12px)',
           }}
@@ -141,7 +141,7 @@ export default function PortalLogin() {
                   type="submit"
                   disabled={isLoading || !email}
                   className="w-full py-3 rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-50"
-                  style={{ background: '#22c55e', color: '#050d07' }}
+                  style={{ background: '#22c55e', color: '#052e16' }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >

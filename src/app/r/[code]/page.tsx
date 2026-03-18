@@ -32,7 +32,7 @@ export default async function ReferralLandingPage({ params }: Props) {
   const firstName = referrer.name?.split(' ')[0] ?? 'Your neighbor';
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <Navigation />
 
       {/* Hero */}
@@ -80,7 +80,7 @@ export default async function ReferralLandingPage({ params }: Props) {
               { icon: '\u2B50', text: '4.9 Google Rating across 80+ customers' },
             ].map(item => (
               <div key={item.text} className="flex items-center gap-3 text-left px-5 py-3 rounded-xl"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)' }}>
                 <span className="text-2xl shrink-0">{item.icon}</span>
                 <span className="text-sm text-white">{item.text}</span>
               </div>
@@ -91,7 +91,7 @@ export default async function ReferralLandingPage({ params }: Props) {
           <Link
             href={`/get-quote?referral=${code}`}
             className="inline-flex items-center gap-3 px-10 py-4 rounded-2xl text-base font-bold transition-all duration-200"
-            style={{ background: '#22c55e', color: '#050d07' }}
+            style={{ background: '#22c55e', color: '#052e16' }}
           >
             Claim Your $50 Off
             <span>&rarr;</span>

@@ -180,7 +180,7 @@ export default function LawnCareCostsDaneCounty() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <main className="min-h-screen" style={{ background: '#050d07', color: '#f0f0f5' }}>
+      <main className="min-h-screen" style={{ background: '#052e16', color: '#f0f0f5' }}>
 
         {/* ── Hero ─────────────────────────────────────────────────────── */}
         <section className="relative py-20 px-4 text-center overflow-hidden">

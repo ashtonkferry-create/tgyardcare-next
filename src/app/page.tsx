@@ -74,7 +74,7 @@ export default function HomePage() {
       {/* Server component — wraps client ProcessTimeline */}
       <HowItWorks />
 
-      <section className="py-16 md:py-20" style={{ background: '#0a1a0e' }}>
+      <section className="py-16 md:py-20" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4">
           <LatestBlogPosts />
         </div>

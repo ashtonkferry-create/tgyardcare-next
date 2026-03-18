@@ -9,7 +9,7 @@ export default async function PortalLayout({ children }: { children: React.React
   const showNav = !!user;
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       {showNav && <PortalNav userEmail={user.email ?? ''} />}
       <main className={showNav ? 'lg:ml-64 min-h-screen' : 'min-h-screen'}>
         {children}
