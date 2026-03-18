@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Transform tgyardcare.com into a billion-dollar brand experience that converts at 3-5x current rates while protecting existing SEO rankings and lead flow.
-**Current focus:** M3 Phase 8 (Customer Retention Layer) — Planning
+**Current focus:** M3 Phase 9 (Content & SEO Growth) — Ready to plan
 
 ## Current Position
 
-Phase: 8 of 10 (Customer Retention Layer)
-Plan: 0 of ? in Phase 8 (not started)
-Status: Phase 7 complete — Phase 8 ready to plan
-Last activity: 2026-03-17 — Phase 7 verified and closed (9/9 must-haves passed, user QA approved)
+Phase: 9 of 10 (Content & SEO Growth)
+Plan: 0 of ? in Phase 9 (not started)
+Status: Phase 8 complete — Phase 9 ready to plan
+Last activity: 2026-03-18 — Phase 8 complete (5/5 plans, portal + referral engine)
 
-Progress M3: [████████████████████░] 23/? plans (Phase 5 complete, Phase 6 complete, Phase 7 complete)
+Progress M3: [█████████████████████████░░░░░░░] 28/? plans (Phase 5-8 complete)
 Progress M2: [█████████████████████████████████] 34/34 plans (M2)
 
 COMPLETED Milestone 2: Automation Gap Closer
@@ -244,6 +244,18 @@ Milestone 3 (Billionaire Brand Transformation): IN PROGRESS
 - [Phase 7-05]: Annual-plan page uses page.tsx Server Component wrapper + AnnualPlanContent.tsx client island (same as service-areas pattern)
 - [Phase 7-05]: Homepage CTA for annual plan placed between HowItWorks and LatestBlogPosts as border-primary/20 banner card (non-disruptive)
 - [Phase 7-05]: tsc --noEmit exits 0 post-build (skipLibCheck + non-strict tsconfig; 84-error count was from .next/types during dev mode)
+- [Phase 8-01]: Migration 20260318_phase8_portal_tables.sql — 7 tables (portal_customers, service_records, upcoming_jobs, customer_invoices, service_ratings, referral_events, service_requests) + RLS
+- [Phase 8-02]: Middleware split: admin routes redirect to /admin/login, portal routes redirect to /portal/login
+- [Phase 8-02]: Portal auth uses magic link OTP via Supabase signInWithOtp, no password flow
+- [Phase 8-02]: Auth callback at /portal/auth/callback exchanges code for session
+- [Phase 8-03]: Portal layout at src/app/portal/layout.tsx — conditionally shows nav based on user auth state
+- [Phase 8-03]: PortalNav: desktop sidebar (lg:w-64) + mobile bottom bar with 5 items
+- [Phase 8-03]: Dashboard auto-creates portal_customers row with nanoid referral code on first visit
+- [Phase 8-03]: All dashboard data fetched via Promise.allSettled for resilience
+- [Phase 8-04]: /api/portal/rate-service — upserts to service_ratings (1-5 stars + optional comment)
+- [Phase 8-04]: /api/portal/request-service — inserts to service_requests
+- [Phase 8-04]: /r/[code] referral landing page — uses SUPABASE_SERVICE_ROLE_KEY for public referrer lookup + dynamic OG metadata
+- [Phase 8-04]: Referral program: $50 off for both referrer and referred customer
 
 ### Pending Todos
 
@@ -271,7 +283,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17
-Stopped at: Phase 7 verification complete
+Last session: 2026-03-18
+Stopped at: Phase 8 complete (5/5 plans)
 Resume file: None
-Next: Begin Phase 8 (Customer Retention Layer) — customer portal + referral engine
+Next: Begin Phase 9 (Content & SEO Growth) — blog categories, Madison lawn care hub, seasonal content

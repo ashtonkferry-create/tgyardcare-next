@@ -129,7 +129,7 @@ Plans:
 - [x] **Phase 5: Safety Nets & Foundation** - Fix production bugs, harden the codebase, establish design tokens and server-side patterns
 - [x] **Phase 6: Brand Transformation & Visual Impact** - Hero video, before/after gallery, Server Component conversion, premium typography in action
 - [x] **Phase 7: Conversion Features** - Instant quote calculator, interactive service area map, annual plan configurator
-- [ ] **Phase 8: Customer Retention Layer** - Auth-protected customer portal, referral engine with tracking
+- [x] **Phase 8: Customer Retention Layer** - Auth-protected customer portal, referral engine with tracking
 - [ ] **Phase 9: Content & SEO Growth** - Blog categories/tags, Madison lawn care hub, seasonal content surfacing
 - [ ] **Phase 10: SEO Dominance Engine** - 96 city-service pages, 1,200+ internal links, linkable assets, breadcrumbs
 
@@ -198,7 +198,14 @@ Plans:
   3. Customer can request an additional service and rate their crew (1-5 stars) from the dashboard
   4. Customer can copy their unique referral link (e.g., tgyardcare.com/r/ABC123) and a referred visitor sees a personalized landing page with the referrer's name
   5. When a referred customer books their first service, the referrer sees "$50 credit" status update in their portal and the new customer received $50 off
-**Plans**: TBD
+**Plans:** 5 plans
+
+Plans:
+- [x] 08-01 -- Portal database schema (7 tables + RLS policies)
+- [x] 08-02 -- Portal auth flow (magic link login + callback + middleware split)
+- [x] 08-03 -- Portal dashboard (nav, upcoming jobs, history, invoices, referral cards)
+- [x] 08-04 -- Service actions (rate crew, request service, /r/[code] referral landing page)
+- [x] 08-05 -- Phase 8 verification (build passes, all routes present)
 
 ### Phase 9: Content & SEO Growth
 **Goal**: Visitors find TotalGuard's educational content organized by topic, discover the "Madison Lawn Care Guide" hub as a local authority resource, and encounter lead magnets that convert readers into leads.
@@ -246,6 +253,6 @@ Plans:
 | 5. Safety Nets & Foundation | M3 | 7/7 | Complete | 2026-03-16 |
 | 6. Brand Transformation | M3 | 6/6 | Complete | 2026-03-17 |
 | 7. Conversion Features | M3 | 5/5 | Complete | 2026-03-17 |
-| 8. Customer Retention | M3 | 0/? | Not started | - |
+| 8. Customer Retention | M3 | 5/5 | Complete | 2026-03-18 |
 | 9. Content & SEO Growth | M3 | 0/? | Not started | - |
 | 10. SEO Dominance Engine | M3 | 0/? | Not started | - |
