@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { WebPageSchema } from "@/components/schemas/WebPageSchema";
@@ -498,6 +499,44 @@ export default function HardscapingContent() {
               </div>
             </div>
           </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Serving Across Dane County */}
+      <section className="py-16" style={{ background: 'rgba(255,255,255,0.01)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="container mx-auto px-4 max-w-5xl">
+          <h2 className="text-3xl font-bold text-white mb-3" style={{ fontFamily: 'var(--font-display)' }}>
+            We Provide Hardscaping Across Dane County
+          </h2>
+          <p className="mb-8" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            Same crew. Same quality. Every city we serve.
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {[
+              { name: 'Madison', slug: 'madison' },
+              { name: 'Middleton', slug: 'middleton' },
+              { name: 'Waunakee', slug: 'waunakee' },
+              { name: 'Sun Prairie', slug: 'sun-prairie' },
+              { name: 'Fitchburg', slug: 'fitchburg' },
+              { name: 'Monona', slug: 'monona' },
+              { name: 'Verona', slug: 'verona' },
+              { name: 'McFarland', slug: 'mcfarland' },
+              { name: 'Cottage Grove', slug: 'cottage-grove' },
+              { name: 'DeForest', slug: 'deforest' },
+              { name: 'Oregon', slug: 'oregon' },
+              { name: 'Stoughton', slug: 'stoughton' },
+            ].map(city => (
+              <Link
+                key={city.slug}
+                href={`/hardscaping-${city.slug}-wi`}
+                className="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium group transition-all duration-200"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(34,197,94,0.1)', color: 'rgba(255,255,255,0.65)' }}
+              >
+                {city.name}
+                <span style={{ color: '#22c55e' }} className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
