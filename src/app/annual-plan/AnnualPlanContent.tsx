@@ -199,8 +199,40 @@ export default function AnnualPlanContent() {
         </div>
       </section>
 
+      {/* ═══ SEASON GUIDE STRIP ═══ */}
+      <section className="pb-8 pt-2" style={{ background: '#050d07' }}>
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto">
+            {[
+              { emoji: '🌸', label: 'Spring', months: 'Mar–May', color: '#22c55e', glow: '34,197,94' },
+              { emoji: '☀️', label: 'Summer', months: 'Jun–Aug', color: '#eab308', glow: '234,179,8' },
+              { emoji: '🍂', label: 'Fall',   months: 'Sep–Nov', color: '#f97316', glow: '249,115,22' },
+              { emoji: '❄️', label: 'Winter', months: 'Dec–Feb', color: '#38bdf8', glow: '56,189,248' },
+            ].map((s, i) => (
+              <motion.div
+                key={s.label}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.6 + i * 0.08 }}
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl"
+                style={{
+                  background: `rgba(${s.glow},0.06)`,
+                  border: `1px solid rgba(${s.glow},0.18)`,
+                }}
+              >
+                <span className="text-xl shrink-0">{s.emoji}</span>
+                <div>
+                  <p className="text-xs font-bold text-white">{s.label}</p>
+                  <p className="text-[10px]" style={{ color: s.color }}>{s.months}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══ CONFIGURATOR ═══ */}
-      <section id="configurator" className="pb-32 pt-6" style={{ background: '#050d07' }}>
+      <section id="configurator" className="pb-32 pt-4" style={{ background: '#050d07' }}>
         <AnnualPlanConfigurator />
       </section>
 

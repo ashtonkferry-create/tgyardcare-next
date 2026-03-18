@@ -1,32 +1,85 @@
 'use client';
 
-import { useReducer, useMemo, useState, useCallback } from 'react';
+import { useReducer, useMemo, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Check, X } from 'lucide-react';
 
 /* ─────────────────────── Types & Constants ─────────────────────── */
 
 type Season = 'spring' | 'summer' | 'fall' | 'winter';
 
-const SEASONS: { id: Season; label: string; color: string }[] = [
-  { id: 'spring', label: 'Spring', color: '#22c55e' },
-  { id: 'summer', label: 'Summer', color: '#eab308' },
-  { id: 'fall',   label: 'Fall',   color: '#f97316' },
-  { id: 'winter', label: 'Winter', color: '#38bdf8' },
-];
-
 const MONTH_TO_SEASON: Record<string, Season> = {
   Jan: 'winter', Feb: 'winter', Mar: 'spring', Apr: 'spring', May: 'spring',
   Jun: 'summer', Jul: 'summer', Aug: 'summer', Sep: 'fall', Oct: 'fall',
-  Nov: 'fall',   Dec: 'winter',
+  Nov: 'fall', Dec: 'winter',
 };
-
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-const SEASON_COLORS: Record<Season, string> = {
-  spring: '#22c55e', summer: '#eab308', fall: '#f97316', winter: '#38bdf8',
-};
+const SEASON_CHAPTERS: {
+  id: Season;
+  label: string;
+  emoji: string;
+  months: string;
+  tagline: string;
+  color: string;
+  dimColor: string;
+  glowRgb: string;
+  particles: { left: string; top: string; size: number; opacity: number; duration: number; delay: number }[];
+}[] = [
+  {
+    id: 'spring', label: 'Spring', emoji: '🌸', months: 'Mar · Apr · May',
+    tagline: 'Wake your lawn up right.',
+    color: '#22c55e', dimColor: 'rgba(34,197,94,0.12)', glowRgb: '34,197,94',
+    particles: [
+      { left: '5%', top: '20%', size: 3, opacity: 0.30, duration: 5.5, delay: 0 },
+      { left: '15%', top: '65%', size: 2, opacity: 0.20, duration: 7.0, delay: 1.2 },
+      { left: '75%', top: '30%', size: 4, opacity: 0.22, duration: 4.8, delay: 0.6 },
+      { left: '88%', top: '70%', size: 2, opacity: 0.18, duration: 6.5, delay: 1.9 },
+      { left: '50%', top: '15%', size: 3, opacity: 0.25, duration: 5.8, delay: 0.4 },
+      { left: '92%', top: '50%', size: 2, opacity: 0.20, duration: 6.2, delay: 2.1 },
+    ],
+  },
+  {
+    id: 'summer', label: 'Summer', emoji: '☀️', months: 'Jun · Jul · Aug',
+    tagline: 'Keep it lush all season long.',
+    color: '#eab308', dimColor: 'rgba(234,179,8,0.12)', glowRgb: '234,179,8',
+    particles: [
+      { left: '8%', top: '40%', size: 4, opacity: 0.28, duration: 6.0, delay: 0.3 },
+      { left: '20%', top: '25%', size: 2, opacity: 0.22, duration: 5.2, delay: 1.5 },
+      { left: '80%', top: '55%', size: 3, opacity: 0.25, duration: 7.2, delay: 0.8 },
+      { left: '93%', top: '20%', size: 2, opacity: 0.18, duration: 4.9, delay: 2.0 },
+      { left: '55%', top: '80%', size: 3, opacity: 0.20, duration: 6.4, delay: 0.5 },
+      { left: '40%', top: '10%', size: 2, opacity: 0.24, duration: 5.7, delay: 1.8 },
+    ],
+  },
+  {
+    id: 'fall', label: 'Fall', emoji: '🍂', months: 'Sep · Oct · Nov',
+    tagline: 'Prep for the season ahead.',
+    color: '#f97316', dimColor: 'rgba(249,115,22,0.12)', glowRgb: '249,115,22',
+    particles: [
+      { left: '10%', top: '30%', size: 3, opacity: 0.28, duration: 5.3, delay: 0.2 },
+      { left: '25%', top: '70%', size: 2, opacity: 0.20, duration: 6.8, delay: 1.4 },
+      { left: '70%', top: '25%', size: 4, opacity: 0.22, duration: 5.0, delay: 0.7 },
+      { left: '85%', top: '65%', size: 2, opacity: 0.18, duration: 7.1, delay: 2.2 },
+      { left: '45%', top: '50%', size: 3, opacity: 0.25, duration: 6.1, delay: 0.9 },
+      { left: '60%', top: '85%', size: 2, opacity: 0.20, duration: 5.6, delay: 1.7 },
+    ],
+  },
+  {
+    id: 'winter', label: 'Winter', emoji: '❄️', months: 'Dec · Jan · Feb',
+    tagline: 'Stay clear all winter.',
+    color: '#38bdf8', dimColor: 'rgba(56,189,248,0.12)', glowRgb: '56,189,248',
+    particles: [
+      { left: '7%', top: '35%', size: 3, opacity: 0.28, duration: 6.3, delay: 0.1 },
+      { left: '18%', top: '60%', size: 2, opacity: 0.22, duration: 5.1, delay: 1.6 },
+      { left: '78%', top: '40%', size: 4, opacity: 0.20, duration: 7.4, delay: 0.5 },
+      { left: '90%', top: '75%', size: 2, opacity: 0.18, duration: 4.7, delay: 2.3 },
+      { left: '48%', top: '20%', size: 3, opacity: 0.25, duration: 5.9, delay: 0.8 },
+      { left: '35%', top: '85%', size: 2, opacity: 0.20, duration: 6.6, delay: 1.9 },
+    ],
+  },
+];
 
-/* Static fallback — renders immediately, Supabase enriches on load */
 const STATIC_SERVICES: {
   id: string;
   name: string;
@@ -34,14 +87,14 @@ const STATIC_SERVICES: {
   emoji: string;
   availableSeasons: Season[];
 }[] = [
-  { id: 'mowing',        name: 'Lawn Mowing',              emoji: '🌿', desc: 'Weekly or bi-weekly cuts, edging & trimming included.',        availableSeasons: ['spring','summer','fall'] },
-  { id: 'fertilization', name: 'Fertilization & Weed Control', emoji: '🌱', desc: 'Custom treatment program for a thick, weed-free lawn.',    availableSeasons: ['spring','summer','fall'] },
-  { id: 'aeration',      name: 'Aeration & Overseeding',   emoji: '🌾', desc: 'Core aeration + seed for a dense, healthy lawn.',             availableSeasons: ['spring','fall'] },
-  { id: 'spring-cleanup',name: 'Spring Cleanup',            emoji: '🌸', desc: 'Full property reset after winter — debris, beds, edging.',    availableSeasons: ['spring'] },
-  { id: 'fall-cleanup',  name: 'Fall Cleanup',              emoji: '🍂', desc: 'Leaf removal, bed clearing, and winter prep.',                availableSeasons: ['fall'] },
-  { id: 'mulching',      name: 'Mulching',                  emoji: '🪵', desc: 'Fresh mulch installation for garden beds and trees.',         availableSeasons: ['spring','fall'] },
-  { id: 'snow-removal',  name: 'Snow Removal',              emoji: '❄️', desc: 'Driveway, walkway, and parking area snow & ice clearing.',    availableSeasons: ['winter'] },
-  { id: 'gutter-cleaning',name: 'Gutter Cleaning',          emoji: '🏠', desc: 'Full gutter flush, downspout clear, and debris removal.',     availableSeasons: ['spring','fall'] },
+  { id: 'mowing',         name: 'Lawn Mowing',                emoji: '🌿', desc: 'Weekly or bi-weekly cuts, edging & trimming.',     availableSeasons: ['spring','summer','fall'] },
+  { id: 'fertilization',  name: 'Fertilization & Weed Control', emoji: '🌱', desc: 'Custom treatment for a thick, weed-free lawn.',   availableSeasons: ['spring','summer','fall'] },
+  { id: 'aeration',       name: 'Aeration & Overseeding',     emoji: '🌾', desc: 'Core aeration + seed for a dense, healthy lawn.',  availableSeasons: ['spring','fall'] },
+  { id: 'spring-cleanup', name: 'Spring Cleanup',             emoji: '🌸', desc: 'Full property reset — debris, beds, edging.',      availableSeasons: ['spring'] },
+  { id: 'fall-cleanup',   name: 'Fall Cleanup',               emoji: '🍂', desc: 'Leaf removal, bed clearing, and winter prep.',     availableSeasons: ['fall'] },
+  { id: 'mulching',       name: 'Mulching',                   emoji: '🪵', desc: 'Fresh mulch for garden beds and trees.',           availableSeasons: ['spring','fall'] },
+  { id: 'snow-removal',   name: 'Snow Removal',               emoji: '❄️', desc: 'Driveway, walkway, and parking area snow & ice.',  availableSeasons: ['winter'] },
+  { id: 'gutter-cleaning',name: 'Gutter Cleaning',            emoji: '🏠', desc: 'Full gutter flush and downspout clear.',           availableSeasons: ['spring','fall'] },
 ];
 
 /* ─────────────────────── State ─────────────────────── */
@@ -54,7 +107,6 @@ interface PlanState {
 
 type PlanAction =
   | { type: 'TOGGLE_SERVICE_SEASON'; serviceId: string; season: Season }
-  | { type: 'TOGGLE_ALL_SEASONS'; serviceId: string; availableSeasons: Season[] }
   | { type: 'UPDATE_CONTACT'; field: keyof PlanState['contactForm']; value: string }
   | { type: 'SHOW_CONTACT_FORM' }
   | { type: 'HIDE_CONTACT_FORM' };
@@ -81,15 +133,6 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
         },
       };
     }
-    case 'TOGGLE_ALL_SEASONS': {
-      const existing = state.selections[action.serviceId] ?? { spring: false, summer: false, fall: false, winter: false };
-      const allSelected = action.availableSeasons.every((s) => existing[s]);
-      const updated: Record<Season, boolean> = { spring: false, summer: false, fall: false, winter: false };
-      for (const s of action.availableSeasons) {
-        updated[s] = !allSelected;
-      }
-      return { ...state, selections: { ...state.selections, [action.serviceId]: updated } };
-    }
     case 'UPDATE_CONTACT':
       return { ...state, contactForm: { ...state.contactForm, [action.field]: action.value } };
     case 'SHOW_CONTACT_FORM':
@@ -101,14 +144,85 @@ function planReducer(state: PlanState, action: PlanAction): PlanState {
   }
 }
 
+/* ─────────────────────── Service Card ─────────────────────── */
+
+function ServiceCard({
+  service,
+  season,
+  isSelected,
+  seasonColor,
+  seasonGlowRgb,
+  onToggle,
+}: {
+  service: typeof STATIC_SERVICES[0];
+  season: Season;
+  isSelected: boolean;
+  seasonColor: string;
+  seasonGlowRgb: string;
+  onToggle: () => void;
+}) {
+  return (
+    <motion.button
+      onClick={onToggle}
+      whileHover={{ y: -3 }}
+      whileTap={{ scale: 0.97 }}
+      className="w-full text-left rounded-2xl p-5 transition-all duration-300 relative overflow-hidden"
+      style={{
+        background: isSelected ? `rgba(${seasonGlowRgb},0.08)` : 'rgba(255,255,255,0.03)',
+        border: isSelected ? `1px solid rgba(${seasonGlowRgb},0.50)` : '1px solid rgba(255,255,255,0.07)',
+        boxShadow: isSelected ? `0 0 28px rgba(${seasonGlowRgb},0.15)` : 'none',
+      }}
+    >
+      {/* Selected badge */}
+      <AnimatePresence>
+        {isSelected && (
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+            className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center"
+            style={{ background: seasonColor }}
+          >
+            <Check size={12} className="text-white" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex items-start gap-3">
+        <span className="text-2xl shrink-0">{service.emoji}</span>
+        <div>
+          <p className="font-bold text-sm text-white mb-0.5 pr-6">{service.name}</p>
+          <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.40)' }}>
+            {service.desc}
+          </p>
+        </div>
+      </div>
+
+      {/* Season tag */}
+      <div className="mt-3">
+        <span
+          className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full"
+          style={{
+            background: isSelected ? `rgba(${seasonGlowRgb},0.15)` : 'rgba(255,255,255,0.05)',
+            color: isSelected ? seasonColor : 'rgba(255,255,255,0.35)',
+          }}
+        >
+          {isSelected ? '✓ Added' : '+ Add'}
+        </span>
+      </div>
+    </motion.button>
+  );
+}
+
 /* ─────────────────────── Main Component ─────────────────────── */
 
 export default function AnnualPlanConfigurator() {
   const [state, dispatch] = useReducer(planReducer, initialState);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-
-  // Use static services — no Supabase dependency needed
-  const services = STATIC_SERVICES;
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const selectedServiceCount = useMemo(() => {
     return Object.values(state.selections).filter((seasons) =>
@@ -116,56 +230,53 @@ export default function AnnualPlanConfigurator() {
     ).length;
   }, [state.selections]);
 
-  // Active services per month (for mini calendar)
-  const monthActiveServices = useMemo(() => {
-    const result: Record<string, { emoji: string; color: string }[]> = {};
+  // Build selected services list for display
+  const selectedBySeasonList = useMemo(() => {
+    return SEASON_CHAPTERS.map((chapter) => {
+      const services = STATIC_SERVICES.filter((svc) =>
+        svc.availableSeasons.includes(chapter.id) &&
+        state.selections[svc.id]?.[chapter.id]
+      );
+      return { chapter, services };
+    }).filter((s) => s.services.length > 0);
+  }, [state.selections]);
+
+  // Month calendar dots
+  const monthDots = useMemo(() => {
+    const result: Record<string, { color: string }[]> = {};
     for (const month of MONTHS) {
       result[month] = [];
       const season = MONTH_TO_SEASON[month];
-      for (const svc of services) {
-        if (state.selections[svc.id]?.[season]) {
-          result[month].push({ emoji: svc.emoji, color: SEASON_COLORS[season] });
-        }
-      }
+      const chapter = SEASON_CHAPTERS.find((c) => c.id === season);
+      if (!chapter) continue;
+      const hasService = STATIC_SERVICES.some(
+        (svc) => svc.availableSeasons.includes(season) && state.selections[svc.id]?.[season]
+      );
+      if (hasService) result[month].push({ color: chapter.color });
     }
     return result;
-  }, [services, state.selections]);
+  }, [state.selections]);
 
   function buildNotes(): string {
-    const entries = services.filter((s) => {
-      const seasons = state.selections[s.id];
-      return seasons && Object.values(seasons).some(Boolean);
-    });
-    if (entries.length === 0) return 'Annual Plan: No services selected';
-    return (
-      'Annual Plan: ' +
-      entries
-        .map((s) => {
-          const activeSeas = Object.entries(state.selections[s.id] ?? {})
-            .filter(([, v]) => v)
-            .map(([k]) => k)
-            .join(', ');
-          return `${s.name} (${activeSeas})`;
-        })
-        .join(', ')
-    );
+    const lines = ['Annual Plan Wishlist:'];
+    for (const { chapter, services } of selectedBySeasonList) {
+      lines.push(`${chapter.label}: ${services.map((s) => s.name).join(', ')}`);
+    }
+    return lines.join('\n');
   }
-
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if (selectedServiceCount === 0) return;
 
-      const firstEntry = services.find((s) => {
+      setIsSubmitting(true);
+      setSubmitError(null);
+
+      const firstEntry = STATIC_SERVICES.find((s) => {
         const seasons = state.selections[s.id];
         return seasons && Object.values(seasons).some(Boolean);
       });
-
-      setIsSubmitting(true);
-      setSubmitError(null);
 
       try {
         const res = await fetch('/api/contact', {
@@ -189,31 +300,32 @@ export default function AnnualPlanConfigurator() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [services, state, selectedServiceCount],
+    [state, selectedServiceCount]
   );
 
   /* ─── Success State ─── */
   if (submitSuccess) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+      <div className="flex flex-col items-center justify-center py-32 px-4 text-center">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-          className="rounded-3xl p-10 max-w-md mx-auto"
+          className="rounded-3xl p-12 max-w-md mx-auto"
           style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(34,197,94,0.3)' }}
         >
-          <div
-            className="w-16 h-16 mx-auto mb-5 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(34,197,94,0.15)' }}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 15 }}
+            className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.35)' }}
           >
-            <svg className="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h3 className="text-2xl font-bold text-white mb-2">Request Received!</h3>
-          <p className="text-gray-400">
-            We&apos;ll reach out within 24 hours to discuss your property and provide an exact quote.
+            <Check size={32} style={{ color: '#22c55e' }} />
+          </motion.div>
+          <h3 className="text-3xl font-bold text-white mb-3">Plan Received!</h3>
+          <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.50)' }}>
+            Our team will review your wishlist and reach out within the same business day with a price built for your exact property.
           </p>
         </motion.div>
       </div>
@@ -223,438 +335,474 @@ export default function AnnualPlanConfigurator() {
   /* ─── Main Layout ─── */
   return (
     <div id="configurator" className="max-w-7xl mx-auto px-4 sm:px-6">
-      <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8 xl:gap-12">
+      <div className="lg:grid lg:grid-cols-[1fr_360px] lg:gap-12 xl:gap-16">
 
-        {/* ═══ LEFT: Service Card Grid ═══ */}
-        <div>
-          <div className="mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">Choose Your Services</h2>
-            <p className="text-gray-400 text-sm">
-              Toggle seasons for each service you want. We&apos;ll build a custom quote for your property.
-            </p>
-          </div>
+        {/* ═══ LEFT: Season Chapters ═══ */}
+        <div className="space-y-2 pb-16">
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {services.map((service, index) => {
-              const svcSeasons = state.selections[service.id] ?? {
-                spring: false,
-                summer: false,
-                fall: false,
-                winter: false,
-              };
-              const hasAnySelected = service.availableSeasons.some((s) => svcSeasons[s]);
-              const allAvailSelected = service.availableSeasons.every((s) => svcSeasons[s]);
+          {SEASON_CHAPTERS.map((chapter, chapterIdx) => {
+            const chapterServices = STATIC_SERVICES.filter((s) =>
+              s.availableSeasons.includes(chapter.id)
+            );
 
-              // Dominant active season color for glow
-              const activeSeason = SEASONS.find((s) => svcSeasons[s.id]);
-              const glowColor = activeSeason?.color ?? 'transparent';
-
-              return (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.06 }}
-                  className="rounded-2xl p-5 transition-all duration-300"
+            return (
+              <motion.div
+                key={chapter.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.5, delay: chapterIdx * 0.1 }}
+                className="relative rounded-3xl overflow-hidden"
+                style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: `1px solid rgba(${chapter.glowRgb},0.15)`,
+                }}
+              >
+                {/* Season background glow */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
                   style={{
-                    background: hasAnySelected ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)',
-                    border: hasAnySelected
-                      ? '1px solid rgba(255,255,255,0.15)'
-                      : '1px solid rgba(255,255,255,0.07)',
-                    boxShadow: hasAnySelected ? `0 0 32px ${glowColor}25` : 'none',
+                    background: `radial-gradient(ellipse 70% 50% at 50% 100%, rgba(${chapter.glowRgb},0.07) 0%, transparent 70%)`,
                   }}
-                >
-                  {/* Header */}
-                  <div className="flex items-start gap-3 mb-3">
-                    <span className="text-2xl flex-shrink-0">{service.emoji}</span>
+                />
+
+                {/* Floating particles */}
+                {chapter.particles.map((p, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute rounded-full pointer-events-none"
+                    style={{
+                      width: p.size,
+                      height: p.size,
+                      left: p.left,
+                      top: p.top,
+                      background: `rgba(${chapter.glowRgb},${p.opacity})`,
+                    }}
+                    animate={{ y: [0, -16, 0], opacity: [p.opacity * 0.5, p.opacity, p.opacity * 0.5] }}
+                    transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: 'easeInOut' }}
+                  />
+                ))}
+
+                <div className="relative z-10 p-6 md:p-8">
+                  {/* Season header */}
+                  <div className="flex items-center gap-4 mb-6">
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0"
+                      style={{ background: chapter.dimColor, border: `1px solid rgba(${chapter.glowRgb},0.25)` }}
+                    >
+                      {chapter.emoji}
+                    </div>
                     <div>
-                      <h3 className="text-white font-semibold text-sm leading-tight">{service.name}</h3>
-                      <p className="text-gray-500 text-xs mt-0.5 leading-relaxed">{service.desc}</p>
+                      <div className="flex items-center gap-3">
+                        <h2 className="text-xl font-bold text-white">{chapter.label}</h2>
+                        <span
+                          className="text-xs font-semibold px-2.5 py-0.5 rounded-full"
+                          style={{ background: chapter.dimColor, color: chapter.color }}
+                        >
+                          {chapter.months}
+                        </span>
+                      </div>
+                      <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.40)' }}>
+                        {chapter.tagline}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Season toggles */}
-                  <div className="flex flex-wrap gap-1.5 mt-3">
-                    {/* All Year shortcut */}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        dispatch({
-                          type: 'TOGGLE_ALL_SEASONS',
-                          serviceId: service.id,
-                          availableSeasons: service.availableSeasons,
-                        })
-                      }
-                      className="px-2.5 py-1 text-xs rounded-full font-medium transition-all duration-200"
-                      style={
-                        allAvailSelected
-                          ? {
-                              background: 'rgba(255,255,255,0.15)',
-                              color: '#fff',
-                              border: '1px solid rgba(255,255,255,0.3)',
-                            }
-                          : {
-                              background: 'transparent',
-                              color: '#6b7280',
-                              border: '1px solid rgba(255,255,255,0.1)',
-                            }
-                      }
-                    >
-                      All Year
-                    </button>
-
-                    {SEASONS.map((season) => {
-                      const available = service.availableSeasons.includes(season.id);
-                      const active = svcSeasons[season.id];
-                      return (
-                        <button
-                          key={season.id}
-                          type="button"
-                          disabled={!available}
-                          aria-label={!available ? `${season.label} — not available for ${service.name}` : season.label}
-                          onClick={() =>
-                            dispatch({
-                              type: 'TOGGLE_SERVICE_SEASON',
-                              serviceId: service.id,
-                              season: season.id,
-                            })
+                  {/* Service cards */}
+                  <div className={`grid gap-3 ${chapterServices.length === 1 ? 'grid-cols-1 max-w-sm' : 'grid-cols-1 sm:grid-cols-2'}`}>
+                    {chapterServices.map((service, svcIdx) => (
+                      <motion.div
+                        key={service.id}
+                        initial={{ opacity: 0, y: 16 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: '-40px' }}
+                        transition={{ duration: 0.35, delay: svcIdx * 0.07 }}
+                      >
+                        <ServiceCard
+                          service={service}
+                          season={chapter.id}
+                          isSelected={!!state.selections[service.id]?.[chapter.id]}
+                          seasonColor={chapter.color}
+                          seasonGlowRgb={chapter.glowRgb}
+                          onToggle={() =>
+                            dispatch({ type: 'TOGGLE_SERVICE_SEASON', serviceId: service.id, season: chapter.id })
                           }
-                          className="px-2.5 py-1 text-xs rounded-full font-medium transition-all duration-200"
-                          style={
-                            !available
-                              ? {
-                                  background: 'transparent',
-                                  color: '#374151',
-                                  border: '1px solid rgba(255,255,255,0.05)',
-                                  cursor: 'not-allowed',
-                                  opacity: 0.4,
-                                }
-                              : active
-                              ? {
-                                  backgroundColor: season.color,
-                                  color: '#fff',
-                                  boxShadow: `0 0 10px ${season.color}60`,
-                                  border: `1px solid ${season.color}`,
-                                  transform: 'scale(1.05)',
-                                }
-                              : {
-                                  background: 'rgba(255,255,255,0.05)',
-                                  color: '#9ca3af',
-                                  border: '1px solid rgba(255,255,255,0.1)',
-                                }
-                          }
-                        >
-                          {season.label}
-                        </button>
-                      );
-                    })}
+                        />
+                      </motion.div>
+                    ))}
                   </div>
-                </motion.div>
-              );
-            })}
-          </div>
+
+                  {/* Chapter divider accent */}
+                  <div
+                    className="absolute bottom-0 left-0 right-0 h-[1px]"
+                    style={{ background: `linear-gradient(90deg, transparent, rgba(${chapter.glowRgb},0.25), transparent)` }}
+                  />
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* ═══ RIGHT: Sticky Plan Panel ═══ */}
-        <div className="mt-8 lg:mt-0">
+        <div className="hidden lg:block">
           <div
-            className="lg:sticky lg:top-6 rounded-2xl p-6 transition-all duration-300"
+            ref={panelRef}
+            className="sticky top-28 rounded-3xl overflow-hidden"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              backdropFilter: 'blur(20px)',
-              border:
-                selectedServiceCount > 0
-                  ? '1px solid rgba(255,255,255,0.12)'
-                  : '1px solid rgba(255,255,255,0.07)',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              maxHeight: 'calc(100vh - 120px)',
+              overflowY: 'auto',
             }}
           >
-            <h3 className="text-white font-bold text-lg mb-5 uppercase tracking-wide">Your Service Wishlist</h3>
-
-            {/* Selected services list */}
-            <div
-              className="border-y py-4 mb-5"
-              style={{ borderColor: 'rgba(255,255,255,0.08)' }}
-            >
-              {(() => {
-                const selected = Object.entries(state.selections).filter(([, seasons]) =>
-                  Object.values(seasons).some(Boolean)
-                );
-                if (selected.length === 0) {
-                  return (
-                    <p className="text-sm text-center py-2" style={{ color: 'rgba(255,255,255,0.30)' }}>
-                      Select services on the left to start building your wishlist.
-                    </p>
-                  );
-                }
-                return (
-                  <div className="space-y-2 py-1">
-                    {selected.map(([serviceId, seasons]) => {
-                      const activeSeasons = (Object.entries(seasons) as [string, boolean][])
-                        .filter(([, active]) => active)
-                        .map(([s]) => s.charAt(0).toUpperCase() + s.slice(1));
-                      const svc = STATIC_SERVICES.find(s => s.id === serviceId) ?? services.find(s => s.id === serviceId);
-                      if (!svc) return null;
-                      return (
-                        <div key={serviceId} className="flex items-start gap-2 text-sm">
-                          <span className="text-base leading-tight">{svc.emoji}</span>
-                          <div className="min-w-0">
-                            <span className="text-white/80 font-medium">{svc.name}</span>
-                            <span className="text-white/40 text-xs ml-1">— {activeSeasons.join(', ')}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
+            {/* Panel header */}
+            <div className="px-6 pt-6 pb-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <p className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: 'rgba(255,255,255,0.30)' }}>
+                Your Plan
+              </p>
+              <h3 className="text-lg font-bold text-white">
+                {selectedServiceCount === 0
+                  ? 'Build Your Year'
+                  : `${selectedServiceCount} Service${selectedServiceCount !== 1 ? 's' : ''} Selected`}
+              </h3>
             </div>
 
-            {/* Mini Calendar */}
-            {selectedServiceCount > 0 && (
-              <div className="mb-5">
-                <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wide">
+            <div className="px-6 py-5">
+              {/* Empty state */}
+              <AnimatePresence mode="wait">
+                {selectedServiceCount === 0 && (
+                  <motion.div
+                    key="empty"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-center py-8"
+                  >
+                    <div className="text-4xl mb-3">🌿</div>
+                    <p className="text-sm" style={{ color: 'rgba(255,255,255,0.30)' }}>
+                      Select services on the left to start building your plan.
+                    </p>
+                  </motion.div>
+                )}
+
+                {/* Selected services list */}
+                {selectedServiceCount > 0 && (
+                  <motion.div
+                    key="selected"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="space-y-4 mb-5"
+                  >
+                    {selectedBySeasonList.map(({ chapter, services: svcs }) => (
+                      <div key={chapter.id}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-base">{chapter.emoji}</span>
+                          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: chapter.color }}>
+                            {chapter.label}
+                          </span>
+                        </div>
+                        <div className="space-y-1 pl-6">
+                          {svcs.map((svc) => (
+                            <div key={svc.id} className="flex items-center justify-between">
+                              <span className="text-sm text-white">{svc.name}</span>
+                              <button
+                                onClick={() =>
+                                  dispatch({ type: 'TOGGLE_SERVICE_SEASON', serviceId: svc.id, season: chapter.id })
+                                }
+                                className="p-0.5 rounded transition-colors hover:text-white"
+                                style={{ color: 'rgba(255,255,255,0.25)' }}
+                                aria-label={`Remove ${svc.name}`}
+                              >
+                                <X size={12} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* 12-Month Calendar */}
+              <div
+                className="rounded-2xl p-4 mb-5"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+              >
+                <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.30)' }}>
                   Your Coverage
                 </p>
-                <div className="grid grid-cols-4 gap-1">
+                <div className="grid grid-cols-4 gap-2">
                   {MONTHS.map((month) => {
-                    const active = monthActiveServices[month] ?? [];
-                    const season = MONTH_TO_SEASON[month];
+                    const dots = monthDots[month] ?? [];
+                    const hasCoverage = dots.length > 0;
                     return (
                       <div
                         key={month}
-                        className="rounded-lg p-1.5 text-center transition-colors duration-200"
+                        className="flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all duration-300"
                         style={{
-                          background:
-                            active.length > 0
-                              ? `${SEASON_COLORS[season]}15`
-                              : 'rgba(255,255,255,0.03)',
-                          border:
-                            active.length > 0
-                              ? `1px solid ${SEASON_COLORS[season]}30`
-                              : '1px solid rgba(255,255,255,0.05)',
+                          background: hasCoverage ? `rgba(${SEASON_CHAPTERS.find(c => c.id === MONTH_TO_SEASON[month])?.glowRgb ?? '255,255,255'},0.06)` : 'transparent',
                         }}
                       >
-                        <div className="text-xs text-gray-400 font-medium">{month}</div>
-                        {active.length > 0 && (
-                          <div className="flex justify-center gap-0.5 mt-1 flex-wrap">
-                            {active.slice(0, 3).map((svc) => (
-                              <span
-                                key={svc.emoji}
-                                className="w-1.5 h-1.5 rounded-full"
-                                style={{ backgroundColor: svc.color }}
-                              />
-                            ))}
-                          </div>
-                        )}
+                        <span className="text-[10px] font-medium" style={{ color: hasCoverage ? 'rgba(255,255,255,0.70)' : 'rgba(255,255,255,0.25)' }}>
+                          {month}
+                        </span>
+                        <div className="flex gap-0.5 flex-wrap justify-center min-h-[8px]">
+                          {dots.map((dot, i) => (
+                            <motion.div
+                              key={`${month}-dot-${i}`}
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              exit={{ scale: 0 }}
+                              className="w-1.5 h-1.5 rounded-full"
+                              style={{ background: dot.color }}
+                            />
+                          ))}
+                        </div>
                       </div>
                     );
                   })}
                 </div>
               </div>
-            )}
 
-            {/* CTA */}
-            <AnimatePresence mode="wait">
-              {!state.showContactForm ? (
-                <motion.div
-                  key="cta"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="space-y-2"
-                >
-                  <button
-                    type="button"
-                    disabled={selectedServiceCount === 0}
-                    onClick={() => dispatch({ type: 'SHOW_CONTACT_FORM' })}
-                    className="w-full relative overflow-hidden rounded-xl py-3.5 px-6 font-bold text-white transition-all duration-200"
-                    style={{
-                      background:
-                        selectedServiceCount > 0
-                          ? 'linear-gradient(135deg, #f59e0b, #d97706)'
-                          : '#1f2937',
-                      boxShadow:
-                        selectedServiceCount > 0 ? '0 0 28px rgba(245,158,11,0.3)' : 'none',
-                      opacity: selectedServiceCount === 0 ? 0.5 : 1,
-                      cursor: selectedServiceCount === 0 ? 'not-allowed' : 'pointer',
-                    }}
+              {/* CTA / Contact Form */}
+              <AnimatePresence mode="wait">
+                {!state.showContactForm ? (
+                  <motion.div
+                    key="cta"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
                   >
-                    {/* Shimmer overlay */}
-                    {selectedServiceCount > 0 && (
-                      <motion.div
-                        className="absolute inset-0 pointer-events-none"
-                        style={{
-                          background:
-                            'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%)',
-                        }}
-                        animate={{ x: ['-100%', '200%'] }}
-                        transition={{
-                          duration: 2.5,
-                          repeat: Infinity,
-                          repeatDelay: 1.5,
-                          ease: 'linear',
-                        }}
-                      />
-                    )}
-                    <span className="relative">Get My Custom Quote</span>
-                  </button>
-                  <p className="text-center text-xs mt-2" style={{ color: 'rgba(255,255,255,0.30)' }}>
-                    We&apos;ll reach out to discuss your property and get you scheduled.
-                  </p>
-                </motion.div>
-              ) : (
-                <motion.form
-                  key="form"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  onSubmit={handleSubmit}
-                  className="space-y-3 overflow-hidden"
-                >
-                  <div className="grid grid-cols-2 gap-2">
-                    {(['firstName', 'lastName'] as const).map((field, i) => (
-                      <input
-                        key={field}
-                        type="text"
-                        required
-                        placeholder={i === 0 ? 'First name' : 'Last name'}
-                        value={state.contactForm[field]}
-                        onChange={(e) =>
-                          dispatch({ type: 'UPDATE_CONTACT', field, value: e.target.value })
-                        }
-                        className="rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none transition-colors"
-                        style={{
-                          background: 'rgba(255,255,255,0.06)',
-                          border: '1px solid rgba(255,255,255,0.1)',
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <input
-                    type="email"
-                    required
-                    placeholder="Email"
-                    value={state.contactForm.email}
-                    onChange={(e) =>
-                      dispatch({ type: 'UPDATE_CONTACT', field: 'email', value: e.target.value })
-                    }
-                    className="w-full rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none transition-colors"
-                    style={{
-                      background: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  />
-                  <input
-                    type="tel"
-                    required
-                    placeholder="Phone"
-                    value={state.contactForm.phone}
-                    onChange={(e) =>
-                      dispatch({ type: 'UPDATE_CONTACT', field: 'phone', value: e.target.value })
-                    }
-                    className="w-full rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none transition-colors"
-                    style={{
-                      background: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  />
-                  <input
-                    type="text"
-                    required
-                    placeholder="Property Address"
-                    value={state.contactForm.address}
-                    onChange={(e) =>
-                      dispatch({ type: 'UPDATE_CONTACT', field: 'address', value: e.target.value })
-                    }
-                    className="w-full rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none transition-colors"
-                    style={{
-                      background: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  />
-                  <div className="flex gap-2">
                     <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="flex-1 py-3 rounded-xl font-bold text-white text-sm transition-all duration-200 disabled:opacity-50"
+                      onClick={() => {
+                        if (selectedServiceCount > 0) dispatch({ type: 'SHOW_CONTACT_FORM' });
+                      }}
+                      disabled={selectedServiceCount === 0}
+                      className="w-full py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-[1.02] hover:shadow-lg"
                       style={{
-                        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                        boxShadow: '0 0 20px rgba(245,158,11,0.25)',
+                        background: selectedServiceCount > 0
+                          ? 'linear-gradient(135deg, #f59e0b, #d97706)'
+                          : 'rgba(255,255,255,0.08)',
+                        boxShadow: selectedServiceCount > 0 ? '0 0 24px rgba(245,158,11,0.30)' : 'none',
                       }}
                     >
-                      {isSubmitting ? 'Submitting\u2026' : 'Get My Custom Quote'}
+                      Get My Custom Quote →
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => dispatch({ type: 'HIDE_CONTACT_FORM' })}
-                      className="px-4 py-3 rounded-xl text-gray-500 hover:text-gray-300 transition-colors text-sm"
-                      style={{ border: '1px solid rgba(255,255,255,0.08)' }}
-                    >
-                      &#x2715;
-                    </button>
-                  </div>
-                  {submitError && (
-                    <p className="text-red-400 text-xs text-center" role="alert">
-                      {submitError}
-                    </p>
-                  )}
-                </motion.form>
-              )}
-            </AnimatePresence>
+                    {selectedServiceCount === 0 && (
+                      <p className="text-center text-xs mt-2" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                        Add services to continue
+                      </p>
+                    )}
+                    {selectedServiceCount > 0 && (
+                      <p className="text-center text-xs mt-3" style={{ color: 'rgba(255,255,255,0.30)' }}>
+                        We&apos;ll reach out to discuss your property and get you scheduled.
+                      </p>
+                    )}
+                  </motion.div>
+                ) : (
+                  <motion.form
+                    key="form"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    onSubmit={handleSubmit}
+                    className="space-y-3"
+                  >
+                    <div className="grid grid-cols-2 gap-2">
+                      {(['firstName', 'lastName'] as const).map((field) => (
+                        <input
+                          key={field}
+                          type="text"
+                          required
+                          value={state.contactForm[field]}
+                          onChange={(e) => dispatch({ type: 'UPDATE_CONTACT', field, value: e.target.value })}
+                          placeholder={field === 'firstName' ? 'First Name' : 'Last Name'}
+                          className="w-full rounded-xl px-3 py-3 text-sm text-white outline-none transition-all"
+                          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)' }}
+                          onFocus={(e) => { e.currentTarget.style.border = '1px solid rgba(34,197,94,0.40)'; }}
+                          onBlur={(e) => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.10)'; }}
+                        />
+                      ))}
+                    </div>
+                    {(['email', 'phone', 'address'] as const).map((field) => (
+                      <input
+                        key={field}
+                        type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
+                        required
+                        value={state.contactForm[field]}
+                        onChange={(e) => dispatch({ type: 'UPDATE_CONTACT', field, value: e.target.value })}
+                        placeholder={field === 'email' ? 'Email' : field === 'phone' ? 'Phone' : 'Property Address'}
+                        className="w-full rounded-xl px-3 py-3 text-sm text-white outline-none transition-all"
+                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)' }}
+                        onFocus={(e) => { e.currentTarget.style.border = '1px solid rgba(34,197,94,0.40)'; }}
+                        onBlur={(e) => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.10)'; }}
+                      />
+                    ))}
 
-            {/* Trust micro-line */}
-            <p className="text-center text-gray-600 text-xs mt-4">
-              80+ Madison families &middot; 4.9&#x2605; Google &middot; Fully insured
-            </p>
+                    {submitError && (
+                      <p className="text-red-400 text-xs text-center" role="alert">{submitError}</p>
+                    )}
+
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex-1 py-3 rounded-xl font-bold text-white text-sm transition-all duration-200 disabled:opacity-50 hover:scale-[1.02]"
+                        style={{
+                          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                          boxShadow: '0 0 20px rgba(245,158,11,0.25)',
+                        }}
+                      >
+                        {isSubmitting ? 'Sending...' : 'Get My Custom Quote'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => dispatch({ type: 'HIDE_CONTACT_FORM' })}
+                        className="px-4 py-3 rounded-xl transition-colors text-sm hover:text-white"
+                        style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.40)' }}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+
+              {/* Trust strip */}
+              <div className="flex items-center justify-center gap-3 mt-5 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                {['80+ Madison families', '4.9★ Google', 'Fully insured'].map((item) => (
+                  <span key={item} className="text-[10px]" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ═══ Mobile Sticky Bottom Bar ═══ */}
+      {/* ═══ MOBILE: Floating Plan Bar ═══ */}
       <AnimatePresence>
-        {selectedServiceCount > 0 && !state.showContactForm && (
+        {selectedServiceCount > 0 && (
           <motion.div
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="lg:hidden fixed bottom-0 inset-x-0 z-50 px-4 pb-4 pt-3"
-            style={{
-              background:
-                'linear-gradient(to top, rgba(5,13,7,0.98) 60%, transparent)',
-            }}
+            className="fixed bottom-0 left-0 right-0 z-50 lg:hidden px-4 pb-safe"
           >
             <div
-              className="rounded-2xl p-4 flex items-center justify-between gap-4"
+              className="rounded-2xl p-4 mb-4 flex items-center justify-between gap-4"
               style={{
-                background: 'rgba(20,30,22,0.95)',
-                border: '1px solid rgba(245,158,11,0.2)',
+                background: 'rgba(5,13,7,0.95)',
+                border: '1px solid rgba(255,255,255,0.12)',
                 backdropFilter: 'blur(16px)',
+                boxShadow: '0 -8px 40px rgba(0,0,0,0.5)',
               }}
             >
               <div>
-                <div className="text-white font-bold text-base">
+                <p className="text-xs font-semibold text-white">
                   {selectedServiceCount} service{selectedServiceCount !== 1 ? 's' : ''} selected
-                </div>
-                <div className="text-amber-400 text-xs font-medium">
-                  Ready for a custom quote
-                </div>
+                </p>
+                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.40)' }}>
+                  We&apos;ll build your custom quote
+                </p>
               </div>
               <button
-                type="button"
-                onClick={() => {
-                  dispatch({ type: 'SHOW_CONTACT_FORM' });
-                  document.getElementById('configurator')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="relative overflow-hidden rounded-xl py-3 px-6 font-bold text-white text-sm flex-shrink-0"
+                onClick={() => dispatch({ type: 'SHOW_CONTACT_FORM' })}
+                className="shrink-0 rounded-xl px-5 py-2.5 text-sm font-bold text-white"
                 style={{
                   background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                  boxShadow: '0 0 20px rgba(245,158,11,0.3)',
+                  boxShadow: '0 0 20px rgba(245,158,11,0.30)',
                 }}
               >
-                Get My Custom Quote
+                Get Quote →
               </button>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile contact form sheet */}
+      <AnimatePresence>
+        {state.showContactForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-end justify-center lg:hidden"
+            style={{ background: 'rgba(0,0,0,0.80)' }}
+            onClick={(e) => { if (e.target === e.currentTarget) dispatch({ type: 'HIDE_CONTACT_FORM' }); }}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="w-full rounded-t-3xl p-6"
+              style={{ background: '#050d07', border: '1px solid rgba(255,255,255,0.10)' }}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h3 className="text-lg font-bold text-white">Get Your Quote</h3>
+                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.40)' }}>
+                    {selectedServiceCount} service{selectedServiceCount !== 1 ? 's' : ''} selected
+                  </p>
+                </div>
+                <button
+                  onClick={() => dispatch({ type: 'HIDE_CONTACT_FORM' })}
+                  className="p-2 rounded-full"
+                  style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.50)' }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  {(['firstName', 'lastName'] as const).map((field) => (
+                    <input
+                      key={field}
+                      type="text"
+                      required
+                      value={state.contactForm[field]}
+                      onChange={(e) => dispatch({ type: 'UPDATE_CONTACT', field, value: e.target.value })}
+                      placeholder={field === 'firstName' ? 'First' : 'Last'}
+                      className="w-full rounded-xl px-3 py-3 text-sm text-white outline-none"
+                      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)' }}
+                    />
+                  ))}
+                </div>
+                {(['email', 'phone', 'address'] as const).map((field) => (
+                  <input
+                    key={field}
+                    type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
+                    required
+                    value={state.contactForm[field]}
+                    onChange={(e) => dispatch({ type: 'UPDATE_CONTACT', field, value: e.target.value })}
+                    placeholder={field === 'email' ? 'Email' : field === 'phone' ? 'Phone' : 'Property Address'}
+                    className="w-full rounded-xl px-3 py-3 text-sm text-white outline-none"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)' }}
+                  />
+                ))}
+                {submitError && (
+                  <p className="text-red-400 text-xs text-center" role="alert">{submitError}</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-4 rounded-xl font-bold text-sm text-white disabled:opacity-50"
+                  style={{
+                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    boxShadow: '0 0 24px rgba(245,158,11,0.30)',
+                  }}
+                >
+                  {isSubmitting ? 'Sending...' : 'Get My Custom Quote →'}
+                </button>
+              </form>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
