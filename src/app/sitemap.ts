@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
+import { getCityServiceParams } from '@/data/cityServiceConfig';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://tgyardcare.com';
@@ -58,13 +59,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: now,
   }));
 
-  const cityServicePages: MetadataRoute.Sitemap = [
-    'lawn-care-madison-wi', 'lawn-care-middleton-wi',
-    'gutter-cleaning-madison-wi', 'snow-removal-madison-wi',
-  ].map(slug => ({
-    url: `${baseUrl}/${slug}`,
+  // Linkable asset pages (Phase 10 Plan 04)
+  const linkableAssets: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/lawn-care-costs-dane-county`,
+      changeFrequency: 'yearly' as const,
+      priority: 0.7,
+      lastModified: now,
+    },
+    {
+      url: `${baseUrl}/seasonal-lawn-calendar-madison`,
+      changeFrequency: 'yearly' as const,
+      priority: 0.7,
+      lastModified: now,
+    },
+  ];
+
+  // 96 city-service pages (8 services × 12 cities) — Phase 10 SEO Dominance Engine
+  const cityServicePages: MetadataRoute.Sitemap = getCityServiceParams().map(({ cityService }) => ({
+    url: `${baseUrl}/${cityService}`,
     changeFrequency: 'monthly' as const,
-    priority: 0.8,
+    priority: 0.85,
     lastModified: now,
   }));
 
@@ -150,6 +165,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...servicePages,
     ...commercialPages,
     ...locationPages,
+    ...linkableAssets,
     ...cityServicePages,
     ...blogPages,
     ...blogCategoryPages,
