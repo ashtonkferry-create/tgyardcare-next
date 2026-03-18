@@ -203,12 +203,12 @@ export default function SeasonalLawnCalendarMadison() {
             }}
           />
           <div className="relative z-10 max-w-3xl mx-auto">
-            <p className="text-sm font-medium mb-4" style={{ color: '#22c55e' }}>
+            <p className="text-sm font-medium mb-4" style={{ color: '#a7f3d0' }}>
               Updated for 2026 &nbsp;·&nbsp; TotalGuard Yard Care
             </p>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-6">
               The Complete{' '}
-              <span style={{ color: '#22c55e' }}>Madison Lawn Care</span>{' '}
+              <span style={{ color: '#a7f3d0' }}>Madison Lawn Care</span>{' '}
               Calendar (Month-by-Month)
             </h1>
             <p className="text-lg" style={{ color: '#8888a0' }}>

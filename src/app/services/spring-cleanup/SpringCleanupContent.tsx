@@ -542,7 +542,7 @@ export default function SpringCleanupContent() {
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(34,197,94,0.1)', color: 'rgba(255,255,255,0.65)' }}
               >
                 {city.name}
-                <span style={{ color: '#22c55e' }} className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                <span style={{ color: '#a7f3d0' }} className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
               </Link>
             ))}
           </div>

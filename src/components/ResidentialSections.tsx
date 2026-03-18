@@ -43,7 +43,7 @@ export interface ResidentialExpectationsSectionProps {
 // ===============================
 
 const seasonalCheckColor = {
-  summer: 'text-emerald-500',
+  summer: 'text-emerald-200',
   fall: 'text-amber-500',
   winter: 'text-cyan-400',
 } as const;

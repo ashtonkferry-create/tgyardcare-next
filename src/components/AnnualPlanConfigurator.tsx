@@ -29,7 +29,7 @@ const SEASON_CHAPTERS: {
   {
     id: 'spring', label: 'Spring', emoji: '🌸', months: 'Mar · Apr · May',
     tagline: 'Wake your lawn up right.',
-    color: '#22c55e', dimColor: 'rgba(34,197,94,0.12)', glowRgb: '34,197,94',
+    color: '#a7f3d0', dimColor: 'rgba(167,243,208,0.12)', glowRgb: '167,243,208',
     particles: [
       { left: '5%', top: '20%', size: 3, opacity: 0.30, duration: 5.5, delay: 0 },
       { left: '15%', top: '65%', size: 2, opacity: 0.20, duration: 7.0, delay: 1.2 },
@@ -321,7 +321,7 @@ export default function AnnualPlanConfigurator() {
             className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
             style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.35)' }}
           >
-            <Check size={32} style={{ color: '#22c55e' }} />
+            <Check size={32} style={{ color: '#a7f3d0' }} />
           </motion.div>
           <h3 className="text-3xl font-bold text-white mb-3">Plan Received!</h3>
           <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.50)' }}>

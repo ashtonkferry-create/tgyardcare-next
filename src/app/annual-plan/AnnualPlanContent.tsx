@@ -123,7 +123,7 @@ export default function AnnualPlanContent() {
                 style={{
                   background: 'rgba(34,197,94,0.08)',
                   border: '1px solid rgba(34,197,94,0.25)',
-                  color: '#4ade80',
+                  color: '#a7f3d0',
                 }}
               >
                 Custom Annual Lawn Care
@@ -181,7 +181,7 @@ export default function AnnualPlanContent() {
             <motion.a
               href="#configurator"
               className="inline-flex items-center gap-2 text-sm font-semibold transition-all duration-200"
-              style={{ color: '#4ade80' }}
+              style={{ color: '#a7f3d0' }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.5 }}
@@ -204,7 +204,7 @@ export default function AnnualPlanContent() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto">
             {[
-              { emoji: '🌸', label: 'Spring', months: 'Mar–May', color: '#22c55e', glow: '34,197,94' },
+              { emoji: '🌸', label: 'Spring', months: 'Mar–May', color: '#a7f3d0', glow: '34,197,94' },
               { emoji: '☀️', label: 'Summer', months: 'Jun–Aug', color: '#eab308', glow: '234,179,8' },
               { emoji: '🍂', label: 'Fall',   months: 'Sep–Nov', color: '#f97316', glow: '249,115,22' },
               { emoji: '❄️', label: 'Winter', months: 'Dec–Feb', color: '#38bdf8', glow: '56,189,248' },

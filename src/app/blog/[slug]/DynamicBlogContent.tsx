@@ -27,7 +27,7 @@ interface DynamicBlogContentProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'seasonal-tips': 'bg-emerald-500/10 text-emerald-400',
+  'seasonal-tips': 'bg-emerald-500/10 text-emerald-200',
   'service-guides': 'bg-blue-500/10 text-blue-400',
   'local-guides': 'bg-amber-500/10 text-amber-400',
   'how-to': 'bg-violet-500/10 text-violet-400',

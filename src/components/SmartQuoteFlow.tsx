@@ -472,7 +472,7 @@ export default function SmartQuoteFlow({
                               className="w-14 h-14 rounded-full flex items-center justify-center"
                               style={{ background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.30)' }}
                             >
-                              <MapPin size={20} style={{ color: '#22c55e' }} />
+                              <MapPin size={20} style={{ color: '#a7f3d0' }} />
                             </div>
                           </div>
                           <div className="text-center">
@@ -528,7 +528,7 @@ export default function SmartQuoteFlow({
                                 className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5"
                                 style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.30)' }}
                               >
-                                <Check size={14} style={{ color: '#22c55e' }} />
+                                <Check size={14} style={{ color: '#a7f3d0' }} />
                               </div>
                               <div>
                                 <p className="text-white font-semibold text-sm leading-snug">{state.address}</p>
@@ -543,7 +543,7 @@ export default function SmartQuoteFlow({
                                 </div>
                                 <div className="flex items-center justify-between text-sm mb-4" style={{ color: 'rgba(255,255,255,0.55)' }}>
                                   <span>Est. turf area</span>
-                                  <span className="font-medium" style={{ color: '#4ade80' }}>~{(state.turfAreaSqft ?? 0).toLocaleString()} sq ft</span>
+                                  <span className="font-medium" style={{ color: '#a7f3d0' }}>~{(state.turfAreaSqft ?? 0).toLocaleString()} sq ft</span>
                                 </div>
                                 <button
                                   onClick={() => setState((s) => ({ ...s, editingSize: true, manualSqft: String(s.lotSizeSqft ?? '') }))}
@@ -608,7 +608,7 @@ export default function SmartQuoteFlow({
                               We&apos;ll subtract ~800 sq ft for your home&apos;s footprint.
                             </p>
                             {state.manualSqft && parseInt(state.manualSqft, 10) > 800 && (
-                              <p className="text-xs mt-1" style={{ color: '#4ade80' }}>
+                              <p className="text-xs mt-1" style={{ color: '#a7f3d0' }}>
                                 Est. turf area: ~{(parseInt(state.manualSqft, 10) - 800).toLocaleString()} sq ft
                               </p>
                             )}
@@ -639,7 +639,7 @@ export default function SmartQuoteFlow({
                   {state.step === 3 && questions.length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,197,94,0.10)', color: '#4ade80' }}>
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,243,208,0.10)', color: '#a7f3d0' }}>
                           Question {state.currentQuestionIndex + 1} of {questions.length}
                         </span>
                       </div>
@@ -794,7 +794,7 @@ export default function SmartQuoteFlow({
                             animate={{ scale: 1 }}
                             transition={{ delay: 0.3, type: 'spring', stiffness: 300 }}
                           >
-                            <Check size={32} style={{ color: '#22c55e' }} />
+                            <Check size={32} style={{ color: '#a7f3d0' }} />
                           </motion.div>
                         </div>
                       </motion.div>

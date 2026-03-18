@@ -182,7 +182,7 @@ export function FullSeasonContract() {
                 background:
                   "linear-gradient(135deg, rgba(34,197,94,0.15), rgba(74,222,128,0.08))",
                 border: "1px solid rgba(34,197,94,0.4)",
-                color: "#22c55e",
+                color: "#a7f3d0",
               }}
             >
               <Crown className="h-4 w-4" />
@@ -439,12 +439,12 @@ export function FullSeasonContract() {
                   >
                     <StatIcon
                       className="h-6 w-6"
-                      style={{ color: "#22c55e" }}
+                      style={{ color: "#a7f3d0" }}
                     />
                   </div>
                   <div
                     className="text-4xl md:text-5xl font-bold mb-2"
-                    style={{ color: "#4ade80" }}
+                    style={{ color: "#a7f3d0" }}
                   >
                     <AnimatedCounter
                       end={stat.value}
@@ -514,7 +514,7 @@ export function FullSeasonContract() {
               <Link
                 href="/annual-plan"
                 className="inline-flex items-center gap-2 text-sm font-medium transition-all duration-200 hover:gap-3"
-                style={{ color: 'rgba(34,197,94,0.65)' }}
+                style={{ color: 'rgba(167,243,208,0.75)' }}
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 Or build your own custom plan

@@ -55,14 +55,14 @@ export default async function ReferralLandingPage({ params }: Props) {
           {/* $50 badge */}
           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-8"
             style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)' }}>
-            <span style={{ color: '#22c55e', fontSize: '20px' }}>&#x2726;</span>
-            <span className="text-sm font-bold" style={{ color: '#4ade80' }}>$50 OFF Your First Service</span>
+            <span style={{ color: '#a7f3d0', fontSize: '20px' }}>&#x2726;</span>
+            <span className="text-sm font-bold" style={{ color: '#d1fae5' }}>$50 OFF Your First Service</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
             style={{ fontFamily: 'var(--font-display)' }}>
             {firstName} thinks you deserve{' '}
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #4ade80, #22c55e)' }}>
+            <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #d1fae5, #a7f3d0)' }}>
               a perfect yard.
             </span>
           </h1>
@@ -113,7 +113,7 @@ export default async function ReferralLandingPage({ params }: Props) {
               { stat: '100%', label: 'Satisfaction Guarantee' },
             ].map(item => (
               <div key={item.label}>
-                <p className="text-4xl font-bold mb-1" style={{ fontFamily: 'var(--font-display)', color: '#22c55e' }}>{item.stat}</p>
+                <p className="text-4xl font-bold mb-1" style={{ fontFamily: 'var(--font-display)', color: '#a7f3d0' }}>{item.stat}</p>
                 <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>{item.label}</p>
               </div>
             ))}

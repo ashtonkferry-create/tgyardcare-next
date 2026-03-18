@@ -39,7 +39,7 @@ function imgSrc(img: string | { src: string }): string {
 }
 
 const seasonalAccent = {
-  summer: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', solid: '#10b981' },
+  summer: { text: 'text-emerald-200', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', solid: '#10b981' },
   fall:   { text: 'text-amber-400',   bg: 'bg-amber-500/10',   border: 'border-amber-500/30',   solid: '#f59e0b' },
   winter: { text: 'text-cyan-400',    bg: 'bg-cyan-500/10',    border: 'border-cyan-500/30',    solid: '#06b6d4' },
 } as const;
@@ -362,7 +362,7 @@ export default function ServicesContent() {
           <Link
             href="/annual-plan"
             className="flex-shrink-0 inline-flex items-center gap-2 text-sm font-semibold transition-all duration-200 hover:gap-3 whitespace-nowrap"
-            style={{ color: '#4ade80' }}
+            style={{ color: '#a7f3d0' }}
           >
             Build your custom plan →
           </Link>

@@ -17,7 +17,7 @@ const SEASON_CONFIG = {
     headline: "It's Spring in Madison — cleanup, aeration & fertilization time",
     cta: 'Spring Cleanup',
     href: '/services/spring-cleanup',
-    color: '#22c55e',
+    color: '#a7f3d0',
     bgRgb: '34,197,94',
   },
   summer: {

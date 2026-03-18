@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 const SEASONAL_TIPS = {
   spring: {
-    color: '#22c55e',
+    color: '#a7f3d0',
     months: 'March - May',
     emoji: '🌸',
     tips: [
@@ -268,10 +268,10 @@ export default function LawnCareGuidePage() {
         <div className="container mx-auto px-4 max-w-4xl relative z-10">
           <div
             className="flex items-center gap-2 mb-4 text-xs font-semibold uppercase tracking-widest"
-            style={{ color: '#22c55e' }}
+            style={{ color: '#a7f3d0' }}
           >
             <span>TotalGuard Yard Care</span>
-            <span style={{ color: 'rgba(34,197,94,0.4)' }}>›</span>
+            <span style={{ color: 'rgba(167,243,208,0.5)' }}>›</span>
             <span>Madison Lawn Care Guide</span>
           </div>
 
@@ -435,8 +435,8 @@ export default function LawnCareGuidePage() {
                       <span
                         className="text-[10px] ml-1 px-1.5 py-0.5 rounded-full"
                         style={{
-                          background: 'rgba(34,197,94,0.2)',
-                          color: '#22c55e',
+                          background: 'rgba(167,243,208,0.15)',
+                          color: '#a7f3d0',
                         }}
                       >
                         Now

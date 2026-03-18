@@ -274,7 +274,7 @@ export function QuoteFlow({ initialService, initialTier, onComplete, className =
             {formData.address && (
               <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4">
                 <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-emerald-500 mt-0.5 shrink-0" />
+                  <MapPin className="h-5 w-5 text-emerald-200 mt-0.5 shrink-0" />
                   <div className="text-sm">
                     <div className="font-medium text-[#f0f0f5]">{formData.address}</div>
                     {formData.city && (

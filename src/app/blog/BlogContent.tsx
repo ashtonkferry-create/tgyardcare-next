@@ -53,7 +53,7 @@ const CATEGORY_COLORS: Record<string, { bg: string; border: string; text: string
   'local-guides': { bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.3)', text: '#f59e0b' },
   'how-to': { bg: 'rgba(139,92,246,0.1)', border: 'rgba(139,92,246,0.3)', text: '#8b5cf6' },
   'faq-answers': { bg: 'rgba(6,182,212,0.1)', border: 'rgba(6,182,212,0.3)', text: '#06b6d4' },
-  'lawn-care': { bg: 'rgba(34,197,94,0.1)', border: 'rgba(34,197,94,0.3)', text: '#22c55e' },
+  'lawn-care': { bg: 'rgba(34,197,94,0.1)', border: 'rgba(34,197,94,0.3)', text: '#a7f3d0' },
 };
 
 function getCategoryIcon(category: string) {
@@ -171,7 +171,7 @@ export default function BlogContent() {
           <div className="flex items-center justify-center gap-3 mb-6">
             <span
               className="inline-block px-4 py-1.5 rounded-full text-sm font-medium"
-              style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}
+              style={{ background: 'rgba(34,197,94,0.1)', color: '#a7f3d0' }}
             >
               Expert Insights
             </span>
@@ -271,7 +271,7 @@ export default function BlogContent() {
                 <button
                   onClick={() => setCategory('all')}
                   className="mt-4 text-sm font-medium"
-                  style={{ color: '#22c55e' }}
+                  style={{ color: '#a7f3d0' }}
                 >
                   View all posts →
                 </button>
@@ -341,7 +341,7 @@ export default function BlogContent() {
                           className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
                           style={{
                             background: 'rgba(34,197,94,0.08)',
-                            color: '#22c55e',
+                            color: '#a7f3d0',
                           }}
                         >
                           {getPostIcon(post.slug)}
@@ -373,7 +373,7 @@ export default function BlogContent() {
                               year: 'numeric',
                             })}
                           </span>
-                          <span className="inline-flex items-center text-xs font-semibold group-hover:gap-2 transition-all" style={{ color: '#22c55e' }}>
+                          <span className="inline-flex items-center text-xs font-semibold group-hover:gap-2 transition-all" style={{ color: '#a7f3d0' }}>
                             Read <ArrowRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
                           </span>
                         </div>
@@ -436,7 +436,7 @@ export default function BlogContent() {
                           page === currentPage
                             ? '1px solid rgba(34,197,94,0.3)'
                             : '1px solid rgba(255,255,255,0.08)',
-                        color: page === currentPage ? '#22c55e' : 'rgba(255,255,255,0.5)',
+                        color: page === currentPage ? '#a7f3d0' : 'rgba(255,255,255,0.5)',
                       }}
                     >
                       {page}

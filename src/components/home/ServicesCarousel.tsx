@@ -270,7 +270,7 @@ export function ServicesCarousel() {
           >
             <Home className="h-4 w-4 text-emerald-400" />
             Residential Services
-            <ArrowRight className="h-3.5 w-3.5 text-emerald-500/50 group-hover:text-emerald-300 group-hover:translate-x-0.5 transition-all" />
+            <ArrowRight className="h-3.5 w-3.5 text-white/35 group-hover:text-emerald-300 group-hover:translate-x-0.5 transition-all" />
           </Link>
 
           <Link
@@ -279,25 +279,25 @@ export function ServicesCarousel() {
           >
             <Package className="h-4 w-4 text-emerald-300" />
             Commercial Services
-            <ArrowRight className="h-3.5 w-3.5 text-emerald-400/60 group-hover:text-emerald-300 group-hover:translate-x-0.5 transition-all" />
+            <ArrowRight className="h-3.5 w-3.5 text-white/40 group-hover:text-emerald-300 group-hover:translate-x-0.5 transition-all" />
           </Link>
         </div>
 
         {/* Micro-trust line */}
         <div className="mt-6 flex justify-center">
-          <div className="flex items-center gap-4 text-xs text-emerald-300/40">
+          <div className="flex items-center gap-4 text-xs text-white/35">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-3 w-3 text-emerald-500/60" />
+              <CheckCircle2 className="h-3 w-3 text-white/40" />
               Free Estimates
             </span>
-            <span className="w-1 h-1 bg-emerald-500/30 rounded-full" />
+            <span className="w-1 h-1 bg-white/20 rounded-full" />
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-3 w-3 text-emerald-500/60" />
+              <CheckCircle2 className="h-3 w-3 text-white/40" />
               Same-Day Response
             </span>
-            <span className="w-1 h-1 bg-emerald-500/30 rounded-full" />
+            <span className="w-1 h-1 bg-white/20 rounded-full" />
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-3 w-3 text-emerald-500/60" />
+              <CheckCircle2 className="h-3 w-3 text-white/40" />
               Fully Insured
             </span>
           </div>

@@ -38,7 +38,7 @@ export function ComparisonTable() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <p className="text-emerald-400/80 text-sm font-medium tracking-widest uppercase mb-3">
+            <p className="text-white/60 text-sm font-medium tracking-widest uppercase mb-3">
               Why TotalGuard
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -60,7 +60,7 @@ export function ComparisonTable() {
                 Feature
               </div>
               <div className="px-4 md:px-6 py-4 text-center">
-                <span className="text-emerald-400 text-xs md:text-sm font-bold uppercase tracking-wider">
+                <span className="text-emerald-200 text-xs md:text-sm font-bold uppercase tracking-wider">
                   TotalGuard
                 </span>
               </div>
@@ -81,14 +81,14 @@ export function ComparisonTable() {
                 >
                   {/* Feature name */}
                   <div className="flex items-center gap-2.5 px-4 md:px-6 py-4">
-                    <Icon className="w-4 h-4 text-emerald-500/60 flex-shrink-0 hidden sm:block" />
+                    <Icon className="w-4 h-4 text-white/35 flex-shrink-0 hidden sm:block" />
                     <span className="text-white/80 text-sm font-medium">{row.feature}</span>
                   </div>
 
                   {/* TotalGuard value */}
                   <div className="flex items-center justify-center gap-2 px-3 md:px-6 py-4">
-                    <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                    <span className="text-emerald-300/90 text-xs md:text-sm font-medium">{row.us}</span>
+                    <Check className="w-4 h-4 text-emerald-300 flex-shrink-0" />
+                    <span className="text-white/90 text-xs md:text-sm font-medium">{row.us}</span>
                   </div>
 
                   {/* Competitor value */}

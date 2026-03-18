@@ -121,7 +121,7 @@ export default async function CityServicePage({ params }: Props) {
             <span className="text-white">{service.name}</span>
           </nav>
 
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-semibold" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', color: '#4ade80' }}>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-semibold" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', color: '#a7f3d0' }}>
             <span>{service.emoji}</span>
             Serving {city.name}, WI
           </div>
@@ -176,7 +176,7 @@ export default async function CityServicePage({ params }: Props) {
             {city.yardChallenges.map((challenge, i) => (
               <div key={i} className="flex items-start gap-4 p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(34,197,94,0.08)' }}>
                 <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)' }}>
-                  <span style={{ color: '#22c55e', fontSize: '16px' }}>{'\u2713'}</span>
+                  <span style={{ color: '#a7f3d0', fontSize: '16px' }}>{'\u2713'}</span>
                 </div>
                 <p className="text-sm" style={{ color: 'rgba(255,255,255,0.65)' }}>{challenge} &mdash; our team trains specifically for this.</p>
               </div>
@@ -221,14 +221,14 @@ export default async function CityServicePage({ params }: Props) {
               <ul className="space-y-3">
                 {service.included.map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span className="mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs" style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e' }}>{'\u2713'}</span>
+                    <span className="mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs" style={{ background: 'rgba(34,197,94,0.12)', color: '#a7f3d0' }}>{'\u2713'}</span>
                     <span className="text-sm" style={{ color: 'rgba(255,255,255,0.65)' }}>{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
             <div className="rounded-2xl p-8" style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)' }}>
-              <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#22c55e' }}>Pricing</p>
+              <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#a7f3d0' }}>Pricing</p>
               <p className="text-4xl font-bold text-white mb-1" style={{ fontFamily: 'var(--font-display)' }}>
                 From ${service.startingPrice}
               </p>
@@ -236,7 +236,7 @@ export default async function CityServicePage({ params }: Props) {
               <p className="text-xs mb-6" style={{ color: 'rgba(255,255,255,0.35)' }}>
                 Pricing varies by lot size in {city.name}. Small lots may qualify for lower rates. Large or complex properties receive custom pricing.
               </p>
-              <p className="text-sm font-medium text-white mb-2">Schedule: <span style={{ color: '#4ade80' }}>{service.seasonality}</span></p>
+              <p className="text-sm font-medium text-white mb-2">Schedule: <span style={{ color: '#a7f3d0' }}>{service.seasonality}</span></p>
               <Link href="/get-quote"
                 className="block text-center py-3 rounded-xl text-sm font-bold mt-6 transition-all duration-200"
                 style={{ background: '#22c55e', color: '#052e16' }}>
@@ -262,7 +262,7 @@ export default async function CityServicePage({ params }: Props) {
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)' }}
               >
                 {nearbyCity.name}
-                <span className="transition-transform group-hover:translate-x-1" style={{ color: '#22c55e' }}>&rarr;</span>
+                <span className="transition-transform group-hover:translate-x-1" style={{ color: '#a7f3d0' }}>&rarr;</span>
               </Link>
             ))}
           </div>
@@ -311,7 +311,7 @@ export default async function CityServicePage({ params }: Props) {
       {/* FINAL CTA */}
       <section className="py-20 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(34,197,94,0.03)' }}>
         <div className="container mx-auto px-4 max-w-2xl text-center">
-          <p className="text-sm font-semibold mb-4 uppercase tracking-widest" style={{ color: '#22c55e' }}>{service.emoji} Ready to get started?</p>
+          <p className="text-sm font-semibold mb-4 uppercase tracking-widest" style={{ color: '#a7f3d0' }}>{service.emoji} Ready to get started?</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6" style={{ fontFamily: 'var(--font-display)' }}>
             Transform Your {city.name} Yard
           </h2>
