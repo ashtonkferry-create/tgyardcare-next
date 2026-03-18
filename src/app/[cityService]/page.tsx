@@ -110,17 +110,6 @@ export default async function CityServicePage({ params }: Props) {
         </div>
 
         <div className="container mx-auto px-4 max-w-4xl relative z-10">
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-xs mb-8" style={{ color: 'rgba(255,255,255,0.35)' }}>
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <span>&rsaquo;</span>
-            <Link href="/service-areas" className="hover:text-white transition-colors">Service Areas</Link>
-            <span>&rsaquo;</span>
-            <Link href={`/locations/${city.slug}`} className="hover:text-white transition-colors">{city.name}</Link>
-            <span>&rsaquo;</span>
-            <span className="text-white">{service.name}</span>
-          </nav>
-
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-semibold" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', color: '#a7f3d0' }}>
             <span>{service.emoji}</span>
             Serving {city.name}, WI
