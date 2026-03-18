@@ -7,7 +7,7 @@ import { AmbientParticles } from './AmbientParticles';
 import { cn } from '@/lib/utils';
 
 const seasonalBg = {
-  summer: 'from-[#0a1f14] via-[#0f2818] to-[#0a1f14]',
+  summer: 'from-[#052e16] via-[#0f2818] to-[#052e16]',
   fall: 'from-stone-950 via-amber-950/30 to-stone-950',
   winter: 'from-slate-950 via-blue-950/30 to-slate-950',
 } as const;

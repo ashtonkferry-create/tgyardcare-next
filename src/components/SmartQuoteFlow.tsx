@@ -310,7 +310,7 @@ export default function SmartQuoteFlow({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           className="fixed inset-0 z-[9999] overflow-y-auto"
-          style={{ background: '#050d07' }}
+          style={{ background: '#052e16' }}
         >
           {/* Gradient mesh */}
           <div
@@ -425,16 +425,16 @@ export default function SmartQuoteFlow({
                             }))}
                             className="flex flex-col items-center gap-2 p-4 rounded-xl text-center transition-all duration-200 hover:-translate-y-0.5"
                             style={{
-                              background: 'rgba(255,255,255,0.03)',
-                              border: '1px solid rgba(255,255,255,0.08)',
+                              background: 'rgba(255,255,255,0.05)',
+                              border: '1px solid rgba(255,255,255,0.10)',
                             }}
                             onMouseEnter={(e) => {
                               (e.currentTarget as HTMLButtonElement).style.border = '1px solid rgba(34,197,94,0.40)';
                               (e.currentTarget as HTMLButtonElement).style.background = 'rgba(34,197,94,0.04)';
                             }}
                             onMouseLeave={(e) => {
-                              (e.currentTarget as HTMLButtonElement).style.border = '1px solid rgba(255,255,255,0.08)';
-                              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.03)';
+                              (e.currentTarget as HTMLButtonElement).style.border = '1px solid rgba(255,255,255,0.10)';
+                              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.05)';
                             }}
                           >
                             <span className="text-2xl">{svc.emoji}</span>
@@ -517,8 +517,8 @@ export default function SmartQuoteFlow({
                       <div
                         className="rounded-2xl p-6 mb-6"
                         style={{
-                          background: 'rgba(255,255,255,0.03)',
-                          border: '1px solid rgba(255,255,255,0.08)',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.10)',
                         }}
                       >
                         {!state.parcelLookupFailed && state.lotSizeSqft ? (
@@ -626,8 +626,8 @@ export default function SmartQuoteFlow({
                         }}
                         className="w-full rounded-xl px-6 py-4 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.01]"
                         style={{
-                          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                          boxShadow: '0 0 24px rgba(245,158,11,0.25)',
+                          background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                          boxShadow: '0 0 24px rgba(34,197,94,0.25)',
                         }}
                       >
                         Looks Right — Continue →
@@ -659,8 +659,8 @@ export default function SmartQuoteFlow({
                               onClick={() => handleOptionSelect(questions[state.currentQuestionIndex].id, option.value)}
                               className="flex flex-col items-center gap-2 p-4 rounded-xl text-center transition-all duration-200 hover:-translate-y-0.5"
                               style={{
-                                background: isSelected ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.03)',
-                                border: isSelected ? '1px solid rgba(34,197,94,0.50)' : '1px solid rgba(255,255,255,0.08)',
+                                background: isSelected ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.05)',
+                                border: isSelected ? '1px solid rgba(34,197,94,0.50)' : '1px solid rgba(255,255,255,0.10)',
                                 boxShadow: isSelected ? '0 0 16px rgba(34,197,94,0.12)' : 'none',
                               }}
                             >
@@ -765,8 +765,8 @@ export default function SmartQuoteFlow({
                           disabled={state.isSubmitting}
                           className="w-full rounded-xl px-6 py-4 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                           style={{
-                            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                            boxShadow: '0 0 24px rgba(245,158,11,0.25)',
+                            background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                            boxShadow: '0 0 24px rgba(34,197,94,0.25)',
                           }}
                         >
                           {state.isSubmitting ? 'Sending...' : 'Get My Free Quote →'}
@@ -808,8 +808,8 @@ export default function SmartQuoteFlow({
                       <div
                         className="rounded-2xl p-6 mb-8 text-left"
                         style={{
-                          background: 'rgba(255,255,255,0.03)',
-                          border: '1px solid rgba(255,255,255,0.08)',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.10)',
                         }}
                       >
                         <div className="flex items-center gap-2 mb-4">

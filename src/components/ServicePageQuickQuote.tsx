@@ -85,7 +85,7 @@ function Field({
   const borderColor = error
     ? 'rgba(248,113,113,0.40)'
     : focused
-    ? 'rgba(245,158,11,0.40)'
+    ? 'rgba(34,197,94,0.40)'
     : 'rgba(255,255,255,0.10)';
 
   return (
@@ -219,7 +219,7 @@ export default function ServicePageQuickQuote({
 
   return (
     <section
-      style={{ background: '#050d07', paddingTop: '40px', paddingBottom: '56px' }}
+      style={{ background: '#052e16', paddingTop: '40px', paddingBottom: '56px' }}
       className="py-10 md:py-14"
     >
       <div className="container mx-auto px-4">
@@ -277,8 +277,8 @@ export default function ServicePageQuickQuote({
                 exit={{ opacity: 0, y: -16 }}
                 transition={{ duration: 0.35, ease: 'easeOut' }}
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.10)',
                   borderRadius: '16px',
                   padding: '32px',
                 }}
@@ -374,10 +374,10 @@ export default function ServicePageQuickQuote({
                         padding: '14px 24px',
                         borderRadius: '12px',
                         background: isSubmitting
-                          ? 'rgba(245,158,11,0.5)'
-                          : 'linear-gradient(135deg, #f59e0b, #d97706)',
+                          ? 'rgba(34,197,94,0.5)'
+                          : 'linear-gradient(135deg, #22c55e, #16a34a)',
                         border: 'none',
-                        color: 'black',
+                        color: 'white',
                         fontWeight: 700,
                         fontSize: '15px',
                         cursor: isSubmitting ? 'not-allowed' : 'pointer',
@@ -391,7 +391,7 @@ export default function ServicePageQuickQuote({
                       onMouseEnter={(e) => {
                         if (!isSubmitting) {
                           (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                            '0 0 24px rgba(245,158,11,0.30)';
+                            '0 0 24px rgba(34,197,94,0.30)';
                         }
                       }}
                       onMouseLeave={(e) => {

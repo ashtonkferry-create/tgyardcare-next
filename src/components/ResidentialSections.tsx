@@ -49,7 +49,7 @@ const seasonalCheckColor = {
 } as const;
 
 const seasonalSectionBg = {
-  summer: '#0a1a0e',
+  summer: '#0a3520',
   fall: '#1a1000',
   winter: '#060f1a',
 } as const;

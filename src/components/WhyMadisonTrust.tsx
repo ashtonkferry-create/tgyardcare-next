@@ -57,7 +57,7 @@ export function WhyMadisonTrust() {
       {/* Top edge fade */}
       <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[#071a0e] to-transparent" />
       {/* Bottom edge fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#0a1f14] to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#052e16] to-transparent" />
 
       <div className="container mx-auto px-4 relative z-10">
 
@@ -235,7 +235,7 @@ export function WhyMadisonTrust() {
           <Link href="/contact">
             <Button
               size="lg"
-              className="group bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 hover:from-amber-300 hover:via-yellow-200 hover:to-amber-300 text-black font-bold px-10 py-6 text-lg rounded-xl shadow-[0_4px_24px_rgba(245,158,11,0.3)] hover:shadow-[0_6px_32px_rgba(245,158,11,0.45)] transition-all duration-300 hover:scale-[1.03]"
+              className="group bg-gradient-to-r from-green-500 via-emerald-400 to-green-500 hover:from-green-400 hover:via-emerald-300 hover:to-green-400 text-white font-bold px-10 py-6 text-lg rounded-xl shadow-[0_4px_24px_rgba(34,197,94,0.3)] hover:shadow-[0_6px_32px_rgba(34,197,94,0.45)] transition-all duration-300 hover:scale-[1.03]"
             >
               Get My Free Quote
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />

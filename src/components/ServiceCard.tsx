@@ -27,7 +27,7 @@ export default function ServiceCard({ icon: Icon, title, description, path, imag
               height={192}
               sizes="(max-width: 640px) 80vw, (max-width: 1024px) 50vw, 25vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a1f14] via-[#0a1f14]/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#052e16] via-[#052e16]/40 to-transparent" />
             <div className="absolute bottom-3 left-3 bg-emerald-500/20 backdrop-blur-md border border-emerald-400/30 rounded-xl w-12 h-12 flex items-center justify-center shadow-lg shadow-emerald-500/20">
               <Icon className="h-6 w-6 text-emerald-300" />
             </div>

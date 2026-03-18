@@ -168,8 +168,8 @@ function ServiceCard({
       whileTap={{ scale: 0.97 }}
       className="w-full text-left rounded-2xl p-5 transition-all duration-300 relative overflow-hidden"
       style={{
-        background: isSelected ? `rgba(${seasonGlowRgb},0.08)` : 'rgba(255,255,255,0.03)',
-        border: isSelected ? `1px solid rgba(${seasonGlowRgb},0.50)` : '1px solid rgba(255,255,255,0.07)',
+        background: isSelected ? `rgba(${seasonGlowRgb},0.08)` : 'rgba(255,255,255,0.05)',
+        border: isSelected ? `1px solid rgba(${seasonGlowRgb},0.50)` : '1px solid rgba(255,255,255,0.10)',
         boxShadow: isSelected ? `0 0 28px rgba(${seasonGlowRgb},0.15)` : 'none',
       }}
     >
@@ -449,8 +449,8 @@ export default function AnnualPlanConfigurator() {
             ref={panelRef}
             className="sticky top-28 rounded-3xl overflow-hidden"
             style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.10)',
               maxHeight: 'calc(100vh - 120px)',
               overflowY: 'auto',
             }}
@@ -528,7 +528,7 @@ export default function AnnualPlanConfigurator() {
               {/* 12-Month Calendar */}
               <div
                 className="rounded-2xl p-4 mb-5"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)' }}
               >
                 <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.30)' }}>
                   Your Coverage
@@ -583,9 +583,9 @@ export default function AnnualPlanConfigurator() {
                       className="w-full py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-[1.02] hover:shadow-lg"
                       style={{
                         background: selectedServiceCount > 0
-                          ? 'linear-gradient(135deg, #f59e0b, #d97706)'
+                          ? 'linear-gradient(135deg, #22c55e, #16a34a)'
                           : 'rgba(255,255,255,0.08)',
-                        boxShadow: selectedServiceCount > 0 ? '0 0 24px rgba(245,158,11,0.30)' : 'none',
+                        boxShadow: selectedServiceCount > 0 ? '0 0 24px rgba(34,197,94,0.30)' : 'none',
                       }}
                     >
                       Get My Custom Quote →
@@ -651,8 +651,8 @@ export default function AnnualPlanConfigurator() {
                         disabled={isSubmitting}
                         className="flex-1 py-3 rounded-xl font-bold text-white text-sm transition-all duration-200 disabled:opacity-50 hover:scale-[1.02]"
                         style={{
-                          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                          boxShadow: '0 0 20px rgba(245,158,11,0.25)',
+                          background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                          boxShadow: '0 0 20px rgba(34,197,94,0.25)',
                         }}
                       >
                         {isSubmitting ? 'Sending...' : 'Get My Custom Quote'}
@@ -661,7 +661,7 @@ export default function AnnualPlanConfigurator() {
                         type="button"
                         onClick={() => dispatch({ type: 'HIDE_CONTACT_FORM' })}
                         className="px-4 py-3 rounded-xl transition-colors text-sm hover:text-white"
-                        style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.40)' }}
+                        style={{ border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.40)' }}
                       >
                         <X size={14} />
                       </button>
@@ -696,7 +696,7 @@ export default function AnnualPlanConfigurator() {
             <div
               className="rounded-2xl p-4 mb-4 flex items-center justify-between gap-4"
               style={{
-                background: 'rgba(5,13,7,0.95)',
+                background: 'rgba(5,46,22,0.95)',
                 border: '1px solid rgba(255,255,255,0.12)',
                 backdropFilter: 'blur(16px)',
                 boxShadow: '0 -8px 40px rgba(0,0,0,0.5)',
@@ -714,8 +714,8 @@ export default function AnnualPlanConfigurator() {
                 onClick={() => dispatch({ type: 'SHOW_CONTACT_FORM' })}
                 className="shrink-0 rounded-xl px-5 py-2.5 text-sm font-bold text-white"
                 style={{
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                  boxShadow: '0 0 20px rgba(245,158,11,0.30)',
+                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                  boxShadow: '0 0 20px rgba(34,197,94,0.30)',
                 }}
               >
                 Get Quote →
@@ -742,7 +742,7 @@ export default function AnnualPlanConfigurator() {
               exit={{ y: '100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="w-full rounded-t-3xl p-6"
-              style={{ background: '#050d07', border: '1px solid rgba(255,255,255,0.10)' }}
+              style={{ background: '#052e16', border: '1px solid rgba(255,255,255,0.10)' }}
             >
               <div className="flex items-center justify-between mb-5">
                 <div>
@@ -795,8 +795,8 @@ export default function AnnualPlanConfigurator() {
                   disabled={isSubmitting}
                   className="w-full py-4 rounded-xl font-bold text-sm text-white disabled:opacity-50"
                   style={{
-                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                    boxShadow: '0 0 24px rgba(245,158,11,0.30)',
+                    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                    boxShadow: '0 0 24px rgba(34,197,94,0.30)',
                   }}
                 >
                   {isSubmitting ? 'Sending...' : 'Get My Custom Quote →'}

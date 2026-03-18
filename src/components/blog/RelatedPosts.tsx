@@ -98,7 +98,7 @@ export default function RelatedPosts({ currentSlug, currentCategory }: RelatedPo
   if (!loading && posts.length === 0) return null;
 
   return (
-    <section className="py-16 border-t border-white/10" style={{ background: '#050d07' }}>
+    <section className="py-16 border-t border-white/10" style={{ background: '#052e16' }}>
       <div className="container mx-auto px-4">
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-8">
           Related Articles

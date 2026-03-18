@@ -40,7 +40,7 @@ export default function RateCrewModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 8 }}
           className="w-full max-w-md rounded-2xl p-8"
-          style={{ background: '#0a1a0e', border: '1px solid rgba(34,197,94,0.2)' }}
+          style={{ background: '#0a3520', border: '1px solid rgba(34,197,94,0.2)' }}
           onClick={e => e.stopPropagation()}
         >
           {submitted ? (
@@ -88,7 +88,7 @@ export default function RateCrewModal({
                   onClick={handleSubmit}
                   disabled={rating === 0 || submitting}
                   className="flex-1 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
-                  style={{ background: '#22c55e', color: '#050d07' }}
+                  style={{ background: '#22c55e', color: '#ffffff' }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >

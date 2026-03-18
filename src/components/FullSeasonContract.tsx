@@ -144,7 +144,7 @@ export function FullSeasonContract() {
   return (
     <section
       className="relative py-20 md:py-32 overflow-hidden"
-      style={{ backgroundColor: "#050d07" }}
+      style={{ backgroundColor: "#052e16" }}
     >
       {/* ── Background: dot grid + warm radial glow ── */}
       <div
@@ -243,10 +243,10 @@ export function FullSeasonContract() {
                   }
                   className="cursor-pointer rounded-2xl overflow-hidden"
                   style={{
-                    background: "rgba(255,255,255,0.03)",
+                    background: "rgba(255,255,255,0.05)",
                     backdropFilter: "blur(12px)",
                     borderTop: `3px solid ${season.jewelHex}`,
-                    border: `1px solid rgba(255,255,255,0.06)`,
+                    border: `1px solid rgba(255,255,255,0.10)`,
                     borderTopColor: season.jewelHex,
                     borderTopWidth: "3px",
                   }}
@@ -419,8 +419,8 @@ export function FullSeasonContract() {
                   key={stat.label}
                   className="text-center rounded-2xl p-6 md:p-8"
                   style={{
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.06)",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.10)",
                   }}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}

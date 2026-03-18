@@ -27,7 +27,7 @@ export default function ServiceFAQ({ faqs }: ServiceFAQProps) {
   const { activeSeason } = useSeasonalTheme();
 
   const seasonalSectionBg = {
-    summer: '#050d07',
+    summer: '#052e16',
     fall: '#0d0900',
     winter: '#020810',
   } as const;

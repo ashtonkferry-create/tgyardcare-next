@@ -49,7 +49,7 @@ export default function RequestServiceButton({ customerId }: { customerId: strin
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               className="w-full max-w-md rounded-2xl p-8"
-              style={{ background: '#0a1a0e', border: '1px solid rgba(34,197,94,0.2)' }}
+              style={{ background: '#0a3520', border: '1px solid rgba(34,197,94,0.2)' }}
               onClick={e => e.stopPropagation()}
             >
               {submitted ? (
@@ -96,7 +96,7 @@ export default function RequestServiceButton({ customerId }: { customerId: strin
                     </button>
                     <motion.button type="submit" disabled={!serviceType || submitting}
                       className="flex-1 py-3 rounded-xl text-sm font-bold disabled:opacity-40"
-                      style={{ background: '#22c55e', color: '#050d07' }}
+                      style={{ background: '#22c55e', color: '#ffffff' }}
                       whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                       {submitting ? 'Sending...' : 'Send Request'}
                     </motion.button>

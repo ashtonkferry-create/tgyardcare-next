@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
 
 const seasonalCtaBg: Record<string, string> = {
-  summer: '#0a1f14',
+  summer: '#052e16',
   fall:   '#1a0d00',
   winter: '#020810',
 };

@@ -97,7 +97,7 @@ export default function LeadMagnetCTA({
                 type="submit"
                 disabled={loading}
                 className="px-5 py-2.5 rounded-xl text-sm font-semibold shrink-0 disabled:opacity-60"
-                style={{ background: '#22c55e', color: '#050d07' }}
+                style={{ background: '#22c55e', color: '#ffffff' }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
               >
