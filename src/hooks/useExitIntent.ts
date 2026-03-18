@@ -17,6 +17,7 @@ export function useExitIntent() {
   const maxScrollRef = useRef(0);
   const scrollUpStartRef = useRef<number | null>(null);
   const lastScrollYRef = useRef(0);
+  const firedRef = useRef(false);
 
   const isExcluded = useCallback(
     () => EXCLUDED_PREFIXES.some(p => pathname?.startsWith(p)),
@@ -35,7 +36,9 @@ export function useExitIntent() {
   }, [isExcluded]);
 
   const fire = useCallback(() => {
+    if (firedRef.current) return;   // fast in-memory gate
     if (!canFire()) return;
+    firedRef.current = true;
     try { sessionStorage.setItem(SESSION_KEY, 'true'); } catch {}
     setTriggered(true);
   }, [canFire]);
@@ -47,6 +50,7 @@ export function useExitIntent() {
     startTimeRef.current = Date.now();
     maxScrollRef.current = 0;
     scrollUpStartRef.current = null;
+    firedRef.current = false;
     if (typeof window !== 'undefined') lastScrollYRef.current = window.scrollY;
     if (isExcluded()) setTriggered(false);  // close modal if user navigates to excluded route
   }, [pathname, isExcluded]);
@@ -54,7 +58,8 @@ export function useExitIntent() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const mq = window.matchMedia('(max-width: 768px)');
+    let isMobile = mq.matches;
 
     const trackScrollDepth = () => {
       const total = document.documentElement.scrollHeight - window.innerHeight;
@@ -63,17 +68,14 @@ export function useExitIntent() {
       }
     };
 
-    // Desktop: mouse heading toward browser chrome (top of viewport)
     const handleMouseLeave = (e: MouseEvent) => {
       if (e.clientY <= 20) fire();
     };
 
-    // Mobile: deliberate scroll-back-up gesture after engagement
     const handleMobileScroll = () => {
       trackScrollDepth();
       const currentY = window.scrollY;
       if (currentY < lastScrollYRef.current) {
-        // scrolling up
         if (scrollUpStartRef.current === null) {
           scrollUpStartRef.current = lastScrollYRef.current;
         }
@@ -81,28 +83,39 @@ export function useExitIntent() {
           fire();
         }
       } else {
-        // scrolling down — reset up-scroll tracking
         scrollUpStartRef.current = null;
       }
       lastScrollYRef.current = currentY;
     };
 
-    window.addEventListener('scroll', trackScrollDepth, { passive: true });
+    const attach = () => {
+      if (isMobile) {
+        lastScrollYRef.current = window.scrollY;
+        window.addEventListener('scroll', handleMobileScroll, { passive: true });
+      } else {
+        window.addEventListener('scroll', trackScrollDepth, { passive: true });
+        document.addEventListener('mouseleave', handleMouseLeave);
+      }
+    };
 
-    if (isMobile) {
-      lastScrollYRef.current = window.scrollY;
-      window.addEventListener('scroll', handleMobileScroll, { passive: true });
-    } else {
-      document.addEventListener('mouseleave', handleMouseLeave);
-    }
+    const detach = () => {
+      window.removeEventListener('scroll', handleMobileScroll);
+      window.removeEventListener('scroll', trackScrollDepth);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+
+    const handleMqChange = (e: MediaQueryListEvent) => {
+      detach();
+      isMobile = e.matches;
+      attach();
+    };
+
+    attach();
+    mq.addEventListener('change', handleMqChange);
 
     return () => {
-      window.removeEventListener('scroll', trackScrollDepth);
-      if (isMobile) {
-        window.removeEventListener('scroll', handleMobileScroll);
-      } else {
-        document.removeEventListener('mouseleave', handleMouseLeave);
-      }
+      detach();
+      mq.removeEventListener('change', handleMqChange);
     };
   }, [fire]); // fire is stable — memoized by useCallback
 
