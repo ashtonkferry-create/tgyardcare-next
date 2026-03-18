@@ -15,13 +15,13 @@ import { AmbientParticles } from "@/components/AmbientParticles";
 const theme = {
   summer: {
     // Zone 1
-    closerBg: 'from-green-900 via-green-800 to-green-900',
-    glowColor: 'rgba(34,197,94,0.18)',
-    phoneGlow: '0 0 80px rgba(34,197,94,0.30)',
+    closerBg: 'from-green-950 via-[#061a0e] to-[#050d07]',
+    glowColor: 'rgba(34,197,94,0.15)',
+    phoneGlow: '0 0 80px rgba(34,197,94,0.28)',
     checkColor: 'text-emerald-400',
     accentText: 'text-emerald-400',
     // Zone 2 + 3
-    footerBg: 'bg-[#070f0a]',
+    footerBg: 'bg-[#050d07]',
     linkHover: 'hover:text-emerald-400',
     iconColor: 'text-emerald-400',
     textColor: 'text-emerald-100/50',

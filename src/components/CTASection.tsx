@@ -10,9 +10,9 @@ import { AmbientParticles } from '@/components/AmbientParticles';
 
 const ctaTheme = {
   winter: {
-    bg: 'from-slate-900 via-blue-950 to-indigo-950',
-    border: 'border-cyan-500/10',
-    glow: 'bg-cyan-500/5',
+    sectionBg: 'bg-gradient-to-b from-slate-950 via-blue-950 to-indigo-950',
+    border: 'border-cyan-500/15',
+    glow: 'bg-cyan-500/8',
     headingClass: 'animate-frost-text-glow',
     checkColor: 'text-cyan-400',
     phoneBorderHover: 'hover:border-cyan-400/50',
@@ -21,9 +21,9 @@ const ctaTheme = {
     particleFilter: 'blur(0.5px) drop-shadow(0 0 3px rgba(147, 197, 253, 0.4))',
   },
   summer: {
-    bg: 'from-green-900 via-green-800 to-green-900',
-    border: 'border-green-500/15',
-    glow: 'bg-green-500/15',
+    sectionBg: 'bg-gradient-to-b from-green-950 via-[#0a3520] to-green-950',
+    border: 'border-green-500/20',
+    glow: 'bg-green-500/10',
     headingClass: '',
     checkColor: 'text-green-400',
     phoneBorderHover: 'hover:border-green-400/50',
@@ -32,9 +32,9 @@ const ctaTheme = {
     particleFilter: 'blur(0.5px) drop-shadow(0 0 3px rgba(34, 197, 94, 0.3))',
   },
   fall: {
-    bg: 'from-stone-900 via-amber-950 to-stone-900',
-    border: 'border-amber-500/10',
-    glow: 'bg-amber-500/5',
+    sectionBg: 'bg-gradient-to-b from-stone-950 via-amber-950 to-stone-950',
+    border: 'border-amber-500/15',
+    glow: 'bg-amber-500/8',
     headingClass: '',
     checkColor: 'text-amber-400',
     phoneBorderHover: 'hover:border-amber-400/50',
@@ -90,7 +90,7 @@ export default function CTASection({
 
   // Final CTA - season-adaptive with immersive styling
   return (
-    <section className="py-14 md:py-20 bg-green-950">
+    <section className={`py-14 md:py-20 ${ct.sectionBg}`}>
       <div className="container mx-auto px-4">
         <motion.div
           ref={ctaRef}
@@ -98,7 +98,7 @@ export default function CTASection({
           animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
           transition={{ duration: 0.7, ease: 'easeOut' }}
         >
-          <div className={`relative overflow-hidden bg-gradient-to-br ${ct.bg} border-2 ${ct.border} rounded-2xl p-8 md:p-12 text-center shadow-2xl max-w-4xl mx-auto`}>
+          <div className={`relative overflow-hidden bg-white/[0.04] backdrop-blur-sm border ${ct.border} rounded-2xl p-8 md:p-12 text-center shadow-2xl max-w-4xl mx-auto`}>
             {/* Floating particles */}
             <AmbientParticles density="dense" />
             {/* Center glow */}
