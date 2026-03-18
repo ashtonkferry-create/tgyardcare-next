@@ -16,6 +16,7 @@ import { useSeasonalTheme, type Season } from "@/contexts/SeasonalThemeContext";
 import { MobileNavMenu } from "@/components/MobileNavMenu";
 import { PromoBanner } from "@/components/PromoBanner";
 import { useScrollCondense } from "@/hooks/useScrollCondense";
+import { SmartBreadcrumb } from '@/components/SmartBreadcrumb';
 
 // Shared dropdown animation variants
 const dropdownVariants = {
@@ -955,9 +956,10 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
         <MobileNavMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
       </div>
     </nav>
+    <SmartBreadcrumb />
     </div>
-    {/* Spacer to offset fixed header */}
-    <div className="h-16 md:h-18 lg:h-20" />
+    {/* Spacer to offset fixed header (nav bar + breadcrumb strip ~36px) */}
+    <div className="h-[100px] md:h-[108px] lg:h-[116px]" />
     </>
   );
 }
