@@ -2,8 +2,6 @@
 
 import { useReducer, useMemo, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useServices } from '@/hooks/useServices';
-import { useSubmitLead } from '@/hooks/useLeads';
 
 /* ─────────────────────── Types & Constants ─────────────────────── */
 
@@ -109,21 +107,8 @@ export default function AnnualPlanConfigurator() {
   const [state, dispatch] = useReducer(planReducer, initialState);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const { data: dbServices } = useServices();
-  const submitLead = useSubmitLead();
-
-  // Merge Supabase IDs onto static services (match by name slug)
-  const services = useMemo(() => {
-    if (!dbServices) return STATIC_SERVICES;
-    return STATIC_SERVICES.map((s) => {
-      const match = dbServices.find(
-        (d) =>
-          d.name.toLowerCase().replace(/\s+/g, '-').includes(s.id.split('-')[0]) ||
-          s.name.toLowerCase().includes(d.name.toLowerCase().split(' ')[0])
-      );
-      return match ? { ...s, id: match.id } : s;
-    });
-  }, [dbServices]);
+  // Use static services — no Supabase dependency needed
+  const services = STATIC_SERVICES;
 
   const selectedServiceCount = useMemo(() => {
     return Object.values(state.selections).filter((seasons) =>
@@ -166,6 +151,9 @@ export default function AnnualPlanConfigurator() {
     );
   }
 
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -176,25 +164,32 @@ export default function AnnualPlanConfigurator() {
         return seasons && Object.values(seasons).some(Boolean);
       });
 
+      setIsSubmitting(true);
+      setSubmitError(null);
+
       try {
-        await submitLead.mutateAsync({
-          first_name: state.contactForm.firstName,
-          last_name: state.contactForm.lastName,
-          email: state.contactForm.email,
-          phone: state.contactForm.phone,
-          address: state.contactForm.address || undefined,
-          service_id: firstEntry?.id ?? '',
-          location_id: null,
-          notes: buildNotes(),
-          referral_source: 'annual_plan_configurator',
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: `${state.contactForm.firstName} ${state.contactForm.lastName}`.trim(),
+            email: state.contactForm.email,
+            phone: state.contactForm.phone,
+            address: state.contactForm.address,
+            service: firstEntry?.id ?? '',
+            message: buildNotes(),
+          }),
         });
+        if (!res.ok) throw new Error('Submission failed');
         setSubmitSuccess(true);
       } catch {
-        // submitLead.isError handles the UI
+        setSubmitError('Something went wrong. Please call us at (608) 535-6057.');
+      } finally {
+        setIsSubmitting(false);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [services, state, selectedServiceCount, submitLead],
+    [services, state, selectedServiceCount],
   );
 
   /* ─── Success State ─── */
@@ -580,14 +575,14 @@ export default function AnnualPlanConfigurator() {
                   <div className="flex gap-2">
                     <button
                       type="submit"
-                      disabled={submitLead.isPending}
+                      disabled={isSubmitting}
                       className="flex-1 py-3 rounded-xl font-bold text-white text-sm transition-all duration-200 disabled:opacity-50"
                       style={{
                         background: 'linear-gradient(135deg, #f59e0b, #d97706)',
                         boxShadow: '0 0 20px rgba(245,158,11,0.25)',
                       }}
                     >
-                      {submitLead.isPending ? 'Submitting\u2026' : 'Get My Custom Quote'}
+                      {isSubmitting ? 'Submitting\u2026' : 'Get My Custom Quote'}
                     </button>
                     <button
                       type="button"
@@ -598,9 +593,9 @@ export default function AnnualPlanConfigurator() {
                       &#x2715;
                     </button>
                   </div>
-                  {submitLead.isError && (
-                    <p className="text-red-400 text-xs text-center">
-                      Something went wrong. Please try again.
+                  {submitError && (
+                    <p className="text-red-400 text-xs text-center" role="alert">
+                      {submitError}
                     </p>
                   )}
                 </motion.form>
