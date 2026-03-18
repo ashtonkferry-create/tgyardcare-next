@@ -108,15 +108,25 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(destinationUrl, redirect.statusCode);
   }
 
-  // Auth protection for /portal/* and /admin/* (except /admin/login)
-  if (
-    (pathname.startsWith('/portal') || pathname.startsWith('/admin')) &&
-    pathname !== '/admin/login'
-  ) {
-    // Check for Supabase auth cookie presence
+  // Admin routes → admin login
+  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     const hasAuthCookie = request.cookies.getAll().some(c => c.name.includes('-auth-token'))
     if (!hasAuthCookie) {
       const loginUrl = new URL('/admin/login', request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+  }
+
+  // Portal routes → portal login (but NOT login/auth pages themselves)
+  if (
+    pathname.startsWith('/portal') &&
+    !pathname.startsWith('/portal/login') &&
+    !pathname.startsWith('/portal/auth')
+  ) {
+    const hasAuthCookie = request.cookies.getAll().some(c => c.name.includes('-auth-token'))
+    if (!hasAuthCookie) {
+      const loginUrl = new URL('/portal/login', request.url)
       loginUrl.searchParams.set('redirect', pathname)
       return NextResponse.redirect(loginUrl)
     }
