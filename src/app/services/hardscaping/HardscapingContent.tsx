@@ -54,7 +54,7 @@ const faqs = [
 export default function HardscapingContent() {
   const [quoteOpen, setQuoteOpen] = useState(false);
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#050d07' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#052e16' }}>
       <BreadcrumbSchema items={[
         { name: 'Home', url: 'https://tgyardcare.com' },
         { name: 'Services', url: 'https://tgyardcare.com/services' },
@@ -119,7 +119,7 @@ export default function HardscapingContent() {
       ════════════════════════════════════════════════════════════════════ */}
       <section className="relative min-h-[55vh] md:min-h-[60vh] flex items-center py-16 md:py-24">
         {/* Background layers */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a1f14] via-[#0d1a12] to-[#050d07]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#052e16] via-[#0d1a12] to-[#052e16]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(34,197,94,0.06)_0%,transparent_60%)]" />
         <div
           className="absolute inset-0 opacity-[0.03]"
@@ -185,8 +185,8 @@ export default function HardscapingContent() {
         <div
           className="max-w-xl mx-auto rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6"
           style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.10)',
             borderLeft: '4px solid #22c55e',
           }}
         >
@@ -277,7 +277,7 @@ export default function HardscapingContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           SERVICES GRID
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
+      <section className="py-14 md:py-20" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-6 md:px-8">
           <ScrollReveal>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
@@ -375,7 +375,7 @@ export default function HardscapingContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           WHY CHOOSE — Differentiators
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
+      <section className="py-14 md:py-20" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-6 md:px-8">
           <ScrollReveal>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
@@ -440,7 +440,7 @@ export default function HardscapingContent() {
       {/* ═══════════════════════════════════════════════════════════════════
           PARTNER CONTACT — Direct to YD
       ════════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20" style={{ background: '#0a1a0e' }}>
+      <section className="py-14 md:py-20" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-6 md:px-8">
           <ScrollReveal>
             <div className="max-w-2xl mx-auto text-center">
