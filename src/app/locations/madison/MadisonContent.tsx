@@ -42,7 +42,7 @@ export default function MadisonContent() {
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <LocationPageSchemas citySlug="madison" faqs={[]} />
       <BreadcrumbSchema items={[
         { name: "Home", url: "https://totalguardyardcare.com" },
@@ -116,7 +116,7 @@ export default function MadisonContent() {
       </section>
 
       {/* Services Section */}
-      <section className="py-20" style={{ background: '#050d07' }}>
+      <section className="py-20" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -160,7 +160,7 @@ export default function MadisonContent() {
       </section>
 
       {/* Neighborhoods Section */}
-      <section className="py-20" style={{ background: '#0a1a0e' }}>
+      <section className="py-20" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -194,7 +194,7 @@ export default function MadisonContent() {
       </section>
 
       {/* Why Madison Chooses TotalGuard */}
-      <section className="py-20" style={{ background: '#050d07' }}>
+      <section className="py-20" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             {/* Header */}

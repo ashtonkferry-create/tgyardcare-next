@@ -35,7 +35,7 @@ export default function VeronaContent() {
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       {/* Scroll Progress - Engagement signal */}
       <ScrollProgress variant="minimal" />
 
@@ -117,7 +117,7 @@ export default function VeronaContent() {
       </section>
 
       {/* Services Section */}
-      <section className="py-12 md:py-16" style={{ background: '#050d07' }}>
+      <section className="py-12 md:py-16" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
 
           <div className="text-center mb-12">
@@ -152,7 +152,7 @@ export default function VeronaContent() {
       </section>
 
       {/* Why Choose Us - Operational Proof */}
-      <section className="py-12 md:py-16" style={{ background: '#0a1a0e' }}>
+      <section className="py-12 md:py-16" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
@@ -218,7 +218,7 @@ export default function VeronaContent() {
       {/* FAQ Schema handled by LocationPageSchemas above */}
 
       {/* Service Areas Link */}
-      <section className="py-10 md:py-12" style={{ background: '#050d07' }}>
+      <section className="py-10 md:py-12" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4 text-center">
           <SectionDivider className="mb-6" />
           <p className="text-lg text-white/60 mb-4">

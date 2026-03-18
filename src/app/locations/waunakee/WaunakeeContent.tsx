@@ -27,7 +27,7 @@ export default function WaunakeeContent() {
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <LocationPageSchemas citySlug="waunakee" faqs={[]} />
       <BreadcrumbSchema items={[
         { name: "Home", url: "https://totalguardyardcare.com" },
@@ -101,7 +101,7 @@ export default function WaunakeeContent() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-20" style={{ background: '#050d07' }}>
+      <section className="py-20" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -140,7 +140,7 @@ export default function WaunakeeContent() {
       </section>
 
       {/* Value Props */}
-      <section className="py-20" style={{ background: '#0a1a0e' }}>
+      <section className="py-20" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
@@ -236,7 +236,7 @@ export default function WaunakeeContent() {
       </section>
 
       {/* Service Area Links */}
-      <section className="py-16" style={{ background: '#050d07' }}>
+      <section className="py-16" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4 text-center">
           <h3 className="text-2xl font-bold text-white mb-4">Serving Greater Madison Area</h3>
           <p className="text-lg text-white/60 mb-6">
