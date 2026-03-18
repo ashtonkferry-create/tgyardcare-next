@@ -671,6 +671,8 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
   // Track banner height + scroll to offset the fixed nav below the banner
   const bannerRef = useRef<HTMLDivElement>(null);
   const [navTop, setNavTop] = useState(0);
+  const fixedRef = useRef<HTMLDivElement>(null);
+  const [fixedHeight, setFixedHeight] = useState(80);
 
   useEffect(() => {
     if (!showPromoBanner) { setNavTop(0); return; }
@@ -688,6 +690,15 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
     update();
     return () => { ro.disconnect(); window.removeEventListener('scroll', update); };
   }, [showPromoBanner]);
+
+  // Track fixed wrapper height so spacer always matches exactly
+  useEffect(() => {
+    const el = fixedRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setFixedHeight(entry.contentRect.height));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // Close sibling menus when opening one — prevents overlap jitter
   const openResidential = useCallback(() => { setCommercialOpen(false); setAboutOpen(false); setResidentialOpen(true); }, []);
@@ -758,7 +769,7 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
         <PromoBanner />
       </div>
     )}
-    <div className="fixed left-0 right-0 z-50" style={{ top: navTop }}>
+    <div ref={fixedRef} className="fixed left-0 right-0 z-50" style={{ top: navTop }}>
     <nav className={cn("border-b shadow-lg nav-seasonal relative", t.bg, t.border)}>
       {/* Cinematic effects container — overflow-hidden so glow doesn't bleed, but nav itself can show dropdowns */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -958,8 +969,8 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
     </nav>
     <SmartBreadcrumb />
     </div>
-    {/* Spacer to offset fixed header (nav bar + breadcrumb strip ~36px) */}
-    <div className="h-[100px] md:h-[108px] lg:h-[116px]" />
+    {/* Spacer dynamically matches fixed header height (nav ± breadcrumb) */}
+    <div style={{ height: fixedHeight }} />
     </>
   );
 }
