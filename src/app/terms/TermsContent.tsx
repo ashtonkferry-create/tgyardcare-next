@@ -86,7 +86,7 @@ export default function TermsContent() {
             <section id="sms-terms">
               <h2 className="text-xl font-semibold text-foreground mb-4">SMS/Text Message Terms</h2>
               <p>
-                By providing your phone number on our contact form, during a phone call, or through any other communication channel, you consent to receive service-related text messages from TotalGuard Yard Care LLC. These messages may include:
+                By providing your phone number on our contact form at tgyardcare.com/contact, you consent to receive service-related text messages from TotalGuard Yard Care LLC. Consent is not required as a condition of any purchase or service. These messages may include:
               </p>
               <ul className="list-disc pl-6 space-y-2 mt-4">
                 <li>Service appointment confirmations and reminders</li>

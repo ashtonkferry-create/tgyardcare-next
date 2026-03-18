@@ -412,7 +412,7 @@ export default function ContactContent() {
                       />
                     </div>
                     {errors.phone && <p className="text-red-400 text-xs mt-1.5 flex items-center gap-1 ml-8"><AlertCircle className="h-3.5 w-3.5" />{errors.phone}</p>}
-                    <p className="text-white/40 text-xs mt-2 ml-8 leading-relaxed">By providing your phone number, you consent to receive service-related text messages from TotalGuard Yard Care. Message frequency varies. Message and data rates may apply. Reply STOP to opt out at any time. See our <a href="/privacy" className="underline hover:text-white/50 transition-colors">Privacy Policy</a> &amp; <a href="/terms#sms-terms" className="underline hover:text-white/50 transition-colors">SMS Terms</a>.</p>
+                    <p className="text-white/40 text-xs mt-2 ml-8 leading-relaxed">By providing your phone number, you consent to receive service-related text messages from TotalGuard Yard Care. Consent is not required as a condition of any purchase or service. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out. See our <a href="/privacy" className="underline hover:text-white/50 transition-colors">Privacy Policy</a> &amp; <a href="/terms#sms-terms" className="underline hover:text-white/50 transition-colors">SMS Terms</a>.</p>
                   </div>
 
                   {/* Address */}
