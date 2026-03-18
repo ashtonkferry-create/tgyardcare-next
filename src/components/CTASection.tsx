@@ -21,9 +21,9 @@ const ctaTheme = {
     particleFilter: 'blur(0.5px) drop-shadow(0 0 3px rgba(147, 197, 253, 0.4))',
   },
   summer: {
-    bg: 'from-[#0f2818] via-[#1a3a2a] to-[#0d3320]',
+    bg: 'from-green-900 via-green-800 to-green-900',
     border: 'border-green-500/15',
-    glow: 'bg-green-500/5',
+    glow: 'bg-green-500/15',
     headingClass: '',
     checkColor: 'text-green-400',
     phoneBorderHover: 'hover:border-green-400/50',
@@ -90,7 +90,7 @@ export default function CTASection({
 
   // Final CTA - season-adaptive with immersive styling
   return (
-    <section className="py-14 md:py-20 bg-[#080e0b]">
+    <section className="py-14 md:py-20 bg-green-950">
       <div className="container mx-auto px-4">
         <motion.div
           ref={ctaRef}

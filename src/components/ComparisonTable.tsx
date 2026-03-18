@@ -16,8 +16,8 @@ const rows = [
 export function ComparisonTable() {
   return (
     <section className="relative py-16 md:py-24 overflow-hidden">
-      {/* Dark cinematic background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#070f0a] via-[#0a1a10] to-[#070f0a]" />
+      {/* Green cinematic background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-green-950 via-green-900 to-green-950" />
 
       {/* Subtle grid pattern */}
       <div
@@ -29,7 +29,7 @@ export function ComparisonTable() {
       />
 
       {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full blur-[120px] bg-emerald-500/[0.06] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full blur-[120px] bg-emerald-500/[0.15] pointer-events-none" />
 
       {/* Season-adaptive particles */}
       <AmbientParticles density="sparse" />

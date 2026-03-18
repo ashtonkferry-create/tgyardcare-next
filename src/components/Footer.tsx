@@ -15,9 +15,9 @@ import { AmbientParticles } from "@/components/AmbientParticles";
 const theme = {
   summer: {
     // Zone 1
-    closerBg: 'from-[#0f2818] via-[#1a3a2a] to-[#0d3320]',
-    glowColor: 'rgba(34,197,94,0.08)',
-    phoneGlow: '0 0 60px rgba(34,197,94,0.15)',
+    closerBg: 'from-green-900 via-green-800 to-green-900',
+    glowColor: 'rgba(34,197,94,0.18)',
+    phoneGlow: '0 0 80px rgba(34,197,94,0.30)',
     checkColor: 'text-emerald-400',
     accentText: 'text-emerald-400',
     // Zone 2 + 3
