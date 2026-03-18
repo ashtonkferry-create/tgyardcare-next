@@ -17,7 +17,7 @@ export function ComparisonTable() {
   return (
     <section className="relative py-16 md:py-24 overflow-hidden">
       {/* Green cinematic background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-green-950 via-green-900 to-green-950" />
+      <div className="absolute inset-0 bg-gradient-to-b from-green-950 via-[#0a3520] to-green-950" />
 
       {/* Subtle grid pattern */}
       <div
