@@ -61,7 +61,7 @@ export default function CategoryContent({ category, categoryName, posts }: Categ
   const description = CATEGORY_DESCRIPTIONS[category] || '';
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <WebPageSchema
         name={`${categoryName} - Blog`}
         description={description}
@@ -70,7 +70,7 @@ export default function CategoryContent({ category, categoryName, posts }: Categ
       <Navigation />
 
       {/* Hero */}
-      <section className="pt-24 pb-16 border-b border-white/10" style={{ background: '#050d07' }}>
+      <section className="pt-24 pb-16 border-b border-white/10" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4 text-center">
           <Link
             href="/blog"
@@ -92,7 +92,7 @@ export default function CategoryContent({ category, categoryName, posts }: Categ
       </section>
 
       {/* Posts Grid */}
-      <section className="py-16 md:py-20" style={{ background: '#050d07' }}>
+      <section className="py-16 md:py-20" style={{ background: '#052e16' }}>
         <div className="container mx-auto px-4">
           {posts.length === 0 ? (
             <div className="text-center py-12">
@@ -155,7 +155,7 @@ export default function CategoryContent({ category, categoryName, posts }: Categ
       </section>
 
       {/* CTA Section */}
-      <section className="py-16" style={{ background: '#0a1a0e' }}>
+      <section className="py-16" style={{ background: '#0a3520' }}>
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Ready to Transform Your Lawn?

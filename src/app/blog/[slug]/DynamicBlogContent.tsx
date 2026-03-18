@@ -80,7 +80,7 @@ export default function DynamicBlogContent({
     CATEGORY_NAMES[category] || category.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
   return (
-    <div className="min-h-screen" style={{ background: '#050d07' }}>
+    <div className="min-h-screen" style={{ background: '#052e16' }}>
       <ArticleSchema
         title={title}
         description={meta_description}
