@@ -2,36 +2,43 @@
   "name": "TG-34-referral-program",
   "nodes": [
     {
-      "parameters": {},
-      "id": "trigger",
-      "name": "Execute Workflow Trigger",
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1,
+      "parameters": {
+        "path": "tg34-referral-log",
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "tg34-webhook",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
       "position": [
         0,
         300
-      ]
+      ],
+      "webhookId": "tg34-referral-log"
     },
     {
       "parameters": {
         "method": "GET",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/referrals?referral_code=eq.{{$json.referral_code}}&select=id,referring_customer_id,referral_code",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads?or=(first_name.ilike.*{{ encodeURIComponent($json.body.referrer_name.split(' ')[0]) }}*,full_name.ilike.*{{ encodeURIComponent($json.body.referrer_name) }}*)&select=id,first_name,last_name,phone,referral_code",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
             },
             {
               "name": "Authorization",
-              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
             }
           ]
-        }
+        },
+        "options": {}
       },
-      "id": "lookup-referral",
-      "name": "Lookup Referral Code",
+      "id": "tg34-find-referrer",
+      "name": "Find Referrer in Leads",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -42,175 +49,142 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/referral_redemptions",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/referral_events",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
             },
             {
               "name": "Authorization",
-              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
             },
             {
               "name": "Content-Type",
               "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
             }
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "referral_id",
-              "value": "={{$json[0].id}}"
-            },
-            {
-              "name": "new_customer_name",
-              "value": "={{$('Execute Workflow Trigger').first().json.new_customer_name}}"
-            },
-            {
-              "name": "new_customer_email",
-              "value": "={{$('Execute Workflow Trigger').first().json.new_customer_email}}"
-            },
-            {
-              "name": "redeemed_at",
-              "value": "={{ new Date().toISOString() }}"
-            }
-          ]
-        }
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ referral_code: ($json[0] && $json[0].referral_code) || null, referred_name: $('Webhook Trigger').item.json.body.new_lead_name, referred_email: null, status: 'pending', created_at: new Date().toISOString() }) }}",
+        "options": {}
       },
-      "id": "log-redemption",
-      "name": "Log Referral Redemption",
+      "id": "tg34-log-referral",
+      "name": "Log Referral Event",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
         440,
         300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhook = $('Webhook Trigger').item.json.body;\nconst referrer = $('Find Referrer in Leads').item.json;\nconst referrerPhone = (Array.isArray(referrer) && referrer[0] && referrer[0].phone) ? referrer[0].phone : null;\nconst referrerName = webhook.referrer_name || 'there';\nconst newLeadName = webhook.new_lead_name || 'someone';\nconst service = webhook.service || 'yard care';\n\nif (!referrerPhone) {\n  return [{ json: { _skip: true, reason: 'no_referrer_phone_found' } }];\n}\n\nconst firstName = referrerName.split(' ')[0];\n\nconst messageBody = `Hi ${firstName}! Great news — ${newLeadName} just mentioned you when they reached out about ${service}! Thanks for spreading the word. Your discount will be applied to your next service. — TotalGuard`;\n\nreturn [{ json: {\n  to_phone: referrerPhone,\n  message_body: messageBody,\n  workflow_name: 'TG-34',\n  message_type: 'referral_thank_you',\n  referrer_name: referrerName,\n  new_lead_name: newLeadName,\n  service: service\n} }];"
+      },
+      "id": "tg34-build-sms",
+      "name": "Build Thank Referrer SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
       ]
     },
     {
-      "id": "sms-referrer",
-      "name": "SMS Referring Customer",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        660,
-        200
-      ],
-      "continueOnFail": false,
       "parameters": {
-        "method": "POST",
-        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "api-key",
-              "value": "={{$vars.TG_BREVO_API_KEY}}"
-            }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "json",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "sender",
-              "value": "TotalGuard"
-            },
-            {
-              "name": "recipient",
-              "value": "={{$('Execute Workflow Trigger').first().json.referring_customer_phone}}"
-            },
-            {
-              "name": "content",
-              "value": "=Your referral is paying off! {{$('Execute Workflow Trigger').first().json.new_customer_name}} just signed up with TotalGuard. Your $25 credit has been applied to your account. Thank you! - TG Team"
-            }
-          ]
-        },
+        "workflowId": "AprqI2DgQA8lehij",
         "options": {}
-      }
+      },
+      "id": "tg34-send-via-tg94",
+      "name": "Send SMS via TG-94",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        300
+      ]
     },
     {
-      "id": "sms-new-customer",
-      "name": "SMS New Customer Welcome",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        660,
-        400
-      ],
-      "continueOnFail": false,
       "parameters": {
-        "method": "POST",
-        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "api-key",
-              "value": "={{$vars.TG_BREVO_API_KEY}}"
-            }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "json",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "sender",
-              "value": "TotalGuard"
-            },
-            {
-              "name": "recipient",
-              "value": "={{$('Execute Workflow Trigger').first().json.new_customer_phone}}"
-            },
-            {
-              "name": "content",
-              "value": "=Welcome to TotalGuard Yard Care! Your 15% first-service discount has been applied. Ready to get started? Book at tgyardcare.com or call (608) 535-6057. - The TG Team"
-            }
-          ]
-        },
-        "options": {}
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "=TG-34 Referral logged: {{ $('Webhook Trigger').item.json.body.referrer_name }} referred {{ $('Webhook Trigger').item.json.body.new_lead_name }} for {{ $('Webhook Trigger').item.json.body.service || 'yard care' }}. Thank-you SMS sent.",
+        "additionalFields": {}
+      },
+      "id": "tg34-telegram",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        300
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram API"
+        }
       }
     }
   ],
   "connections": {
-    "Execute Workflow Trigger": {
+    "Webhook Trigger": {
       "main": [
         [
           {
-            "node": "Lookup Referral Code",
+            "node": "Find Referrer in Leads",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Lookup Referral Code": {
+    "Find Referrer in Leads": {
       "main": [
         [
           {
-            "node": "Log Referral Redemption",
+            "node": "Log Referral Event",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Log Referral Redemption": {
+    "Log Referral Event": {
       "main": [
         [
           {
-            "node": "SMS Referring Customer",
+            "node": "Build Thank Referrer SMS",
             "type": "main",
             "index": 0
-          },
+          }
+        ]
+      ]
+    },
+    "Build Thank Referrer SMS": {
+      "main": [
+        [
           {
-            "node": "SMS New Customer Welcome",
+            "node": "Send SMS via TG-94",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send SMS via TG-94": {
+      "main": [
+        [
+          {
+            "node": "Telegram Alert",
             "type": "main",
             "index": 0
           }
@@ -219,6 +193,7 @@
     }
   },
   "settings": {
-    "availableInMCP": true
-  }
+    "executionOrder": "v1"
+  },
+  "active": false
 }
