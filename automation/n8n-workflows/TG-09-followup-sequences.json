@@ -2,9 +2,18 @@
   "name": "TG-09-followup-sequences",
   "nodes": [
     {
-      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 15 * * *" }] } },
-      "id": "schedule",
-      "name": "Daily 10am CT",
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 15 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [0, 300]
@@ -12,97 +21,230 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?status=neq.converted&email=not.is.null&select=id,first_name,email,phone,service,lead_score,created_at,source",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?status=eq.new&follow_up_stage=lt.5&created_at=gte.{{ new Date(Date.now() - 15*24*60*60*1000).toISOString() }}&select=id,first_name,last_name,email,phone,service,source,created_at,follow_up_stage,lead_score,lead_tier",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "none",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+          ]
+        },
+        "options": {}
       },
       "id": "fetch-leads",
-      "name": "Fetch Active Leads",
+      "name": "Fetch Leads for Follow-up",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 300]
+      "position": [280, 200]
     },
     {
       "parameters": {
         "method": "GET",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/email_sends?workflow_name=eq.followup_sequence&select=contact_email,email_type,sent_at",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/reviews?rating=eq.5&select=id,author_name,text,rating&order=published_at.desc&limit=10",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "none",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+          ]
+        },
+        "options": {}
       },
-      "id": "fetch-sent-history",
-      "name": "Fetch Sent History",
+      "id": "fetch-reviews",
+      "name": "Fetch 5-Star Reviews",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 500]
+      "position": [280, 500]
     },
     {
       "parameters": {
-        "jsCode": "function buildEmailHtml(options) {\n  const { subject, headline, bodyHtml, reviewText, reviewerName, ctaText, ctaUrl, urgencyText, previewText } = options;\n  return `<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><title>${subject}</title></head><body style=\"margin:0;padding:0;background-color:#f5f5f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;\"><span style=\"display:none;max-height:0;overflow:hidden;\">${previewText || ''}</span><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f5f5f0;\"><tr><td align=\"center\" style=\"padding:20px;\"><table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);\"><tr><td style=\"background:#2D5A27;padding:20px 30px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"color:#ffffff;font-size:20px;font-weight:bold;\">TotalGuard Yard Care</td><td align=\"right\" style=\"color:#ffffff;font-size:14px;\"><a href=\"tel:6085356057\" style=\"color:#ffffff;text-decoration:none;\">(608) 535-6057</a></td></tr><tr><td colspan=\"2\" style=\"color:#C5A55A;font-size:12px;padding-top:4px;\">Madison's Most Trusted Yard Care</td></tr></table></td></tr><tr><td style=\"padding:30px 30px 10px;\"><h1 style=\"margin:0;color:#2D5A27;font-size:24px;\">${headline}</h1></td></tr><tr><td style=\"padding:10px 30px 20px;color:#1a1a1a;font-size:15px;line-height:1.6;\">${bodyHtml}</td></tr>${reviewText ? `<tr><td style=\"padding:0 30px 20px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"background:#f5f5f0;border-left:4px solid #2D5A27;padding:16px 20px;border-radius:0 6px 6px 0;\"><div style=\"color:#C5A55A;font-size:18px;margin-bottom:8px;\">★★★★★</div><div style=\"color:#333;font-style:italic;font-size:14px;margin-bottom:8px;\">\"${reviewText}\"</div><div style=\"color:#2D5A27;font-weight:bold;font-size:13px;\">— ${reviewerName}</div><div style=\"color:#888;font-size:11px;\">Verified Google Review</div></td></tr></table></td></tr>` : ''}${urgencyText ? `<tr><td style=\"padding:0 30px 20px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"background:#f0f8f0;border:2px solid #2D5A27;border-radius:8px;padding:16px 20px;text-align:center;\"><div style=\"color:#2D5A27;font-weight:bold;font-size:14px;\">${urgencyText}</div></td></tr></table></td></tr>` : ''}<tr><td style=\"padding:0 30px 20px;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"background:#2D5A27;border-radius:6px;padding:14px 32px;\"><a href=\"${ctaUrl}\" style=\"color:#ffffff;text-decoration:none;font-weight:bold;font-size:16px;display:inline-block;\">${ctaText}</a></td></tr></table></td></tr><tr><td style=\"padding:0 30px 20px;text-align:center;\"><div style=\"color:#555;font-size:13px;\">Prefer to talk? <a href=\"tel:6085356057\" style=\"color:#2D5A27;font-weight:bold;\">(608) 535-6057</a></div></td></tr><tr><td style=\"padding:10px 30px;text-align:center;border-top:1px solid #eee;\"><div style=\"color:#888;font-size:11px;\">✓ Licensed & Insured &nbsp; ✓ 4.9★ Google Rating &nbsp; ✓ 500+ Properties &nbsp; ✓ Satisfaction Guaranteed</div></td></tr><tr><td style=\"background:#1a1a1a;padding:24px 30px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"color:#ffffff;font-size:14px;font-weight:bold;\">TotalGuard Yard Care</td></tr><tr><td style=\"color:#aaa;font-size:12px;padding-top:6px;\">7610 Welton Dr, Madison, WI 53711</td></tr><tr><td style=\"color:#aaa;font-size:12px;padding-top:4px;\"><a href=\"tel:6085356057\" style=\"color:#C5A55A;\">(608) 535-6057</a> | <a href=\"mailto:totalguardllc@gmail.com\" style=\"color:#C5A55A;\">totalguardllc@gmail.com</a></td></tr><tr><td style=\"padding-top:10px;\"><a href=\"https://facebook.com/totalguardyard/\" style=\"color:#C5A55A;font-size:12px;text-decoration:none;margin-right:10px;\">Facebook</a> <a href=\"https://instagram.com/totalguardyardcare\" style=\"color:#C5A55A;font-size:12px;text-decoration:none;margin-right:10px;\">Instagram</a> <a href=\"https://g.page/r/CRW5Dsg2JgwBEBM/review\" style=\"color:#C5A55A;font-size:12px;text-decoration:none;\">Google</a></td></tr><tr><td style=\"color:#666;font-size:10px;padding-top:10px;\">Serving Madison, Middleton, Waunakee, Monona, Sun Prairie, Fitchburg, Verona, McFarland, Cottage Grove, DeForest, Oregon & Stoughton</td></tr></table></td></tr></table></td></tr></table></body></html>`;\n}\n\nconst leads = $('Fetch Active Leads').all().map(i => i.json);\nconst sentHistory = $('Fetch Sent History').all().map(i => i.json);\n\n// Build dedup set: \"email|email_type\"\nconst alreadySent = new Set();\nfor (const s of sentHistory) {\n  if (s.contact_email && s.email_type) {\n    alreadySent.add(s.contact_email + '|' + s.email_type);\n  }\n}\n\nconst reviews = {\n  hot: { text: 'TotalGuard transformed our yard in just one visit. Professional, on-time, and the results speak for themselves.', name: 'Sarah M., Middleton' },\n  warm: { text: 'We tried three other companies before finding TotalGuard. Night and day difference — they actually care about doing it right.', name: 'Mike & Lisa R., Madison' },\n  cold: { text: 'Signed up on a whim and now I can\\'t imagine using anyone else. My lawn has never looked this good.', name: 'David K., Waunakee' }\n};\n\nconst results = [];\nfor (const lead of leads) {\n  if (!lead.email) continue;\n  const days = Math.floor((Date.now() - new Date(lead.created_at)) / (1000*60*60*24));\n  const score = lead.lead_score || 0;\n  let tier = score >= 70 ? 'hot' : score >= 40 ? 'warm' : 'cold';\n  let sendDay = false;\n  if (tier === 'hot' && [1,3,5].includes(days)) sendDay = true;\n  if (tier === 'warm' && [2,5,10].includes(days)) sendDay = true;\n  if (tier === 'cold' && [3,7,14,30].includes(days)) sendDay = true;\n  if (!sendDay) continue;\n\n  const emailType = 'followup_' + tier + '_day' + days;\n\n  // Dedup: skip if already sent this exact email to this lead\n  if (alreadySent.has(lead.email + '|' + emailType)) continue;\n\n  const subjects = {\n    hot: ['Your TotalGuard quote is ready, ' + lead.first_name, 'Still thinking it over? We saved your spot', 'Final notice: lock in your lawn care rate'],\n    warm: ['Madison lawn tips \\u2014 from TotalGuard', 'How TotalGuard protects your lawn all season', 'Your neighbors are loving their TotalGuard service'],\n    cold: ['Free lawn care tips from TotalGuard', 'Seasonal reminder from TotalGuard Yard Care', 'When you\\'re ready, we\\'re here']\n  };\n  const seqIdx = tier === 'hot' ? [1,3,5].indexOf(days) : tier === 'warm' ? [2,5,10].indexOf(days) : [3,7,14,30].indexOf(days);\n  const subject = subjects[tier][Math.min(seqIdx, subjects[tier].length-1)];\n\n  const name = lead.first_name || 'there';\n  const service = lead.service || 'yard care';\n  const review = reviews[tier];\n\n  // Build tier-specific HTML body content\n  let bodyHtml = '';\n  let headline = '';\n  let urgencyText = '';\n  let ctaText = 'Get Your Free Quote';\n  let previewText = '';\n\n  if (tier === 'hot') {\n    headline = seqIdx === 0 ? `Your ${service} quote is ready!` : seqIdx === 1 ? 'We saved your spot' : 'Last chance to lock in your rate';\n    previewText = seqIdx === 0 ? `Hi ${name}, your personalized quote for ${service} is ready.` : `Don't miss out on your ${service} quote, ${name}.`;\n    bodyHtml = `<p>Hi ${name},</p>` +\n      (seqIdx === 0 ? `<p>Thanks for reaching out about <strong>${service}</strong>! We'd love to get your property looking its absolute best.</p><p>As one of Madison's highest-rated yard care companies, we take pride in delivering results that exceed expectations — and we'd love to show you what we can do.</p>` :\n       seqIdx === 1 ? `<p>We noticed you haven't booked your <strong>${service}</strong> service yet — no worries! We've saved your spot and your quote is still valid.</p><p>Many of our Madison neighbors book within the first week to lock in seasonal pricing.</p>` :\n       `<p>This is your <strong>final reminder</strong> — your personalized quote for <strong>${service}</strong> expires soon. After this, pricing may change based on seasonal demand.</p><p>Lock in today's rate and join 500+ Madison homeowners who trust TotalGuard.</p>`);\n    urgencyText = seqIdx === 2 ? '⏰ Quote expires in 48 hours — lock in your rate today!' : '';\n    ctaText = seqIdx === 0 ? 'View My Quote' : seqIdx === 1 ? 'Book My Service' : 'Lock In My Rate';\n  } else if (tier === 'warm') {\n    headline = seqIdx === 0 ? 'Pro lawn tips for Madison homeowners' : seqIdx === 1 ? 'All-season lawn protection' : 'Your neighbors love TotalGuard';\n    previewText = `Helpful lawn care tips and insights from TotalGuard, ${name}.`;\n    bodyHtml = `<p>Hi ${name},</p>` +\n      (seqIdx === 0 ? `<p>Here's a quick lawn care tip from our team: <strong>water deeply 2-3 times per week</strong> rather than lightly every day. Deep watering encourages stronger root growth, which means a healthier, more resilient lawn.</p><p>Want a professional assessment of your yard? We offer free consultations for Madison homeowners.</p>` :\n       seqIdx === 1 ? `<p>Madison weather can be unpredictable — from summer heat to heavy rains and everything in between. TotalGuard's seasonal programs keep your lawn protected and thriving all year long.</p><p>Our services include: <strong>weekly mowing, fertilization, aeration, weed control, spring & fall cleanups</strong>, and more.</p>` :\n       `<p>More and more of your Madison neighbors are choosing TotalGuard for their yard care needs. With a <strong>4.9-star Google rating</strong> and 500+ properties served, we've become the area's most trusted name in lawn care.</p><p>See what the buzz is about — book a free consultation today.</p>`);\n    ctaText = seqIdx === 0 ? 'Get a Free Consultation' : seqIdx === 1 ? 'See Our Services' : 'Join Your Neighbors';\n  } else {\n    headline = seqIdx === 0 ? 'Free lawn care tips' : seqIdx === 1 ? 'Seasonal yard care reminder' : seqIdx === 2 ? 'Your neighbors trust TotalGuard' : 'We\\'re here when you\\'re ready';\n    previewText = `Lawn care tips and seasonal reminders from TotalGuard Yard Care.`;\n    bodyHtml = `<p>Hi ${name},</p>` +\n      (seqIdx === 0 ? `<p>Quick tip from the TotalGuard team: <strong>never cut more than 1/3 of your grass blade height</strong> at once. This simple rule keeps your lawn healthier and more resistant to weeds and disease.</p><p>When you're ready for professional care, we're just a call away.</p>` :\n       seqIdx === 1 ? `<p>It's a great time to think about your yard! Whether you need a one-time cleanup or ongoing maintenance, TotalGuard has flexible options for every Madison homeowner.</p><p>No contracts required — just great service.</p>` :\n       seqIdx === 2 ? `<p>Over 500 Madison-area homeowners trust TotalGuard with their yards. From Middleton to Sun Prairie, we're the local team that shows up on time and gets the job done right.</p>` :\n       `<p>No pressure at all — we just wanted you to know that TotalGuard is here whenever you need yard care help. Whether it's next week or next season, we'd love to earn your business.</p><p>Save our number: <strong>(608) 535-6057</strong></p>`);\n    ctaText = 'Learn More';\n  }\n\n  const htmlBody = buildEmailHtml({\n    subject,\n    headline,\n    bodyHtml,\n    reviewText: review.text,\n    reviewerName: review.name,\n    ctaText,\n    ctaUrl: 'https://tgyardcare.com',\n    urgencyText: urgencyText || undefined,\n    previewText\n  });\n\n  results.push({ json: { ...lead, tier, days, subject, emailType, seqStep: seqIdx + 1, htmlBody, body: `Hi ${name},\\n\\nThanks for your interest in TotalGuard Yard Care! We'd love to get your ${service} looking its best.\\n\\nBook online at tgyardcare.com or call (608) 535-6057.\\n\\n- The TotalGuard Team` } });\n}\nreturn results;"
+        "jsCode": "const leads = $('Fetch Leads for Follow-up').all().map(i => i.json);\nconst reviews = $('Fetch 5-Star Reviews').all().map(i => i.json);\n\nfunction getRandomReview() {\n  if (!reviews.length) return { text: 'Professional, on-time, and our lawn has never looked better!', author_name: 'A Happy Customer' };\n  return reviews[Math.floor(Math.random() * reviews.length)];\n}\n\nfunction truncateReview(text, maxLen) {\n  if (!text) return '';\n  if (text.length <= maxLen) return text;\n  return text.substring(0, maxLen - 3) + '...';\n}\n\nfunction buildEmailHtml(options) {\n  const { subject, headline, bodyHtml, reviewText, reviewerName, ctaText, ctaUrl, urgencyText, previewText } = options;\n  return `<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><title>${subject}</title></head><body style=\"margin:0;padding:0;background-color:#f5f5f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;\"><span style=\"display:none;max-height:0;overflow:hidden;\">${previewText || ''}</span><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f5f5f0;\"><tr><td align=\"center\" style=\"padding:20px;\"><table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);\"><tr><td style=\"background:#2D5A27;padding:20px 30px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"color:#ffffff;font-size:20px;font-weight:bold;\">TotalGuard Yard Care</td><td align=\"right\" style=\"color:#ffffff;font-size:14px;\"><a href=\"tel:6085356057\" style=\"color:#ffffff;text-decoration:none;\">(608) 535-6057</a></td></tr><tr><td colspan=\"2\" style=\"color:#C5A55A;font-size:12px;padding-top:4px;\">Madison's Most Trusted Yard Care</td></tr></table></td></tr><tr><td style=\"padding:30px 30px 10px;\"><h1 style=\"margin:0;color:#2D5A27;font-size:24px;\">${headline}</h1></td></tr><tr><td style=\"padding:10px 30px 20px;color:#1a1a1a;font-size:15px;line-height:1.6;\">${bodyHtml}</td></tr>${reviewText ? `<tr><td style=\"padding:0 30px 20px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"background:#f5f5f0;border-left:4px solid #2D5A27;padding:16px 20px;border-radius:0 6px 6px 0;\"><div style=\"color:#C5A55A;font-size:18px;margin-bottom:8px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div style=\"color:#333;font-style:italic;font-size:14px;margin-bottom:8px;\">\"${reviewText}\"</div><div style=\"color:#2D5A27;font-weight:bold;font-size:13px;\">-- ${reviewerName}</div><div style=\"color:#888;font-size:11px;\">Verified Google Review</div></td></tr></table></td></tr>` : ''}<tr><td style=\"padding:0 30px 20px;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"background:#2D5A27;border-radius:6px;padding:14px 32px;\"><a href=\"${ctaUrl}\" style=\"color:#ffffff;text-decoration:none;font-weight:bold;font-size:16px;display:inline-block;\">${ctaText}</a></td></tr></table></td></tr>${urgencyText ? `<tr><td style=\"padding:0 30px 20px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"background:#f0f8f0;border:2px solid #2D5A27;border-radius:8px;padding:16px 20px;text-align:center;\"><div style=\"color:#2D5A27;font-weight:bold;font-size:14px;\">${urgencyText}</div></td></tr></table></td></tr>` : ''}<tr><td style=\"padding:0 30px 20px;text-align:center;\"><div style=\"color:#555;font-size:13px;\">Prefer to talk? <a href=\"tel:6085356057\" style=\"color:#2D5A27;font-weight:bold;\">(608) 535-6057</a></div></td></tr><tr><td style=\"padding:10px 30px;text-align:center;border-top:1px solid #eee;\"><div style=\"color:#888;font-size:11px;\">Licensed & Insured | 4.9 Google Rating | 500+ Properties | Satisfaction Guaranteed</div></td></tr><tr><td style=\"background:#1a1a1a;padding:24px 30px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"color:#ffffff;font-size:14px;font-weight:bold;\">TotalGuard Yard Care</td></tr><tr><td style=\"color:#aaa;font-size:12px;padding-top:6px;\">7610 Welton Dr, Madison, WI 53711</td></tr><tr><td style=\"color:#aaa;font-size:12px;padding-top:4px;\"><a href=\"tel:6085356057\" style=\"color:#C5A55A;\">(608) 535-6057</a> | <a href=\"mailto:totalguardllc@gmail.com\" style=\"color:#C5A55A;\">totalguardllc@gmail.com</a></td></tr><tr><td style=\"padding-top:10px;\"><a href=\"https://instagram.com/totalguardyardcare\" style=\"color:#C5A55A;font-size:12px;text-decoration:none;margin-right:10px;\">Instagram</a> <a href=\"https://g.page/r/CRW5Dsg2JgwBEBM/review\" style=\"color:#C5A55A;font-size:12px;text-decoration:none;\">Google</a></td></tr><tr><td style=\"color:#666;font-size:10px;padding-top:10px;\">Serving Madison, Middleton, Waunakee, Monona, Sun Prairie, Fitchburg, Verona, McFarland, Cottage Grove, DeForest, Oregon & Stoughton</td></tr></table></td></tr></table></td></tr></table></body></html>`;\n}\n\nconst results = [];\n\nfor (const lead of leads) {\n  const stage = lead.follow_up_stage || 0;\n  const daysSinceCreated = Math.floor((Date.now() - new Date(lead.created_at).getTime()) / (1000 * 60 * 60 * 24));\n  const name = lead.first_name || 'there';\n  const service = lead.service || 'yard care';\n  const review = getRandomReview();\n  const reviewSnippet = truncateReview(review.text, 100);\n\n  let touchDue = null;\n  if (stage === 0 && daysSinceCreated >= 1) touchDue = 1;\n  else if (stage === 1 && daysSinceCreated >= 3) touchDue = 2;\n  else if (stage === 2 && daysSinceCreated >= 5) touchDue = 3;\n  else if (stage === 3 && daysSinceCreated >= 7) touchDue = 4;\n  else if (stage === 4 && daysSinceCreated >= 14) touchDue = 5;\n\n  if (!touchDue) continue;\n\n  let output = null;\n\n  if (touchDue === 1) {\n    if (!lead.phone) continue;\n    output = {\n      channel: 'sms',\n      lead_id: lead.id,\n      new_stage: 1,\n      to_phone: lead.phone,\n      message_body: `Hi ${name}! Just checking in about your ${service} request from TotalGuard. We'd love to get you scheduled -- reply here or call (608) 535-6057. We're ready when you are!`,\n      workflow_name: 'TG-09',\n      message_type: 'followup_touch1'\n    };\n  } else if (touchDue === 2) {\n    if (!lead.email) continue;\n    const html = buildEmailHtml({\n      subject: `What to expect from TotalGuard, ${name}`,\n      headline: \"Here's What Working with TotalGuard Looks Like\",\n      bodyHtml: `<p>Hi ${name},</p><p>We wanted to give you a quick peek at what makes TotalGuard different:</p><ul style=\"color:#1a1a1a;line-height:2;\"><li><strong>Free consultation</strong> -- We'll assess your property and recommend exactly what it needs</li><li><strong>Custom plan</strong> -- No cookie-cutter packages. Your lawn gets a plan built just for it</li><li><strong>Reliable crew</strong> -- Same team every visit, on time, every time</li><li><strong>Quality guarantee</strong> -- Not happy? We come back and make it right</li></ul><p>Over 500 Madison homeowners already trust us with their yards. Here's what one had to say:</p>`,\n      reviewText: reviewSnippet,\n      reviewerName: review.author_name || 'Verified Customer',\n      ctaText: 'Schedule My Free Consultation',\n      ctaUrl: 'https://tgyardcare.com/contact',\n      previewText: `Here's what makes TotalGuard different, ${name}.`\n    });\n    output = {\n      channel: 'email',\n      lead_id: lead.id,\n      new_stage: 2,\n      to_email: lead.email,\n      subject: `What to expect from TotalGuard, ${name}`,\n      html_body: html,\n      workflow_name: 'TG-09',\n      email_type: 'followup_touch2'\n    };\n  } else if (touchDue === 3) {\n    if (!lead.phone) continue;\n    output = {\n      channel: 'sms',\n      lead_id: lead.id,\n      new_stage: 3,\n      to_phone: lead.phone,\n      message_body: `Hi ${name}, ${review.author_name || 'a neighbor'} just said: \"${reviewSnippet}\" We'd love to earn a 5-star review from you too! Book at tgyardcare.com or call (608) 535-6057`,\n      workflow_name: 'TG-09',\n      message_type: 'followup_touch3'\n    };\n  } else if (touchDue === 4) {\n    if (!lead.email) continue;\n    const html = buildEmailHtml({\n      subject: `Your ${service} quote is still available, ${name}`,\n      headline: 'Your Quote is Still Available',\n      bodyHtml: `<p>Hi ${name},</p><p>Just a heads up -- your personalized <strong>${service}</strong> quote is still available, but we can't guarantee current pricing much longer.</p><p>Spring is our busiest season, and our schedule fills up fast. Lock in your spot now and join the hundreds of Madison homeowners who trust TotalGuard.</p>`,\n      reviewText: reviewSnippet,\n      reviewerName: review.author_name || 'Verified Customer',\n      ctaText: 'Lock In My Quote',\n      ctaUrl: 'https://tgyardcare.com/contact',\n      urgencyText: 'Spring schedules are filling up -- book this week to guarantee your spot!',\n      previewText: `Your ${service} quote is still available, ${name}. Don't miss out.`\n    });\n    output = {\n      channel: 'email',\n      lead_id: lead.id,\n      new_stage: 4,\n      to_email: lead.email,\n      subject: `Your ${service} quote is still available, ${name}`,\n      html_body: html,\n      workflow_name: 'TG-09',\n      email_type: 'followup_touch4'\n    };\n  } else if (touchDue === 5) {\n    if (!lead.email) continue;\n    const html = buildEmailHtml({\n      subject: `We're here when you're ready, ${name}`,\n      headline: \"No Pressure -- We're Here When You're Ready\",\n      bodyHtml: `<p>Hi ${name},</p><p>We know life gets busy, and choosing a yard care company is a big decision. No rush at all.</p><p>Whenever you're ready, TotalGuard is here with:</p><ul style=\"color:#1a1a1a;line-height:2;\"><li>No contracts -- cancel anytime</li><li>Free property assessments</li><li>Licensed, insured, and locally owned</li><li>4.9-star Google rating from 500+ happy neighbors</li></ul><p>Save our number: <strong>(608) 535-6057</strong>. We'd love to earn your business.</p>`,\n      reviewText: reviewSnippet,\n      reviewerName: review.author_name || 'Verified Customer',\n      ctaText: 'Get a Free Assessment',\n      ctaUrl: 'https://tgyardcare.com/contact',\n      previewText: `No pressure, ${name}. TotalGuard is here whenever you need us.`\n    });\n    output = {\n      channel: 'email',\n      lead_id: lead.id,\n      new_stage: 5,\n      to_email: lead.email,\n      subject: `We're here when you're ready, ${name}`,\n      html_body: html,\n      workflow_name: 'TG-09',\n      email_type: 'followup_touch5'\n    };\n  }\n\n  if (output) results.push({ json: output });\n}\n\nreturn results;"
       },
-      "id": "filter-leads",
-      "name": "Filter and Dedup Leads",
+      "id": "process-followups",
+      "name": "Process Follow-ups",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 400]
+      "position": [560, 350]
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://api.brevo.com/v3/smtp/email",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.channel}}",
+                    "rightValue": "sms",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "sms"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.channel}}",
+                    "rightValue": "email",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "email"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "route-channel",
+      "name": "Route by Channel",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [820, 350]
+    },
+    {
+      "parameters": {
+        "source": "id",
+        "workflowId": "AprqI2DgQA8lehij",
+        "options": {}
+      },
+      "id": "send-sms",
+      "name": "Send SMS via TG-94",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1080, 200]
+    },
+    {
+      "parameters": {
+        "source": "id",
+        "workflowId": "IUDLrQrAkcLFLsIC",
+        "options": {}
+      },
+      "id": "send-email",
+      "name": "Send Email via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1080, 500]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?id=eq.={{$('Route by Channel').item.json.lead_id}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "none",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "api-key", "value": "={{$vars.TG_BREVO_API_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" }, \"to\": [{ \"email\": \"{{ $json.email }}\", \"name\": \"{{ $json.first_name }}\" }], \"subject\": \"{{ $json.subject }}\", \"htmlContent\": \"{{ $json.htmlBody }}\", \"textContent\": \"{{ $json.body }}\" }"
+        "jsonBody": "={ \"follow_up_stage\": {{$('Route by Channel').item.json.new_stage}} }",
+        "options": {}
       },
-      "id": "send-followup",
-      "name": "Send Follow-up Email",
+      "id": "update-stage-sms",
+      "name": "Update Lead Stage (SMS)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [660, 400],
+      "position": [1340, 200],
       "continueOnFail": true
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/email_sends",
+        "method": "PATCH",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?id=eq.={{$('Route by Channel').item.json.lead_id}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "none",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contact_email\": \"{{ $json.email }}\",\n  \"workflow_name\": \"followup_sequence\",\n  \"email_type\": \"{{ $json.emailType }}\",\n  \"sequence_step\": {{ $json.seqStep }}\n}"
+        "jsonBody": "={ \"follow_up_stage\": {{$('Route by Channel').item.json.new_stage}} }",
+        "options": {}
       },
-      "id": "log-send",
-      "name": "Log to email_sends",
+      "id": "update-stage-email",
+      "name": "Update Lead Stage (Email)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [880, 400]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/sequence_enrollments?on_conflict=contact_email,sequence_name",
-        "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }, { "name": "Prefer", "value": "resolution=merge-duplicates" }] },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"contact_email\": \"{{ $json.email }}\",\n  \"sequence_name\": \"followup_sequence\",\n  \"current_step\": {{ $json.seqStep }},\n  \"status\": \"active\"\n}"
-      },
-      "id": "upsert-enrollment",
-      "name": "Upsert Enrollment",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [1100, 400],
+      "position": [1340, 500],
       "continueOnFail": true
     }
   ],
   "connections": {
-    "Daily 10am CT": { "main": [[{ "node": "Fetch Active Leads", "type": "main", "index": 0 }, { "node": "Fetch Sent History", "type": "main", "index": 0 }]] },
-    "Fetch Active Leads": { "main": [[{ "node": "Filter and Dedup Leads", "type": "main", "index": 0 }]] },
-    "Fetch Sent History": { "main": [[{ "node": "Filter and Dedup Leads", "type": "main", "index": 0 }]] },
-    "Filter and Dedup Leads": { "main": [[{ "node": "Send Follow-up Email", "type": "main", "index": 0 }]] },
-    "Send Follow-up Email": { "main": [[{ "node": "Log to email_sends", "type": "main", "index": 0 }]] },
-    "Log to email_sends": { "main": [[{ "node": "Upsert Enrollment", "type": "main", "index": 0 }]] }
+    "Schedule Trigger": {
+      "main": [
+        [
+          { "node": "Fetch Leads for Follow-up", "type": "main", "index": 0 },
+          { "node": "Fetch 5-Star Reviews", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Leads for Follow-up": {
+      "main": [
+        [
+          { "node": "Process Follow-ups", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch 5-Star Reviews": {
+      "main": [
+        [
+          { "node": "Process Follow-ups", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Process Follow-ups": {
+      "main": [
+        [
+          { "node": "Route by Channel", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Route by Channel": {
+      "main": [
+        [
+          { "node": "Send SMS via TG-94", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Send Email via TG-95", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Send SMS via TG-94": {
+      "main": [
+        [
+          { "node": "Update Lead Stage (SMS)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Send Email via TG-95": {
+      "main": [
+        [
+          { "node": "Update Lead Stage (Email)", "type": "main", "index": 0 }
+        ]
+      ]
+    }
   },
-  "settings": { "availableInMCP": true }
+  "settings": { "executionOrder": "v1" }
 }
