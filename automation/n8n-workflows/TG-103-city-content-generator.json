@@ -307,6 +307,34 @@
         1000,
         400
       ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.indexnow.org/indexnow",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"host\": \"tgyardcare.com\", \"key\": \"tg2026indexnow8x4k\", \"urlList\": [\"https://tgyardcare.com/blog/{{ $('Parse Claude Response').first().json.slug }}\"] }",
+        "options": {}
+      },
+      "id": "ping-indexnow",
+      "name": "Ping IndexNow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1660,
+        400
+      ],
+      "continueOnFail": true
     }
   ],
   "connections": {
@@ -461,6 +489,17 @@
         [
           {
             "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger TG-104 Quality Check": {
+      "main": [
+        [
+          {
+            "node": "Ping IndexNow",
             "type": "main",
             "index": 0
           }

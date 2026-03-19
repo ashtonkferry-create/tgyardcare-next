@@ -1,11 +1,157 @@
 {
   "name": "TG-47-indexnow-submitter",
   "nodes": [
-    { "parameters": {}, "id": "trigger", "name": "Execute Workflow Trigger", "type": "n8n-nodes-base.executeWorkflowTrigger", "typeVersion": 1, "position": [0, 300] },
-    { "parameters": { "method": "POST", "url": "https://api.indexnow.org/indexnow", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Content-Type", "value": "application/json" }] }, "sendBody": true, "specifyBody": "json", "jsonBody": "={ \"host\": \"tgyardcare.com\", \"key\": \"{{ $vars.TG_INDEXNOW_KEY }}\", \"keyLocation\": \"https://tgyardcare.com/{{ $vars.TG_INDEXNOW_KEY }}.txt\", \"urlList\": [\"{{ $json.url }}\"] }" }, "id": "submit-indexnow", "name": "Submit to IndexNow", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [220, 300] },
-    { "parameters": { "method": "POST", "url": "https://www.bing.com/indexnow", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Content-Type", "value": "application/json" }] }, "sendBody": true, "specifyBody": "json", "jsonBody": "={ \"host\": \"tgyardcare.com\", \"key\": \"{{ $vars.TG_INDEXNOW_KEY }}\", \"urlList\": [\"{{ $('Execute Workflow Trigger').first().json.url }}\"] }" }, "id": "submit-bing", "name": "Submit to Bing", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [440, 300] },
-    { "parameters": { "method": "POST", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/seo_intelligence_log", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] }, "sendBody": true, "bodyParameters": { "parameters": [{ "name": "event_type", "value": "indexnow_submitted" }, { "name": "url", "value": "={{$('Execute Workflow Trigger').first().json.url}}" }, { "name": "logged_at", "value": "={{ new Date().toISOString() }}" }] } }, "id": "log-submission", "name": "Log Submission", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [660, 300] }
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize input: accepts { url } or { urls: string[] }\nconst input = $input.first().json;\nlet urls = [];\nif (Array.isArray(input.urls)) {\n  urls = input.urls;\n} else if (typeof input.url === 'string') {\n  urls = [input.url];\n}\nif (urls.length === 0) {\n  throw new Error('No URLs provided. Pass { url: \"...\" } or { urls: [\"...\"] }');\n}\nreturn [{ json: { urls } }];"
+      },
+      "id": "normalize-input",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.indexnow.org/indexnow",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"host\": \"tgyardcare.com\", \"key\": \"tg2026indexnow8x4k\", \"keyLocation\": \"https://tgyardcare.com/tg2026indexnow8x4k.txt\", \"urlList\": {{ JSON.stringify($json.urls) }} }",
+        "options": {}
+      },
+      "id": "submit-indexnow",
+      "name": "Submit to IndexNow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.bing.com/indexnow",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"host\": \"tgyardcare.com\", \"key\": \"tg2026indexnow8x4k\", \"urlList\": {{ JSON.stringify($('Normalize Input').first().json.urls) }} }",
+        "options": {}
+      },
+      "id": "submit-bing",
+      "name": "Submit to Bing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/automation_runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"automation_slug\": \"TG-47-indexnow-submitter\", \"status\": \"success\", \"result_summary\": \"Submitted {{ $('Normalize Input').first().json.urls.length }} URL(s) to IndexNow + Bing\", \"pages_affected\": {{ $('Normalize Input').first().json.urls.length }}, \"completed_at\": \"{{ new Date().toISOString() }}\" }"
+      },
+      "id": "log-submission",
+      "name": "Log to automation_runs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300],
+      "continueOnFail": true
+    }
   ],
-  "connections": { "Execute Workflow Trigger": { "main": [[{ "node": "Submit to IndexNow", "type": "main", "index": 0 }]] }, "Submit to IndexNow": { "main": [[{ "node": "Submit to Bing", "type": "main", "index": 0 }]] }, "Submit to Bing": { "main": [[{ "node": "Log Submission", "type": "main", "index": 0 }]] } },
-  "settings": { "availableInMCP": true }
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Submit to IndexNow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit to IndexNow": {
+      "main": [
+        [
+          {
+            "node": "Submit to Bing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit to Bing": {
+      "main": [
+        [
+          {
+            "node": "Log to automation_runs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
 }

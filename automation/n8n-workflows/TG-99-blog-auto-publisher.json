@@ -24,7 +24,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "https://SUPABASE_PROJECT_ID.supabase.co/rest/v1/blog_posts?select=slug,category&order=published_at.desc",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/blog_posts?select=slug,category&order=published_at.desc",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -95,7 +95,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://SUPABASE_PROJECT_ID.supabase.co/rest/v1/automation_runs",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/automation_runs",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -211,7 +211,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://SUPABASE_PROJECT_ID.supabase.co/rest/v1/automation_runs",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/automation_runs",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -249,7 +249,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://SUPABASE_PROJECT_ID.supabase.co/rest/v1/blog_posts",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/blog_posts",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -315,7 +315,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://SUPABASE_PROJECT_ID.supabase.co/rest/v1/automation_runs",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/automation_runs",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
