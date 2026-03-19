@@ -25,13 +25,15 @@ import {
   Calendar,
   ChevronDown,
   Layers,
-  type LucideIcon
+  type LucideIcon,
+  GripHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSeasonalTheme } from "@/contexts/SeasonalThemeContext";
 import { useEffect, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
+import { motion, AnimatePresence, type PanInfo } from "framer-motion";
 
 interface MobileNavMenuProps {
   isOpen: boolean;
@@ -42,6 +44,7 @@ interface ServiceItem {
   name: string;
   path: string;
   icon: LucideIcon;
+  description?: string;
   winterOnly?: boolean;
 }
 
@@ -55,45 +58,45 @@ const serviceCategories: {
     category: "Lawn Care",
     icon: Sprout,
     services: [
-      { name: "Lawn Mowing", path: "/services/mowing", icon: Scissors },
-      { name: "Fertilization", path: "/services/fertilization", icon: SprayCan },
-      { name: "Aeration", path: "/services/aeration", icon: CircleDot },
-      { name: "Weed Control", path: "/services/herbicide", icon: Leaf },
+      { name: "Lawn Mowing", path: "/services/mowing", icon: Scissors, description: "Weekly precision cuts" },
+      { name: "Fertilization", path: "/services/fertilization", icon: SprayCan, description: "Thicker, greener lawns" },
+      { name: "Aeration", path: "/services/aeration", icon: CircleDot, description: "Stronger root systems" },
+      { name: "Weed Control", path: "/services/herbicide", icon: Leaf, description: "Targeted elimination" },
     ]
   },
   {
     category: "Landscaping",
     icon: Flower2,
     services: [
-      { name: "Garden Beds", path: "/services/garden-beds", icon: Flower2 },
-      { name: "Mulching", path: "/services/mulching", icon: Trees },
-      { name: "Pruning", path: "/services/pruning", icon: Scissors },
-      { name: "Weeding", path: "/services/weeding", icon: Leaf },
+      { name: "Garden Beds", path: "/services/garden-beds", icon: Flower2, description: "Design & plant beds" },
+      { name: "Mulching", path: "/services/mulching", icon: Trees, description: "Premium bed coverage" },
+      { name: "Pruning", path: "/services/pruning", icon: Scissors, description: "Expert shaping" },
+      { name: "Weeding", path: "/services/weeding", icon: Leaf, description: "Root-level removal" },
     ]
   },
   {
     category: "Seasonal",
     icon: Calendar,
     services: [
-      { name: "Spring Cleanup", path: "/services/spring-cleanup", icon: Sparkles },
-      { name: "Fall Cleanup", path: "/services/fall-cleanup", icon: CloudRain },
-      { name: "Leaf Removal", path: "/services/leaf-removal", icon: Trash2 },
-      { name: "Snow Removal", path: "/services/snow-removal", icon: Snowflake, winterOnly: true },
+      { name: "Spring Cleanup", path: "/services/spring-cleanup", icon: Sparkles, description: "Fresh season start" },
+      { name: "Fall Cleanup", path: "/services/fall-cleanup", icon: CloudRain, description: "Complete yard prep" },
+      { name: "Leaf Removal", path: "/services/leaf-removal", icon: Trash2, description: "Full yard clearing" },
+      { name: "Snow Removal", path: "/services/snow-removal", icon: Snowflake, winterOnly: true, description: "Reliable plowing" },
     ]
   },
   {
     category: "Gutters",
     icon: Droplets,
     services: [
-      { name: "Gutter Cleaning", path: "/services/gutter-cleaning", icon: Home },
-      { name: "Gutter Guards", path: "/services/gutter-guards", icon: Shield },
+      { name: "Gutter Cleaning", path: "/services/gutter-cleaning", icon: Home, description: "Debris-free flow" },
+      { name: "Gutter Guards", path: "/services/gutter-guards", icon: Shield, description: "Micro-mesh guards" },
     ]
   },
   {
     category: "Hardscaping",
     icon: Layers,
     services: [
-      { name: "Hardscaping Services", path: "/services/hardscaping", icon: Layers },
+      { name: "Hardscaping Services", path: "/services/hardscaping", icon: Layers, description: "Patios & walkways" },
     ]
   }
 ];
@@ -125,31 +128,70 @@ const trustBadges = [
   { icon: Users, label: "500+" },
 ];
 
-const popularServices = [
-  { name: "Mowing", path: "/services/mowing", icon: Scissors },
-  { name: "Snow", path: "/services/snow-removal", icon: Snowflake, winterOnly: true },
-  { name: "Gutters", path: "/services/gutter-cleaning", icon: Home },
-  { name: "Cleanup", path: "/services/fall-cleanup", icon: Leaf },
+const quickActions: ServiceItem[] = [
+  { name: "Lawn Mowing", path: "/services/mowing", icon: Scissors, description: "Weekly precision cuts" },
+  { name: "Snow Removal", path: "/services/snow-removal", icon: Snowflake, winterOnly: true, description: "Reliable plowing" },
+  { name: "Gutter Cleaning", path: "/services/gutter-cleaning", icon: Home, description: "Debris-free flow" },
+  { name: "Spring Cleanup", path: "/services/spring-cleanup", icon: Sparkles, description: "Fresh season start" },
 ];
+
+// Animation variants
+const backdropVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
+};
+
+const sheetVariants = {
+  hidden: { y: '100%' },
+  visible: {
+    y: '0%',
+    transition: { type: 'spring', stiffness: 350, damping: 35 },
+  },
+  exit: {
+    y: '100%',
+    transition: { type: 'spring', stiffness: 400, damping: 40 },
+  },
+};
+
+const sectionVariants = {
+  hidden: { height: 0, opacity: 0 },
+  visible: {
+    height: 'auto',
+    opacity: 1,
+    transition: {
+      height: { type: 'spring', stiffness: 400, damping: 35 },
+      opacity: { duration: 0.2, delay: 0.05 },
+      staggerChildren: 0.025,
+    },
+  },
+  exit: {
+    height: 0,
+    opacity: 0,
+    transition: {
+      height: { type: 'spring', stiffness: 500, damping: 40 },
+      opacity: { duration: 0.1 },
+    },
+  },
+};
+
+const itemFadeVariants = {
+  hidden: { opacity: 0, x: -8 },
+  visible: { opacity: 1, x: 0, transition: { type: 'spring', stiffness: 400, damping: 30 } },
+  exit: { opacity: 0, x: -8 },
+};
 
 export function MobileNavMenu({ isOpen, onClose }: MobileNavMenuProps) {
   const { activeSeason } = useSeasonalTheme();
   const pathname = usePathname();
   const isWinter = activeSeason === 'winter';
   const [mounted, setMounted] = useState(false);
-  const [openCategories, setOpenCategories] = useState<string[]>([]);
-  const [commercialOpen, setCommercialOpen] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
 
-  // Memoized handlers to prevent re-creation
-  const toggleCategory = useCallback((cat: string) => {
-    setOpenCategories(prev =>
-      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
-    );
+  // Auto-collapse siblings — one section open at a time
+  const toggleSection = useCallback((section: string) => {
+    setActiveSection(prev => prev === section ? null : section);
   }, []);
-
-  const toggleCommercial = useCallback(() => setCommercialOpen(p => !p), []);
-  const toggleAbout = useCallback(() => setAboutOpen(p => !p), []);
 
   useEffect(() => {
     setMounted(true);
@@ -161,236 +203,365 @@ export function MobileNavMenu({ isOpen, onClose }: MobileNavMenuProps) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
+      setActiveSection(null); // Reset on close
     }
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  if (!isOpen || !mounted) return null;
+  // Drag to close handler
+  const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    // Close if dragged down fast or far enough
+    if (info.velocity.y > 300 || info.offset.y > 200) {
+      onClose();
+    }
+  }, [onClose]);
 
-  const filteredPopular = popularServices.filter(s => !s.winterOnly || isWinter);
+  if (!mounted) return null;
+
+  const filteredQuickActions = quickActions.filter(s => !s.winterOnly || isWinter);
+
+  // Seasonal accent line color
+  const accentLine = activeSeason === 'winter' ? 'via-cyan-400/40' :
+    activeSeason === 'fall' ? 'via-amber-400/40' : 'via-green-400/40';
 
   const menuContent = (
-    <div className="lg:hidden fixed inset-0" style={{ zIndex: 9999 }}>
-      {/* Backdrop - simple opacity, no complex animation */}
-      <div
-        className="absolute inset-0 bg-black/80"
-        onClick={onClose}
-        style={{ willChange: 'opacity' }}
-      />
+    <AnimatePresence>
+      {isOpen && (
+        <div className="lg:hidden fixed inset-0" style={{ zIndex: 9999 }}>
+          {/* Backdrop with frosted blur */}
+          <motion.div
+            variants={backdropVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={onClose}
+          />
 
-      {/* Menu Panel - GPU accelerated */}
-      <div
-        className="absolute inset-0 bg-[#0a1628] flex flex-col"
-        style={{ willChange: 'transform' }}
-      >
-
-        {/* TOP HEADER */}
-        <div className="flex-shrink-0 bg-[#0a1628] border-b border-white/10 px-4 py-4">
-          <div className="flex items-center justify-between">
-            <a href="tel:608-535-6057" className="flex items-center gap-2">
-              <div className="w-10 h-10 flex items-center justify-center rounded-full bg-primary/20">
-                <Phone className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base font-bold text-white tracking-tight">(608) 535-6057</span>
-                <span className="text-[10px] text-primary font-medium">Tap to call now</span>
-              </div>
-            </a>
-
-            <button
-              onClick={onClose}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10"
-            >
-              <X className="h-5 w-5 text-white" />
-            </button>
-          </div>
-        </div>
-
-        {/* SCROLLABLE CONTENT - optimized scroll */}
-        <div
-          className="flex-1 overflow-y-auto"
-          style={{ WebkitOverflowScrolling: 'touch' }}
-        >
-          <div className="px-4 py-4 space-y-4">
-
-            {/* QUICK PICKS */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <p className="text-xs font-bold text-white uppercase tracking-wide">Quick Picks</p>
-                <span className="text-[10px] text-primary/70">→ Most requested</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {filteredPopular.map((service) => {
-                  const ServiceIcon = service.icon;
-                  const isSnow = service.winterOnly;
-                  return (
-                    <Link
-                      key={service.path}
-                      href={service.path}
-                      onClick={onClose}
-                      className={`flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-semibold ${
-                        isSnow
-                          ? 'bg-sky-600/20 text-sky-300 border border-sky-400/30'
-                          : 'bg-primary/15 text-white border border-primary/20'
-                      }`}
-                    >
-                      <ServiceIcon className={`h-5 w-5 ${isSnow ? 'text-sky-400' : 'text-primary'}`} />
-                      {service.name}
-                    </Link>
-                  );
-                })}
-              </div>
+          {/* Bottom Sheet Panel */}
+          <motion.div
+            variants={sheetVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.4 }}
+            onDragEnd={handleDragEnd}
+            className="absolute inset-x-0 bottom-0 top-[5%] bg-[#0a1628] rounded-t-3xl flex flex-col shadow-2xl"
+            style={{ willChange: 'transform', touchAction: 'none' }}
+          >
+            {/* Drag Handle */}
+            <div className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing">
+              <div className="w-10 h-1 bg-white/20 rounded-full" />
             </div>
 
-            {/* DIVIDER */}
-            <div className="h-px bg-white/10" />
+            {/* Header */}
+            <div className="flex-shrink-0 px-4 pb-3 border-b border-white/10">
+              <div className="flex items-center justify-between">
+                <a href="tel:608-535-6057" className="flex items-center gap-2">
+                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-primary/20">
+                    <Phone className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-base font-bold text-white tracking-tight">(608) 535-6057</span>
+                    <span className="text-[10px] text-primary font-medium">Tap to call now</span>
+                  </div>
+                </a>
+                <button
+                  onClick={onClose}
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 active:bg-white/20 transition-colors"
+                  aria-label="Close menu"
+                >
+                  <X className="h-5 w-5 text-white" />
+                </button>
+              </div>
+              {/* Seasonal accent line */}
+              <div className={`h-px mt-3 bg-gradient-to-r from-transparent ${accentLine} to-transparent`} />
+            </div>
 
-            {/* RESIDENTIAL */}
-            <div className="space-y-2">
-              <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Residential</p>
+            {/* Scrollable Content */}
+            <div
+              className="flex-1 overflow-y-auto overscroll-contain"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
+              <div className="px-4 py-4 space-y-4">
 
-              {serviceCategories.map((category) => {
-                const CategoryIcon = category.icon;
-                const catOpen = openCategories.includes(category.category);
-                const visibleServices = category.services.filter(s => !s.winterOnly || isWinter);
+                {/* QUICK ACTIONS — 2x2 glassmorphism cards */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <p className="text-xs font-bold text-white uppercase tracking-wide">Quick Actions</p>
+                    <span className="text-[10px] text-white/30">Most requested</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {filteredQuickActions.map((service) => {
+                      const ServiceIcon = service.icon;
+                      const isSnow = service.winterOnly;
+                      const isSeasonal = service.path.includes('spring-cleanup') || service.path.includes('fall-cleanup');
+                      return (
+                        <Link
+                          key={service.path}
+                          href={service.path}
+                          onClick={onClose}
+                          className={`relative flex flex-col gap-1.5 p-3.5 rounded-xl text-sm font-semibold backdrop-blur-md border transition-all active:scale-[0.97] ${
+                            isSnow
+                              ? 'bg-sky-600/10 text-sky-300 border-sky-400/20'
+                              : 'bg-white/[0.06] text-white border-white/[0.08]'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <ServiceIcon className={`h-5 w-5 ${isSnow ? 'text-sky-400' : 'text-primary'}`} />
+                            {isSeasonal && (
+                              <span className="flex items-center gap-1 text-[8px] font-bold text-emerald-300/80">
+                                <span className="w-1 h-1 bg-emerald-400 rounded-full animate-pulse" />
+                                Booking Now
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-sm font-semibold">{service.name}</span>
+                          {service.description && (
+                            <span className="text-[10px] text-white/35 font-normal -mt-0.5">{service.description}</span>
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
 
-                return (
-                  <div key={category.category}>
-                    <button
-                      onClick={() => toggleCategory(category.category)}
-                      className="flex items-center justify-between w-full p-3 rounded-lg bg-white/5 border border-white/10"
-                    >
-                      <div className="flex items-center gap-2">
-                        <CategoryIcon className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-medium text-white">{category.category}</span>
-                        <span className="text-[10px] text-white/40">({visibleServices.length})</span>
-                      </div>
-                      <ChevronDown className={`h-4 w-4 text-white/50 transition-transform ${catOpen ? 'rotate-180' : ''}`} />
-                    </button>
+                {/* DIVIDER */}
+                <div className="h-px bg-white/[0.06]" />
 
-                    {catOpen && (
-                      <div className="mt-1 ml-2 pl-4 border-l border-white/10 space-y-0.5">
-                        {visibleServices.map((service) => {
-                          const ServiceIcon = service.icon;
-                          return (
-                            <Link
-                              key={service.path}
-                              href={service.path}
-                              onClick={onClose}
-                              className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                                pathname === service.path
-                                  ? 'text-primary font-bold border-l-2 border-primary pl-2'
-                                  : service.winterOnly ? 'text-sky-400' : 'text-white/70'
-                              }`}
+                {/* RESIDENTIAL SECTIONS */}
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest px-1">Residential</p>
+
+                  {serviceCategories.map((category) => {
+                    const CategoryIcon = category.icon;
+                    const isActive = activeSection === `res-${category.category}`;
+                    const visibleServices = category.services.filter(s => !s.winterOnly || isWinter);
+
+                    return (
+                      <div key={category.category}>
+                        <button
+                          onClick={() => toggleSection(`res-${category.category}`)}
+                          className={`flex items-center justify-between w-full p-3 rounded-xl transition-all ${
+                            isActive
+                              ? 'bg-primary/10 border border-primary/20'
+                              : 'bg-white/[0.04] border border-white/[0.06] active:bg-white/[0.08]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <CategoryIcon className={`h-4 w-4 ${isActive ? 'text-primary' : 'text-white/50'}`} />
+                            <span className={`text-sm font-medium ${isActive ? 'text-white' : 'text-white/80'}`}>{category.category}</span>
+                            <span className="text-[10px] text-white/30">({visibleServices.length})</span>
+                          </div>
+                          <motion.span
+                            animate={{ rotate: isActive ? 180 : 0 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                          >
+                            <ChevronDown className={`h-4 w-4 ${isActive ? 'text-primary' : 'text-white/40'}`} />
+                          </motion.span>
+                        </button>
+
+                        <AnimatePresence>
+                          {isActive && (
+                            <motion.div
+                              variants={sectionVariants}
+                              initial="hidden"
+                              animate="visible"
+                              exit="exit"
+                              className="overflow-hidden"
                             >
-                              <ServiceIcon className="h-3.5 w-3.5 text-white/40" />
-                              {service.name}
-                            </Link>
-                          );
-                        })}
+                              <div className="mt-1 ml-3 pl-3 border-l-2 border-primary/20 space-y-0.5 py-1">
+                                {visibleServices.map((service) => {
+                                  const ServiceIcon = service.icon;
+                                  return (
+                                    <motion.div key={service.path} variants={itemFadeVariants}>
+                                      <Link
+                                        href={service.path}
+                                        onClick={onClose}
+                                        className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all active:bg-white/[0.06] ${
+                                          pathname === service.path
+                                            ? 'text-primary font-bold bg-primary/10'
+                                            : service.winterOnly ? 'text-sky-400' : 'text-white/70'
+                                        }`}
+                                      >
+                                        <ServiceIcon className={`h-3.5 w-3.5 ${
+                                          pathname === service.path ? 'text-primary' : 'text-white/30'
+                                        }`} />
+                                        <span className="flex-1">{service.name}</span>
+                                        <ArrowRight className="h-3 w-3 text-white/20" />
+                                      </Link>
+                                    </motion.div>
+                                  );
+                                })}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
+                    );
+                  })}
+                </div>
+
+                {/* COMMERCIAL */}
+                <div>
+                  <button
+                    onClick={() => toggleSection('commercial')}
+                    className={`flex items-center justify-between w-full p-3 rounded-xl transition-all ${
+                      activeSection === 'commercial'
+                        ? 'bg-amber-500/10 border border-amber-500/20'
+                        : 'bg-white/[0.04] border border-white/[0.06] active:bg-white/[0.08]'
+                    }`}
+                  >
+                    <span className={`text-sm font-medium ${activeSection === 'commercial' ? 'text-white' : 'text-white/80'}`}>
+                      Commercial Services
+                    </span>
+                    <motion.span
+                      animate={{ rotate: activeSection === 'commercial' ? 180 : 0 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    >
+                      <ChevronDown className={`h-4 w-4 ${activeSection === 'commercial' ? 'text-amber-400' : 'text-white/40'}`} />
+                    </motion.span>
+                  </button>
+
+                  <AnimatePresence>
+                    {activeSection === 'commercial' && (
+                      <motion.div
+                        variants={sectionVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-1 ml-3 pl-3 border-l-2 border-amber-500/20 space-y-0.5 py-1">
+                          {commercialServices.filter(s => !s.winterOnly || isWinter).map((service) => (
+                            <motion.div key={service.path} variants={itemFadeVariants}>
+                              <Link
+                                href={service.path}
+                                onClick={onClose}
+                                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all active:bg-white/[0.06] ${
+                                  pathname === service.path
+                                    ? 'text-amber-400 font-bold bg-amber-500/10'
+                                    : service.winterOnly ? 'text-sky-400' : 'text-white/70'
+                                }`}
+                              >
+                                <span className="flex-1">{service.name}</span>
+                                <ArrowRight className="h-3 w-3 text-white/20" />
+                              </Link>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
                     )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* COMMERCIAL */}
-            <div>
-              <button
-                onClick={toggleCommercial}
-                className="flex items-center justify-between w-full p-3 rounded-lg bg-white/5 border border-white/10"
-              >
-                <span className="text-sm font-medium text-white">Commercial Services</span>
-                <ChevronDown className={`h-4 w-4 text-white/50 transition-transform ${commercialOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {commercialOpen && (
-                <div className="mt-1 ml-2 pl-4 border-l border-white/10 space-y-0.5">
-                  {commercialServices.filter(s => !s.winterOnly || isWinter).map((service) => (
-                    <Link
-                      key={service.path}
-                      href={service.path}
-                      onClick={onClose}
-                      className={`block px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                        pathname === service.path
-                          ? 'text-primary font-bold border-l-2 border-primary pl-2'
-                          : service.winterOnly ? 'text-sky-400' : 'text-white/70'
-                      }`}
-                    >
-                      {service.name}
-                    </Link>
-                  ))}
+                  </AnimatePresence>
                 </div>
-              )}
-            </div>
 
-            {/* ABOUT */}
-            <div>
-              <button
-                onClick={toggleAbout}
-                className="flex items-center justify-between w-full p-3 rounded-lg bg-white/5 border border-white/10"
-              >
-                <span className="text-sm font-medium text-white">Company</span>
-                <ChevronDown className={`h-4 w-4 text-white/50 transition-transform ${aboutOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {aboutOpen && (
-                <div className="mt-1 ml-2 pl-4 border-l border-white/10 space-y-0.5">
-                  {aboutPages.map((page) => (
-                    <Link
-                      key={page.path}
-                      href={page.path}
-                      onClick={onClose}
-                      className={`block px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                        pathname === page.path
-                          ? 'text-primary font-bold border-l-2 border-primary pl-2'
-                          : 'text-white/70'
-                      }`}
+                {/* COMPANY */}
+                <div>
+                  <button
+                    onClick={() => toggleSection('company')}
+                    className={`flex items-center justify-between w-full p-3 rounded-xl transition-all ${
+                      activeSection === 'company'
+                        ? 'bg-primary/10 border border-primary/20'
+                        : 'bg-white/[0.04] border border-white/[0.06] active:bg-white/[0.08]'
+                    }`}
+                  >
+                    <span className={`text-sm font-medium ${activeSection === 'company' ? 'text-white' : 'text-white/80'}`}>
+                      Company
+                    </span>
+                    <motion.span
+                      animate={{ rotate: activeSection === 'company' ? 180 : 0 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     >
-                      {page.name}
-                    </Link>
-                  ))}
+                      <ChevronDown className={`h-4 w-4 ${activeSection === 'company' ? 'text-primary' : 'text-white/40'}`} />
+                    </motion.span>
+                  </button>
+
+                  <AnimatePresence>
+                    {activeSection === 'company' && (
+                      <motion.div
+                        variants={sectionVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-1 ml-3 pl-3 border-l-2 border-primary/20 space-y-0.5 py-1">
+                          {aboutPages.map((page) => (
+                            <motion.div key={page.path} variants={itemFadeVariants}>
+                              <Link
+                                href={page.path}
+                                onClick={onClose}
+                                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all active:bg-white/[0.06] ${
+                                  pathname === page.path
+                                    ? 'text-primary font-bold bg-primary/10'
+                                    : 'text-white/70'
+                                }`}
+                              >
+                                <span className="flex-1">{page.name}</span>
+                                <ArrowRight className="h-3 w-3 text-white/20" />
+                              </Link>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              )}
+
+                {/* TRUST BADGES */}
+                <div className="flex items-center justify-between py-3 border-t border-b border-white/[0.06]">
+                  {trustBadges.map((badge) => {
+                    const BadgeIcon = badge.icon;
+                    return (
+                      <div key={badge.label} className="flex flex-col items-center gap-1">
+                        <BadgeIcon className="h-4 w-4 text-primary" />
+                        <span className="text-[10px] font-medium text-white/50">{badge.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* BOTTOM SPACER for fixed footer */}
+                <div className="h-32" />
+              </div>
             </div>
 
-            {/* TRUST BADGES */}
-            <div className="flex items-center justify-between py-3 border-t border-b border-white/10">
-              {trustBadges.map((badge) => {
-                const BadgeIcon = badge.icon;
-                return (
-                  <div key={badge.label} className="flex flex-col items-center gap-1">
-                    <BadgeIcon className="h-4 w-4 text-primary" />
-                    <span className="text-[10px] font-medium text-white/60">{badge.label}</span>
-                  </div>
-                );
-              })}
+            {/* PERSISTENT BOTTOM BAR — dual CTA */}
+            <div className="flex-shrink-0 absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/95 to-transparent pt-10">
+              <div className="flex gap-2">
+                {/* Primary CTA — Get Quote */}
+                <Link href="/contact" onClick={onClose} className="flex-[3] block">
+                  <Button
+                    size="lg"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm py-5 shadow-lg relative overflow-hidden"
+                  >
+                    Get My Free Quote
+                    <ArrowRight className="ml-1.5 h-4 w-4" />
+                  </Button>
+                </Link>
+                {/* Secondary CTA — Call Now */}
+                <a href="tel:608-535-6057" className="flex-[2] block">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full border-primary/30 text-primary hover:bg-primary/10 font-bold text-sm py-5"
+                  >
+                    <Phone className="mr-1.5 h-4 w-4" />
+                    Call Now
+                  </Button>
+                </a>
+              </div>
+              <p className="text-center text-[10px] text-white/30 mt-1.5 flex items-center justify-center gap-1">
+                <span>⚡</span> Average response: 12 min · No obligation
+              </p>
             </div>
-
-            {/* BOTTOM SPACER */}
-            <div className="h-28" />
-          </div>
+          </motion.div>
         </div>
-
-        {/* FIXED CTA FOOTER */}
-        <div className="flex-shrink-0 absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0a1628] via-[#0a1628] to-transparent pt-8">
-          <Link href="/contact" onClick={onClose} className="block">
-            <Button
-              size="lg"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base py-5 shadow-lg"
-            >
-              Get My Custom Quote
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
-          <p className="text-center text-[10px] text-white/40 mt-1.5">
-            Fast response • No obligation
-          </p>
-        </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 
   return createPortal(menuContent, document.body);

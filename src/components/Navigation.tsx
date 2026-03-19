@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -17,12 +17,50 @@ import { MobileNavMenu } from "@/components/MobileNavMenu";
 import { PromoBanner } from "@/components/PromoBanner";
 import { useScrollCondense } from "@/hooks/useScrollCondense";
 import { SmartBreadcrumb } from '@/components/SmartBreadcrumb';
+import { useHoverIntent } from '@/hooks/useHoverIntent';
+import { useMagneticCursor } from '@/hooks/useMagneticCursor';
 
-// Shared dropdown animation variants
+// ---------------------------------------------------------------------------
+// Spring-based animation variants
+// ---------------------------------------------------------------------------
+
+// Container — stagger children on open, reverse-stagger on exit
 const dropdownVariants = {
-  hidden: { opacity: 0, y: -8, scale: 0.97 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } },
-  exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.15, ease: [0.55, 0.06, 0.68, 0.19] } },
+  hidden: { opacity: 0, y: -10, scale: 0.96, filter: 'blur(4px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    filter: 'blur(0px)',
+    transition: { type: 'spring', stiffness: 400, damping: 28, staggerChildren: 0.03 },
+  },
+  exit: {
+    opacity: 0,
+    y: -6,
+    scale: 0.98,
+    filter: 'blur(2px)',
+    transition: { type: 'spring', stiffness: 500, damping: 35, staggerChildren: 0.015, staggerDirection: -1 },
+  },
+} as Variants;
+
+// Individual item cascade
+const itemVariants = {
+  hidden: { opacity: 0, y: 8, filter: 'blur(4px)' },
+  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { type: 'spring', stiffness: 400, damping: 30 } },
+  exit: { opacity: 0, y: -4, filter: 'blur(2px)' },
+} as Variants;
+
+// Sidebar slides in from right
+const sidebarVariants = {
+  hidden: { opacity: 0, x: 20, filter: 'blur(4px)' },
+  visible: { opacity: 1, x: 0, filter: 'blur(0px)', transition: { type: 'spring', stiffness: 350, damping: 30, delay: 0.08 } },
+  exit: { opacity: 0, x: 10, filter: 'blur(2px)' },
+} as Variants;
+
+// Chevron spring rotation
+const chevronVariants = {
+  closed: { rotate: 0 },
+  open: { rotate: 180, transition: { type: 'spring', stiffness: 300, damping: 20 } },
 } as Variants;
 
 // ---------------------------------------------------------------------------
@@ -292,12 +330,13 @@ const commercialSidebar: MegaMenuSidebar = {
 // About pages
 // ---------------------------------------------------------------------------
 const aboutPages = [
-  { name: "About", path: "/about" },
-  { name: "Meet Our Team", path: "/team" },
-  { name: "Portfolio", path: "/gallery" },
-  { name: "Service Areas", path: "/service-areas" },
-  { name: "FAQ", path: "/faq" },
-  { name: "Blog", path: "/blog" },
+  { name: "About Us", path: "/about", icon: Users, description: "Our story & mission" },
+  { name: "Meet Our Team", path: "/team", icon: Users, description: "The crew behind the work" },
+  { name: "Portfolio", path: "/gallery", icon: Award, description: "Before & after gallery" },
+  { name: "Service Areas", path: "/service-areas", icon: TreePine, description: "Cities we serve" },
+  { name: "FAQ", path: "/faq", icon: FileText, description: "Common questions" },
+  { name: "Blog", path: "/blog", icon: FileText, description: "Tips & lawn care guides" },
+  { name: "Careers", path: "/careers", icon: Award, description: "Join our growing team" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -458,7 +497,7 @@ function MegaMenu({
     description: serviceOverride?.description ?? sidebar.description,
     bullets: serviceOverride?.bullets ?? sidebar.bullets,
     ctaLabel: hoveredItem ? `Get a ${serviceOverride?.heading ?? hoveredItem.name} Quote` : sidebar.ctaLabel,
-    ctaHref: hoveredItem ? hoveredItem.path : sidebar.ctaHref,
+    ctaHref: hoveredItem ? `/contact?service=${hoveredItem.path.split('/').pop()}` : sidebar.ctaHref,
     footnote: sidebar.footnote,
     badges: sidebar.badges,
   };
@@ -488,9 +527,25 @@ function MegaMenu({
   };
 
   return (
-    <div className={`w-[920px] bg-gradient-to-br from-[#1a1a1a] via-[#222222] to-[#1a1a1a] rounded-xl shadow-2xl border ${accent.menuBorder} overflow-hidden relative`}>
-      {/* Gradient top bar with left/right dim effect */}
-      <div className={`h-1 ${accent.barGradient}`} />
+    <div className={cn(
+      "w-[960px] rounded-xl shadow-2xl overflow-hidden relative",
+      "backdrop-blur-xl border border-white/[0.08]",
+      "bg-gradient-to-br",
+      season === 'winter' ? 'from-slate-950/90 via-slate-900/85 to-blue-950/90' :
+      season === 'fall' ? 'from-stone-950/90 via-stone-900/85 to-amber-950/90' :
+      'from-[#0f2a1a]/90 via-[#142e1e]/85 to-[#1a3a2a]/90',
+    )}>
+      {/* Shimmer sweep on open */}
+      <motion.div
+        initial={{ x: '-100%' }}
+        animate={{ x: '200%' }}
+        transition={{ duration: 0.8, ease: 'easeInOut' }}
+        className={cn("absolute top-0 left-0 w-1/3 h-1 z-10", accent.barGradient, "opacity-60")}
+      />
+      {/* Static gradient top bar */}
+      <div className={`h-px ${accent.barGradient} opacity-40`} />
+      {/* Inner top-edge highlight */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
       {/* Seasonal floating particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -518,62 +573,88 @@ function MegaMenu({
                     </div>
                     <span className={`text-xs font-bold ${accent.headerText} tracking-widest uppercase`}>{col.heading}</span>
                   </div>
+                  <p className="text-[10px] text-white/25 -mt-1">★ 4.9 · 500+ properties served</p>
 
                   {/* Service items — hovered item + related upsell items highlight */}
-                  <div className="space-y-0.5">
+                  <motion.div className="space-y-0.5" variants={dropdownVariants}>
                     {col.items.map((item) => {
                       const ItemIcon = item.icon;
                       const active = isActivePath(item.path);
                       const related = isRelated(item);
+                      const isHovered = hoveredItem === item;
+                      const isSeasonal = item.path.includes('spring-cleanup') || item.path.includes('fall-cleanup') || item.path.includes('snow-removal');
 
                       return (
-                        <Link
-                          key={item.path + item.name}
-                          href={item.path}
-                          onMouseEnter={() => setHoveredItem(item)}
-                          onMouseLeave={() => setHoveredItem(null)}
-                          className={cn(
-                            `group flex items-start gap-2.5 py-2 px-2 -mx-2 rounded-lg transition-all duration-200`,
-                            active
-                              ? `${accent.activeItemBg} ${accent.activeItemText}`
-                              : related
-                                ? 'bg-white/[0.07]'
-                                : 'hover:bg-white/10 hover:translate-x-1'
-                          )}
-                        >
-                          <ItemIcon className={cn(
-                            `h-3.5 w-3.5 mt-0.5 flex-shrink-0 transition-colors`,
-                            active
-                              ? accent.activeItemText
-                              : related
-                                ? 'text-white/60'
-                                : `text-white/50 ${accent.hoverText}`
-                          )} />
-                          <div className="min-w-0">
-                            <span className={cn(
-                              `block text-sm leading-tight transition-colors`,
+                        <motion.div key={item.path + item.name} variants={itemVariants}>
+                          <Link
+                            href={item.path}
+                            onMouseEnter={() => setHoveredItem(item)}
+                            onMouseLeave={() => setHoveredItem(null)}
+                            className={cn(
+                              "group flex items-center gap-2.5 py-2.5 px-2.5 -mx-2.5 rounded-lg transition-all duration-200",
                               active
-                                ? `${accent.activeItemText} font-semibold`
+                                ? `${accent.activeItemBg} ${accent.activeItemText}`
                                 : related
-                                  ? 'text-white/80 font-medium'
-                                  : `text-white font-medium ${accent.hoverText}`
-                            )}>
-                              {item.name}
-                            </span>
-                            <span className={cn(
-                              "block text-[11px] leading-tight mt-0.5 transition-colors",
-                              related ? 'text-white/50' : 'text-white/40 group-hover:text-white/60'
-                            )}>
-                              {item.description}
-                            </span>
-                          </div>
-                          {active && (
-                            <div className={`ml-auto mt-1 w-1.5 h-1.5 ${accent.pulseDot} rounded-full animate-pulse flex-shrink-0`} />
-                          )}
-                        </Link>
+                                  ? 'bg-white/[0.07]'
+                                  : 'hover:bg-white/[0.06]'
+                            )}
+                          >
+                            <motion.div
+                              whileHover={{ scale: 1.15 }}
+                              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                              className="flex-shrink-0"
+                            >
+                              <ItemIcon className={cn(
+                                "h-4 w-4 transition-colors duration-200",
+                                active ? accent.activeItemText :
+                                isHovered ? accent.iconColor :
+                                related ? 'text-white/60' :
+                                `text-white/40 ${accent.hoverText}`
+                              )} />
+                            </motion.div>
+                            <div className="min-w-0 flex-1">
+                              <span className={cn(
+                                "block text-sm leading-tight transition-all duration-200",
+                                active ? `${accent.activeItemText} font-semibold` :
+                                isHovered ? 'text-white font-medium tracking-wide' :
+                                related ? 'text-white/80 font-medium' :
+                                'text-white/90 font-medium'
+                              )}>
+                                {item.name}
+                              </span>
+                              <span className={cn(
+                                "block text-[11px] leading-tight mt-0.5 transition-colors duration-200",
+                                related ? 'text-white/50' : 'text-white/35 group-hover:text-white/55'
+                              )}>
+                                {item.description}
+                              </span>
+                            </div>
+                            {/* Urgency badge for seasonal services */}
+                            {isSeasonal && (
+                              <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-300/80 whitespace-nowrap">
+                                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                                Booking Now
+                              </span>
+                            )}
+                            {/* Arrow indicator fades in on hover */}
+                            {!isSeasonal && (
+                              <motion.div
+                                initial={{ opacity: 0, x: -4 }}
+                                animate={isHovered ? { opacity: 1, x: 0 } : { opacity: 0, x: -4 }}
+                                transition={{ duration: 0.15 }}
+                                className="flex-shrink-0"
+                              >
+                                <ArrowRight className={`h-3 w-3 ${accent.iconColor}`} />
+                              </motion.div>
+                            )}
+                            {active && (
+                              <div className={`w-1.5 h-1.5 ${accent.pulseDot} rounded-full animate-pulse flex-shrink-0`} />
+                            )}
+                          </Link>
+                        </motion.div>
                       );
                     })}
-                  </div>
+                  </motion.div>
                 </div>
               );
             })}
@@ -595,7 +676,7 @@ function MegaMenu({
         </div>
 
         {/* ---- Sidebar Panel (dynamic — updates on service hover) ---- */}
-        <div className="w-[240px] bg-white/5 border-l border-white/10 p-5 flex flex-col">
+        <motion.div variants={sidebarVariants} className="w-[260px] bg-white/[0.04] backdrop-blur-sm border-l border-white/[0.06] p-5 flex flex-col">
           {/* Icon + heading */}
           <div className="flex items-center gap-2 mb-3 transition-all duration-200">
             <div className={`p-2 ${accent.sidebarIconBg} rounded-lg transition-colors duration-200`}>
@@ -619,19 +700,25 @@ function MegaMenu({
             ))}
           </ul>
 
-          {/* CTA button */}
-          <Link
-            href={activeSidebar.ctaHref}
-            className={`flex items-center justify-center gap-2 px-4 py-2.5 ${accent.ctaBg} ${accent.ctaText} text-sm font-bold rounded-xl hover:scale-105 transition-all shadow-lg mb-2`}
-          >
-            {activeSidebar.ctaLabel}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          {/* CTA button with shimmer */}
+          <motion.div whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
+            <Link
+              href={activeSidebar.ctaHref}
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 ${accent.ctaBg} ${accent.ctaText} text-sm font-bold rounded-xl transition-all shadow-lg mb-1.5 relative overflow-hidden`}
+            >
+              {activeSidebar.ctaLabel}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </motion.div>
 
-          {/* Footnote */}
-          <p className="text-[10px] text-white/30 text-center mb-4">
-            {activeSidebar.footnote}
+          {/* Or call */}
+          <p className="text-[10px] text-white/35 text-center">
+            Or call{' '}
+            <a href="tel:608-535-6057" className="text-white/60 hover:text-white transition-colors underline underline-offset-2">
+              (608) 535-6057
+            </a>
           </p>
+          <p className="text-[9px] text-white/25 text-center mb-3">Same-day quotes available</p>
 
           {/* Trust badges */}
           <div className="mt-auto space-y-2 pt-3 border-t border-white/10">
@@ -647,7 +734,15 @@ function MegaMenu({
               );
             })}
           </div>
-        </div>
+        </motion.div>
+      </div>
+
+      {/* Bottom trust bar */}
+      <div className="px-5 py-2 border-t border-white/[0.04] flex items-center justify-center gap-2">
+        <Shield className="h-3 w-3 text-white/20" />
+        <p className="text-[9px] text-white/20 tracking-wide">
+          Licensed & Insured · Serving All of Dane County · Est. 2024
+        </p>
       </div>
     </div>
   );
@@ -700,10 +795,26 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
     return () => ro.disconnect();
   }, []);
 
-  // Close sibling menus when opening one — prevents overlap jitter
-  const openResidential = useCallback(() => { setCommercialOpen(false); setAboutOpen(false); setResidentialOpen(true); }, []);
-  const openCommercial = useCallback(() => { setResidentialOpen(false); setAboutOpen(false); setCommercialOpen(true); }, []);
-  const openAbout = useCallback(() => { setResidentialOpen(false); setCommercialOpen(false); setAboutOpen(true); }, []);
+  // Hover intent — 120ms open delay, 250ms forgiveness zone
+  const onOpenRes = useCallback(() => { setCommercialOpen(false); setAboutOpen(false); setResidentialOpen(true); }, []);
+  const onCloseRes = useCallback(() => setResidentialOpen(false), []);
+  const residentialIntent = useHoverIntent({ openDelay: 120, closeDelay: 250, onOpen: onOpenRes, onClose: onCloseRes });
+
+  const onOpenCom = useCallback(() => { setResidentialOpen(false); setAboutOpen(false); setCommercialOpen(true); }, []);
+  const onCloseCom = useCallback(() => setCommercialOpen(false), []);
+  const commercialIntent = useHoverIntent({ openDelay: 120, closeDelay: 250, onOpen: onOpenCom, onClose: onCloseCom });
+
+  const onOpenAbout = useCallback(() => { setResidentialOpen(false); setCommercialOpen(false); setAboutOpen(true); }, []);
+  const onCloseAbout = useCallback(() => setAboutOpen(false), []);
+  const aboutIntent = useHoverIntent({ openDelay: 120, closeDelay: 250, onOpen: onOpenAbout, onClose: onCloseAbout });
+
+  // Cleanup hover timers on unmount
+  useEffect(() => {
+    return () => { residentialIntent.cleanup(); commercialIntent.cleanup(); aboutIntent.cleanup(); };
+  }, []);
+
+  // Magnetic CTA
+  const magneticCta = useMagneticCursor({ radius: 80, maxDisplacement: 3 });
 
   const { activeSeason } = useSeasonalTheme();
 
@@ -803,23 +914,44 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
             {/* Residential Services Mega Menu */}
             <div
               className="relative"
-              onMouseEnter={openResidential}
-              onMouseLeave={() => setResidentialOpen(false)}
+              onMouseEnter={residentialIntent.handleMouseEnter}
+              onMouseLeave={residentialIntent.handleMouseLeave}
             >
-              <button className={`flex items-center text-white/90 ${t.hoverText} transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5`}>
+              <button
+                className={`flex items-center text-white/90 ${t.hoverText} transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5`}
+                aria-expanded={residentialOpen}
+                aria-controls="residential-mega"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setCommercialOpen(false); setAboutOpen(false); setResidentialOpen(true);
+                  }
+                  if (e.key === 'Escape') setResidentialOpen(false);
+                }}
+              >
                 Residential Services
-                <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${residentialOpen ? 'rotate-180' : ''}`} />
+                <motion.span variants={chevronVariants} animate={residentialOpen ? 'open' : 'closed'} className="ml-1.5 inline-flex">
+                  <ChevronDown className="h-4 w-4" />
+                </motion.span>
               </button>
 
               <AnimatePresence>
                 {residentialOpen && (
                   <motion.div
                     key="residential-mega"
+                    id="residential-mega"
+                    role="region"
                     variants={dropdownVariants}
                     initial="hidden"
                     animate="visible"
                     exit="exit"
                     className="absolute top-full left-0 pt-2 z-[100]"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        setResidentialOpen(false);
+                        (document.querySelector('[aria-controls="residential-mega"]') as HTMLElement)?.focus();
+                      }
+                    }}
                   >
                     <MegaMenu
                       columns={residentialColumns}
@@ -835,23 +967,44 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
             {/* Commercial Services Mega Menu */}
             <div
               className="relative"
-              onMouseEnter={openCommercial}
-              onMouseLeave={() => setCommercialOpen(false)}
+              onMouseEnter={commercialIntent.handleMouseEnter}
+              onMouseLeave={commercialIntent.handleMouseLeave}
             >
-              <button className={`flex items-center text-white/90 ${t.hoverText} transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5`}>
+              <button
+                className={`flex items-center text-white/90 ${t.hoverText} transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5`}
+                aria-expanded={commercialOpen}
+                aria-controls="commercial-mega"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setResidentialOpen(false); setAboutOpen(false); setCommercialOpen(true);
+                  }
+                  if (e.key === 'Escape') setCommercialOpen(false);
+                }}
+              >
                 Commercial Services
-                <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${commercialOpen ? 'rotate-180' : ''}`} />
+                <motion.span variants={chevronVariants} animate={commercialOpen ? 'open' : 'closed'} className="ml-1.5 inline-flex">
+                  <ChevronDown className="h-4 w-4" />
+                </motion.span>
               </button>
 
               <AnimatePresence>
                 {commercialOpen && (
                   <motion.div
                     key="commercial-mega"
+                    id="commercial-mega"
+                    role="region"
                     variants={dropdownVariants}
                     initial="hidden"
                     animate="visible"
                     exit="exit"
                     className="absolute top-full left-0 pt-2 z-[100]"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        setCommercialOpen(false);
+                        (document.querySelector('[aria-controls="commercial-mega"]') as HTMLElement)?.focus();
+                      }
+                    }}
                   >
                     <MegaMenu
                       columns={commercialColumns}
@@ -868,62 +1021,123 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
             {/* Company Dropdown */}
             <div
               className="relative"
-              onMouseEnter={openAbout}
-              onMouseLeave={() => setAboutOpen(false)}
+              onMouseEnter={aboutIntent.handleMouseEnter}
+              onMouseLeave={aboutIntent.handleMouseLeave}
             >
-              <button className={`flex items-center text-white/90 ${t.hoverText} transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5`}>
+              <button
+                className={`flex items-center text-white/90 ${t.hoverText} transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg hover:bg-white/5`}
+                aria-expanded={aboutOpen}
+                aria-controls="company-dropdown"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setResidentialOpen(false); setCommercialOpen(false); setAboutOpen(true);
+                  }
+                  if (e.key === 'Escape') setAboutOpen(false);
+                }}
+              >
                 Company
-                <ChevronDown className={`ml-1.5 h-4 w-4 transition-transform duration-200 ${aboutOpen ? 'rotate-180' : ''}`} />
+                <motion.span variants={chevronVariants} animate={aboutOpen ? 'open' : 'closed'} className="ml-1.5 inline-flex">
+                  <ChevronDown className="h-4 w-4" />
+                </motion.span>
               </button>
 
               <AnimatePresence>
                 {aboutOpen && (
                   <motion.div
-                    key="about-dropdown"
+                    key="company-dropdown"
+                    id="company-dropdown"
+                    role="region"
                     variants={dropdownVariants}
                     initial="hidden"
                     animate="visible"
                     exit="exit"
                     className="absolute top-full left-0 pt-2 z-[100]"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        setAboutOpen(false);
+                        (document.querySelector('[aria-controls="company-dropdown"]') as HTMLElement)?.focus();
+                      }
+                    }}
                   >
-                    <div className="w-56 bg-gradient-to-br from-[#1a1a1a] via-[#222222] to-[#1a1a1a] rounded-xl shadow-2xl border border-primary/20 overflow-hidden relative">
-                      {/* Edge-dimmed gradient bar */}
-                      <div className="h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
+                    <div className={cn(
+                      "w-[420px] rounded-xl shadow-2xl overflow-hidden relative",
+                      "backdrop-blur-xl border border-white/[0.08]",
+                      "bg-gradient-to-br from-[#1a1a1a]/90 via-[#222222]/85 to-[#1a1a1a]/90",
+                    )}>
+                      {/* Shimmer sweep */}
+                      <motion.div
+                        initial={{ x: '-100%' }}
+                        animate={{ x: '200%' }}
+                        transition={{ duration: 0.8, ease: 'easeInOut' }}
+                        className="absolute top-0 left-0 w-1/3 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-60 z-10"
+                      />
+                      <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
-                      {/* Radial glow overlays */}
-                      <div className="absolute inset-0 pointer-events-none">
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(59,130,246,0.06)_0%,transparent_50%)]" />
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(147,197,253,0.04)_0%,transparent_50%)]" />
-                      </div>
+                      <div className="flex">
+                        {/* Left: Page links */}
+                        <motion.div className="flex-1 p-3 space-y-0.5" variants={dropdownVariants}>
+                          {aboutPages.map((page) => {
+                            const PageIcon = page.icon;
+                            return (
+                              <motion.div key={page.path} variants={itemVariants}>
+                                <Link
+                                  href={page.path}
+                                  className={cn(
+                                    "group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
+                                    isActivePath(page.path)
+                                      ? 'bg-primary/20 text-primary'
+                                      : 'text-white/80 hover:bg-white/[0.06] hover:translate-x-0.5'
+                                  )}
+                                >
+                                  <PageIcon className={cn(
+                                    "h-4 w-4 flex-shrink-0 transition-colors",
+                                    isActivePath(page.path) ? 'text-primary' : 'text-white/40 group-hover:text-primary'
+                                  )} />
+                                  <div>
+                                    <span className={cn(
+                                      "block text-sm font-medium leading-tight",
+                                      isActivePath(page.path) ? 'text-primary font-semibold' : 'text-white/90'
+                                    )}>
+                                      {page.name}
+                                    </span>
+                                    <span className="block text-[10px] text-white/35 group-hover:text-white/50 transition-colors">
+                                      {page.description}
+                                    </span>
+                                  </div>
+                                </Link>
+                              </motion.div>
+                            );
+                          })}
+                        </motion.div>
 
-                      <div className="p-2 relative">
-                        {aboutPages.map((page) => (
-                          <Link
-                            key={page.path}
-                            href={page.path}
-                            className={`block px-3 py-2.5 text-sm rounded-lg transition-all duration-200 ${
-                              isActivePath(page.path)
-                                ? 'bg-primary/20 text-primary font-semibold'
-                                : 'text-white/90 hover:bg-white/10 hover:translate-x-1'
-                            }`}
+                        {/* Right: About card */}
+                        <motion.div variants={sidebarVariants} className="w-[160px] bg-white/[0.03] border-l border-white/[0.06] p-4 flex flex-col items-center text-center">
+                          <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center mb-2">
+                            <TreePine className="h-5 w-5 text-primary" />
+                          </div>
+                          <p className="text-xs font-bold text-white leading-tight">TotalGuard</p>
+                          <p className="text-[10px] text-white/40 mt-0.5">Yard Care</p>
+                          <div className="flex items-center gap-1 mt-2">
+                            <span className="text-[10px] text-amber-400">★★★★★</span>
+                            <span className="text-[10px] text-white/40">4.9</span>
+                          </div>
+                          <p className="text-[9px] text-white/30 mt-1">Madison, WI</p>
+                          <a
+                            href="tel:608-535-6057"
+                            className="mt-3 flex items-center gap-1.5 text-[10px] text-primary hover:text-primary/80 transition-colors font-semibold"
                           >
-                            {page.name}
-                          </Link>
-                        ))}
+                            <Phone className="h-3 w-3" />
+                            Call Us
+                          </a>
+                        </motion.div>
                       </div>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-
-            {/* Careers standalone link */}
-            <Link
-              href="/careers"
-              className={`text-white/90 ${t.hoverText} hover:bg-white/5 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg`}
-            >
-              Careers
-            </Link>
           </div>
 
           {/* ---- Desktop Right Side (Phone + CTA) ---- */}
@@ -939,6 +1153,9 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
             </a>
             <Link
               href="/contact"
+              ref={magneticCta.ref as React.Ref<HTMLAnchorElement>}
+              style={magneticCta.style}
+              onMouseLeave={magneticCta.onMouseLeave}
               className={`flex items-center gap-2 bg-gradient-to-r ${t.ctaFrom} ${t.ctaTo} text-white font-bold text-sm xl:text-base px-5 xl:px-7 py-2.5 rounded-full shadow-lg ${t.ctaShadow} hover:shadow-xl ${t.ctaShadowHover} hover:scale-105 transition-all`}
             >
               Get a Free Quote
