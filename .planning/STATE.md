@@ -211,6 +211,7 @@ Progress M2: [██████████████████████
 - Activate TG-146 in n8n UI (Telegram trigger can't be activated via API)
 - Set ANTHROPIC_API_KEY in TG-145 AI Generate Post node x-api-key header
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-145 Send Telegram Approval node with Vance's actual Telegram chat ID
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-137 Send Briefing node with Vance's actual Telegram chat ID- Replace OWNER_TELEGRAM_CHAT_ID in TG-138 Send Report node with Vance's actual Telegram chat ID- Set TG_N8N_API_KEY n8n variable for system health monitoring in TG-137/TG-138
 
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-143 Telegram Summary node with Vance's actual Telegram chat ID
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-144 Send Telegram Reminders node with Vance's actual Telegram chat ID
