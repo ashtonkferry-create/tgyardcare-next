@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 16 of 20 (Content & SEO Engine)
-Plan: 2 of 3 in Phase 16
-Status: In progress
-Last activity: 2026-03-19 — Completed 16-02-PLAN.md (rank monitoring pipeline)
+Phase: 16 of 20 (Content & SEO Engine) -- PHASE COMPLETE
+Plan: 3 of 3 in Phase 16
+Status: Phase 16 complete
+Last activity: 2026-03-19 — Completed 16-03-PLAN.md (content refresh pipeline)
 
-Progress M4: [█████████████████████░░░░░░░░░░░] 27/62 requirements (Phase 16 in progress)
+Progress M4: [██████████████████████░░░░░░░░░░] 28/62 requirements (Phase 16 complete)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
@@ -26,7 +26,7 @@ Progress M2: [██████████████████████
 - M4 Phase 12: 4 plans complete (12-01 instant response, 12-02 speed-to-lead, 12-03 follow-up sequence, 12-04 lead scoring) -- PHASE COMPLETE
 - M4 Phase 14: 2 plans complete (14-01 review request, 14-02 review monitoring + response pipeline)
 - M4 Phase 15: 4 plans complete (15-01 referral, 15-02 loyalty, 15-03 winback, 15-04 newsletter + cross-sell) -- PHASE COMPLETE
-- M4 Phase 16: 2 plans complete (16-01 content generation pipeline, 16-02 rank monitoring pipeline)
+- M4 Phase 16: 3 plans complete (16-01 content generation, 16-02 rank monitoring, 16-03 content refresh) -- PHASE COMPLETE
 
 ## Accumulated Context
 
@@ -124,6 +124,10 @@ Progress M2: [██████████████████████
 - [M4 Phase 16]: TG-99/TG-103 call TG-47 as sub-workflow for IndexNow (DRY pattern)
 - [M4 Phase 16]: n8n API PUT rejects read-only 'tags' field — strip before deployment
 - [M4 Phase 16]: 33 workflows now active (added TG-99, TG-103, TG-47)
+- [M4 Phase 16]: TG-50 content refresher deployed (n8n ID: UXfMkQzkfVcpwhNm), Saturday 9am CT, max 3 posts/run
+- [M4 Phase 16]: TG-50 uses dual fetch: rank-prioritized RPC with age-based fallback (90-day threshold)
+- [M4 Phase 16]: TG-50 direct HTTP to IndexNow (not sub-workflow), structured Claude prompt format
+- [M4 Phase 16]: 34 workflows now active (added TG-50) — Phase 16 COMPLETE, all 8 SEO requirements covered
 
 ### Pending Todos
 
@@ -163,6 +167,10 @@ Progress M2: [██████████████████████
 - Set ANTHROPIC_API_KEY in n8n for TG-99 and TG-103 Claude content generation
 - Set SUPABASE_SECRET_KEY in n8n for TG-99, TG-103, TG-47 Supabase API calls
 - Create seo_target_cities table in Supabase for TG-103 city processing
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-50 Telegram Summary node with Vance's actual Telegram chat ID
+- Set CLAUDE_API_KEY env variable in n8n for TG-50 AI refresh
+- Add last_refreshed_at column to blog_posts table: `ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS last_refreshed_at timestamptz;`
+- (Optional) Create get_stale_posts_ranked RPC in Supabase for rank-prioritized refresh ordering
 
 ### Blockers/Concerns
 
@@ -176,6 +184,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 16-01-PLAN.md (content production pipeline)
+Stopped at: Completed 16-03-PLAN.md (content refresh pipeline) — Phase 16 COMPLETE
 Resume file: None
-Next: 16-03-PLAN.md (weekly SEO digest)
+Next: Phase 17 (Social Media Engine) or next M4 phase
