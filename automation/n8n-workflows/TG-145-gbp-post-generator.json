@@ -1,0 +1,205 @@
+{
+  "name": "TG-145 GBP Post Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 13 * * 1,3,5"
+            }
+          ]
+        }
+      },
+      "id": "node-1-schedule",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Determine season from current month and pick a rotating topic\nconst now = new Date();\nconst monthNum = now.getMonth();\nconst dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);\n\n// Season mapping\nlet season;\nif (monthNum >= 2 && monthNum <= 4) season = 'Spring';\nelse if (monthNum >= 5 && monthNum <= 7) season = 'Summer';\nelse if (monthNum >= 8 && monthNum <= 10) season = 'Fall';\nelse season = 'Winter';\n\n// Topic pools by season\nconst topicPools = {\n  Spring: [\n    'Spring lawn prep tips for Madison homeowners',\n    'Pre-emergent weed control timing in southern Wisconsin',\n    'How to repair winter damage on your Madison lawn',\n    'Spring fertilizer application schedule',\n    'Aeration benefits for compacted Madison clay soil',\n    'Overseeding bare spots after winter',\n    'Crabgrass prevention window in Madison',\n    'Spring cleanup checklist for your yard',\n    'Grub damage prevention starts now',\n    'Mowing height tips for spring growth'\n  ],\n  Summer: [\n    'Watering schedule for Madison lawns in summer heat',\n    'How to keep your lawn green during drought',\n    'Summer weed control without burning your grass',\n    'Mosquito and tick prevention for Madison yards',\n    'Why your lawn turns brown in July and what to do',\n    'Proper mowing height during summer stress',\n    'Fungus prevention in humid Madison summers',\n    'Summer fertilizer application tips',\n    'Shade lawn care for areas under trees',\n    'Japanese beetle control for Madison lawns'\n  ],\n  Fall: [\n    'Fall is the best time to seed your Madison lawn',\n    'Fall fertilizer — the most important application of the year',\n    'Leaf removal vs mulching — what\\'s better for your lawn',\n    'Fall aeration and overseeding combo benefits',\n    'Preparing your lawn for Madison winters',\n    'When to stop mowing in fall',\n    'Fall weed control for broadleaf weeds',\n    'Winterizer fertilizer timing for Wisconsin',\n    'Raking vs leaving leaves on your lawn',\n    'Fall grub treatment window'\n  ],\n  Winter: [\n    'Winter lawn care tips for Madison homeowners',\n    'Planning your spring lawn care schedule now',\n    'Why salt damage hurts your lawn and how to prevent it',\n    'Winter is the best time to book spring services',\n    'Snow mold prevention and treatment',\n    'Off-season soil testing for better spring results',\n    'Winter watering — does your lawn need it?',\n    'Equipment maintenance tips for the off-season',\n    'Understanding your soil type in Madison',\n    'Early booking discounts for spring lawn care'\n  ]\n};\n\nconst topics = topicPools[season];\n\n// Rotate through topics using day-of-year to avoid repeats within 30 days\n// Each MWF post gets a different index based on the post number this year\nconst mwfCount = Math.floor(dayOfYear / 2); // approximate MWF post number\nconst topicIndex = mwfCount % topics.length;\nconst topic = topics[topicIndex];\n\n// Generate a simple hash for dedup tracking\nconst topicHash = topic.replace(/[^a-zA-Z0-9]/g, '').substring(0, 20).toLowerCase();\n\nreturn [{\n  json: {\n    season,\n    topic,\n    topicHash,\n    month: now.toLocaleString('en-US', { month: 'long' }),\n    year: now.getFullYear(),\n    dayOfYear,\n    generatedAt: now.toISOString()\n  }\n}];"
+      },
+      "id": "node-2-season-topic",
+      "name": "Determine Season & Topic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "ANTHROPIC_API_KEY"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-haiku-4-5-20251001\",\n  \"max_tokens\": 512,\n  \"system\": \"You are a Google Business Profile post writer for TotalGuard Yard Care, a professional lawn care company in Madison, Wisconsin. Write engaging, local-focused posts that drive action.\\n\\nRules:\\n- Keep posts between 150-300 characters (this is CRITICAL — GBP truncates beyond 300)\\n- NO hashtags (GBP doesn't support them)\\n- Mention Madison, WI or southern Wisconsin naturally\\n- Include a clear call-to-action (call us, book online, get a free quote)\\n- Sound friendly and professional, not salesy\\n- Use the current season context to be timely and relevant\\n- Phone: (608) 535-6057\\n- Focus on the specific topic provided\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Write a Google Business Profile post for {{ $json.season }} about: {{ $json.topic }}\\n\\nMonth: {{ $json.month }} {{ $json.year }}\\n\\nReturn ONLY the post text, nothing else.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "node-3-ai-generate",
+      "name": "AI Generate Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Claude API response and prepare for storage\nconst response = $input.first().json;\nconst prevData = $('Determine Season & Topic').first().json;\n\n// Extract text from Claude response\nlet postText = '';\nif (response.content && response.content[0] && response.content[0].text) {\n  postText = response.content[0].text.trim();\n}\n\n// Strip any quotes if Claude wrapped the response\npostText = postText.replace(/^\"|\"$/g, '').trim();\n\n// Truncate to 300 chars if needed, breaking at last complete sentence or word\nif (postText.length > 300) {\n  let truncated = postText.substring(0, 297);\n  // Try to break at last sentence\n  const lastPeriod = truncated.lastIndexOf('.');\n  const lastExclaim = truncated.lastIndexOf('!');\n  const lastBreak = Math.max(lastPeriod, lastExclaim);\n  if (lastBreak > 200) {\n    truncated = truncated.substring(0, lastBreak + 1);\n  } else {\n    // Break at last space\n    const lastSpace = truncated.lastIndexOf(' ');\n    truncated = truncated.substring(0, lastSpace) + '...';\n  }\n  postText = truncated;\n}\n\n// Generate image prompt suggestion based on topic\nconst imagePrompt = `Professional lawn care photo: ${prevData.topic}. Madison Wisconsin, ${prevData.season.toLowerCase()} season, lush green grass, residential neighborhood. Clean, bright, inviting.`;\n\nreturn [{\n  json: {\n    post_content: postText,\n    char_count: postText.length,\n    image_prompt: imagePrompt,\n    season: prevData.season,\n    topic: prevData.topic,\n    topic_hash: prevData.topicHash,\n    generated_at: prevData.generatedAt\n  }\n}];"
+      },
+      "id": "node-4-parse-response",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/gbp_posts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"post_content\": {{ JSON.stringify($json.post_content) }},\n  \"season\": {{ JSON.stringify($json.season) }},\n  \"topic\": {{ JSON.stringify($json.topic) }},\n  \"topic_hash\": {{ JSON.stringify($json.topic_hash) }},\n  \"image_prompt\": {{ JSON.stringify($json.image_prompt) }},\n  \"char_count\": {{ $json.char_count }},\n  \"status\": \"pending_approval\",\n  \"generated_at\": {{ JSON.stringify($json.generated_at) }}\n}",
+        "options": {}
+      },
+      "id": "node-5-store-supabase",
+      "name": "Store in Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "=📋 *New GBP Post Ready for Review*\n\n🌿 *Season:* {{ $('Parse AI Response').item.json.season }}\n📌 *Topic:* {{ $('Parse AI Response').item.json.topic }}\n\n---\n{{ $('Parse AI Response').item.json.post_content }}\n---\n\n📏 Characters: {{ $('Parse AI Response').item.json.char_count }}/300\n🖼️ Image suggestion: {{ $('Parse AI Response').item.json.image_prompt }}\n\n🆔 Post ID: `{{ $json[0].id }}`\n\n*Commands:*\n✅ `approve <id>` — approve & queue for posting\n❌ `reject <id>` — reject this post\n✏️ `edit <id> <new text>` — replace with your text",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "node-6-telegram-approval",
+      "name": "Send Telegram Approval",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1320, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "TG - Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Determine Season & Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine Season & Topic": {
+      "main": [
+        [
+          {
+            "node": "AI Generate Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Generate Post": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Response": {
+      "main": [
+        [
+          {
+            "node": "Store in Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store in Supabase": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "tg-145-gbp-post-generator-v1",
+  "meta": {
+    "instanceId": "tgyardcare.app.n8n.cloud"
+  },
+  "tags": [
+    {
+      "name": "Phase 18",
+      "id": "phase-18"
+    },
+    {
+      "name": "GBP",
+      "id": "gbp"
+    }
+  ]
+}
