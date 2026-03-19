@@ -1,5 +1,5 @@
 {
-  "name": "TG-134 Review to Social Post Converter",
+  "name": "TG-134 Review to Social Post",
   "nodes": [
     {
       "parameters": {
@@ -16,12 +16,12 @@
       "name": "Daily 8am CT",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [250, 300]
+      "position": [0, 300]
     },
     {
       "parameters": {
         "method": "GET",
-        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_reviews?rating=eq.5&social_media_queued=eq.true&social_media_posted=eq.false&select=id,author_name,review_text,rating,created_at&order=created_at.desc&limit=3",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_reviews?rating=eq.5&social_posted=eq.false&select=id,author_name,review_text,rating,created_at&order=created_at.desc&limit=3",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -32,10 +32,6 @@
             {
               "name": "Authorization",
               "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
             }
           ]
         },
@@ -45,7 +41,7 @@
       "name": "Fetch New 5-Star Reviews",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [470, 300],
+      "position": [200, 300],
       "continueOnFail": true
     },
     {
@@ -59,7 +55,7 @@
           "conditions": [
             {
               "id": "tg134-cond-1",
-              "leftValue": "={{ $json.length }}",
+              "leftValue": "={{ Array.isArray($json) ? $json.length : ($input.all().length > 0 && !$input.first().json.code ? 1 : 0) }}",
               "rightValue": "0",
               "operator": {
                 "type": "number",
@@ -74,27 +70,27 @@
       "name": "IF Reviews Found",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [690, 300]
+      "position": [400, 300]
     },
     {
       "parameters": {
         "options": {}
       },
       "id": "tg134-split",
-      "name": "Split In Batches",
+      "name": "Loop Over Reviews",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
-      "position": [910, 300]
+      "position": [600, 300]
     },
     {
       "parameters": {
-        "jsCode": "const review = $input.first().json;\n\n// Truncate review text to 200 chars\nconst fullText = review.review_text || '';\nconst truncated = fullText.length > 200 ? fullText.substring(0, 197) + '...' : fullText;\n\n// Build branded social post\nconst stars = '\\u2B50\\u2B50\\u2B50\\u2B50\\u2B50';\nconst authorName = review.author_name || 'A Happy Customer';\n\nconst postText = `${stars} 5-Star Review Spotlight\\n\\n\"${truncated}\"\\n\\n\\u2014 ${authorName}\\n\\nThank you for trusting TotalGuard Yard Care with your lawn! Ready for a yard transformation?\\n\\n\\uD83D\\uDC49 tgyardcare.com\\n\\n#TotalGuardYardCare #MadisonWI #LawnCare #5StarReview #CustomerLove #YardTransformation #LawnMaintenance #MadisonLawnCare`;\n\n// Calculate batch_week (current Monday)\nconst now = new Date();\nconst dayOfWeek = now.getDay();\nconst diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;\nconst monday = new Date(now);\nmonday.setDate(now.getDate() + diffToMonday);\nmonday.setHours(0, 0, 0, 0);\nconst batchWeek = monday.toISOString().split('T')[0];\n\n// Calculate next Wednesday 10am CT (15:00 UTC)\nconst daysUntilWed = (3 - now.getDay() + 7) % 7;\nconst nextWed = new Date(now);\nif (daysUntilWed === 0 && now.getHours() >= 15) {\n  nextWed.setDate(now.getDate() + 7);\n} else {\n  nextWed.setDate(now.getDate() + (daysUntilWed === 0 ? 0 : daysUntilWed));\n}\nnextWed.setHours(15, 0, 0, 0);\nconst scheduledFor = nextWed.toISOString();\n\nconst socialPost = {\n  post_text: postText,\n  platforms: ['instagram', 'linkedin', 'pinterest'],\n  post_type: 'review_highlight',\n  pillar: 'review_spotlight',\n  day_of_week: 3,\n  status: 'scheduled',\n  source: 'review_highlight',\n  review_id: review.id,\n  batch_week: batchWeek,\n  scheduled_for: scheduledFor\n};\n\nreturn [{\n  json: {\n    social_post: socialPost,\n    review_id: review.id,\n    author_name: authorName\n  }\n}];"
+        "jsCode": "const review = $input.first().json;\n\n// Truncate review text to 200 chars\nconst fullText = review.review_text || '';\nconst truncated = fullText.length > 200 ? fullText.substring(0, 197) + '...' : fullText;\n\nconst authorName = review.author_name || 'A Happy Customer';\n\n// Build branded social post per plan template\nconst postText = `\\u2B50 5-Star Review from ${authorName}!\\n\\n\"${truncated}\"\\n\\nThank you for trusting TotalGuard Yard Care with your lawn! Your satisfaction means the world to us.\\n\\nReady for YOUR lawn transformation?\\nFree quote: tgyardcare.com/quote\\n(608) 535-6057\\n\\n#TotalGuardYardCare #MadisonWI #LawnCare #5StarReview #HappyCustomer #MadisonLawnCare`;\n\n// Calculate batch_week (current Monday)\nconst now = new Date();\nconst dayOfWeek = now.getDay();\nconst diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;\nconst monday = new Date(now);\nmonday.setDate(now.getDate() + diffToMonday);\nmonday.setHours(0, 0, 0, 0);\nconst batchWeek = monday.toISOString().split('T')[0];\n\n// Calculate next Wednesday 10am CT (15:00 UTC)\nconst daysUntilWed = (3 - now.getDay() + 7) % 7;\nconst nextWed = new Date(now);\nif (daysUntilWed === 0 && now.getHours() >= 15) {\n  nextWed.setDate(now.getDate() + 7);\n} else {\n  nextWed.setDate(now.getDate() + (daysUntilWed === 0 ? 0 : daysUntilWed));\n}\nnextWed.setHours(15, 0, 0, 0);\nconst scheduledFor = nextWed.toISOString();\n\nconst socialPost = {\n  post_text: postText,\n  platforms: ['instagram', 'linkedin', 'pinterest'],\n  post_type: 'review_highlight',\n  pillar: 'review_spotlight',\n  day_of_week: 3,\n  status: 'scheduled',\n  source: 'review_highlight',\n  review_id: review.id,\n  batch_week: batchWeek,\n  scheduled_for: scheduledFor\n};\n\nreturn [{\n  json: {\n    social_post: socialPost,\n    review_id: review.id,\n    author_name: authorName\n  }\n}];"
       },
       "id": "tg134-generate-post",
       "name": "Generate Social Post",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1130, 300]
+      "position": [800, 300]
     },
     {
       "parameters": {
@@ -127,10 +123,10 @@
         "options": {}
       },
       "id": "tg134-insert-post",
-      "name": "Insert to social_posts",
+      "name": "Insert Social Post",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1350, 300]
+      "position": [1000, 300]
     },
     {
       "parameters": {
@@ -155,35 +151,39 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{ \"social_media_posted\": true }",
+        "jsonBody": "{ \"social_posted\": true }",
         "options": {}
       },
       "id": "tg134-mark-posted",
       "name": "Mark Review as Posted",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1570, 300],
+      "position": [1200, 300],
       "continueOnFail": true
     },
     {
       "parameters": {
-        "chatId": "TELEGRAM_CHAT_ID_PLACEHOLDER",
-        "text": "=Review Social Post Created — {{ $('Generate Social Post').first().json.author_name }}'s 5-star review queued for Wednesday",
-        "additionalFields": {
-          "parse_mode": "Markdown"
-        }
+        "method": "POST",
+        "url": "https://api.telegram.org/bot{{TELEGRAM_BOT_TOKEN}}/sendMessage",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"chat_id\": \"OWNER_TELEGRAM_CHAT_ID\", \"text\": \"Review Social Post Created -- {{ $('Generate Social Post').first().json.author_name }}'s 5-star review queued for Wednesday posting.\", \"parse_mode\": \"Markdown\" }",
+        "options": {}
       },
       "id": "tg134-telegram",
-      "name": "Telegram Notification",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [1790, 300],
-      "credentials": {
-        "telegramApi": {
-          "id": "telegram",
-          "name": "Telegram"
-        }
-      }
+      "name": "Send Telegram Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1400, 300]
     }
   ],
   "connections": {
@@ -199,11 +199,11 @@
     },
     "IF Reviews Found": {
       "main": [
-        [{ "node": "Split In Batches", "type": "main", "index": 0 }],
+        [{ "node": "Loop Over Reviews", "type": "main", "index": 0 }],
         []
       ]
     },
-    "Split In Batches": {
+    "Loop Over Reviews": {
       "main": [
         [{ "node": "Generate Social Post", "type": "main", "index": 0 }],
         []
@@ -211,22 +211,22 @@
     },
     "Generate Social Post": {
       "main": [
-        [{ "node": "Insert to social_posts", "type": "main", "index": 0 }]
+        [{ "node": "Insert Social Post", "type": "main", "index": 0 }]
       ]
     },
-    "Insert to social_posts": {
+    "Insert Social Post": {
       "main": [
         [{ "node": "Mark Review as Posted", "type": "main", "index": 0 }]
       ]
     },
     "Mark Review as Posted": {
       "main": [
-        [{ "node": "Telegram Notification", "type": "main", "index": 0 }]
+        [{ "node": "Send Telegram Notification", "type": "main", "index": 0 }]
       ]
     },
-    "Telegram Notification": {
+    "Send Telegram Notification": {
       "main": [
-        [{ "node": "Split In Batches", "type": "main", "index": 0 }]
+        [{ "node": "Loop Over Reviews", "type": "main", "index": 0 }]
       ]
     }
   },
@@ -237,7 +237,7 @@
   "tags": [
     {
       "id": "fPXl9eiMhJc3ISQQ",
-      "name": "review"
+      "name": "tg-os"
     }
   ],
   "pinData": {}
