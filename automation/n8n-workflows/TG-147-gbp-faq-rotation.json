@@ -1,0 +1,207 @@
+{
+  "name": "TG-147-gbp-faq-rotation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 1 3,6,9,12 *"
+            }
+          ]
+        }
+      },
+      "id": "tg147-trigger",
+      "name": "Quarterly FAQ Rotation - 1st of Season",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst month = now.getMonth() + 1;\n\nlet season, services;\n\nif (month >= 3 && month <= 5) {\n  season = 'Spring';\n  services = 'spring cleanup, aeration, fertilization, weed control, dethatching';\n} else if (month >= 6 && month <= 8) {\n  season = 'Summer';\n  services = 'weekly mowing, garden bed maintenance, bush trimming, pest control, irrigation';\n} else if (month >= 9 && month <= 11) {\n  season = 'Fall';\n  services = 'fall cleanup, leaf removal, overseeding, aeration, gutter cleaning';\n} else {\n  season = 'Winter';\n  services = 'snow removal, gutter guard installation, holiday lighting, winter prep';\n}\n\nconst year = now.getFullYear();\nconst quarterNum = Math.ceil(month / 3);\nconst quarter = `${year}-Q${quarterNum}`;\n\nreturn [{ json: { season, services, quarter, year } }];"
+      },
+      "id": "tg147-season",
+      "name": "Determine Current Season",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "=ANTHROPIC_API_KEY"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-3-haiku-20240307\",\n  \"max_tokens\": 1500,\n  \"system\": \"You are a lawn care expert in Madison, Wisconsin. Generate 5-7 FAQs that real customers ask during the specified season. Each FAQ has a question and a concise, helpful answer (2-3 sentences). Include local context (Dane County weather, Wisconsin soil types, local pests). Format as JSON array: [{\\\"q\\\": \\\"question\\\", \\\"a\\\": \\\"answer\\\"}]. Return ONLY the JSON array, no other text.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Generate {{ $json.season }} FAQs for TotalGuard Yard Care. Services available: {{ $json.services }}. Service areas: Madison, Middleton, Waunakee, Monona, Sun Prairie, Fitchburg, Verona, McFarland, Oregon, Stoughton, DeForest, Cottage Grove. Phone: (608) 535-6057.\"\n    }\n  ]\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "tg147-ai",
+      "name": "AI Generate Seasonal FAQs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst content = response.content[0].text;\n\nlet faqs;\ntry {\n  faqs = JSON.parse(content);\n} catch (e) {\n  // Try to extract JSON array from response\n  const match = content.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (match) {\n    faqs = JSON.parse(match[0]);\n  } else {\n    throw new Error('Could not parse FAQ response: ' + content.substring(0, 200));\n  }\n}\n\nconst season = $('Determine Current Season').first().json.season;\nconst quarter = $('Determine Current Season').first().json.quarter;\n\n// Format for Telegram\nlet telegramText = `\\u2728 SEASONAL FAQ ROTATION - ${season} ${new Date().getFullYear()}\\n\\n`;\nfaqs.forEach((faq, i) => {\n  telegramText += `\\u2753 Q${i + 1}: ${faq.q}\\n`;\n  telegramText += `\\u2705 A: ${faq.a}\\n\\n`;\n});\ntelegramText += `These FAQs are ready to update on your GBP profile.\\n`;\ntelegramText += `Go to: business.google.com > Info > Q&A\\n\\n`;\ntelegramText += `Reply 'faq-approved' to mark as done.`;\n\nreturn [{ json: { faqs, season, quarter, telegramText, faqCount: faqs.length } }];"
+      },
+      "id": "tg147-parse",
+      "name": "Parse FAQ Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/gbp_faqs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"season\": \"{{ $json.season }}\",\n  \"quarter\": \"{{ $json.quarter }}\",\n  \"faq_content\": {{ JSON.stringify($json.faqs) }},\n  \"status\": \"pending_review\"\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "tg147-store",
+      "name": "Store FAQ Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "chatId": "=OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ $('Parse FAQ Response').first().json.telegramText }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "tg147-telegram",
+      "name": "Send FAQs for Review",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1100, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Quarterly FAQ Rotation - 1st of Season": {
+      "main": [
+        [
+          {
+            "node": "Determine Current Season",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine Current Season": {
+      "main": [
+        [
+          {
+            "node": "AI Generate Seasonal FAQs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Generate Seasonal FAQs": {
+      "main": [
+        [
+          {
+            "node": "Parse FAQ Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse FAQ Response": {
+      "main": [
+        [
+          {
+            "node": "Store FAQ Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store FAQ Content": {
+      "main": [
+        [
+          {
+            "node": "Send FAQs for Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "gbp"
+    },
+    {
+      "name": "faq"
+    },
+    {
+      "name": "phase-18"
+    }
+  ]
+}
