@@ -16,7 +16,7 @@ interface SmartQuoteFlowProps {
   onClose: () => void;
 }
 
-type Step = 0 | 1 | 2 | 3 | 4 | 5;
+type Step = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 interface ContactInfo {
   name: string;
@@ -35,9 +35,11 @@ interface FlowState {
   isLookingUpParcel: boolean;
   parcelLookupFailed: boolean;
   manualSqft: string;
+  manualInput: string;
   editingSize: boolean;
   selections: Record<string, string>;
   contact: ContactInfo;
+  specialNotes: string;
   isSubmitting: boolean;
   submitError: string | null;
   selectedSlug: string;
@@ -85,6 +87,7 @@ function buildMessage(
   turfAreaSqft: number | null,
   selections: Record<string, string>,
   questions: ServiceQuestion[],
+  specialNotes: string,
 ): string {
   const lines: string[] = [`Quote request for ${serviceName}.`];
   if (address) lines.push(`Property: ${address}`);
@@ -99,6 +102,9 @@ function buildMessage(
       const option = q.options.find((o) => o.value === selectedValue);
       if (option) lines.push(`${q.question} → ${option.label}`);
     }
+  }
+  if (specialNotes && specialNotes.trim()) {
+    lines.push(`Special notes: ${specialNotes.trim()}`);
   }
   return lines.join('\n');
 }
@@ -125,9 +131,11 @@ export default function SmartQuoteFlow({
     isLookingUpParcel: false,
     parcelLookupFailed: false,
     manualSqft: '',
+    manualInput: '',
     editingSize: false,
     selections: {},
     contact: { name: '', email: '', phone: '' },
+    specialNotes: '',
     isSubmitting: false,
     submitError: null,
     selectedSlug: serviceSlug,
@@ -168,7 +176,7 @@ export default function SmartQuoteFlow({
   const questions = getServiceQuestions(activeSlug);
 
   // Progress: steps 1-5 fill the bar (step 0 = 0%)
-  const progressPct = state.step === 0 ? 0 : ((state.step - 1) / 4) * 100;
+  const progressPct = state.step === 0 ? 0 : ((state.step - 1) / 5) * 100;
 
   // ── Address Selection ──────────────────────────────────────────────────────
 
@@ -223,6 +231,7 @@ export default function SmartQuoteFlow({
       if (s.step === 3 && s.currentQuestionIndex > 0) {
         return { ...s, currentQuestionIndex: s.currentQuestionIndex - 1 };
       }
+      // Custom back chain: 5 (contact) → 4 (notes) → 3 (questions) → 2 (property) → 1 (address)
       const prevStep = Math.max(s.step - 1, startStep) as Step;
       return { ...s, step: prevStep, currentQuestionIndex: 0 };
     });
@@ -268,6 +277,7 @@ export default function SmartQuoteFlow({
         effectiveTurf,
         state.selections,
         questions,
+        state.specialNotes,
       );
 
       try {
@@ -286,7 +296,7 @@ export default function SmartQuoteFlow({
 
         if (!res.ok) throw new Error('Submission failed');
 
-        setState((s) => ({ ...s, isSubmitting: false, step: 5 }));
+        setState((s) => ({ ...s, isSubmitting: false, step: 6 }));
       } catch {
         setState((s) => ({
           ...s,
@@ -338,14 +348,24 @@ export default function SmartQuoteFlow({
             />
           ))}
 
-          {/* Progress bar */}
-          <div className="fixed top-0 left-0 right-0 z-10 h-[2px]" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          {/* Progress bar with shimmer */}
+          <div className="fixed top-0 left-0 right-0 z-10 h-[3px]" style={{ background: 'rgba(255,255,255,0.06)' }}>
             <motion.div
-              className="h-full"
+              className="h-full relative overflow-hidden"
               style={{ background: '#22c55e' }}
               animate={{ width: `${progressPct}%` }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
-            />
+            >
+              <motion.div
+                className="absolute inset-0"
+                style={{
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%)',
+                  width: '60%',
+                }}
+                animate={{ x: ['-100%', '250%'] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear', repeatDelay: 1 }}
+              />
+            </motion.div>
           </div>
 
           {/* Close button */}
@@ -381,8 +401,8 @@ export default function SmartQuoteFlow({
           <div className="relative min-h-screen flex flex-col items-center justify-center px-4 py-20">
             <div className="w-full max-w-lg mx-auto">
 
-              {/* Back button (steps 2-4) */}
-              {state.step >= 2 && state.step <= 4 && (
+              {/* Back button (steps 2-5) */}
+              {state.step >= 2 && state.step <= 5 && (
                 <motion.button
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -487,16 +507,27 @@ export default function SmartQuoteFlow({
                           <AddressAutocomplete
                             onSelect={handleAddressSelect}
                             placeholder="123 Main Street, Madison, WI..."
+                            onInputChange={(val) => setState((s) => ({ ...s, manualInput: val }))}
                           />
-                          <button
-                            onClick={() => setState((s) => ({ ...s, parcelLookupFailed: true, step: 2 }))}
-                            className="mt-4 text-xs transition-colors duration-200"
-                            style={{ color: 'rgba(255,255,255,0.30)' }}
-                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.60)'; }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.30)'; }}
-                          >
-                            Skip — I&apos;ll enter my size manually
-                          </button>
+                          {state.manualInput.length >= 8 && (
+                            <motion.button
+                              initial={{ opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              onClick={() => setState((s) => ({
+                                ...s,
+                                address: s.manualInput,
+                                parcelLookupFailed: true,
+                                step: 2,
+                              }))}
+                              className="mt-4 w-full rounded-xl px-6 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.01]"
+                              style={{
+                                background: 'rgba(34,197,94,0.12)',
+                                border: '1px solid rgba(34,197,94,0.30)',
+                              }}
+                            >
+                              Use This Address →
+                            </motion.button>
+                          )}
                         </>
                       )}
                     </div>
@@ -619,9 +650,9 @@ export default function SmartQuoteFlow({
                       <button
                         onClick={() => {
                           if (questions.length === 0) {
-                            setState((s) => ({ ...s, step: 4 }));
+                            setState((s) => ({ ...s, step: 4 })); // skip questions → notes
                           } else {
-                            setState((s) => ({ ...s, step: 3 }));
+                            setState((s) => ({ ...s, step: 3 })); // go to questions
                           }
                         }}
                         className="w-full rounded-xl px-6 py-4 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.01]"
@@ -682,8 +713,43 @@ export default function SmartQuoteFlow({
                     </div>
                   )}
 
-                  {/* ── Step 4: Contact Info ── */}
+                  {/* ── Step 4: Special Notes ── */}
                   {state.step === 4 && (
+                    <div>
+                      <h1 className="text-3xl font-bold text-white mb-2">Anything else we should know?</h1>
+                      <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                        Gates, pets, timing preferences, access instructions — anything that helps us give you the most accurate quote.
+                      </p>
+
+                      <textarea
+                        value={state.specialNotes}
+                        onChange={(e) => setState((s) => ({ ...s, specialNotes: e.target.value }))}
+                        rows={5}
+                        className="w-full rounded-xl px-4 py-3.5 text-sm text-white outline-none transition-all resize-none"
+                        style={{
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.10)',
+                        }}
+                        placeholder="e.g. There's a gate on the south side, code is 1234. We have two dogs so pet-safe products preferred..."
+                        onFocus={(e) => { e.currentTarget.style.border = '1px solid rgba(34,197,94,0.40)'; }}
+                        onBlur={(e) => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.10)'; }}
+                      />
+
+                      <button
+                        onClick={() => setState((s) => ({ ...s, step: 5 }))}
+                        className="mt-6 w-full rounded-xl px-6 py-4 text-sm font-bold text-white transition-all duration-200 hover:scale-[1.01]"
+                        style={{
+                          background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                          boxShadow: '0 0 24px rgba(34,197,94,0.25)',
+                        }}
+                      >
+                        {state.specialNotes.trim() ? 'Got It — Continue →' : 'Nothing to Add — Continue →'}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* ── Step 5: Contact Info ── */}
+                  {state.step === 5 && (
                     <div>
                       <h1 className="text-3xl font-bold text-white mb-2">How should we reach you?</h1>
                       <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.45)' }}>
@@ -775,8 +841,8 @@ export default function SmartQuoteFlow({
                     </div>
                   )}
 
-                  {/* ── Step 5: Confirmation ── */}
-                  {state.step === 5 && (
+                  {/* ── Step 6: Confirmation ── */}
+                  {state.step === 6 && (
                     <div className="text-center">
                       {/* Animated checkmark */}
                       <motion.div

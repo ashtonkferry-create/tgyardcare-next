@@ -13,6 +13,7 @@ interface AddressAutocompleteProps {
     zip: string;
     coordinates: [number, number];
   }) => void;
+  onInputChange?: (value: string) => void;
   defaultValue?: string;
   placeholder?: string;
   className?: string;
@@ -20,6 +21,7 @@ interface AddressAutocompleteProps {
 
 export function AddressAutocomplete({
   onSelect,
+  onInputChange,
   defaultValue = '',
   placeholder = 'Start typing your address...',
   className = '',
@@ -98,7 +100,7 @@ export function AddressAutocomplete({
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => { setQuery(e.target.value); onInputChange?.(e.target.value); }}
           onBlur={handleBlur}
           onFocus={handleFocus}
           onKeyDown={handleKeyDown}
