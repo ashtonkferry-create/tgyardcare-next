@@ -39,7 +39,7 @@
 **Phase Numbering:** Continues from M3 (11+)
 
 - [x] **Phase 11: Foundation & Infrastructure** — Clean n8n instance, fix remaining issues, auto-posting setup
-- [ ] **Phase 12: Conversion Engine** — Instant lead response, follow-up sequences, speed-to-lead
+- [x] **Phase 12: Conversion Engine** — Instant lead response, follow-up sequences, speed-to-lead
 - [ ] **Phase 13: Delivery Excellence** — Jobber email parsing, pre/post-job automation, quality loops
 - [ ] **Phase 14: Review Generation Machine** — Post-job review requests, AI responses, social proof pipeline
 - [ ] **Phase 15: Retention & Lifetime Value** — Referrals, annual plans, cross-sell, win-back, seasonal, weather
@@ -83,6 +83,11 @@ Plans:
 **Goal**: Every Jobber email event triggers appropriate automation — pre-job reminders, on-my-way SMS, post-job quality checks — making every customer feel like they have a personal lawn care concierge.
 **Depends on**: Phase 12 (conversion pipeline flowing data)
 **Requirements**: DELV-01, DELV-02, DELV-03, DELV-04, DELV-05
+**Plans:** 3 plans
+Plans:
+- [ ] 13-01-PLAN.md — Enhance TG-05 parser with richer extraction + downstream routing (DELV-01)
+- [ ] 13-02-PLAN.md — TG-127 pre-job + TG-128 post-job quality check workflows (DELV-02/03/04)
+- [ ] 13-03-PLAN.md — Reactivate TG-88 on-my-way SMS with fixed credentials (DELV-05)
 **Success Criteria**:
   1. TG-05 correctly parses job_created, job_scheduled, job_completed, quote_sent, invoice_sent emails
   2. Customer receives SMS day before their scheduled service
@@ -167,7 +172,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 11. Foundation & Infrastructure | M4 | 5/5 | Complete | 2026-03-19 |
 | 12. Conversion Engine | M4 | 7/7 | Complete | 2026-03-19 |
-| 13. Delivery Excellence | M4 | 0/? | Not Started | - |
+| 13. Delivery Excellence | M4 | 0/3 | In Progress | - |
 | 14. Review Generation | M4 | 0/? | Not Started | - |
 | 15. Retention & LTV | M4 | 0/? | Not Started | - |
 | 16. Content & SEO | M4 | 0/? | Not Started | - |
