@@ -20,8 +20,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
 import { CrossSellGrid } from "@/components/CrossSellGrid";
 import { TrustStrip } from "@/components/TrustStrip";
-import { useState } from 'react';
-import SmartQuoteFlow from '@/components/SmartQuoteFlow';
+import ServicePageQuickQuote from '@/components/ServicePageQuickQuote';
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
 import { AmbientParticles } from "@/components/AmbientParticles";
@@ -31,7 +30,6 @@ function imgSrc(img: string | { src: string }): string {
 }
 
 export default function GutterCleaningContent() {
-  const [quoteOpen, setQuoteOpen] = useState(false);
   const beforeAfterItems = [
     { combinedImage: imgSrc(gutterCombined) },
     { combinedImage: imgSrc(gutterCombined1) }
@@ -101,60 +99,7 @@ export default function GutterCleaningContent() {
         </div>
       </section>
 
-      {/* Smart Quote CTA */}
-      <section className="container mx-auto px-4 py-10 md:py-14">
-        <div
-          className="max-w-xl mx-auto rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6"
-          style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.10)',
-            borderLeft: '4px solid #22c55e',
-          }}
-        >
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">🏠</span>
-              <h2 className="text-lg font-bold text-white">Get Your Gutter Cleaning Quote</h2>
-            </div>
-            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
-              Answer a few quick questions — we&apos;ll call with a price built for your exact property.
-            </p>
-            <div className="flex flex-wrap items-center gap-3 mt-4 text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
-              <span>★ 4.9 Google</span>
-              <span>·</span>
-              <span>80+ Families</span>
-              <span>·</span>
-              <span>Same-Day Response</span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-3 w-full md:w-auto">
-            <button
-              onClick={() => setQuoteOpen(true)}
-              className="relative overflow-hidden rounded-xl px-6 py-3.5 text-sm font-bold text-white whitespace-nowrap transition-all duration-200 hover:scale-[1.02]"
-              style={{
-                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                boxShadow: '0 0 24px rgba(245,158,11,0.30)',
-              }}
-            >
-              Get My Free Quote →
-            </button>
-            <a
-              href="tel:6085356057"
-              className="flex items-center justify-center gap-2 text-sm text-white/50 hover:text-white/80 transition-colors"
-            >
-              📞 (608) 535-6057
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <SmartQuoteFlow
-        serviceSlug="gutter-cleaning"
-        serviceName="Gutter Cleaning"
-        serviceEmoji="🏠"
-        isOpen={quoteOpen}
-        onClose={() => setQuoteOpen(false)}
-      />
+      <ServicePageQuickQuote serviceSlug="gutter-cleaning" serviceName="Gutter Cleaning" />
 
       {/* ═══════════════════════════════════════════════════════════════════
           TRUST STRIP — Immediate credibility
