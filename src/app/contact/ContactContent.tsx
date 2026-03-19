@@ -333,8 +333,24 @@ export default function ContactContent() {
       <TrustStrip variant="dark" />
 
       {/* ── FORM + INFO ── */}
-      <section className="relative py-16 md:py-24" style={{ background: bg.page }}>
+      <section className="relative overflow-hidden py-16 md:py-24" style={{ background: bg.page }}>
+        {/* Atmospheric drift orbs — matches hero/CTA sections */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none motion-reduce:hidden">
+          <div className="absolute -top-20 -right-20 w-[300px] lg:w-[500px] h-[300px] lg:h-[500px] rounded-full blur-3xl animate-drift-1" style={{ background: `${acc.solid}15`, animationDuration: '20s' }} />
+          <div className="absolute bottom-0 -left-10 w-[200px] lg:w-[400px] h-[200px] lg:h-[400px] rounded-full blur-3xl animate-drift-2" style={{ background: `${acc.solid}12`, animationDuration: '24s' }} />
+          <div className="absolute top-[35%] left-[45%] w-[250px] lg:w-[350px] h-[250px] lg:h-[350px] rounded-full blur-3xl animate-drift-3 hidden sm:block" style={{ background: `${acc.solid}0d`, animationDuration: '18s' }} />
+          <div className="absolute top-[10%] right-[25%] w-[180px] lg:w-[280px] h-[180px] lg:h-[280px] rounded-full blur-3xl animate-drift-1 hidden lg:block" style={{ background: `${acc.solid}0a`, animationDuration: '22s', animationDelay: '-6s' }} />
+        </div>
+
+        {/* Subtle grid pattern — desktop only */}
+        <div className="absolute inset-0 opacity-[0.02] hidden lg:block pointer-events-none" style={{
+          backgroundImage: `linear-gradient(${acc.solid}4d 1px, transparent 1px), linear-gradient(90deg, ${acc.solid}4d 1px, transparent 1px)`,
+          backgroundSize: '60px 60px'
+        }} />
+
+        {/* Ambient particle layer */}
         <AmbientParticles density="dense" />
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
 
