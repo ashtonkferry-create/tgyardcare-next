@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Build an autonomous business nervous system — acquires customers, converts leads, delivers excellence, retains accounts, amplifies brand, reports via Telegram.
-**Current focus:** M4 TG-OS Business Automation — Phase 20 In Progress (Community & Field Marketing)
+**Current focus:** M4 TG-OS Business Automation — Phase 19 In Progress (Intelligence Command Center)
 
 ## Current Position
 
-Phase: 20 of 20 (Community & Field Marketing)
-Plan: 1 of ? in Phase 20
+Phase: 19 of 20 (Intelligence Command Center)
+Plan: 2 of 3 in Phase 19
 Status: In progress
-Last activity: 2026-03-19 — Completed 20-01-PLAN.md (Neighbor outreach + crew field marketing)
+Last activity: 2026-03-19 — Completed 19-02-PLAN.md (Real-time alerts system)
 
-Progress M4: [██████████████████████████░░░░░░] 33/62 requirements (Phase 20 started)
+Progress M4: [██████████████████████████░░░░░░] 34/62 requirements (Phase 19 in progress)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
@@ -28,6 +28,7 @@ Progress M2: [██████████████████████
 - M4 Phase 15: 4 plans complete (15-01 referral, 15-02 loyalty, 15-03 winback, 15-04 newsletter + cross-sell) -- PHASE COMPLETE
 - M4 Phase 16: 3 plans complete (16-01 content generation, 16-02 rank monitoring, 16-03 content refresh) -- PHASE COMPLETE
 - M4 Phase 17: 3 plans complete (17-01 content batch generator, 17-02 review-to-social pipeline, 17-03 daily publisher + engagement tracker) -- PHASE COMPLETE
+- M4 Phase 19: 1 plan complete (19-01 daily briefing + weekly report)
 
 ## Accumulated Context
 
@@ -151,6 +152,14 @@ Progress M2: [██████████████████████
 - [M4 Phase 20]: Yard sign auto-expire at 14 days, collection reminders at 7 days
 - [M4 Phase 20]: A2P opt-out "Reply STOP" included in all neighbor outreach SMS
 - [M4 Phase 20]: 39 workflows now active (added TG-143, TG-144)
+- [M4 Phase 19]: TG-137 daily briefing deployed (n8n ID: Fuz98FVF0YhO37SY), daily 7am CT, 4 nodes, active- [M4 Phase 19]: TG-138 weekly report deployed (n8n ID: 6uc1VDZ4rWiKvsaq), Sunday 8am CT, 5 nodes, active- [M4 Phase 19]: Both use $vars for credentials, safeFetch pattern for graceful degradation- [M4 Phase 19]: POST /workflows/{id}/activate works for n8n activation (not PATCH)- [M4 Phase 19]: 41 workflows now active (added TG-137, TG-138)
+
+- [M4 Phase 19]: TG-139 deployed (n8n ID: J3RGGYS6Dp5buVkN), webhook /tg139-lead-alert, active
+- [M4 Phase 19]: TG-140 deployed (n8n ID: 8Ja6PGcLXwbRpPvf), hourly :30 + webhook /tg140-review-alert, active
+- [M4 Phase 19]: TG-141 deployed (n8n ID: 5JbCFiE6RJBKpght), every 5 min, active
+- [M4 Phase 19]: TG-141 classifies TG-01/05/94/95 errors as CRITICAL, escalates at 3+ errors/hr
+- [M4 Phase 19]: TG-140 routes 1-2 star reviews through TG-113 critical channel
+- [M4 Phase 19]: 42 workflows now active (added TG-139, TG-140, TG-141)
 
 ### Pending Todos
 
@@ -208,6 +217,13 @@ Progress M2: [██████████████████████
 - Create neighbor_outreach table in Supabase SQL Editor (see 20-01-SUMMARY.md for SQL)
 - Create yard_sign_placements table in Supabase SQL Editor (see 20-01-SUMMARY.md for SQL)
 
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-139, TG-140, TG-141 Telegram nodes with Vance's actual Telegram chat ID
+- Set GOOGLE_PLACES_API_KEY_PLACEHOLDER in TG-140 Fetch New Google Reviews node
+- Set N8N_API_KEY_PLACEHOLDER in TG-141 Fetch Recent Errors node
+- Create system_health_checks table in Supabase SQL Editor (see 19-02-SUMMARY.md for SQL)
+- Create google_reviews table in Supabase SQL Editor if not already created (see 19-02-SUMMARY.md for SQL)
+- Wire TG-01 to POST to TG-139 webhook after lead processing
+
 ### Blockers/Concerns
 
 - Twilio A2P 10DLC campaign status unknown — ALL outbound SMS may be carrier-filtered
@@ -220,6 +236,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 20-01-PLAN.md (Neighbor outreach + crew field marketing) — deployed TG-143/TG-144 to n8n
+Stopped at: Completed 19-02-PLAN.md (Real-time alerts system) — deployed TG-139/TG-140/TG-141 to n8n
 Resume file: None
-Next: 20-02-PLAN.md or next Phase 20 plan
+Next: 19-03-PLAN.md (Intelligence dashboard)
