@@ -16,93 +16,176 @@
       "name": "1st of Month 9am CT",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [
-        0,
-        300
-      ]
+      "position": [0, 300]
     },
     {
       "parameters": {
-        "jsCode": "const month = new Date().getMonth() + 1;\nconst alerts = {\n  3: { season: 'Spring', msg: '🌱 SPRING SEASON STARTING\\n• Launch spring cleanup campaigns\\n• Update website seasonal messaging\\n• Email all customers about spring packages\\n• Check and restock equipment' },\n  5: { season: 'Peak Summer', msg: '☀️ PEAK MOWING SEASON\\n• Ensure all crews staffed\\n• Restock yard signs and door hangers\\n• Push fertilization and herbicide upsells\\n• Monitor crew scheduling' },\n  9: { season: 'Fall', msg: '🍂 FALL TRANSITION\\n• Start fall cleanup + aeration campaigns\\n• Push leaf removal messaging\\n• Prepare gutter cleaning promos\\n• Begin snow removal contract outreach' },\n  11: { season: 'Snow', msg: '❄️ SNOW SEASON\\n• Activate snow removal contracts\\n• Update emergency response protocols\\n• SMS all snow customers with service reminder\\n• Stock salt and snow equipment' },\n  2: { season: 'Pre-Spring', msg: '📅 PRE-SPRING\\n• Begin spring nurture email campaign\\n• Start booking spring cleanups early\\n• Update pricing for new season' }\n};\nconst alert = alerts[month] || { season: 'Monthly', msg: `Monthly check-in (Month ${month}). Review marketing calendar and upcoming seasonal needs.` };\nreturn [{ json: { ...alert, month } }];"
+        "jsCode": "const month = new Date().getMonth() + 1;\nlet campaign = null;\nlet season = null;\n\nswitch (month) {\n  case 3:\n    campaign = 'TG-14';\n    season = 'Spring';\n    break;\n  case 9:\n    campaign = 'TG-15';\n    season = 'Fall';\n    break;\n  case 11:\n    campaign = 'TG-16';\n    season = 'Snow';\n    break;\n  default:\n    campaign = null;\n    season = 'none';\n    break;\n}\n\nreturn [{ json: { month, season, campaign } }];"
       },
-      "id": "get-seasonal-alert",
-      "name": "Get Seasonal Alert",
+      "id": "determine-season",
+      "name": "Determine Season",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        220,
-        300
-      ]
+      "position": [220, 300]
     },
     {
-      "id": "sms-owner",
-      "name": "SMS Owner Alert",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        440,
-        300
-      ],
-      "continueOnFail": false,
       "parameters": {
-        "method": "POST",
-        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
             {
-              "name": "api-key",
-              "value": "={{$vars.TG_BREVO_API_KEY}}"
+              "id": "campaign-not-null",
+              "leftValue": "={{ $json.campaign }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "isNotEmpty" }
             }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "json",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "sender",
-              "value": "TotalGuard"
-            },
-            {
-              "name": "recipient",
-              "value": "={{$vars.TG_OWNER_PHONE}}"
-            },
-            {
-              "name": "content",
-              "value": "=TG Seasonal Transition Alert:\\n{{$json.msg}}"
-            }
-          ]
-        },
-        "options": {}
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-campaign-due",
+      "name": "IF Campaign Due",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "=\ud83d\udcc5 **Seasonal Transition Router**\n\nMonth: {{ $json.month }}\nSeason: {{ $json.season }}\nCampaign: {{ $json.campaign }}\n\nLaunching {{ $json.campaign }} campaign now.",
+        "additionalFields": { "parse_mode": "Markdown" }
+      },
+      "id": "telegram-notify",
+      "name": "Telegram Notify",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [660, 200],
+      "credentials": {
+        "telegramApi": { "id": "V404qLIDXjmyzNeS", "name": "Telegram" }
       }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.campaign }}",
+                    "rightValue": "TG-14",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TG-14"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.campaign }}",
+                    "rightValue": "TG-15",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TG-15"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.campaign }}",
+                    "rightValue": "TG-16",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TG-16"
+            }
+          ]
+        }
+      },
+      "id": "switch-campaign",
+      "name": "Switch Campaign",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [880, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": "PLACEHOLDER_TG14_ID",
+        "options": {}
+      },
+      "id": "execute-tg14",
+      "name": "Execute TG-14",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [1100, 100]
+    },
+    {
+      "parameters": {
+        "workflowId": "PLACEHOLDER_TG15_ID",
+        "options": {}
+      },
+      "id": "execute-tg15",
+      "name": "Execute TG-15",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [1100, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "PLACEHOLDER_TG16_ID",
+        "options": {}
+      },
+      "id": "execute-tg16",
+      "name": "Execute TG-16",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [1100, 500]
     }
   ],
   "connections": {
     "1st of Month 9am CT": {
+      "main": [[{ "node": "Determine Season", "type": "main", "index": 0 }]]
+    },
+    "Determine Season": {
+      "main": [[{ "node": "IF Campaign Due", "type": "main", "index": 0 }]]
+    },
+    "IF Campaign Due": {
       "main": [
-        [
-          {
-            "node": "Get Seasonal Alert",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{ "node": "Telegram Notify", "type": "main", "index": 0 }],
+        []
       ]
     },
-    "Get Seasonal Alert": {
+    "Telegram Notify": {
+      "main": [[{ "node": "Switch Campaign", "type": "main", "index": 0 }]]
+    },
+    "Switch Campaign": {
       "main": [
-        [
-          {
-            "node": "SMS Owner Alert",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{ "node": "Execute TG-14", "type": "main", "index": 0 }],
+        [{ "node": "Execute TG-15", "type": "main", "index": 0 }],
+        [{ "node": "Execute TG-16", "type": "main", "index": 0 }]
       ]
     }
   },
-  "settings": {
-    "availableInMCP": true
-  }
+  "active": false,
+  "settings": { "executionOrder": "v1", "callerPolicy": "workflowsFromSameOwner" },
+  "versionId": "1",
+  "meta": {
+    "instanceId": "tgyardcare"
+  },
+  "tags": [
+    { "name": "seasonal" },
+    { "name": "router" },
+    { "name": "phase-15" }
+  ]
 }
