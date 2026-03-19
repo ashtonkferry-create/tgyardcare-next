@@ -340,6 +340,7 @@ export default function QuickQuoteDialog({
       }
 
       setIsSuccess(true);
+      try { localStorage.setItem('tg-converted', 'true'); } catch { /* storage unavailable */ }
     } catch (error) {
       toast({
         title: 'Submission Error',
