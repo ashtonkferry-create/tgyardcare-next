@@ -124,6 +124,11 @@ Plans:
 **Goal**: SEO automation producing 3 blog posts/week, monitoring rankings, refreshing stale content, and auto-linking new content to service/city pages.
 **Depends on**: Phase 11 (infrastructure)
 **Requirements**: SEO-01 through SEO-08
+**Plans:** 3 plans
+Plans:
+- [ ] 16-01-PLAN.md — Content production pipeline: TG-99 blog publisher + TG-103 city content + TG-47 IndexNow + internal linking (SEO-01/02/03/08)
+- [ ] 16-02-PLAN.md — Rank monitoring pipeline: TG-96 GSC sync + TG-45 rank tracker + TG-97 drop detector with Telegram alerts (SEO-04/05/06)
+- [ ] 16-03-PLAN.md — Content refresh: TG-50 stale post detection + AI refresh + IndexNow re-submission (SEO-07)
 **Success Criteria**:
   1. TG-99 publishing 3 blog posts per week (Mon/Wed/Fri)
   2. New pages instantly submitted to IndexNow
@@ -184,7 +189,7 @@ Plans:
 | 13. Delivery Excellence | M4 | 0/3 | In Progress | - |
 | 14. Review Generation | M4 | 0/2 | Not Started | - |
 | 15. Retention & LTV | M4 | 0/? | Not Started | - |
-| 16. Content & SEO | M4 | 0/? | Not Started | - |
+| 16. Content & SEO | M4 | 0/3 | Not Started | - |
 | 17. Social Media | M4 | 0/3 | Not Started | - |
 | 18. GBP Domination | M4 | 0/? | Not Started | - |
 | 19. Intelligence Center | M4 | 0/? | Not Started | - |
