@@ -81,16 +81,27 @@ Progress M2: [██████████████████████
 - [M4 Phase 14]: TG-95 reactivated — was inactive, blocking TG-130 sub-workflow dependency
 - [M4 Phase 14]: review_requests table needs manual creation in Supabase (see 14-01-SUMMARY.md for SQL)
 - [M4 Phase 14]: 17 workflows now active (added TG-129, TG-130, reactivated TG-95)
+- [M4 Phase 14]: TG-131 Google Review Poller deployed (n8n ID: iU1iQCwa6QivxXgw), polls every 6h, needs manual activation
+- [M4 Phase 14]: TG-132 Review Response Drafter deployed (n8n ID: byGsDMUSiClnuH1G), template-based responses (no AI API cost)
+- [M4 Phase 14]: Template-based drafts instead of Claude Haiku — 9 templates across 4 rating tiers with service keyword detection
+- [M4 Phase 14]: Google Places API (New) used — no GBP verification required, returns 5 most recent reviews
+- [M4 Phase 14]: Hash-based review dedup (gr_ + hash of author+publishTime)
+- [M4 Phase 14]: 18 workflows active (TG-132 added; TG-131 pending manual activation)
 
 ### Pending Todos
 
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-01 Build Telegram Alert node with Vance's actual Telegram chat ID
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-126 Send Telegram Warning node with Vance's actual Telegram chat ID
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-07 Send Hot Lead Telegram node with Vance's actual Telegram chat ID
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-132 Send Draft to Telegram node with Vance's actual Telegram chat ID
 - Create lead_alerts table in Supabase SQL Editor (see 12-02-SUMMARY.md for SQL)
 - Add follow_up_stage column to leads table: `ALTER TABLE leads ADD COLUMN IF NOT EXISTS follow_up_stage integer DEFAULT 0;`
 - Add parsed_scheduled_date, parsed_scheduled_time, parsed_crew_name columns to jobber_email_events table
 - Create review_requests table in Supabase SQL Editor (see 14-01-SUMMARY.md for SQL)
+- Create google_reviews table in Supabase SQL Editor (see 14-02-SUMMARY.md for SQL)
+- Activate TG-131 in n8n UI (schedule trigger can't be activated via API)
+- Set GOOGLE_PLACES_API_KEY_PLACEHOLDER in TG-131 Fetch Place Details node
+- Set SUPABASE_ANON_KEY_PLACEHOLDER in TG-131 dedup and save nodes (3 occurrences)
 
 ### Blockers/Concerns
 
@@ -104,6 +115,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 13-02-PLAN.md (TG-127 pre-job + TG-128 quality check)
+Stopped at: Completed 14-02-PLAN.md (review monitoring + response pipeline)
 Resume file: None
-Next: Execute 13-03-PLAN.md (customer retention workflows)
+Next: Execute 14-03-PLAN.md (review analytics dashboard)
