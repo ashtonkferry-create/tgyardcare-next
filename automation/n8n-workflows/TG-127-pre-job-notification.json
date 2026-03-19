@@ -1,0 +1,215 @@
+{
+  "id": "SsYWWFSHSOfnv7ex",
+  "name": "TG-127 Pre-Job Notification",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "tg127-trigger",
+      "name": "When Called by TG-05",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst scheduledDate = input.scheduled_date;\nconst now = new Date();\n\nif (!scheduledDate) {\n  return [{ json: { ...input, should_send: false, reason: 'no_scheduled_date' } }];\n}\n\nconst jobDate = new Date(scheduledDate + 'T09:00:00');\nconst dayBefore = new Date(jobDate);\ndayBefore.setDate(dayBefore.getDate() - 1);\ndayBefore.setHours(16, 0, 0, 0);\n\nif (dayBefore <= now) {\n  return [{ json: { ...input, should_send: true, send_now: true } }];\n}\n\nconst waitMinutes = Math.floor((dayBefore.getTime() - now.getTime()) / 60000);\nreturn [{ json: { ...input, should_send: true, send_now: false, wait_minutes: waitMinutes } }];"
+      },
+      "id": "tg127-calc-wait",
+      "name": "Calculate Wait Until Day Before",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        470,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "tg127-cond-send",
+              "leftValue": "={{ $json.should_send }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "tg127-if-send",
+      "name": "Should Send Pre-Job SMS?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        690,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "tg127-cond-wait",
+              "leftValue": "={{ $json.send_now }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "tg127-if-wait",
+      "name": "Need to Wait?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        910,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.wait_minutes }}",
+        "unit": "minutes"
+      },
+      "id": "tg127-wait",
+      "name": "Wait Until Day Before Service",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1130,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst name = input.customer_name || 'there';\nconst service = input.service ? ` for ${input.service}` : '';\nconst time = input.scheduled_time ? ` around ${input.scheduled_time}` : '';\n\nconst message = `Hi ${name}! This is TotalGuard Yard Care. Just a friendly reminder that we'll be at your property tomorrow${service}${time}. Please make sure gates are unlocked and pets are secured. Questions? Call 608-535-6057`;\n\nreturn [{\n  json: {\n    to_phone: input.customer_phone,\n    message_body: message,\n    workflow_name: 'TG-127-pre-job-notification',\n    message_type: 'pre_job_reminder'\n  }\n}];"
+      },
+      "id": "tg127-build-sms",
+      "name": "Build Pre-Job SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1350,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "AprqI2DgQA8lehij",
+        "options": {}
+      },
+      "id": "tg127-send-sms",
+      "name": "Send Pre-Job SMS via TG-94",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1570,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "When Called by TG-05": {
+      "main": [
+        [
+          {
+            "node": "Calculate Wait Until Day Before",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Wait Until Day Before": {
+      "main": [
+        [
+          {
+            "node": "Should Send Pre-Job SMS?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Send Pre-Job SMS?": {
+      "main": [
+        [
+          {
+            "node": "Need to Wait?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Need to Wait?": {
+      "main": [
+        [
+          {
+            "node": "Wait Until Day Before Service",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Pre-Job SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Until Day Before Service": {
+      "main": [
+        [
+          {
+            "node": "Build Pre-Job SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Pre-Job SMS": {
+      "main": [
+        [
+          {
+            "node": "Send Pre-Job SMS via TG-94",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}
