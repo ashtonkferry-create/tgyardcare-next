@@ -1,12 +1,179 @@
 {
   "name": "TG-50-content-refresher",
   "nodes": [
-    { "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 13 * * 4" }] } }, "id": "schedule", "name": "Weekly Thu 8am CT", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 300] },
-    { "parameters": { "method": "GET", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/blog_posts?status=eq.published&updated_at=lt.{{ new Date(Date.now()-180*24*60*60*1000).toISOString() }}&order=updated_at.asc&limit=1&select=id,title,content,slug", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] } }, "id": "fetch-stale", "name": "Fetch Oldest Post", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [220, 300] },
-    { "parameters": { "method": "POST", "url": "https://api.anthropic.com/v1/messages", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "x-api-key", "value": "={{$vars.TG_ANTHROPIC_API_KEY}}" }, { "name": "anthropic-version", "value": "2023-06-01" }, { "name": "Content-Type", "value": "application/json" }] }, "sendBody": true, "specifyBody": "json", "jsonBody": "={ \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 2000, \"messages\": [{ \"role\": \"user\", \"content\": \"Refresh this lawn care article for 2026. Keep the same slug/URL. Update any outdated info, add new Madison WI-specific tips, improve SEO targeting. Title: {{ $json[0].title }}\\n\\nOriginal content (first 1000 chars): {{ ($json[0].content || '').substring(0, 1000) }}\\n\\nReturn refreshed content as plain text, ready to publish.\" }] }" }, "id": "refresh-content", "name": "Refresh via Claude", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [440, 300] },
-    { "parameters": { "jsCode": "const post = $('Fetch Oldest Post').first().json[0];\nconst refreshed = $input.first().json.content?.[0]?.text || '';\nreturn [{ json: { post_id: post.id, refreshed_content: refreshed, updated_at: new Date().toISOString() } }];" }, "id": "extract-content", "name": "Extract Refreshed Content", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [660, 300] },
-    { "parameters": { "method": "PATCH", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/blog_posts?id=eq.{{$json.post_id}}", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] }, "sendBody": true, "bodyParameters": { "parameters": [{ "name": "content", "value": "={{$json.refreshed_content}}" }, { "name": "updated_at", "value": "={{$json.updated_at}}" }] } }, "id": "update-post", "name": "Update Blog Post", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [880, 300] }
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 * * 6"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Weekly Saturday 9am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/blog_posts?published_at=lt.{{ new Date(Date.now() - 90*24*60*60*1000).toISOString() }}&order=published_at.asc&limit=10&select=id,title,slug,content,meta_description,published_at",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" }
+          ]
+        }
+      },
+      "id": "fetch-stale-posts",
+      "name": "Fetch Stale Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Take only first 3 stale posts per run (API budget control)\nconst items = $input.all();\nconst posts = Array.isArray(items[0]?.json) ? items[0].json : items.map(i => i.json);\nconst limited = posts.slice(0, 3);\nif (limited.length === 0) {\n  return [{ json: { _empty: true, total_found: 0 } }];\n}\nreturn limited.map(p => ({ json: p }));"
+      },
+      "id": "limit-to-3",
+      "name": "Limit to 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pass through existing content — already fetched in step 2\nconst item = $input.first().json;\nif (item._empty) {\n  return [{ json: { _empty: true, total_found: 0 } }];\n}\nreturn [{ json: { id: item.id, title: item.title, slug: item.slug, content: item.content, meta_description: item.meta_description || '' } }];"
+      },
+      "id": "read-existing",
+      "name": "Read Existing Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "CLAUDE_API_KEY_PLACEHOLDER" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-sonnet-4-20250514\", \"max_tokens\": 2000, \"messages\": [{ \"role\": \"user\", \"content\": \"Update this lawn care blog post for the current season. Add new information, refresh examples. Keep same slug and topic. 1200-1500 words. Include 2-3 internal links to tgyardcare.com service pages.\\n\\nTitle: {{ $json.title }}\\nSlug: {{ $json.slug }}\\nCurrent content:\\n{{ ($json.content || '').substring(0, 3000) }}\\n\\nReturn ONLY the refreshed article body content (no title, no slug). Also on the last line, return a new meta description (max 160 chars) prefixed with META_DESC: \" }] }",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "ai-refresh",
+      "name": "AI Refresh via Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Quality Gate: extract refreshed content, check word count >= 800\nconst input = $input.first().json;\nconst post = $('Read Existing Content').first().json;\n\nif (post._empty) {\n  return [{ json: { _skip: true, reason: 'no_posts', id: null, slug: null } }];\n}\n\nconst text = input.content?.[0]?.text || '';\nif (!text) {\n  return [{ json: { _skip: true, reason: 'api_error', id: post.id, slug: post.slug } }];\n}\n\n// Split meta description from content\nconst lines = text.split('\\n');\nlet metaDesc = '';\nlet contentLines = [];\nfor (const line of lines) {\n  if (line.startsWith('META_DESC:')) {\n    metaDesc = line.replace('META_DESC:', '').trim().substring(0, 160);\n  } else {\n    contentLines.push(line);\n  }\n}\nconst refreshedContent = contentLines.join('\\n').trim();\nconst wordCount = refreshedContent.split(/\\s+/).length;\n\nif (wordCount < 800) {\n  return [{ json: { _skip: true, reason: 'too_short', word_count: wordCount, id: post.id, slug: post.slug } }];\n}\n\nreturn [{ json: {\n  _skip: false,\n  id: post.id,\n  slug: post.slug,\n  title: post.title,\n  refreshed_content: refreshedContent,\n  meta_description: metaDesc || post.meta_description,\n  word_count: wordCount\n} }];"
+      },
+      "id": "quality-gate",
+      "name": "Quality Gate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/blog_posts?id=eq.{{ $json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"content\": {{ JSON.stringify($json.refreshed_content) }}, \"meta_description\": {{ JSON.stringify($json.meta_description) }}, \"published_at\": \"{{ new Date().toISOString() }}\", \"updated_at\": \"{{ new Date().toISOString() }}\" }",
+        "options": {}
+      },
+      "id": "update-post",
+      "name": "Update Post in Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 300]
+    },
+    {
+      "parameters": {
+        "source": "id",
+        "workflowId": "PLACEHOLDER_TG47_ID",
+        "options": {}
+      },
+      "id": "call-indexnow",
+      "name": "Call TG-47 IndexNow",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1540, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "=\ud83d\udcdd **CONTENT REFRESH** (TG-50)\n\nFound {{ $('Limit to 3').all().filter(i => !i.json._empty).length }} stale posts.\nRefreshed {{ $('Quality Gate').all().filter(i => !i.json._skip).length }} this week.\n\n{{ $('Quality Gate').all().filter(i => !i.json._skip).map(i => '\u2705 ' + i.json.title + ' (' + i.json.word_count + ' words)').join('\\n') || 'No posts refreshed.' }}\n{{ $('Quality Gate').all().filter(i => i.json._skip && i.json.reason !== 'no_posts').map(i => '\u274c Skipped: ' + i.json.slug + ' (' + i.json.reason + ')').join('\\n') || '' }}",
+        "additionalFields": { "parse_mode": "Markdown" }
+      },
+      "id": "telegram-summary",
+      "name": "Telegram Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1760, 300],
+      "credentials": {
+        "telegramApi": { "id": "V404qLIDXjmyzNeS", "name": "Telegram" }
+      }
+    }
   ],
-  "connections": { "Weekly Thu 8am CT": { "main": [[{ "node": "Fetch Oldest Post", "type": "main", "index": 0 }]] }, "Fetch Oldest Post": { "main": [[{ "node": "Refresh via Claude", "type": "main", "index": 0 }]] }, "Refresh via Claude": { "main": [[{ "node": "Extract Refreshed Content", "type": "main", "index": 0 }]] }, "Extract Refreshed Content": { "main": [[{ "node": "Update Blog Post", "type": "main", "index": 0 }]] } },
-  "settings": { "availableInMCP": true }
+  "connections": {
+    "Weekly Saturday 9am CT": {
+      "main": [[{ "node": "Fetch Stale Posts", "type": "main", "index": 0 }]]
+    },
+    "Fetch Stale Posts": {
+      "main": [[{ "node": "Limit to 3", "type": "main", "index": 0 }]]
+    },
+    "Limit to 3": {
+      "main": [[{ "node": "Read Existing Content", "type": "main", "index": 0 }]]
+    },
+    "Read Existing Content": {
+      "main": [[{ "node": "AI Refresh via Claude", "type": "main", "index": 0 }]]
+    },
+    "AI Refresh via Claude": {
+      "main": [[{ "node": "Quality Gate", "type": "main", "index": 0 }]]
+    },
+    "Quality Gate": {
+      "main": [[{ "node": "Update Post in Supabase", "type": "main", "index": 0 }]]
+    },
+    "Update Post in Supabase": {
+      "main": [[{ "node": "Call TG-47 IndexNow", "type": "main", "index": 0 }]]
+    },
+    "Call TG-47 IndexNow": {
+      "main": [[{ "node": "Telegram Summary", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "active": false
 }
