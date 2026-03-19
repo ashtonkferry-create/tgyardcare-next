@@ -4,19 +4,19 @@
     {
       "parameters": {
         "rule": {
-          "interval": [{ "field": "cronExpression", "expression": "0 8 * * *" }]
+          "interval": [{ "field": "cronExpression", "expression": "0 12 * * *" }]
         }
       },
       "id": "schedule-trigger",
-      "name": "Daily 2am CT",
+      "name": "Daily 7am CT",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 0]
+      "position": [0, 300]
     },
     {
       "parameters": {
         "method": "GET",
-        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?created_at=gte.{{ new Date(Date.now()-30*24*60*60*1000).toISOString() }}&select=id,first_name,last_name,email,phone,service,address,source,created_at",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?created_at=gte.{{ new Date(Date.now()-30*24*60*60*1000).toISOString() }}&select=id,first_name,last_name,email,phone,service,address,source,created_at,lead_score,lead_tier,follow_up_stage,status",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -26,50 +26,181 @@
         }
       },
       "id": "fetch-leads",
-      "name": "Fetch Leads Last 30 Days",
+      "name": "Fetch Leads",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 0]
+      "position": [260, 180]
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const lead = item.json;\n  let score = 0;\n\n  // Source quality\n  const sourceScores = { referral: 30, organic: 25, paid: 20, manual: 15, phone: 20, facebook_ads: 18, website: 22 };\n  score += sourceScores[lead.source] || 10;\n\n  // Service value\n  const highValue = ['Hardscaping', 'Gutter Guard Installation'];\n  const medValue = ['Fertilization', 'Aeration', 'Garden Bed Care', 'Mulching', 'Bush Trimming'];\n  if (highValue.includes(lead.service)) score += 20;\n  else if (medValue.includes(lead.service)) score += 12;\n  else score += 5;\n\n  // Completeness\n  if (lead.phone) score += 5;\n  if (lead.email) score += 5;\n  if (lead.address) score += 5;\n\n  // Recency\n  const daysSince = (Date.now() - new Date(lead.created_at).getTime()) / (1000*60*60*24);\n  if (daysSince < 1) score += 20;\n  else if (daysSince < 7) score += 15;\n  else if (daysSince < 30) score += 10;\n\n  const status = score >= 70 ? 'hot' : score >= 40 ? 'warm' : 'cold';\n\n  results.push({ json: { lead_id: lead.id, score: Math.min(score, 100), status, calculated_at: new Date().toISOString() } });\n}\n\nreturn results;"
+        "method": "GET",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/email_sends?workflow_name=eq.TG-09&select=contact_email,email_type",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+          ]
+        }
+      },
+      "id": "fetch-email-history",
+      "name": "Fetch Email Send History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/sms_sends?workflow_name=eq.TG-09&select=to_phone,message_type",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+          ]
+        }
+      },
+      "id": "fetch-sms-history",
+      "name": "Fetch SMS Send History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 420],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-07 Lead Scoring Algorithm\n// Scores leads on 3 dimensions: static attributes, engagement signals, and recency\n// Maximum score: 100 (capped)\n//\n// Static factors (max 50 points):\n//   - Source quality: referral=30, organic/seo=25, website=22, paid/ppc/lsa/google_ads=20, facebook=18, manual=15, other=10\n//   - Service value: hardscaping/commercial/patio/retaining wall=20, fertilization/aeration/mowing=12, cleanup/mulch/gutter/snow=8, other=5\n//   - Contact completeness: phone=5, email=5, address=5 (max 15)\n//\n// Engagement factors (max 30 points):\n//   - Received follow-up email: +5\n//   - Received follow-up SMS: +5\n//   - Follow-up stage >= 2 (engaged past initial): +10\n//   - Follow-up stage >= 4 (deep engagement): +10 more\n//\n// Recency factors (max 20 points):\n//   - < 1 day: +20, < 3 days: +15, < 7 days: +10, < 14 days: +5, < 30 days: +2\n//\n// Tier thresholds: hot >= 70, warm >= 40, cold < 40\n// Only newly-hot leads (were not already hot) trigger Telegram alerts\n\nconst leads = $('Fetch Leads').all().map(i => i.json);\nconst emailHistory = $('Fetch Email Send History').all().map(i => i.json);\nconst smsHistory = $('Fetch SMS Send History').all().map(i => i.json);\n\n// Build engagement lookup sets for O(1) lookups\nconst emailedLeads = new Set(emailHistory.map(e => (e.contact_email || '').toLowerCase()));\nconst smsedLeads = new Set(smsHistory.map(s => (s.to_phone || '').replace(/[^\\d+]/g, '')));\n\nconst results = [];\n\nfor (const lead of leads) {\n  // Skip converted or lost leads — no point scoring them\n  if (lead.status === 'converted' || lead.status === 'lost') continue;\n\n  let score = 0;\n  const factors = [];\n\n  // --- Static factors (max 50) ---\n\n  // Source quality (max 30)\n  const source = (lead.source || '').toLowerCase();\n  const sourceScores = {\n    referral: 30,\n    organic: 25, seo: 25,\n    website: 22,\n    paid: 20, ppc: 20, lsa: 20, google_ads: 20, phone: 20,\n    facebook_ads: 18, facebook: 18,\n    manual: 15\n  };\n  const sourceScore = sourceScores[source] || 10;\n  score += sourceScore;\n  factors.push('Source: ' + source + ' (+' + sourceScore + ')');\n\n  // Service value (max 20)\n  const service = (lead.service || '').toLowerCase();\n  const highValue = ['hardscaping', 'commercial', 'patio', 'retaining wall', 'landscape design', 'irrigation', 'outdoor kitchen'];\n  const midValue = ['fertilization', 'aeration', 'overseeding', 'mowing', 'lawn care', 'lawn maintenance', 'garden bed', 'mulching', 'bush trimming'];\n  const cleanupValue = ['cleanup', 'leaf', 'gutter', 'snow', 'spring cleanup', 'fall cleanup'];\n  let serviceScore = 5;\n  if (highValue.some(s => service.includes(s))) { serviceScore = 20; }\n  else if (midValue.some(s => service.includes(s))) { serviceScore = 12; }\n  else if (cleanupValue.some(s => service.includes(s))) { serviceScore = 8; }\n  score += serviceScore;\n  factors.push('Service: ' + (service || 'unknown') + ' (+' + serviceScore + ')');\n\n  // Contact completeness (max 15)\n  if (lead.phone) { score += 5; factors.push('Has phone (+5)'); }\n  if (lead.email) { score += 5; factors.push('Has email (+5)'); }\n  if (lead.address) { score += 5; factors.push('Has address (+5)'); }\n\n  // --- Engagement factors (max 30) ---\n  const email = (lead.email || '').toLowerCase();\n  const phone = (lead.phone || '').replace(/[^\\d+]/g, '');\n  const followUpStage = lead.follow_up_stage || 0;\n\n  if (email && emailedLeads.has(email)) { score += 5; factors.push('Received follow-up email (+5)'); }\n  if (phone && smsedLeads.has(phone)) { score += 5; factors.push('Received follow-up SMS (+5)'); }\n  if (followUpStage >= 2) { score += 10; factors.push('Follow-up stage ' + followUpStage + ' >= 2 (+10)'); }\n  if (followUpStage >= 4) { score += 10; factors.push('Follow-up stage ' + followUpStage + ' >= 4 (+10)'); }\n\n  // --- Recency factors (max 20) ---\n  const daysOld = (Date.now() - new Date(lead.created_at).getTime()) / (1000 * 60 * 60 * 24);\n  let recencyScore = 0;\n  if (daysOld < 1) recencyScore = 20;\n  else if (daysOld < 3) recencyScore = 15;\n  else if (daysOld < 7) recencyScore = 10;\n  else if (daysOld < 14) recencyScore = 5;\n  else if (daysOld < 30) recencyScore = 2;\n  score += recencyScore;\n  factors.push('Recency: ' + Math.round(daysOld) + 'd (+' + recencyScore + ')');\n\n  // --- Final score ---\n  const finalScore = Math.min(score, 100);\n  const newTier = finalScore >= 70 ? 'hot' : finalScore >= 40 ? 'warm' : 'cold';\n  const wasHot = lead.lead_tier === 'hot';\n  const nowHot = newTier === 'hot' && !wasHot;\n\n  results.push({\n    json: {\n      lead_id: lead.id,\n      first_name: lead.first_name,\n      last_name: lead.last_name,\n      phone: lead.phone,\n      service: lead.service,\n      lead_score: finalScore,\n      lead_tier: newTier,\n      previously_hot: wasHot,\n      newly_hot: nowHot,\n      score_factors: factors\n    }\n  });\n}\n\nreturn results;"
       },
       "id": "calculate-scores",
-      "name": "Calculate Lead Scores",
+      "name": "Calculate Scores",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 0]
+      "position": [540, 300]
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/lead_scores",
+        "method": "PATCH",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?id=eq.{{$json.lead_id}}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
             { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Prefer", "value": "resolution=merge-duplicates" }
+            { "name": "Content-Type", "value": "application/json" }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"lead_id\": \"{{ $json.lead_id }}\", \"score\": {{ $json.score }}, \"status\": \"{{ $json.status }}\", \"calculated_at\": \"{{ $json.calculated_at }}\" }"
+        "jsonBody": "={ \"lead_score\": {{$json.lead_score}}, \"lead_tier\": \"{{$json.lead_tier}}\" }"
       },
-      "id": "upsert-scores",
-      "name": "Upsert Lead Scores",
+      "id": "update-score",
+      "name": "Update Lead Score",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [660, 0],
+      "position": [780, 300],
       "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "newly-hot-check",
+              "leftValue": "={{$json.newly_hot}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-newly-hot",
+      "name": "IF Newly Hot",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1000, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ '\\ud83d\\udd25 HOT LEAD ALERT\\n\\n' + '\\ud83d\\udc64 ' + ($json.first_name || '') + ' ' + ($json.last_name || '') + '\\n' + '\\ud83d\\udcf1 ' + ($json.phone || 'No phone') + '\\n' + '\\ud83d\\udd27 ' + ($json.service || 'Not specified') + '\\n' + '\\ud83d\\udcca Score: ' + $json.lead_score + '/100\\n\\n' + '\\ud83d\\udcde Call NOW: tel:' + ($json.phone || '').replace(/[^+\\d]/g, '') + '\\n\\n' + 'This lead just became HOT \\u2014 prioritize callback!' }}",
+        "additionalFields": {}
+      },
+      "id": "send-hot-alert",
+      "name": "Send Hot Lead Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1240, 220],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram",
+          "name": "Telegram"
+        }
+      }
     }
   ],
   "connections": {
-    "Daily 2am CT": { "main": [[{ "node": "Fetch Leads Last 30 Days", "type": "main", "index": 0 }]] },
-    "Fetch Leads Last 30 Days": { "main": [[{ "node": "Calculate Lead Scores", "type": "main", "index": 0 }]] },
-    "Calculate Lead Scores": { "main": [[{ "node": "Upsert Lead Scores", "type": "main", "index": 0 }]] }
+    "Daily 7am CT": {
+      "main": [
+        [
+          { "node": "Fetch Leads", "type": "main", "index": 0 },
+          { "node": "Fetch Email Send History", "type": "main", "index": 0 },
+          { "node": "Fetch SMS Send History", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Leads": {
+      "main": [
+        [
+          { "node": "Calculate Scores", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Email Send History": {
+      "main": [
+        [
+          { "node": "Calculate Scores", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch SMS Send History": {
+      "main": [
+        [
+          { "node": "Calculate Scores", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Calculate Scores": {
+      "main": [
+        [
+          { "node": "Update Lead Score", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Update Lead Score": {
+      "main": [
+        [
+          { "node": "IF Newly Hot", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "IF Newly Hot": {
+      "main": [
+        [
+          { "node": "Send Hot Lead Telegram", "type": "main", "index": 0 }
+        ],
+        []
+      ]
+    }
   },
   "settings": { "availableInMCP": true }
 }
