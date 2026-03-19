@@ -125,6 +125,23 @@
                 "conditions": [
                   {
                     "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "job_created",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "job_created"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
                     "rightValue": "job_scheduled",
                     "operator": {
                       "type": "string",
@@ -449,6 +466,36 @@
         900
       ],
       "notes": "Dispatches new_request, job_scheduled, and plan_accepted events to owner via SMS"
+    },
+    {
+      "parameters": {
+        "workflowId": "SsYWWFSHSOfnv7ex",
+        "options": {}
+      },
+      "id": "call-tg127",
+      "name": "Call TG-127 Pre-Job Notification",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        200
+      ],
+      "notes": "Calls TG-127 pre-job notification sub-workflow on job_scheduled events."
+    },
+    {
+      "parameters": {
+        "workflowId": "GZ7ZxOanSNceWeVV",
+        "options": {}
+      },
+      "id": "call-tg128",
+      "name": "Call TG-128 Post-Job Quality Check",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        300
+      ],
+      "notes": "Calls TG-128 post-job quality check sub-workflow on job_completed events."
     }
   ],
   "connections": {
@@ -519,7 +566,24 @@
         ],
         [
           {
+            "node": "Call TG-93 Auto-Dispatch",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Call TG-127 Pre-Job Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
             "node": "Wait 24 Hours",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Call TG-128 Post-Job Quality Check",
             "type": "main",
             "index": 0
           }
@@ -653,6 +717,28 @@
       ]
     },
     "Call TG-93 Auto-Dispatch": {
+      "main": [
+        [
+          {
+            "node": "Mark Event Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call TG-127 Pre-Job Notification": {
+      "main": [
+        [
+          {
+            "node": "Mark Event Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call TG-128 Post-Job Quality Check": {
       "main": [
         [
           {
