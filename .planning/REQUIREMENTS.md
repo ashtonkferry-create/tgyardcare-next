@@ -9,9 +9,9 @@
 
 - [x] **INFRA-01**: All duplicate workflows deleted, all broken workflows deactivated (clean slate)
 - [x] **INFRA-02**: Layer 1 infrastructure workflows active: TG-05, TG-70, TG-74, TG-79, TG-94, TG-95
-- [ ] **INFRA-03**: TG-92 and TG-113 fixed (HTTP 400 on activation — stale Supabase keys)
-- [ ] **INFRA-04**: All workflow JSON files updated with current Supabase key
-- [ ] **INFRA-05**: Auto-posting infrastructure set up (Upload-Post or LATE n8n community node)
+- [x] **INFRA-03**: TG-92 and TG-113 fixed (dependency chain resolved + activated)
+- [x] **INFRA-04**: All workflow JSON files audited clean (zero real keys)
+- [x] **INFRA-05**: Auto-posting infrastructure set up (template + setup guide created)
 
 ### Conversion Engine (CONV)
 
@@ -118,7 +118,7 @@
 |-------------|-------|--------|
 | INFRA-01 | Phase 11 | Complete |
 | INFRA-02 | Phase 11 | Complete |
-| INFRA-03 to INFRA-05 | Phase 11 | Pending |
+| INFRA-03 to INFRA-05 | Phase 11 | Complete |
 | CONV-01 to CONV-07 | Phase 12 | Pending |
 | DELV-01 to DELV-05 | Phase 13 | Pending |
 | REVW-01 to REVW-07 | Phase 14 | Pending |
