@@ -51,14 +51,18 @@ Turn TotalGuard into a fully automated marketing machine that captures every lea
 - [ ] Referral engine
 - [ ] Content hub / education center
 
-## Current Milestone: M3 Billionaire Brand Transformation
+## Current Milestone: M4 TG-OS Business Automation
 
-**Goal:** Transform tgyardcare.com from a functional local business site into a billion-dollar brand experience — fixing production bugs, upgrading design quality, and adding conversion-multiplying features.
+**Goal:** Build an autonomous business operating system — 85 purposeful n8n workflows that acquire customers, convert leads, deliver excellence, retain accounts, generate referrals, amplify brand across all channels, and report everything via Telegram.
 
 **Target features:**
-- Production bug fixes (broken counters, 14 Supabase errors)
-- Premium design upgrade (typography, text contrast, hero video)
-- Performance optimization (Server Components, SSR)
-- Conversion engine (instant quote calculator, annual plan builder)
-- Trust infrastructure (transformation gallery, interactive map)
-- Retention & growth (customer portal, referral engine, content hub)
+- Instant lead response pipeline (SMS + Telegram + email in < 5 seconds)
+- 5-touch automated follow-up sequences with dynamic social proof
+- Post-job automation (pre-job SMS, quality checks, review requests)
+- Review generation machine (5+ Google reviews/week)
+- Retention automation (referrals, annual plans, cross-sell, win-back, seasonal, weather)
+- SEO engine (3 blog posts/week, rank tracking, content refresh)
+- Multi-platform social auto-posting (Instagram, TikTok, YouTube, LinkedIn, Pinterest)
+- GBP automation (3x/week posts, FAQ rotation, optimization scoring)
+- Telegram command center (daily briefing, weekly report, real-time alerts)
+- Community & field marketing (neighbor outreach, yard sign tracking)

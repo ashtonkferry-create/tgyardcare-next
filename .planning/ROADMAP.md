@@ -4,260 +4,168 @@
 
 - [x] **M2: Automation Gap Closer** - Phases 0-4.1 (complete)
 - [x] **M3: Billionaire Brand Transformation** - Phases 5-10 (complete)
+- [ ] **M4: TG-OS Business Automation** - Phases 11-20
 
 ---
 
 <details>
-<summary>M2: Automation Gap Closer (Phases 0-4)</summary>
+<summary>M2: Automation Gap Closer (Phases 0-4) — COMPLETE</summary>
+34 plans completed. 88 n8n workflows, CRM unification, SEO monitoring, intelligence layer.
+</details>
 
-**Goal**: Take TG from ~35 functional automations to 127+ by fixing existing dead workflows, building every missing capability TTW has, and adding an intelligence layer TTW doesn't have. Execute with zero wasted motion.
-
-**Starting Position**: TG wins 65, TTW wins 48, 7 ties. But ~20 TG workflows are dead on arrival (missing API keys), and 25 active TTW capabilities have zero TG equivalent.
-
-**Success Criteria**:
-- All existing workflows functional (0 dead on arrival)
-- Every revenue-impact TTW capability replicated or exceeded
-- CRM fully unified (single webhook router, unified comms)
-- SEO gaps closed (GSC sync, city content, gap detection)
-- Self-improvement loop operational (TG's only category at 0)
-- Final score: TG wins 90+, TTW wins <20
-
----
-
-## Phase 0: Fix Existing (Zero Build Cost)
-**Goal**: Unlock ~20 dead workflows by adding missing API keys, fixing broken env vars, completing OAuth handshakes, and deploying undeployed workflows. No new code — pure configuration.
-**Impact**: 35 functional -> 55+ functional
-**Status**: Ready to execute
-
-## Phase 1: Revenue Engine
-**Goal**: Build 9 n8n workflows (TG-83 through TG-91) that automate revenue-generating customer communication: quote follow-ups, invoice collections, missed call capture, plan enrollment/renewal, on-my-way SMS, invoice delivery, fertilizer schedule reminders, and abandoned quote recovery.
-**Impact**: Recover 10-20% lost leads, increase quote-to-close 15-25%, enable recurring revenue
-**Status**: Complete
-**Plans:** 9 plans
-
-Plans:
-- [x] 01-01-PLAN.md -- Database migrations + fertilizer schedule seeding
-- [x] 01-02-PLAN.md -- TG-05 extension (new routes, $vars fix, poll frequency reduction)
-- [x] 01-03-PLAN.md -- TG-88 On My Way SMS + TG-89 Invoice Delivery
-- [x] 01-04-PLAN.md -- TG-85 Missed Call AI Capture (tested, SMS confirmed)
-- [x] 01-05-PLAN.md -- TG-83 Quote Follow-up Sequence
-- [x] 01-06-PLAN.md -- TG-84 Invoice Collections + TG-91 Abandoned Quote
-- [x] 01-07-PLAN.md -- TG-86 Plan Enrollment + TG-87 Renewal Reminder (+ SMS added)
-- [x] 01-08-PLAN.md -- TG-90 Fertilizer Schedule Engine
-- [x] 01-09-PLAN.md -- Email system migrated Brevo->Resend across all workflows
-
-## Phase 2: CRM Unification
-**Goal**: Build webhook router (TG-92), auto-dispatch notifications (TG-93), unified SMS sender (TG-94), unified email sender (TG-95), and convert TG-76 to sub-workflow -- single public webhook, owner dispatch with confirmation, all events logged, all communication gated through consent and rate limiting.
-**Impact**: Eliminate manual CRM work, unified customer communication layer
-**Status**: Complete
-**Plans:** 5 plans
-
-Plans:
-- [x] 02-01-PLAN.md -- DB tables (webhook_events, dispatch_log) + TG-76 sub-workflow conversion
-- [x] 02-02-PLAN.md -- TG-92 Webhook Router (deployed inactive)
-- [x] 02-03-PLAN.md -- TG-93 Auto-Dispatch + TG-05 extension
-- [x] 02-04-PLAN.md -- TG-94 Unified SMS Sender + TG-95 Unified Email Sender + TG-76 customer reply routing
-- [x] 02-05-PLAN.md -- Activate TG-92/TG-93, point Twilio, end-to-end verification
-
-## Phase 3: SEO Domination
-**Goal**: Build 9 focused n8n workflows (TG-96 through TG-104) that close remaining SEO gaps -- daily GSC sync, rank drop detection, content gap analysis, ranking opportunity detection, index coverage monitoring, content staleness checks, city content generation, quality validation, and weekly SEO summary.
-**Impact**: Fill the only SEO category where TTW beats TG (monitoring: 10-5)
-**Status**: Complete
-**Plans:** 6 plans (5 original + 1 gap closure)
-
-Plans:
-- [x] 03-01-PLAN.md -- DB migration (index_coverage_log, seo_content_gaps) + TG-96 GSC Daily Sync
-- [x] 03-02-PLAN.md -- TG-103 City Content Generator + TG-104 Content Quality Checker
-- [x] 03-03-PLAN.md -- TG-97 Rank Drop Detector + TG-100 Index Coverage Monitor
-- [x] 03-04-PLAN.md -- TG-98 Content Gap Detector + TG-99 Ranking Opportunity Detector + TG-101 Content Staleness Checker
-- [x] 03-05-PLAN.md -- TG-102 Weekly SEO Summary (aggregates all monitoring data)
-- [x] 03-06-PLAN.md -- Gap closure: schema fix (TG-97/TG-102) + missing aggregation sources + city data verification
-
-## Phase 4: Intelligence Layer
-**Goal**: Build 21 workflows (TG-105 through TG-125) + 6 modifications for self-improvement, revenue attribution, A/B testing, ad optimization, and AI learning reports. This is TTW's only 12-0 category — TG currently has zero.
-**Impact**: TG becomes a self-optimizing system that gets smarter every week
-**Status**: Complete
-**Plans:** 12/12 plans
-
-Plans:
-- [x] 04-01-PLAN.md -- Migration 072: 5 new tables + 4 table extensions for Intelligence Layer [wave 1]
-- [x] 04-02-PLAN.md -- TG-113 Critical Alert Router + TG-105 A/B Test Router (sub-workflows) [wave 1]
-- [x] 04-03-PLAN.md -- TG-107 Revenue Sync Daily + TG-108 KPI Daily Snapshot [wave 1]
-- [x] 04-04-PLAN.md -- TG-109 Google Ads Daily Sync (stub) + TG-106 A/B Test Auto-Winner [wave 1]
-- [x] 04-05-PLAN.md -- TG-110 Anomaly Detector + TG-111 Ad Budget Guardian + TG-112 Ad Conversion Watchdog [wave 2]
-- [x] 04-06-PLAN.md -- TG-118 Weekly Intelligence Assembler (shared HTML email builder) [wave 3]
-- [x] 04-07-PLAN.md -- TG-114 Weekly Revenue Attribution + TG-115 Weekly A/B Test Report [wave 3]
-- [x] 04-08-PLAN.md -- TG-116 Weekly Ad Performance + TG-117 Weekly What Got Smarter [wave 3]
-- [x] 04-09-PLAN.md -- TG-119/120/121 Monthly Trend + Channel ROI + Learning Report [wave 4]
-- [x] 04-10-PLAN.md -- TG-122/123/124/125 A/B Seed Manager + Workflow Health + Lead Recalibrator + Dashboard Updater [wave 5]
-- [x] 04-11-PLAN.md -- Modify TG-83/84/85/91 for A/B testing + TG-94/95 A/B logging [wave 5]
-- [x] 04-12-PLAN.md -- Retire TG-66/67 + Full Phase 4 Verification [wave 5]
-
-## Phase 4.1: M2 Integration Fixes (INSERTED — Gap Closure)
-**Goal**: Fix 6 critical cross-phase integration issues found by milestone audit: workflow ID placeholders in local JSONs, column/parameter name mismatches against live Supabase schema, missing ab_test_variants.content column, and TG-95 email logging gap.
-**Impact**: All E2E flows pass, local JSON matches live state, A/B testing fully functional
-**Status**: Complete
-**Plans:** 1 plan
-**Gap Closure**: Closes W1, W2, S1, S2, S3, S4, D2 from M2-MILESTONE-AUDIT.md
-
-Plans:
-- [x] 04.1-01-PLAN.md -- Fix all 7 integration issues (workflowIds, column names, RPC params, schema, logging)
-
+<details>
+<summary>M3: Billionaire Brand Transformation (Phases 5-10) — COMPLETE</summary>
+36 plans completed. Premium design, conversion features, customer portal, referral engine, 96 city-service pages.
 </details>
 
 ---
 
-## M3: Billionaire Brand Transformation
+## M4: TG-OS Business Automation
 
-**Goal**: Transform tgyardcare.com from a functional local business site into a billion-dollar brand experience that converts visitors at 3-5x current rates while protecting existing SEO rankings and lead flow.
+**Goal**: Build an autonomous business operating system that acquires customers, converts leads, delivers excellence, retains accounts, generates referrals, amplifies brand across all channels, and reports everything via Telegram — turning TotalGuard into a fully automated, GOD TIER company.
 
-**Starting Position**: Production site has 65+ pages, 47 API routes, 38 cron jobs, 500+ customers. But everything is `'use client'`, TypeScript errors are suppressed with `ignoreBuildErrors: true`, 14 Supabase console errors fire on every page load, and animated counters show "0" instead of real values.
+**Starting Position**: 105 n8n workflows exist but only 6 infrastructure workflows are active. Website is complete (M3). All automation is paused for clean rebuild. TG-OS design doc approved.
 
 **Success Criteria**:
-- Zero production console errors (Supabase and TypeScript)
-- Premium visual identity (Clash Display + General Sans typography, hero video, dark theme polish)
-- Lighthouse Performance 90+ desktop, 75+ mobile
-- Three new conversion engines live (instant quote, annual plan builder, referral program)
-- Customer portal with auth-protected dashboard
-- Content hub with category-organized educational content
-- SEO rankings preserved or improved through entire transformation
+- ~85 purposeful workflows active (rebuilt from clean slate)
+- Instant lead response (< 5 seconds SMS + Telegram alert)
+- Review generation machine producing 5+ Google reviews per week
+- Auto-posting to 5+ social platforms daily
+- GBP posts 3x/week with seasonal FAQ rotation
+- Daily Telegram briefing + weekly report + real-time alerts
+- Weather-triggered marketing campaigns active
+- All customer lifecycle automated (lead → customer → retention → referral)
 
-**Phase Numbering:**
-- Integer phases (5, 6, 7, 8, 9): Planned milestone work
-- Decimal phases (5.1, 6.1): Urgent insertions if needed (marked with INSERTED)
+**Phase Numbering:** Continues from M3 (11+)
 
-- [x] **Phase 5: Safety Nets & Foundation** - Fix production bugs, harden the codebase, establish design tokens and server-side patterns
-- [x] **Phase 6: Brand Transformation & Visual Impact** - Hero video, before/after gallery, Server Component conversion, premium typography in action
-- [x] **Phase 7: Conversion Features** - Instant quote calculator, interactive service area map, annual plan configurator
-- [x] **Phase 8: Customer Retention Layer** - Auth-protected customer portal, referral engine with tracking
-- [x] **Phase 9: Content & SEO Growth** - Blog categories/tags, Madison lawn care hub, seasonal content surfacing
-- [x] **Phase 10: SEO Dominance Engine** - 96 city-service pages, 1,200+ internal links, linkable assets, breadcrumbs
+- [x] **Phase 11: Foundation & Infrastructure** — Clean n8n instance, fix remaining issues, auto-posting setup
+- [ ] **Phase 12: Conversion Engine** — Instant lead response, follow-up sequences, speed-to-lead
+- [ ] **Phase 13: Delivery Excellence** — Jobber email parsing, pre/post-job automation, quality loops
+- [ ] **Phase 14: Review Generation Machine** — Post-job review requests, AI responses, social proof pipeline
+- [ ] **Phase 15: Retention & Lifetime Value** — Referrals, annual plans, cross-sell, win-back, seasonal, weather
+- [ ] **Phase 16: Content & SEO Engine** — Blog publisher, city pages, rank tracking, content refresh
+- [ ] **Phase 17: Social Media Machine** — Multi-platform auto-posting, content engine, captions
+- [ ] **Phase 18: GBP Domination** — Automated posting, FAQ rotation, optimization scoring
+- [ ] **Phase 19: Intelligence Command Center** — Daily/weekly Telegram reports, alerts, competitor monitoring
+- [ ] **Phase 20: Community & Field Marketing** — Neighbor marketing, yard signs, crew reminders
 
 ## Phase Details
 
-### Phase 5: Safety Nets & Foundation
-**Goal**: Visitors experience zero console errors, see correct stat values, and the codebase is hardened with type safety, smoke tests, server-side data fetching, and SEO baselines — enabling all subsequent phases to ship without breaking production.
-**Depends on**: Nothing (first M3 phase)
-**Requirements**: FOUND-01, FOUND-02, FOUND-03, FOUND-04, FOUND-05, FOUND-06, FOUND-07, FOUND-08, FOUND-09, FOUND-10, TYPO-01, TYPO-02, TYPO-03, TYPO-04, TYPO-05
-**Success Criteria** (what must be TRUE):
-  1. Homepage loads with zero errors in browser DevTools console (no Supabase 400/401/500 errors, no unhandled promise rejections)
-  2. Animated stat counters on homepage display their correct values (4.9 stars, 80+ customers, 100% satisfaction, 24hr response) on first load and after navigation
-  3. All page headings render in Clash Display and body text renders in General Sans — no Inter, no font-loading flash
-  4. Light text on dark backgrounds passes WCAG AA contrast check on every section of the homepage and service pages
-  5. Running `tsc --noEmit` produces a cataloged error list with an established budget — new code in Phase 6+ adds zero new errors
-**Status**: Complete
-**Plans:** 7 plans
+### Phase 11: Foundation & Infrastructure
+**Goal**: Clean n8n instance with zero errors, infrastructure workflows running, remaining config issues fixed, auto-posting infrastructure ready.
+**Depends on**: Nothing (first M4 phase)
+**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05
+**Success Criteria**:
+  1. Zero workflow errors in n8n execution log over 24 hours
+  2. TG-92 and TG-113 successfully activated (stale key fixed)
+  3. All local workflow JSONs use current Supabase secret key
+  4. Upload-Post or LATE community node installed and configured
+**Status**: In Progress (INFRA-01, INFRA-02 complete)
 
-Plans:
-- [x] 05-01-PLAN.md -- Supabase error resilience (Promise.allSettled + silent fallbacks)
-- [x] 05-02-PLAN.md -- Typography foundation (Clash Display + General Sans self-hosted)
-- [x] 05-03-PLAN.md -- TypeScript error budget (85 baseline)
-- [x] 05-04-PLAN.md -- Supabase SSR clients + auth middleware
-- [x] 05-05-PLAN.md -- Seasonal CSS + brand consistency + contrast utilities
-- [x] 05-06-PLAN.md -- Playwright smoke tests (10 pages) + cron audit
-- [x] 05-07-PLAN.md -- Final verification checkpoint (12/12 checks pass)
+### Phase 12: Conversion Engine
+**Goal**: Every quote form submission gets instant multi-channel response (SMS + Telegram + email), followed by a 5-touch follow-up sequence with dynamic social proof — nobody falls through the cracks.
+**Depends on**: Phase 11 (infrastructure workflows active)
+**Requirements**: CONV-01, CONV-02, CONV-03, CONV-04, CONV-05, CONV-06, CONV-07
+**Success Criteria**:
+  1. Quote form submit → SMS arrives on customer phone within 5 seconds
+  2. Quote form submit → Telegram message appears on Vance's phone instantly
+  3. Lead not contacted in 2h → escalating Telegram warnings
+  4. 5-touch follow-up fires automatically over 14 days with latest Google review
+  5. Lead scoring ranks leads by engagement signals in Supabase
 
-### Phase 6: Brand Transformation & Visual Impact
-**Goal**: Visitors land on a homepage with cinematic video hero, can browse 20+ before/after transformation photos with interactive sliders, and experience a server-rendered page that loads fast and ranks well in Google.
-**Depends on**: Phase 5 (server-side Supabase client, typography system, error-free baseline)
-**Requirements**: HERO-01, HERO-02, HERO-03, HERO-04, HERO-05, HERO-06, PERF-01, PERF-02, PERF-03, PERF-04, PERF-05
-**Success Criteria** (what must be TRUE):
-  1. Homepage hero plays a looping background video on desktop with a poster image visible before video loads — mobile visitors see an optimized static image instead
-  2. Transformation gallery page displays 20+ before/after image pairs with draggable comparison sliders, organized by service type with Madison neighborhood names
-  3. Homepage HTML source (view-source) contains rendered content for hero, stats, services grid, and reviews — not an empty div waiting for JavaScript
-  4. Lighthouse Performance score is 90+ on desktop and 75+ on mobile for the homepage
-  5. All 16 existing JSON-LD schema components produce identical structured data output before and after the Server Component conversion
-**Plans**: TBD
+### Phase 13: Delivery Excellence
+**Goal**: Every Jobber email event triggers appropriate automation — pre-job reminders, on-my-way SMS, post-job quality checks — making every customer feel like they have a personal lawn care concierge.
+**Depends on**: Phase 12 (conversion pipeline flowing data)
+**Requirements**: DELV-01, DELV-02, DELV-03, DELV-04, DELV-05
+**Success Criteria**:
+  1. TG-05 correctly parses job_created, job_scheduled, job_completed, quote_sent, invoice_sent emails
+  2. Customer receives SMS day before their scheduled service
+  3. Customer receives "how does it look?" SMS after job completion
+  4. Negative reply triggers URGENT Telegram alert + auto-apology SMS
 
-### Phase 7: Conversion Features
-**Goal**: Visitors can get an instant price estimate for their property in under 30 seconds, explore TotalGuard's service area on an interactive map, and build a custom annual lawn care plan with real-time bundle pricing.
-**Depends on**: Phase 6 (server-rendered homepage, stable visual foundation)
-**Requirements**: QUOTE-01, QUOTE-02, QUOTE-03, QUOTE-04, QUOTE-05, QUOTE-06, QUOTE-07, MAP-01, MAP-02, MAP-03, MAP-04, MAP-05, PLAN-01, PLAN-02, PLAN-03, PLAN-04, PLAN-05, PLAN-06
-**Success Criteria** (what must be TRUE):
-  1. User types their address and sees autocomplete suggestions, selects one, and the system displays their estimated lot size within 5 seconds (with manual dropdown fallback if parcel lookup fails)
-  2. User selects services and sees a price range (e.g., "$45-65/visit") within 30 seconds of starting the quote flow — no waiting for a callback
-  3. Interactive map displays all 12 Dane County service cities with highlighted boundaries, and clicking a city navigates to its location page
-  4. User can toggle services on/off by season in the annual plan configurator and sees a 12-month calendar with bundle pricing that updates in real-time
-  5. "Lock In My Plan" and "Get Exact Quote" CTAs both capture lead data (name, email, phone, address, selections) to Supabase
-**Plans:** 5 plans
+### Phase 14: Review Generation Machine
+**Goal**: Automated post-job review request pipeline that generates 5+ Google reviews per week, with AI-drafted responses and social proof amplification.
+**Depends on**: Phase 13 (job completion triggers)
+**Requirements**: REVW-01, REVW-02, REVW-03, REVW-04, REVW-05, REVW-06, REVW-07
+**Success Criteria**:
+  1. Review request SMS sent 24h after every job completion
+  2. Follow-up email sent if no review after 72h
+  3. New Google reviews synced to Supabase within 24h
+  4. AI response drafts appear in Telegram for approval
+  5. 5-star reviews auto-queued as social media posts
 
-Plans:
-- [x] 07-01-PLAN.md -- Install leaflet + geocoding server action + city boundaries data + DB migration [wave 1]
-- [x] 07-02-PLAN.md -- Interactive ServiceAreaMap component + service-areas page integration [wave 2]
-- [x] 07-03-PLAN.md -- AddressAutocomplete component + QuoteFlow enhancement [wave 2]
-- [x] 07-04-PLAN.md -- AnnualPlanConfigurator with season toggles, calendar, bundle pricing, lead capture [wave 2]
-- [x] 07-05-PLAN.md -- Page integration + build verification + visual QA checkpoint [wave 3]
+### Phase 15: Retention & Lifetime Value
+**Goal**: Every customer lifecycle stage is automated — referrals, annual plans, cross-sell, seasonal nurture, weather campaigns, win-back, newsletter — maximizing lifetime value.
+**Depends on**: Phase 14 (review system feeds referral triggers)
+**Requirements**: RETN-01 through RETN-09
+**Success Criteria**:
+  1. 5-star reviewers receive referral SMS within 1h
+  2. Seasonal campaigns auto-launch (spring March, fall Sept, snow Nov)
+  3. Weather events trigger appropriate email campaigns within 2h
+  4. Dormant 90+ day customers receive win-back sequence
+  5. Monthly newsletter sends to all active customers
 
-### Phase 8: Customer Retention Layer
-**Goal**: Existing customers can log in to a branded portal to view their service history, upcoming schedule, and invoices — and can share a referral link that gives both parties $50 off.
-**Depends on**: Phase 5 (auth middleware), Phase 7 (stable conversion features)
-**Requirements**: PORT-01, PORT-02, PORT-03, PORT-04, PORT-05, PORT-06, PORT-07, PORT-08, REF-01, REF-02, REF-03, REF-04, REF-05, REF-06
-**Success Criteria** (what must be TRUE):
-  1. Customer receives a magic link email, clicks it, and lands on their authenticated dashboard — no password required
-  2. Dashboard displays upcoming service schedule, past service history with dates, and invoices with payment status
-  3. Customer can request an additional service and rate their crew (1-5 stars) from the dashboard
-  4. Customer can copy their unique referral link (e.g., tgyardcare.com/r/ABC123) and a referred visitor sees a personalized landing page with the referrer's name
-  5. When a referred customer books their first service, the referrer sees "$50 credit" status update in their portal and the new customer received $50 off
-**Plans:** 5 plans
+### Phase 16: Content & SEO Engine
+**Goal**: SEO automation producing 3 blog posts/week, monitoring rankings, refreshing stale content, and auto-linking new content to service/city pages.
+**Depends on**: Phase 11 (infrastructure)
+**Requirements**: SEO-01 through SEO-08
+**Success Criteria**:
+  1. TG-99 publishing 3 blog posts per week (Mon/Wed/Fri)
+  2. New pages instantly submitted to IndexNow
+  3. Rank drops > 3 positions trigger Telegram alert
+  4. Stale posts (> 90 days) auto-detected and queued for refresh
 
-Plans:
-- [x] 08-01 -- Portal database schema (7 tables + RLS policies)
-- [x] 08-02 -- Portal auth flow (magic link login + callback + middleware split)
-- [x] 08-03 -- Portal dashboard (nav, upcoming jobs, history, invoices, referral cards)
-- [x] 08-04 -- Service actions (rate crew, request service, /r/[code] referral landing page)
-- [x] 08-05 -- Phase 8 verification (build passes, all routes present)
+### Phase 17: Social Media Machine
+**Goal**: Auto-posting to 5+ social platforms daily with AI-generated content following a weekly pillar calendar.
+**Depends on**: Phase 11 (auto-posting infrastructure)
+**Requirements**: SOCL-01 through SOCL-06
+**Success Criteria**:
+  1. Posts auto-publish to Instagram, TikTok, YouTube, LinkedIn, Pinterest daily
+  2. Weekly content batch of 7 posts generated by AI
+  3. 5-star reviews auto-converted to social posts
+  4. Engagement metrics tracked in Supabase
 
-### Phase 9: Content & SEO Growth
-**Goal**: Visitors find TotalGuard's educational content organized by topic, discover the "Madison Lawn Care Guide" hub as a local authority resource, and encounter lead magnets that convert readers into leads.
-**Depends on**: Phase 6 (server-rendered pages for SEO)
-**Requirements**: CONT-01, CONT-02, CONT-03, CONT-04, CONT-05, CONT-06
-**Success Criteria** (what must be TRUE):
-  1. Blog index page shows posts organized by categories (Lawn Care, Seasonal, Gutters, etc.) with clickable category filters
-  2. "Madison Lawn Care Guide" hub page aggregates all educational content as a single authoritative resource with internal linking
-  3. Seasonal content surfaces automatically based on current time of year (spring content in March-May, fall content in September-November)
-  4. Every blog post and guide page includes a contextual lead magnet CTA (e.g., "Get your free lawn care checklist") that captures email to Supabase
-**Plans:** 3 plans
+### Phase 18: GBP Domination
+**Goal**: Google Business Profile fully automated with 3x/week posts, quarterly FAQ rotation, and optimization scoring.
+**Depends on**: Phase 14 (review system)
+**Requirements**: GBP-01 through GBP-05
+**Success Criteria**:
+  1. GBP posts generated and queued 3x/week (Mon/Wed/Fri)
+  2. Seasonal FAQs rotate quarterly with Telegram approval
+  3. GBP optimization score tracked monthly
 
-Plans:
-- [x] 09-01 -- Blog category migration + lawn care guide hub page
-- [x] 09-02 -- Seasonal content banner, lead magnet CTA, email subscribers table
-- [x] 09-03 -- Phase 9 verification (build passes, all routes present)
+### Phase 19: Intelligence Command Center
+**Goal**: Complete business visibility via Telegram — daily briefing, weekly report, real-time alerts for leads/reviews/competitors/system health.
+**Depends on**: All previous phases (aggregates data from all systems)
+**Requirements**: INTL-01 through INTL-06
+**Success Criteria**:
+  1. Daily 7 AM Telegram briefing with leads, weather, reviews, SEO, system health
+  2. Weekly Sunday report with full business metrics rollup
+  3. New lead alerts appear on Telegram within 5 seconds
+  4. Negative review alerts trigger immediately with CRITICAL severity
 
-### Phase 10: SEO Dominance Engine
-**Goal**: Own every "[service] [city] wi" search result in Dane County with 96 city-service pages, 1,200+ contextual internal links, 3 linkable assets, and visible breadcrumbs — transforming TotalGuard from a local business site into the undisputed authority for yard care in the Madison metro area.
-**Depends on**: Phase 9 (content hub provides blog auto-linking foundation), Phase 6 (server-rendered pages)
-**Design Doc**: docs/plans/2026-03-17-seo-dominance-engine-design.md
-**Success Criteria** (what must be TRUE):
-  1. All 96 city-service pages live with unique per-city content (neighborhoods, challenges, FAQs) — no templated/duplicate content
-  2. Every service page has a "Serving Across Dane County" section linking to all 12 city variants
-  3. Every city-service page has "More Services in {City}" (7 links) and "Also Serving Nearby" (3-4 adjacent city links)
-  4. Existing 12 location pages link to city-specific service pages instead of generic service pages
-  5. Blog posts auto-link service/city keywords via InlineServiceLinks component (max 3 per keyword)
-  6. Visible breadcrumbs render on every page type (service, city-service, location, blog)
-  7. Dane County Lawn Care Cost Guide 2026 live at /lawn-care-costs-dane-county with pricing tables
-  8. Seasonal Lawn Calendar live at /seasonal-lawn-calendar-madison with month-by-month guide
-  9. Interactive Service Area Map live at /service-area-map with clickable city regions
-  10. Sitemap includes all 96 new pages at priority 0.85 + 3 assets at priority 0.7
-  11. Each city-service page has LocalBusiness + Service + BreadcrumbList + FAQPage schema
-**Plans**: TBD
+### Phase 20: Community & Field Marketing
+**Goal**: Neighbor marketing automation and field marketing crew coordination.
+**Depends on**: Phase 13 (job completion triggers)
+**Requirements**: COMM-01 through COMM-03
+**Success Criteria**:
+  1. Job completion triggers outreach to same-zip leads
+  2. Crew receives field marketing reminders via Telegram
+  3. Yard sign placement/collection tracked in Supabase
 
 ---
 
 ## Progress
 
-**Execution Order:** Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9
-
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 0. Fix Existing | M2 | 0/? | Ready to execute | - |
-| 1. Revenue Engine | M2 | 9/9 | Complete | 2026-03-15 |
-| 2. CRM Unification | M2 | 5/5 | Complete | 2026-03-16 |
-| 3. SEO Domination | M2 | 6/6 | Complete | 2026-03-16 |
-| 4. Intelligence Layer | M2 | 12/12 | Complete | 2026-03-16 |
-| 4.1 M2 Integration Fixes | M2 | 1/1 | Complete | 2026-03-16 |
-| 5. Safety Nets & Foundation | M3 | 7/7 | Complete | 2026-03-16 |
-| 6. Brand Transformation | M3 | 6/6 | Complete | 2026-03-17 |
-| 7. Conversion Features | M3 | 5/5 | Complete | 2026-03-17 |
-| 8. Customer Retention | M3 | 5/5 | Complete | 2026-03-18 |
-| 9. Content & SEO Growth | M3 | 3/3 | Complete | 2026-03-18 |
-| 10. SEO Dominance Engine | M3 | 5/5 | Complete | 2026-03-18 |
+| 11. Foundation & Infrastructure | M4 | 2/? | In Progress | - |
+| 12. Conversion Engine | M4 | 0/? | Not Started | - |
+| 13. Delivery Excellence | M4 | 0/? | Not Started | - |
+| 14. Review Generation | M4 | 0/? | Not Started | - |
+| 15. Retention & LTV | M4 | 0/? | Not Started | - |
+| 16. Content & SEO | M4 | 0/? | Not Started | - |
+| 17. Social Media | M4 | 0/? | Not Started | - |
+| 18. GBP Domination | M4 | 0/? | Not Started | - |
+| 19. Intelligence Center | M4 | 0/? | Not Started | - |
+| 20. Community Marketing | M4 | 0/? | Not Started | - |
