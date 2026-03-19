@@ -20,41 +20,82 @@
     },
     {
       "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/rpc/get_stale_posts_ranked",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v" },
+            { "name": "Authorization", "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "fetch-stale-ranked",
+      "name": "Fetch Stale Posts (Rank Prioritized)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
         "method": "GET",
         "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/blog_posts?published_at=lt.{{ new Date(Date.now() - 90*24*60*60*1000).toISOString() }}&order=published_at.asc&limit=10&select=id,title,slug,content,meta_description,published_at",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" }
+            { "name": "apikey", "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v" },
+            { "name": "Authorization", "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v" }
           ]
+        },
+        "options": {
+          "timeout": 15000
         }
       },
-      "id": "fetch-stale-posts",
-      "name": "Fetch Stale Posts",
+      "id": "fetch-stale-fallback",
+      "name": "Fetch Stale Posts (Age Fallback)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 300]
+      "position": [220, 520],
+      "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "// Take only first 3 stale posts per run (API budget control)\nconst items = $input.all();\nconst posts = Array.isArray(items[0]?.json) ? items[0].json : items.map(i => i.json);\nconst limited = posts.slice(0, 3);\nif (limited.length === 0) {\n  return [{ json: { _empty: true, total_found: 0 } }];\n}\nreturn limited.map(p => ({ json: p }));"
+        "jsCode": "// Merge rank-prioritized results with age-based fallback\n// If rank-based RPC returned data, use that; otherwise fall back to age-based query\nconst ranked = $('Fetch Stale Posts (Rank Prioritized)').first()?.json;\nconst fallback = $('Fetch Stale Posts (Age Fallback)').first()?.json;\n\nlet posts = [];\n\n// Check if ranked query succeeded (RPC might not exist yet)\nif (ranked && !ranked.error && Array.isArray(ranked)) {\n  posts = ranked;\n} else if (Array.isArray(ranked)) {\n  posts = ranked;\n} else {\n  // Fall back to age-based ordering\n  const fb = $('Fetch Stale Posts (Age Fallback)').all();\n  if (Array.isArray(fb[0]?.json) && fb[0].json.length > 0) {\n    posts = fb[0].json;\n  } else if (fb.length > 0 && fb[0]?.json?.id) {\n    posts = fb.map(i => i.json);\n  }\n}\n\n// Limit to 3 per run (Claude API budget control)\nconst limited = posts.slice(0, 3);\nconst totalStale = posts.length;\n\nif (limited.length === 0) {\n  return [{ json: { _empty: true, total_found: 0, remaining_titles: [] } }];\n}\n\n// Track remaining candidates for Telegram summary\nconst remaining = posts.slice(3, 6).map(p => p.title || p.slug);\n\nreturn limited.map((p, i) => ({\n  json: {\n    ...p,\n    _total_stale: totalStale,\n    _remaining_titles: i === 0 ? remaining : []\n  }\n}));"
       },
-      "id": "limit-to-3",
-      "name": "Limit to 3",
+      "id": "merge-and-limit",
+      "name": "Merge & Limit to 3",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 300]
+      "position": [440, 400]
     },
     {
       "parameters": {
-        "jsCode": "// Pass through existing content — already fetched in step 2\nconst item = $input.first().json;\nif (item._empty) {\n  return [{ json: { _empty: true, total_found: 0 } }];\n}\nreturn [{ json: { id: item.id, title: item.title, slug: item.slug, content: item.content, meta_description: item.meta_description || '' } }];"
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "" },
+          "conditions": [
+            {
+              "id": "check-empty",
+              "leftValue": "={{ $json._empty }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "notTrue" }
+            }
+          ],
+          "combinator": "and"
+        }
       },
-      "id": "read-existing",
-      "name": "Read Existing Content",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [660, 300]
+      "id": "has-posts",
+      "name": "Has Posts?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [660, 400]
     },
     {
       "parameters": {
@@ -63,16 +104,16 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "x-api-key", "value": "CLAUDE_API_KEY_PLACEHOLDER" },
+            { "name": "x-api-key", "value": "={{ $env.CLAUDE_API_KEY }}" },
             { "name": "anthropic-version", "value": "2023-06-01" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"model\": \"claude-sonnet-4-20250514\", \"max_tokens\": 2000, \"messages\": [{ \"role\": \"user\", \"content\": \"Update this lawn care blog post for the current season. Add new information, refresh examples. Keep same slug and topic. 1200-1500 words. Include 2-3 internal links to tgyardcare.com service pages.\\n\\nTitle: {{ $json.title }}\\nSlug: {{ $json.slug }}\\nCurrent content:\\n{{ ($json.content || '').substring(0, 3000) }}\\n\\nReturn ONLY the refreshed article body content (no title, no slug). Also on the last line, return a new meta description (max 160 chars) prefixed with META_DESC: \" }] }",
+        "jsonBody": "={ \"model\": \"claude-sonnet-4-20250514\", \"max_tokens\": 2500, \"messages\": [{ \"role\": \"user\", \"content\": \"You are a lawn care content expert for TotalGuard Yard Care in Madison, WI. Update this blog post for the current season ({{ new Date().toLocaleString('en-US', {month: 'long', year: 'numeric'}) }}). Requirements:\\n\\n1. Add new, relevant information and updated statistics\\n2. Refresh examples for the current season\\n3. Keep the same slug and general topic\\n4. Maintain 1200-1500 word count\\n5. Include 2-3 internal links to tgyardcare.com pages (e.g., /lawn-mowing, /fertilizer-treatment, /spring-cleanup, /service-areas)\\n6. Use markdown formatting\\n7. Maintain SEO-friendly structure with H2/H3 headings\\n\\nTitle: {{ $json.title }}\\nSlug: {{ $json.slug }}\\nCurrent content (first 3000 chars):\\n{{ ($json.content || '').substring(0, 3000) }}\\n\\nReturn your response in this exact format:\\nTITLE: <updated title, max 65 chars>\\nMETA_DESC: <updated meta description, max 155 chars>\\nCONTENT:\\n<full refreshed article body in markdown>\" }] }",
         "options": {
-          "timeout": 60000
+          "timeout": 90000
         }
       },
       "id": "ai-refresh",
@@ -84,7 +125,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Quality Gate: extract refreshed content, check word count >= 800\nconst input = $input.first().json;\nconst post = $('Read Existing Content').first().json;\n\nif (post._empty) {\n  return [{ json: { _skip: true, reason: 'no_posts', id: null, slug: null } }];\n}\n\nconst text = input.content?.[0]?.text || '';\nif (!text) {\n  return [{ json: { _skip: true, reason: 'api_error', id: post.id, slug: post.slug } }];\n}\n\n// Split meta description from content\nconst lines = text.split('\\n');\nlet metaDesc = '';\nlet contentLines = [];\nfor (const line of lines) {\n  if (line.startsWith('META_DESC:')) {\n    metaDesc = line.replace('META_DESC:', '').trim().substring(0, 160);\n  } else {\n    contentLines.push(line);\n  }\n}\nconst refreshedContent = contentLines.join('\\n').trim();\nconst wordCount = refreshedContent.split(/\\s+/).length;\n\nif (wordCount < 800) {\n  return [{ json: { _skip: true, reason: 'too_short', word_count: wordCount, id: post.id, slug: post.slug } }];\n}\n\nreturn [{ json: {\n  _skip: false,\n  id: post.id,\n  slug: post.slug,\n  title: post.title,\n  refreshed_content: refreshedContent,\n  meta_description: metaDesc || post.meta_description,\n  word_count: wordCount\n} }];"
+        "jsCode": "// Quality Gate: extract refreshed content, validate title/meta/word count\nconst input = $input.first().json;\nconst post = $('Has Posts?').first().json;\n\n// Check for API errors\nif (input.error || !input.content || !input.content[0]?.text) {\n  return [{ json: { _skip: true, reason: 'api_error', id: post.id, slug: post.slug, title: post.title } }];\n}\n\nconst text = input.content[0].text;\n\n// Parse structured response\nlet title = post.title;\nlet metaDesc = post.meta_description || '';\nlet content = text;\n\nconst titleMatch = text.match(/^TITLE:\\s*(.+)$/m);\nif (titleMatch) {\n  title = titleMatch[1].trim().substring(0, 65);\n}\n\nconst metaMatch = text.match(/^META_DESC:\\s*(.+)$/m);\nif (metaMatch) {\n  metaDesc = metaMatch[1].trim().substring(0, 155);\n}\n\nconst contentMatch = text.match(/^CONTENT:\\n([\\s\\S]+)$/m);\nif (contentMatch) {\n  content = contentMatch[1].trim();\n} else {\n  // Fallback: strip TITLE/META lines from the text\n  content = text\n    .replace(/^TITLE:.*$/m, '')\n    .replace(/^META_DESC:.*$/m, '')\n    .replace(/^CONTENT:$/m, '')\n    .trim();\n}\n\nconst wordCount = content.split(/\\s+/).length;\n\n// Quality checks\nif (wordCount < 800) {\n  return [{ json: { _skip: true, reason: 'too_short_' + wordCount + '_words', id: post.id, slug: post.slug, title: post.title } }];\n}\n\nif (title.length > 65) {\n  title = title.substring(0, 65);\n}\n\nif (metaDesc.length > 155) {\n  metaDesc = metaDesc.substring(0, 155);\n}\n\nreturn [{ json: {\n  _skip: false,\n  id: post.id,\n  slug: post.slug,\n  title: title,\n  original_title: post.title,\n  refreshed_content: content,\n  meta_description: metaDesc,\n  word_count: wordCount,\n  _total_stale: post._total_stale || 0,\n  _remaining_titles: post._remaining_titles || []\n} }];"
       },
       "id": "quality-gate",
       "name": "Quality Gate",
@@ -94,79 +135,206 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "" },
+          "conditions": [
+            {
+              "id": "check-skip",
+              "leftValue": "={{ $json._skip }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "notTrue" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "passed-gate",
+      "name": "Passed Quality Gate?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1320, 300]
+    },
+    {
+      "parameters": {
         "method": "PATCH",
         "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/blog_posts?id=eq.{{ $json.id }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "apikey", "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v" },
+            { "name": "Authorization", "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v" },
             { "name": "Content-Type", "value": "application/json" },
             { "name": "Prefer", "value": "return=minimal" }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"content\": {{ JSON.stringify($json.refreshed_content) }}, \"meta_description\": {{ JSON.stringify($json.meta_description) }}, \"published_at\": \"{{ new Date().toISOString() }}\", \"updated_at\": \"{{ new Date().toISOString() }}\" }",
-        "options": {}
+        "jsonBody": "={ \"title\": {{ JSON.stringify($json.title) }}, \"content\": {{ JSON.stringify($json.refreshed_content) }}, \"meta_description\": {{ JSON.stringify($json.meta_description) }}, \"published_at\": \"{{ new Date().toISOString() }}\", \"updated_at\": \"{{ new Date().toISOString() }}\", \"last_refreshed_at\": \"{{ new Date().toISOString() }}\" }",
+        "options": {
+          "timeout": 15000
+        }
       },
       "id": "update-post",
       "name": "Update Post in Supabase",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1320, 300]
+      "position": [1540, 300],
+      "continueOnFail": true
     },
     {
       "parameters": {
-        "source": "id",
-        "workflowId": "PLACEHOLDER_TG47_ID",
-        "options": {}
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/rpc/submit_indexnow",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v" },
+            { "name": "Authorization", "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"url_to_submit\": \"https://tgyardcare.com/blog/{{ $json.slug }}\" }",
+        "options": {
+          "timeout": 15000
+        }
       },
       "id": "call-indexnow",
-      "name": "Call TG-47 IndexNow",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.1,
-      "position": [1540, 300]
+      "name": "Submit to IndexNow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1760, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/automation_runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v" },
+            { "name": "Authorization", "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"workflow_name\": \"TG-50-content-refresher\", \"status\": \"success\", \"details\": {{ JSON.stringify('Refreshed: ' + $json.title + ' (' + $json.word_count + ' words)') }}, \"created_at\": \"{{ new Date().toISOString() }}\" }",
+        "options": {}
+      },
+      "id": "log-run",
+      "name": "Log to automation_runs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1980, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate results for Telegram summary\nconst allQG = $('Quality Gate').all();\nconst mergeNode = $('Merge & Limit to 3').all();\n\nconst totalStale = mergeNode[0]?.json?._total_stale || mergeNode.filter(i => !i.json._empty).length;\nconst remaining = mergeNode[0]?.json?._remaining_titles || [];\n\nconst refreshed = allQG.filter(i => !i.json._skip);\nconst skipped = allQG.filter(i => i.json._skip && i.json.reason !== 'no_posts');\nconst noPostsFound = allQG.some(i => i.json.reason === 'no_posts' || i.json._empty);\n\nlet msg = '\\ud83d\\udcdd **CONTENT REFRESH** (TG-50)\\n\\n';\n\nif (noPostsFound && refreshed.length === 0) {\n  msg += 'No stale posts found (all content < 90 days old). Nothing to refresh this week.\\n';\n} else {\n  msg += `Found ${totalStale} stale post(s).\\n`;\n  msg += `Refreshed ${refreshed.length} this week.\\n\\n`;\n  \n  if (refreshed.length > 0) {\n    msg += refreshed.map(i => `\\u2705 ${i.json.title} (${i.json.word_count} words)`).join('\\n') + '\\n';\n  }\n  \n  if (skipped.length > 0) {\n    msg += '\\n' + skipped.map(i => `\\u274c Skipped: ${i.json.slug || i.json.title} (${i.json.reason})`).join('\\n') + '\\n';\n  }\n  \n  if (remaining.length > 0) {\n    msg += `\\n\\ud83d\\udccb Next candidates:\\n` + remaining.map(t => `  \\u2022 ${t}`).join('\\n');\n  }\n}\n\nreturn [{ json: { message: msg } }];"
+      },
+      "id": "build-summary",
+      "name": "Build Telegram Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 600]
     },
     {
       "parameters": {
         "chatId": "OWNER_TELEGRAM_CHAT_ID",
-        "text": "=\ud83d\udcdd **CONTENT REFRESH** (TG-50)\n\nFound {{ $('Limit to 3').all().filter(i => !i.json._empty).length }} stale posts.\nRefreshed {{ $('Quality Gate').all().filter(i => !i.json._skip).length }} this week.\n\n{{ $('Quality Gate').all().filter(i => !i.json._skip).map(i => '\u2705 ' + i.json.title + ' (' + i.json.word_count + ' words)').join('\\n') || 'No posts refreshed.' }}\n{{ $('Quality Gate').all().filter(i => i.json._skip && i.json.reason !== 'no_posts').map(i => '\u274c Skipped: ' + i.json.slug + ' (' + i.json.reason + ')').join('\\n') || '' }}",
+        "text": "={{ $json.message }}",
         "additionalFields": { "parse_mode": "Markdown" }
       },
       "id": "telegram-summary",
       "name": "Telegram Summary",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [1760, 300],
+      "position": [1760, 600],
       "credentials": {
         "telegramApi": { "id": "V404qLIDXjmyzNeS", "name": "Telegram" }
       }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/automation_runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v" },
+            { "name": "Authorization", "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"workflow_name\": \"TG-50-content-refresher\", \"status\": \"success\", \"details\": \"No stale posts found or no posts passed quality gate\", \"created_at\": \"{{ new Date().toISOString() }}\" }",
+        "options": {}
+      },
+      "id": "log-no-refresh",
+      "name": "Log No Refresh",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 600],
+      "continueOnFail": true
     }
   ],
   "connections": {
     "Weekly Saturday 9am CT": {
-      "main": [[{ "node": "Fetch Stale Posts", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          { "node": "Fetch Stale Posts (Rank Prioritized)", "type": "main", "index": 0 },
+          { "node": "Fetch Stale Posts (Age Fallback)", "type": "main", "index": 0 }
+        ]
+      ]
     },
-    "Fetch Stale Posts": {
-      "main": [[{ "node": "Limit to 3", "type": "main", "index": 0 }]]
+    "Fetch Stale Posts (Rank Prioritized)": {
+      "main": [[{ "node": "Merge & Limit to 3", "type": "main", "index": 0 }]]
     },
-    "Limit to 3": {
-      "main": [[{ "node": "Read Existing Content", "type": "main", "index": 0 }]]
+    "Fetch Stale Posts (Age Fallback)": {
+      "main": [[{ "node": "Merge & Limit to 3", "type": "main", "index": 0 }]]
     },
-    "Read Existing Content": {
-      "main": [[{ "node": "AI Refresh via Claude", "type": "main", "index": 0 }]]
+    "Merge & Limit to 3": {
+      "main": [[{ "node": "Has Posts?", "type": "main", "index": 0 }]]
+    },
+    "Has Posts?": {
+      "main": [
+        [{ "node": "AI Refresh via Claude", "type": "main", "index": 0 }],
+        [
+          { "node": "Log No Refresh", "type": "main", "index": 0 },
+          { "node": "Build Telegram Summary", "type": "main", "index": 0 }
+        ]
+      ]
     },
     "AI Refresh via Claude": {
       "main": [[{ "node": "Quality Gate", "type": "main", "index": 0 }]]
     },
     "Quality Gate": {
-      "main": [[{ "node": "Update Post in Supabase", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Passed Quality Gate?", "type": "main", "index": 0 }]]
+    },
+    "Passed Quality Gate?": {
+      "main": [
+        [{ "node": "Update Post in Supabase", "type": "main", "index": 0 }],
+        [{ "node": "Build Telegram Summary", "type": "main", "index": 0 }]
+      ]
     },
     "Update Post in Supabase": {
-      "main": [[{ "node": "Call TG-47 IndexNow", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Submit to IndexNow", "type": "main", "index": 0 }]]
     },
-    "Call TG-47 IndexNow": {
+    "Submit to IndexNow": {
+      "main": [[{ "node": "Log to automation_runs", "type": "main", "index": 0 }]]
+    },
+    "Log to automation_runs": {
+      "main": [[{ "node": "Build Telegram Summary", "type": "main", "index": 0 }]]
+    },
+    "Log No Refresh": {
+      "main": [[]]
+    },
+    "Build Telegram Summary": {
       "main": [[{ "node": "Telegram Summary", "type": "main", "index": 0 }]]
     }
   },
