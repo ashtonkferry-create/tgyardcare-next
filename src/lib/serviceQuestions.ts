@@ -31,6 +31,33 @@ export const SERVICE_QUESTIONS: Record<string, ServiceQuestion[]> = {
         { value: 'overgrown', label: 'Overgrown', emoji: '🌿', desc: "Hasn't been cut in a while" },
       ],
     },
+    {
+      id: 'terrain',
+      question: 'Does your lawn have slopes or hills?',
+      options: [
+        { value: 'flat', label: 'Flat & Level', emoji: '📐', desc: 'No slopes at all' },
+        { value: 'mild', label: 'Mild Slopes', emoji: '📊', desc: 'Gentle grade in spots' },
+        { value: 'steep', label: 'Steep Hills', emoji: '⛰️', desc: 'Significant grade changes' },
+      ],
+    },
+    {
+      id: 'obstacles',
+      question: 'Any obstacles we should know about?',
+      options: [
+        { value: 'none', label: 'Open Lawn', emoji: '🟩', desc: 'Clear mowing lines' },
+        { value: 'beds', label: 'Trees & Beds', emoji: '🌳', desc: 'Garden beds to trim around' },
+        { value: 'complex', label: 'Fences & Gates', emoji: '🔒', desc: 'Tight spaces or barriers' },
+      ],
+    },
+    {
+      id: 'gate_access',
+      question: 'Gate access for our equipment?',
+      options: [
+        { value: 'open', label: 'Open Access', emoji: '✅', desc: 'No gates, full access' },
+        { value: 'gate', label: 'Gate Present', emoji: '🚪', desc: "We can handle it — we'll coordinate" },
+        { value: 'front_only', label: 'Front Lawn Only', emoji: '🏠', desc: 'No backyard access' },
+      ],
+    },
   ],
   fertilization: [
     {
@@ -50,6 +77,15 @@ export const SERVICE_QUESTIONS: Record<string, ServiceQuestion[]> = {
         { value: 'yes', label: 'Yes, Pets', emoji: '🐕', desc: 'We use pet-safe products' },
       ],
     },
+    {
+      id: 'area',
+      question: 'Which areas need treatment?',
+      options: [
+        { value: 'full', label: 'Full Property', emoji: '🏡', desc: 'Front and back lawn' },
+        { value: 'front', label: 'Front Only', emoji: '🏠', desc: 'Street-facing lawn' },
+        { value: 'back', label: 'Back Only', emoji: '🔒', desc: 'Backyard lawn' },
+      ],
+    },
   ],
   aeration: [
     {
@@ -59,6 +95,23 @@ export const SERVICE_QUESTIONS: Record<string, ServiceQuestion[]> = {
         { value: 'recent', label: 'Within 2 Years', emoji: '✅', desc: 'Good rhythm' },
         { value: 'overdue', label: '3+ Years Ago', emoji: '⚠️', desc: 'Soil compaction likely' },
         { value: 'never', label: 'Never', emoji: '🌱', desc: 'First-time service' },
+      ],
+    },
+    {
+      id: 'overseed',
+      question: 'Do you want overseeding included?',
+      options: [
+        { value: 'yes', label: 'Seed + Aerate', emoji: '🌱', desc: 'Best results — fill thin spots' },
+        { value: 'no', label: 'Aeration Only', emoji: '✅', desc: 'Core aeration without seeding' },
+      ],
+    },
+    {
+      id: 'terrain',
+      question: 'Terrain type?',
+      options: [
+        { value: 'flat', label: 'Flat & Level', emoji: '📐', desc: 'Easy machine access' },
+        { value: 'slopes', label: 'Has Slopes', emoji: '📊', desc: 'Some grade changes' },
+        { value: 'steep', label: 'Steep Grade', emoji: '⛰️', desc: 'Significant hills' },
       ],
     },
   ],
@@ -72,6 +125,15 @@ export const SERVICE_QUESTIONS: Record<string, ServiceQuestion[]> = {
         { value: 'many', label: 'Many (15+)', emoji: '🌲', desc: 'Heavy cleanup needed' },
       ],
     },
+    {
+      id: 'gate_access',
+      question: 'Gate access for our crew?',
+      options: [
+        { value: 'open', label: 'Full Access', emoji: '✅', desc: 'No barriers' },
+        { value: 'gate', label: 'Gate Present', emoji: '🚪', desc: "We'll coordinate access" },
+        { value: 'front_only', label: 'Front Only', emoji: '🏠', desc: 'Front yard access only' },
+      ],
+    },
   ],
   'fall-cleanup': [
     {
@@ -81,6 +143,15 @@ export const SERVICE_QUESTIONS: Record<string, ServiceQuestion[]> = {
         { value: 'few', label: 'A Few (1–5)', emoji: '🍂', desc: 'Light leaf volume' },
         { value: 'several', label: 'Several (6–15)', emoji: '🍁', desc: 'Moderate leaf fall' },
         { value: 'many', label: 'Many (15+)', emoji: '🌿', desc: 'Heavy leaf removal' },
+      ],
+    },
+    {
+      id: 'gate_access',
+      question: 'Gate access for our crew?',
+      options: [
+        { value: 'open', label: 'Full Access', emoji: '✅', desc: 'No barriers' },
+        { value: 'gate', label: 'Gate Present', emoji: '🚪', desc: "We'll coordinate access" },
+        { value: 'front_only', label: 'Front Only', emoji: '🏠', desc: 'Front yard access only' },
       ],
     },
   ],
