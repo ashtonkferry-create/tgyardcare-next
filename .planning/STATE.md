@@ -10,7 +10,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 13 of 20 (Delivery Excellence)
-Plan: 1 of 3 in Phase 13 (COMPLETE: 13-01)
+Plan: 2 of 3 in Phase 13 (COMPLETE: 13-01, 13-02)
 Status: In progress
 Last activity: 2026-03-19 — Completed 13-01-PLAN.md (TG-05 enhanced email parser)
 
@@ -21,7 +21,7 @@ Progress M2: [██████████████████████
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 77 (M2: 34 + M3: 36 + M4: 7)
+- Total plans completed: 78 (M2: 34 + M3: 36 + M4: 8)
 - M4 Phase 11: 5 requirements complete (INFRA-01, INFRA-02, 11-02 key audit, 11-03 auto-posting, 11-01 TG-92/TG-113 activation)
 - M4 Phase 12: 4 plans complete (12-01 instant response, 12-02 speed-to-lead, 12-03 follow-up sequence, 12-04 lead scoring) -- PHASE COMPLETE
 
@@ -67,7 +67,11 @@ Progress M2: [██████████████████████
 - [M4 Phase 12]: TG-09 stage tracking via leads.follow_up_stage integer (0-5), not sequence_enrollments table
 - [M4 Phase 13]: TG-05 enhanced with scheduled_date/time/crew_name extraction, job_created event type, 8 Switch outputs
 - [M4 Phase 13]: TG-05 Switch output indices shifted — job_created at index 1, all others +1
-- [M4 Phase 13]: PLACEHOLDER_TG127_ID and PLACEHOLDER_TG128_ID in TG-05 need replacement when sub-workflows created
+- [M4 Phase 13]: TG-127 pre-job notification deployed (n8n ID: SsYWWFSHSOfnv7ex), sends 4PM day-before SMS
+- [M4 Phase 13]: TG-128 post-job quality check deployed (n8n ID: GZ7ZxOanSNceWeVV), 14-node dual-trigger with sentiment analysis
+- [M4 Phase 13]: TG-05 wired to real TG-127/TG-128 IDs, full pipeline active
+- [M4 Phase 13]: TG-128 webhook URL: https://tgyardcare.app.n8n.cloud/webhook/tg128-quality-reply
+- [M4 Phase 13]: 15 workflows now active (added TG-127, TG-128)
 - [M4 Phase 13]: n8n API PUT returns 400 "Could not find property option" — deploy via UI import only
 - [M4 Phase 12]: TG-09 deployed and active (n8n ID: ZjG32DE8KI9SHyxo), daily 10am CT
 - [M4 Phase 12]: follow_up_stage column needs manual addition to leads table (workflow degrades gracefully without it)
@@ -80,7 +84,6 @@ Progress M2: [██████████████████████
 - Create lead_alerts table in Supabase SQL Editor (see 12-02-SUMMARY.md for SQL)
 - Add follow_up_stage column to leads table: `ALTER TABLE leads ADD COLUMN IF NOT EXISTS follow_up_stage integer DEFAULT 0;`
 - Add parsed_scheduled_date, parsed_scheduled_time, parsed_crew_name columns to jobber_email_events table
-- Deploy updated TG-05 JSON to n8n via UI import (API PUT broken)
 
 ### Blockers/Concerns
 
@@ -94,6 +97,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 13-01-PLAN.md (TG-05 enhanced email parser)
+Stopped at: Completed 13-02-PLAN.md (TG-127 pre-job + TG-128 quality check)
 Resume file: None
-Next: Execute 13-02-PLAN.md (TG-127 pre-job notifications)
+Next: Execute 13-03-PLAN.md (customer retention workflows)
