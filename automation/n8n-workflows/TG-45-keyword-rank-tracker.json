@@ -1,11 +1,164 @@
 {
   "name": "TG-45-keyword-rank-tracker",
   "nodes": [
-    { "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 11 * * 1" }] } }, "id": "schedule", "name": "Weekly Mon 6am CT", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 300] },
-    { "parameters": { "method": "GET", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/keyword_rankings?select=id,keyword,target_position&limit=50", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] } }, "id": "fetch-keywords", "name": "Fetch Target Keywords", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [220, 300] },
-    { "parameters": { "method": "POST", "url": "https://searchconsole.googleapis.com/v1/sites/https%3A%2F%2Ftgyardcare.com/searchAnalytics/query", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$vars.TG_GOOGLE_SEARCH_CONSOLE_TOKEN}}" }, { "name": "Content-Type", "value": "application/json" }] }, "sendBody": true, "specifyBody": "json", "jsonBody": "={ \"startDate\": \"{{ new Date(Date.now()-7*24*60*60*1000).toISOString().split('T')[0] }}\", \"endDate\": \"{{ new Date().toISOString().split('T')[0] }}\", \"dimensions\": [\"query\"], \"rowLimit\": 100 }" }, "id": "fetch-gsc", "name": "Fetch GSC Rankings", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [440, 300] },
-    { "parameters": { "method": "POST", "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/keyword_rankings", "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }, { "name": "Prefer", "value": "resolution=merge-duplicates" }] }, "sendBody": true, "specifyBody": "json", "jsonBody": "={{ JSON.stringify(($json.rows || []).map(r => ({ keyword: r.keys[0], position: Math.round(r.position), clicks: r.clicks, impressions: r.impressions, checked_at: new Date().toISOString() }))) }}" }, "id": "upsert-rankings", "name": "Upsert Rankings", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [660, 300] }
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily 8am UTC",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Target keywords for TotalGuard Yard Care — Madison, WI\n// These are the top 20 keywords we track daily for rank movement.\nconst keywords = [\n  'lawn care madison wi',\n  'lawn mowing madison',\n  'fertilization service madison',\n  'lawn fertilization madison wi',\n  'weed control madison wi',\n  'aeration and overseeding madison',\n  'lawn aeration madison wi',\n  'spring lawn care madison',\n  'fall lawn care madison',\n  'organic lawn care madison wi',\n  'yard maintenance madison wi',\n  'grass cutting service madison',\n  'lawn treatment madison wi',\n  'lawn care near me madison',\n  'best lawn care madison wi',\n  'affordable lawn care madison',\n  'commercial lawn care madison wi',\n  'lawn care service dane county',\n  'lawn mowing service near me',\n  'totalguard yard care'\n];\n\n// Use yesterday as the sync date (GSC data has ~2 day lag,\n// but TG-96 already synced the latest available date at 6am)\nconst syncDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)\n  .toISOString().split('T')[0];\n\nreturn [{ json: { keywords, syncDate } }];"
+      },
+      "id": "define-keywords",
+      "name": "Define Target Keywords",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/gsc_search_queries?date=eq.{{ $json.syncDate }}&select=query,position,clicks,impressions,ctr",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            }
+          ]
+        }
+      },
+      "id": "fetch-gsc-data",
+      "name": "Fetch GSC Query Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Match target keywords against GSC data and build seo_rankings rows\nconst keywords = $('Define Target Keywords').first().json.keywords;\nconst syncDate = $('Define Target Keywords').first().json.syncDate;\nconst gscRows = $input.first().json || [];\n\n// Build lookup map from GSC data (query -> row)\nconst gscMap = new Map();\nconst dataArray = Array.isArray(gscRows) ? gscRows : (gscRows.body || []);\nfor (const row of dataArray) {\n  if (row.query) {\n    gscMap.set(row.query.toLowerCase(), row);\n  }\n}\n\nconst rankings = keywords.map(kw => {\n  const match = gscMap.get(kw.toLowerCase());\n  return {\n    keyword: kw,\n    position: match ? Math.round(match.position * 100) / 100 : null,\n    clicks: match ? (match.clicks || 0) : 0,\n    impressions: match ? (match.impressions || 0) : 0,\n    date: syncDate\n  };\n});\n\n// Filter to only keywords that have GSC data (position != null)\nconst withData = rankings.filter(r => r.position !== null);\nconst withoutData = rankings.filter(r => r.position === null);\n\nreturn [{ json: {\n  upsertData: withData,\n  trackedCount: withData.length,\n  missingCount: withoutData.length,\n  missingKeywords: withoutData.map(r => r.keyword),\n  syncDate\n}}];"
+      },
+      "id": "match-keywords",
+      "name": "Match Keywords to GSC Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seo_rankings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.upsertData) }}"
+      },
+      "id": "upsert-rankings",
+      "name": "Upsert seo_rankings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/automation_runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ workflow_id: 'TG-45', workflow_name: 'keyword-rank-tracker', status: 'success', metadata: { tracked: $json.trackedCount, missing: $json.missingCount, syncDate: $json.syncDate }, ran_at: new Date().toISOString() }) }}",
+        "options": {}
+      },
+      "id": "log-run",
+      "name": "Log to automation_runs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 300],
+      "continueOnFail": true
+    }
   ],
-  "connections": { "Weekly Mon 6am CT": { "main": [[{ "node": "Fetch Target Keywords", "type": "main", "index": 0 }]] }, "Fetch Target Keywords": { "main": [[{ "node": "Fetch GSC Rankings", "type": "main", "index": 0 }]] }, "Fetch GSC Rankings": { "main": [[{ "node": "Upsert Rankings", "type": "main", "index": 0 }]] } },
-  "settings": { "availableInMCP": true }
+  "connections": {
+    "Daily 8am UTC": {
+      "main": [
+        [{ "node": "Define Target Keywords", "type": "main", "index": 0 }]
+      ]
+    },
+    "Define Target Keywords": {
+      "main": [
+        [{ "node": "Fetch GSC Query Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch GSC Query Data": {
+      "main": [
+        [{ "node": "Match Keywords to GSC Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Match Keywords to GSC Data": {
+      "main": [
+        [{ "node": "Upsert seo_rankings", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert seo_rankings": {
+      "main": [
+        [{ "node": "Log to automation_runs", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "availableInMCP": true
+  }
 }

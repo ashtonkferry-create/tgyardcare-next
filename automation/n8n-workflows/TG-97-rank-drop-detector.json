@@ -83,7 +83,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Compare current vs previous week queries for rank drops and CTR anomalies\nconst current = $('Fetch Current Queries').first().json.body || [];\nconst previous = $('Fetch Previous Queries').first().json.body || [];\nconst prevMap = new Map(previous.map(p => [p.query, p]));\n\nconst urgentAlerts = [];  // SMS-worthy: drop >= 10 positions AND >= 50 impressions\nconst warnings = [];      // Weekly digest only: drop 5-9 positions\nconst ctrAnomalies = [];  // CTR drops > 30%\n\nfor (const cur of current) {\n  const prev = prevMap.get(cur.query);\n  if (!prev) continue;\n\n  const positionDrop = cur.position - prev.position; // positive = worse ranking\n\n  // Urgent: drop >= 10 positions AND >= 50 weekly impressions\n  if (positionDrop >= 10 && prev.impressions >= 50) {\n    urgentAlerts.push({\n      type: 'urgent_rank_drop',\n      query: cur.query,\n      page: cur.page,\n      oldPosition: Math.round(prev.position),\n      newPosition: Math.round(cur.position),\n      drop: Math.round(positionDrop),\n      impressions: cur.impressions\n    });\n  }\n  // Warning: drop 5-9 positions AND >= 20 impressions\n  else if (positionDrop >= 5 && prev.impressions >= 20) {\n    warnings.push({\n      type: 'rank_drop_warning',\n      query: cur.query,\n      page: cur.page,\n      oldPosition: Math.round(prev.position),\n      newPosition: Math.round(cur.position),\n      drop: Math.round(positionDrop)\n    });\n  }\n\n  // CTR anomaly: >30% drop with stable impressions (both >= 50)\n  if (prev.impressions >= 50 && cur.impressions >= 50 && prev.ctr > 0) {\n    const ctrDrop = (prev.ctr - cur.ctr) / prev.ctr;\n    if (ctrDrop > 0.30) {\n      ctrAnomalies.push({\n        type: 'ctr_anomaly',\n        query: cur.query,\n        page: cur.page,\n        oldCtr: (prev.ctr * 100).toFixed(1) + '%',\n        newCtr: (cur.ctr * 100).toFixed(1) + '%',\n        dropPct: (ctrDrop * 100).toFixed(0) + '%',\n        impressions: cur.impressions\n      });\n    }\n  }\n}\n\nreturn [{ json: {\n  urgentAlerts,\n  warnings,\n  ctrAnomalies,\n  hasUrgent: urgentAlerts.length > 0,\n  hasCtrAnomaly: ctrAnomalies.length > 0,\n  summary: {\n    queriesCompared: current.length,\n    urgentCount: urgentAlerts.length,\n    warningCount: warnings.length,\n    ctrAnomalyCount: ctrAnomalies.length\n  }\n}}];"
+        "jsCode": "// Compare current vs previous week queries for rank drops and CTR anomalies\nconst current = $('Fetch Current Queries').first().json.body || [];\nconst previous = $('Fetch Previous Queries').first().json.body || [];\nconst prevMap = new Map(previous.map(p => [p.query, p]));\n\nconst urgentAlerts = [];  // Telegram alert: drop > 3 positions AND >= 50 impressions\nconst warnings = [];      // Weekly digest only: drop > 3 positions with lower impressions\nconst ctrAnomalies = [];  // CTR drops > 30%\n\nfor (const cur of current) {\n  const prev = prevMap.get(cur.query);\n  if (!prev) continue;\n\n  const positionDrop = cur.position - prev.position; // positive = worse ranking\n\n  // Urgent: drop >= 10 positions AND >= 50 weekly impressions\n  if (positionDrop > 3 && prev.impressions >= 50) {\n    urgentAlerts.push({\n      type: 'urgent_rank_drop',\n      query: cur.query,\n      page: cur.page,\n      oldPosition: Math.round(prev.position),\n      newPosition: Math.round(cur.position),\n      drop: Math.round(positionDrop),\n      impressions: cur.impressions\n    });\n  }\n  // Warning: drop 5-9 positions AND >= 20 impressions\n  else if (positionDrop > 3 && prev.impressions >= 20) {\n    warnings.push({\n      type: 'rank_drop_warning',\n      query: cur.query,\n      page: cur.page,\n      oldPosition: Math.round(prev.position),\n      newPosition: Math.round(cur.position),\n      drop: Math.round(positionDrop)\n    });\n  }\n\n  // CTR anomaly: >30% drop with stable impressions (both >= 50)\n  if (prev.impressions >= 50 && cur.impressions >= 50 && prev.ctr > 0) {\n    const ctrDrop = (prev.ctr - cur.ctr) / prev.ctr;\n    if (ctrDrop > 0.30) {\n      ctrAnomalies.push({\n        type: 'ctr_anomaly',\n        query: cur.query,\n        page: cur.page,\n        oldCtr: (prev.ctr * 100).toFixed(1) + '%',\n        newCtr: (cur.ctr * 100).toFixed(1) + '%',\n        dropPct: (ctrDrop * 100).toFixed(0) + '%',\n        impressions: cur.impressions\n      });\n    }\n  }\n}\n\nreturn [{ json: {\n  urgentAlerts,\n  warnings,\n  ctrAnomalies,\n  hasUrgent: urgentAlerts.length > 0,\n  hasCtrAnomaly: ctrAnomalies.length > 0,\n  summary: {\n    queriesCompared: current.length,\n    urgentCount: urgentAlerts.length,\n    warningCount: warnings.length,\n    ctrAnomalyCount: ctrAnomalies.length\n  }\n}}];"
       },
       "id": "detect-drops",
       "name": "Detect Rank Drops + CTR Anomalies",
@@ -175,23 +175,33 @@
     },
     {
       "parameters": {
-        "jsCode": "// Build concise SMS alert for owner\nconst data = $json;\nconst lines = [];\n\nif (data.urgentAlerts.length > 0) {\n  lines.push('RANK DROPS:');\n  data.urgentAlerts.slice(0, 3).forEach(a => {\n    lines.push(`\"${a.query}\" dropped ${a.drop} pos (${a.oldPosition}->${a.newPosition})`);\n  });\n  if (data.urgentAlerts.length > 3) lines.push(`+${data.urgentAlerts.length - 3} more`);\n}\n\nif (data.ctrAnomalies.length > 0) {\n  lines.push('CTR DROPS:');\n  data.ctrAnomalies.slice(0, 2).forEach(a => {\n    lines.push(`\"${a.query}\" CTR ${a.oldCtr}->${a.newCtr}`);\n  });\n  if (data.ctrAnomalies.length > 2) lines.push(`+${data.ctrAnomalies.length - 2} more`);\n}\n\nconst message = 'TG SEO Alert\\n' + lines.join('\\n');\nreturn [{ json: {\n  to_phone: 'OWNER_PHONE_PLACEHOLDER',\n  message_body: message,\n  workflow_name: 'TG-97',\n  message_type: 'seo_alert'\n}}];"
+        "jsCode": "// Build Telegram alert message for rank drops > 3 positions\nconst data = $json;\nconst lines = ['\\ud83d\\udea8 *TG SEO Alert*'];\n\nif (data.urgentAlerts.length > 0) {\n  lines.push('');\n  lines.push('*Rank Drops (>3 positions):*');\n  data.urgentAlerts.slice(0, 5).forEach(a => {\n    lines.push(`\\u2022 \"${a.query}\" dropped ${a.drop} pos (${a.oldPosition} \\u2192 ${a.newPosition})`);\n  });\n  if (data.urgentAlerts.length > 5) lines.push(`_+${data.urgentAlerts.length - 5} more_`);\n}\n\nif (data.ctrAnomalies.length > 0) {\n  lines.push('');\n  lines.push('*CTR Anomalies:*');\n  data.ctrAnomalies.slice(0, 3).forEach(a => {\n    lines.push(`\\u2022 \"${a.query}\" CTR ${a.oldCtr} \\u2192 ${a.newCtr} (${a.dropPct} drop)`);\n  });\n  if (data.ctrAnomalies.length > 3) lines.push(`_+${data.ctrAnomalies.length - 3} more_`);\n}\n\nlines.push('');\nlines.push(`_Compared ${data.summary.queriesCompared} queries_`);\n\nreturn [{ json: { text: lines.join('\\n') } }];"
       },
-      "id": "build-sms",
-      "name": "Build SMS Alert",
+      "id": "build-telegram-msg",
+      "name": "Build Telegram Alert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1580, 200]
     },
     {
       "parameters": {
-        "workflowId": "AprqI2DgQA8lehij"
+        "chatId": "TELEGRAM_CHAT_ID_PLACEHOLDER",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
       },
-      "id": "send-sms",
-      "name": "Send SMS via TG-94",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.1,
-      "position": [1800, 200]
+      "id": "send-telegram",
+      "name": "Send Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1800, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram TG-97"
+        }
+      }
     }
   ],
   "connections": {
@@ -235,13 +245,13 @@
     },
     "Has Urgent Alerts": {
       "main": [
-        [{ "node": "Build SMS Alert", "type": "main", "index": 0 }],
+        [{ "node": "Build Telegram Alert", "type": "main", "index": 0 }],
         []
       ]
     },
-    "Build SMS Alert": {
+    "Build Telegram Alert": {
       "main": [
-        [{ "node": "Send SMS via TG-94", "type": "main", "index": 0 }]
+        [{ "node": "Send Telegram Alert", "type": "main", "index": 0 }]
       ]
     }
   },
