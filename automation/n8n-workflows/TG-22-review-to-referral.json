@@ -16,10 +16,7 @@
       "name": "Every 30 Minutes",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [
-        0,
-        300
-      ]
+      "position": [0, 300]
     },
     {
       "parameters": {
@@ -28,31 +25,17 @@
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
-            {
-              "name": "select",
-              "value": "id,author_name,review_text,rating,created_at,referral_sms_sent"
-            },
-            {
-              "name": "rating",
-              "value": "eq.5"
-            },
-            {
-              "name": "created_at",
-              "value": "=gte.{{ new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() }}"
-            }
+            { "name": "select", "value": "id,author_name,review_text,rating,created_at,referral_sms_sent" },
+            { "name": "rating", "value": "eq.5" },
+            { "name": "created_at", "value": "gte.{{ new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() }}" },
+            { "name": "or", "value": "(referral_sms_sent.is.null,referral_sms_sent.eq.false)" }
           ]
         },
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
-            }
+            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" }
           ]
         },
         "options": {}
@@ -61,36 +44,89 @@
       "name": "Fetch 5-Star Reviews",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        220,
-        300
-      ]
+      "position": [220, 300]
     },
     {
       "parameters": {
-        "jsCode": "// Filter out reviews already sent, then try to find customer phone from leads table\nconst reviews = $input.all().map(i => i.json);\nconst results = [];\n\nfor (const review of reviews) {\n  // Skip if already sent referral SMS\n  if (review.referral_sms_sent === true) continue;\n\n  // Try to match author_name to a lead to get their phone number\n  const authorName = (review.author_name || '').trim();\n  if (!authorName) continue;\n\n  // Search leads table by name (first_name + last_name or full name)\n  let phone = null;\n  try {\n    const nameParts = authorName.split(' ');\n    const firstName = nameParts[0] || '';\n    const lastName = nameParts.slice(1).join(' ') || '';\n\n    const searchUrl = `https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads?first_name=ilike.${encodeURIComponent(firstName)}&last_name=ilike.${encodeURIComponent(lastName)}&select=phone`;\n\n    const resp = await fetch(searchUrl, {\n      headers: {\n        'apikey': 'SUPABASE_ANON_KEY_PLACEHOLDER',\n        'Authorization': 'Bearer SUPABASE_ANON_KEY_PLACEHOLDER'\n      }\n    });\n    const leads = await resp.json();\n    if (Array.isArray(leads) && leads.length > 0 && leads[0].phone) {\n      phone = leads[0].phone;\n    }\n  } catch (e) {\n    // Could not find phone — skip this review\n  }\n\n  if (!phone) continue;\n\n  results.push({\n    json: {\n      review_id: review.id,\n      author_name: authorName,\n      review_text: review.review_text,\n      rating: review.rating,\n      to_phone: phone\n    }\n  });\n}\n\nif (results.length === 0) {\n  return [{ json: { _skip: true, reason: 'no_new_5star_reviews_with_phone' } }];\n}\n\nreturn results;"
+        "jsCode": "// Filter reviews: must have author_name, split into individual items\nconst reviews = $input.all().map(i => i.json);\nconst results = [];\n\nfor (const review of reviews) {\n  if (review.referral_sms_sent === true) continue;\n\n  const authorName = (review.author_name || '').trim();\n  if (!authorName) continue;\n\n  // Split name for lead lookup\n  const nameParts = authorName.split(' ');\n  const firstName = nameParts[0] || '';\n  const lastName = nameParts.slice(1).join(' ') || '';\n\n  results.push({\n    json: {\n      review_id: review.id,\n      author_name: authorName,\n      first_name: firstName,\n      last_name: lastName,\n      review_text: review.review_text,\n      rating: review.rating\n    }\n  });\n}\n\nif (results.length === 0) {\n  return [{ json: { _skip: true, reason: 'no_new_5star_reviews' } }];\n}\n\nreturn results;"
       },
-      "id": "tg22-filter-dedup",
-      "name": "Filter and Find Phone",
+      "id": "tg22-filter",
+      "name": "Filter New Reviews",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        440,
-        300
-      ]
+      "position": [440, 300]
     },
     {
       "parameters": {
-        "jsCode": "const d = $input.item.json;\n\nif (d._skip) {\n  return [{ json: d }];\n}\n\nconst firstName = (d.author_name || 'there').split(' ')[0];\n\nconst messageBody = `Hi ${firstName}! Thank you SO much for your amazing 5-star review! It means the world to us. Know someone who needs yard care? Send them our way and we'll thank you with a discount on your next service! Just have them mention your name when they call (608) 535-6057 or visit tgyardcare.com. — TotalGuard`;\n\nreturn [{ json: {\n  review_id: d.review_id,\n  author_name: d.author_name,\n  to_phone: d.to_phone,\n  message_body: messageBody,\n  workflow_name: 'TG-22',\n  message_type: 'referral_request'\n} }];"
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "skip-check",
+              "leftValue": "={{ $json._skip }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "notEquals", "name": "filter.operator.notEquals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg22-if-has-reviews",
+      "name": "IF Has Reviews",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads?or=(first_name.ilike.*{{ encodeURIComponent($json.first_name) }}*,last_name.ilike.*{{ encodeURIComponent($json.last_name) }}*)&select=id,first_name,last_name,phone&limit=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg22-lookup-lead",
+      "name": "Lookup Customer Phone",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const prev = $('Filter New Reviews').item.json;\nconst lookupResult = $input.item.json;\n\n// Extract phone from lookup result\nlet phone = null;\nif (Array.isArray(lookupResult)) {\n  if (lookupResult.length > 0 && lookupResult[0].phone) {\n    phone = lookupResult[0].phone;\n  }\n} else if (lookupResult && lookupResult.phone) {\n  phone = lookupResult.phone;\n}\n\nif (!phone) {\n  return [{ json: { _skip: true, reason: 'no_phone_found', author_name: prev.author_name } }];\n}\n\nconst firstName = (prev.author_name || 'there').split(' ')[0];\n\nconst messageBody = `Hi ${firstName}! Thank you SO much for your amazing 5-star review! It means the world to us. Know someone who needs yard care? Send them our way and we'll thank you with a discount on your next service! Just have them mention your name when they call (608) 535-6057 or visit tgyardcare.com. — TotalGuard`;\n\nreturn [{ json: {\n  review_id: prev.review_id,\n  author_name: prev.author_name,\n  to_phone: phone,\n  message_body: messageBody,\n  workflow_name: 'TG-22',\n  message_type: 'referral_request'\n} }];"
       },
       "id": "tg22-build-sms",
       "name": "Build Referral SMS",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        660,
-        300
-      ]
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "has-phone-check",
+              "leftValue": "={{ $json._skip }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "notEquals", "name": "filter.operator.notEquals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg22-if-has-phone",
+      "name": "IF Has Phone",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1320, 200]
     },
     {
       "parameters": {
@@ -101,10 +137,7 @@
       "name": "Send SMS via TG-94",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
-      "position": [
-        880,
-        300
-      ]
+      "position": [1540, 100]
     },
     {
       "parameters": {
@@ -113,18 +146,9 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
+            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "Content-Type", "value": "application/json" }
           ]
         },
         "sendBody": true,
@@ -136,26 +160,20 @@
       "name": "Mark Review SMS Sent",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        1100,
-        300
-      ],
+      "position": [1760, 100],
       "continueOnFail": true
     },
     {
       "parameters": {
         "chatId": "OWNER_TELEGRAM_CHAT_ID",
-        "text": "=TG-22 Referral SMS sent to {{ $('Build Referral SMS').item.json.author_name }} ({{ $('Build Referral SMS').item.json.to_phone }}) after 5-star review.",
+        "text": "=TG-22 Referral SMS sent to {{ $('Build Referral SMS').item.json.author_name }} ({{ $('Build Referral SMS').item.json.to_phone }}) after their 5-star review!",
         "additionalFields": {}
       },
       "id": "tg22-telegram",
       "name": "Telegram Notification",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [
-        1320,
-        300
-      ],
+      "position": [1980, 100],
       "credentials": {
         "telegramApi": {
           "id": "V404qLIDXjmyzNeS",
@@ -166,70 +184,37 @@
   ],
   "connections": {
     "Every 30 Minutes": {
-      "main": [
-        [
-          {
-            "node": "Fetch 5-Star Reviews",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Fetch 5-Star Reviews", "type": "main", "index": 0 }]]
     },
     "Fetch 5-Star Reviews": {
+      "main": [[{ "node": "Filter New Reviews", "type": "main", "index": 0 }]]
+    },
+    "Filter New Reviews": {
+      "main": [[{ "node": "IF Has Reviews", "type": "main", "index": 0 }]]
+    },
+    "IF Has Reviews": {
       "main": [
-        [
-          {
-            "node": "Filter and Find Phone",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{ "node": "Lookup Customer Phone", "type": "main", "index": 0 }],
+        []
       ]
     },
-    "Filter and Find Phone": {
-      "main": [
-        [
-          {
-            "node": "Build Referral SMS",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+    "Lookup Customer Phone": {
+      "main": [[{ "node": "Build Referral SMS", "type": "main", "index": 0 }]]
     },
     "Build Referral SMS": {
+      "main": [[{ "node": "IF Has Phone", "type": "main", "index": 0 }]]
+    },
+    "IF Has Phone": {
       "main": [
-        [
-          {
-            "node": "Send SMS via TG-94",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{ "node": "Send SMS via TG-94", "type": "main", "index": 0 }],
+        []
       ]
     },
     "Send SMS via TG-94": {
-      "main": [
-        [
-          {
-            "node": "Mark Review SMS Sent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Mark Review SMS Sent", "type": "main", "index": 0 }]]
     },
     "Mark Review SMS Sent": {
-      "main": [
-        [
-          {
-            "node": "Telegram Notification",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Telegram Notification", "type": "main", "index": 0 }]]
     }
   },
   "settings": {
