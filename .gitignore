@@ -61,3 +61,6 @@ playwright-report/
 
 # IDE
 .idea/
+
+# n8n workflow deploy copies with real credentials (never commit)
+automation/n8n-workflows-deploy/
