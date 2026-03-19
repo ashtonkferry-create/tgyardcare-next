@@ -1,0 +1,106 @@
+{
+  "name": "TG-AUTOPOST-social-publisher",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate input fields and sanitize platforms\nconst { post_text, image_url, platforms, post_type, schedule_at } = $json;\n\n// Require post_text\nif (!post_text || post_text.trim().length === 0) {\n  throw new Error('post_text is required and cannot be empty');\n}\n\n// Default platforms if not provided\nlet targetPlatforms = platforms || ['instagram', 'linkedin', 'pinterest'];\n\n// Ensure it's an array\nif (typeof targetPlatforms === 'string') {\n  targetPlatforms = targetPlatforms.split(',').map(p => p.trim().toLowerCase());\n}\n\n// ALWAYS remove facebook -- account is hacked\ntargetPlatforms = targetPlatforms.filter(p => p !== 'facebook' && p !== 'fb');\n\n// Validate platforms against allowed list\nconst ALLOWED_PLATFORMS = ['instagram', 'tiktok', 'youtube', 'linkedin', 'pinterest'];\ntargetPlatforms = targetPlatforms.filter(p => ALLOWED_PLATFORMS.includes(p));\n\nif (targetPlatforms.length === 0) {\n  throw new Error('No valid platforms specified. Allowed: instagram, tiktok, youtube, linkedin, pinterest');\n}\n\n// Validate post_type if provided\nconst VALID_POST_TYPES = ['blog_share', 'review_highlight', 'seasonal_tip', 'before_after', 'test'];\nconst validatedPostType = post_type && VALID_POST_TYPES.includes(post_type) ? post_type : 'blog_share';\n\n// Validate schedule_at if provided (must be ISO 8601)\nlet validatedSchedule = null;\nif (schedule_at) {\n  const parsed = new Date(schedule_at);\n  if (isNaN(parsed.getTime())) {\n    throw new Error('schedule_at must be a valid ISO 8601 datetime string');\n  }\n  if (parsed.getTime() < Date.now()) {\n    throw new Error('schedule_at must be in the future');\n  }\n  validatedSchedule = parsed.toISOString();\n}\n\nreturn [{ json: {\n  post_text: post_text.trim(),\n  image_url: image_url || null,\n  platforms: targetPlatforms,\n  post_type: validatedPostType,\n  schedule_at: validatedSchedule,\n  platform_count: targetPlatforms.length\n}}];"
+      },
+      "id": "validate-input",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build the API payload for the auto-posting service\n// Supports Upload-Post or LATE -- replace AUTOPOST_API_URL and AUTOPOST_API_KEY with real values\nconst { post_text, image_url, platforms, post_type, schedule_at, platform_count } = $json;\n\nconst timestamp = new Date().toISOString();\n\nconst payload = {\n  text: post_text,\n  platforms: platforms,\n  metadata: {\n    source: 'totalguard-n8n',\n    post_type: post_type,\n    created_at: timestamp,\n    workflow: 'TG-AUTOPOST'\n  }\n};\n\n// Add image if provided\nif (image_url) {\n  payload.media = [{\n    type: 'image',\n    url: image_url\n  }];\n}\n\n// Add scheduling if provided\nif (schedule_at) {\n  payload.scheduled_at = schedule_at;\n}\n\nreturn [{ json: {\n  api_url: 'AUTOPOST_API_URL',\n  api_key: 'AUTOPOST_API_KEY',\n  payload: payload,\n  platform_count: platform_count\n}}];"
+      },
+      "id": "build-payload",
+      "name": "Build API Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.api_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {
+          "timeout": 30000,
+          "fullResponse": true
+        }
+      },
+      "id": "publish-post",
+      "name": "Publish Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log the result and return a summary\nconst response = $json;\nconst inputData = $('Build API Payload').first().json;\nconst validatedData = $('Validate Input').first().json;\n\nconst statusCode = response.statusCode || response.status || 0;\nconst isSuccess = statusCode >= 200 && statusCode < 300;\n\nconst timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' });\n\nconst result = {\n  success: isSuccess,\n  status_code: statusCode,\n  platforms: validatedData.platforms,\n  platform_count: validatedData.platform_count,\n  post_type: validatedData.post_type,\n  post_text_preview: validatedData.post_text.substring(0, 80) + (validatedData.post_text.length > 80 ? '...' : ''),\n  scheduled: validatedData.schedule_at ? true : false,\n  schedule_at: validatedData.schedule_at || null,\n  timestamp: timestamp,\n  response_body: isSuccess ? (response.body || 'OK') : (response.body || 'Unknown error')\n};\n\nif (!isSuccess) {\n  result.error = `Auto-post failed with status ${statusCode}. Response: ${JSON.stringify(response.body || {}).substring(0, 200)}`;\n}\n\nreturn [{ json: result }];"
+      },
+      "id": "log-result",
+      "name": "Log Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1040, 300]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [{ "node": "Validate Input", "type": "main", "index": 0 }]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [{ "node": "Build API Payload", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build API Payload": {
+      "main": [
+        [{ "node": "Publish Post", "type": "main", "index": 0 }]
+      ]
+    },
+    "Publish Post": {
+      "main": [
+        [{ "node": "Log Result", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "any"
+  },
+  "tags": [
+    { "name": "autopost" },
+    { "name": "social-media" },
+    { "name": "phase-17" }
+  ]
+}
