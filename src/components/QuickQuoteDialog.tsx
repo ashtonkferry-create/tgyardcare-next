@@ -1,3 +1,9 @@
+/**
+ * @deprecated This component is no longer used for general quote flows.
+ * ExitIntentModal now has an inline mini form.
+ * Only remaining consumer is PromoBanner (promo-specific flow).
+ * Do not add new imports — migrate to SmartQuoteFlow instead.
+ */
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
