@@ -1,0 +1,184 @@
+{
+  "name": "TG-136-gbp-optimization-score",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 12 1 * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Monthly 1st 7am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://places.googleapis.com/v1/places/ChIJMQEDNR3apwMRFbkOyDYmDAE",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Goog-Api-Key",
+              "value": "GOOGLE_PLACES_API_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "X-Goog-FieldMask",
+              "value": "rating,userRatingCount,reviews,photos"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "fetch-places",
+      "name": "Fetch Google Places Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/rpc/gbp_internal_metrics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "fetch-internal",
+      "name": "Fetch Internal Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 500],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const places = $('Fetch Google Places Data').first().json;\nconst internal = $('Fetch Internal Metrics').first().json;\n\n// --- Scoring Rubric (100 points) ---\nlet score = 0;\nconst breakdown = {};\n\n// 1. Posts (25 pts) — based on posts in last 30 days\nconst postCount = internal?.post_count_30d || 0;\nif (postCount >= 12) breakdown.posts = 25;\nelse if (postCount >= 8) breakdown.posts = 20;\nelse if (postCount >= 4) breakdown.posts = 15;\nelse if (postCount >= 1) breakdown.posts = 8;\nelse breakdown.posts = 0;\n\n// 2. Reviews (20 pts) — total review count\nconst reviewCount = places?.userRatingCount || 0;\nif (reviewCount >= 100) breakdown.reviews = 20;\nelse if (reviewCount >= 50) breakdown.reviews = 16;\nelse if (reviewCount >= 25) breakdown.reviews = 12;\nelse if (reviewCount >= 10) breakdown.reviews = 8;\nelse breakdown.reviews = Math.min(reviewCount, 4);\n\n// 3. Rating (15 pts)\nconst rating = places?.rating || 0;\nif (rating >= 4.8) breakdown.rating = 15;\nelse if (rating >= 4.5) breakdown.rating = 12;\nelse if (rating >= 4.0) breakdown.rating = 9;\nelse if (rating >= 3.5) breakdown.rating = 5;\nelse breakdown.rating = 0;\n\n// 4. Photos (15 pts)\nconst photoCount = places?.photos?.length || 0;\nif (photoCount >= 20) breakdown.photos = 15;\nelse if (photoCount >= 10) breakdown.photos = 12;\nelse if (photoCount >= 5) breakdown.photos = 8;\nelse if (photoCount >= 1) breakdown.photos = 4;\nelse breakdown.photos = 0;\n\n// 5. FAQ Freshness (15 pts) — days since last FAQ rotation\nconst lastFaqDate = internal?.last_faq_rotation;\nlet faqDaysAgo = 999;\nif (lastFaqDate) faqDaysAgo = Math.floor((Date.now() - new Date(lastFaqDate).getTime()) / 86400000);\nif (faqDaysAgo <= 90) breakdown.faq_freshness = 15;\nelse if (faqDaysAgo <= 180) breakdown.faq_freshness = 10;\nelse if (faqDaysAgo <= 365) breakdown.faq_freshness = 5;\nelse breakdown.faq_freshness = 0;\n\n// 6. Hours (10 pts) — assumed up-to-date if profile exists\nbreakdown.hours = places?.rating ? 10 : 0;\n\n// Total\nfor (const key of Object.keys(breakdown)) score += breakdown[key];\n\n// Grade\nlet grade;\nif (score >= 90) grade = 'A';\nelse if (score >= 80) grade = 'B';\nelse if (score >= 70) grade = 'C';\nelse if (score >= 60) grade = 'D';\nelse grade = 'F';\n\n// Recommendations\nconst recs = [];\nif (breakdown.posts < 20) recs.push('Increase GBP posting frequency (target: 3+/week)');\nif (breakdown.reviews < 16) recs.push('Run a review request campaign to boost count');\nif (breakdown.rating < 12) recs.push('Address negative reviews to improve rating');\nif (breakdown.photos < 12) recs.push('Add more photos: before/after, team, equipment');\nif (breakdown.faq_freshness < 15) recs.push('Run FAQ rotation — content is stale');\nif (breakdown.hours < 10) recs.push('Verify business hours are accurate on GBP');\n\nreturn [{ json: { score, grade, breakdown, review_count: reviewCount, review_rating: rating, post_count_30d: postCount, photo_count: photoCount, recommendations: recs } }];"
+      },
+      "id": "calculate-score",
+      "name": "Calculate Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/gbp_scores",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ score: $json.score, grade: $json.grade, breakdown: $json.breakdown, review_count: $json.review_count, review_rating: $json.review_rating, post_count_30d: $json.post_count_30d }) }}",
+        "options": {}
+      },
+      "id": "store-score",
+      "name": "Store Score",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [780, 400]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ (() => { const d = $('Calculate Score').first().json; const b = d.breakdown; let msg = `\\ud83c\\udfe2 *GBP Optimization Score — ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}*\\n\\n`; msg += `Score: *${d.score}/100* (Grade: *${d.grade}*)\\n\\n`; msg += `*Breakdown:*\\n`; msg += `\\u2022 Posts (30d): ${b.posts}/25 pts (${d.post_count_30d} posts)\\n`; msg += `\\u2022 Reviews: ${b.reviews}/20 pts (${d.review_count} total)\\n`; msg += `\\u2022 Rating: ${b.rating}/15 pts (${d.review_rating}\\u2b50)\\n`; msg += `\\u2022 Photos: ${b.photos}/15 pts (${d.photo_count} photos)\\n`; msg += `\\u2022 FAQ Freshness: ${b.faq_freshness}/15 pts\\n`; msg += `\\u2022 Hours: ${b.hours}/10 pts\\n`; if (d.recommendations.length > 0) { msg += `\\n*Recommendations:*\\n`; d.recommendations.forEach(r => { msg += `\\u27a1\\ufe0f ${r}\\n`; }); } return msg; })() }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-report",
+      "name": "Send Report",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1040, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Monthly 1st 7am CT": {
+      "main": [
+        [
+          { "node": "Fetch Google Places Data", "type": "main", "index": 0 },
+          { "node": "Fetch Internal Metrics", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Google Places Data": {
+      "main": [
+        [{ "node": "Calculate Score", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Internal Metrics": {
+      "main": [
+        [{ "node": "Calculate Score", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Score": {
+      "main": [
+        [{ "node": "Store Score", "type": "main", "index": 0 }]
+      ]
+    },
+    "Store Score": {
+      "main": [
+        [{ "node": "Send Report", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "tags": [
+    { "name": "phase-18" },
+    { "name": "gbp-optimization" },
+    { "name": "monthly-score" }
+  ]
+}

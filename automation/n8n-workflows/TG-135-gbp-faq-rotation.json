@@ -1,0 +1,169 @@
+{
+  "name": "TG-135-gbp-faq-rotation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 14 1 3,6,9,12 *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Quarterly 9am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const month = new Date().getMonth() + 1;\nlet season, services;\n\nif (month >= 3 && month <= 5) {\n  season = 'spring';\n  services = ['spring cleanup', 'lawn aeration', 'overseeding', 'fertilizer application', 'mulching', 'garden bed prep'];\n} else if (month >= 6 && month <= 8) {\n  season = 'summer';\n  services = ['lawn mowing', 'weed control', 'irrigation management', 'hedge trimming', 'grub prevention', 'drought care'];\n} else if (month >= 9 && month <= 11) {\n  season = 'fall';\n  services = ['leaf removal', 'fall cleanup', 'lawn aeration', 'overseeding', 'gutter cleaning', 'winterization prep'];\n} else {\n  season = 'winter';\n  services = ['snow removal', 'ice management', 'salt application', 'driveway clearing', 'sidewalk maintenance', 'emergency snow service'];\n}\n\nconst quarter = `Q${Math.ceil(month / 3)} ${new Date().getFullYear()}`;\n\nreturn [{ json: { season, services, quarter, month } }];"
+      },
+      "id": "determine-season",
+      "name": "Determine Season",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "ANTHROPIC_API_KEY"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 1500, system: 'You are a local SEO expert for a lawn care company in Madison, WI called TotalGuard Yard Care. Generate FAQ content optimized for Google Business Profile. Each FAQ should be a real question a homeowner in Madison would ask. Answers should be 2-3 sentences, mention Madison/Dane County when natural, and include a subtle CTA. Return valid JSON array of objects with \"question\" and \"answer\" keys only.', messages: [{ role: 'user', content: 'Generate 5-7 seasonal FAQs for ' + $json.season + ' lawn care in Madison, WI. Relevant services: ' + $json.services.join(', ') + '. Focus on questions homeowners actually search for in ' + $json.season + '.' }] }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "ai-generate-faqs",
+      "name": "AI Generate FAQs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst season = $('Determine Season').first().json.season;\nconst quarter = $('Determine Season').first().json.quarter;\n\n// Extract text content from Anthropic response\nconst textBlock = response.content?.find(b => b.type === 'text');\nif (!textBlock) throw new Error('No text in AI response');\n\nlet faqs;\ntry {\n  // Try to parse JSON from the response\n  const jsonMatch = textBlock.text.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  faqs = JSON.parse(jsonMatch ? jsonMatch[0] : textBlock.text);\n} catch (e) {\n  throw new Error('Failed to parse FAQ JSON: ' + e.message);\n}\n\n// Format for Telegram\nconst seasonEmoji = { spring: '\\ud83c\\udf31', summer: '\\u2600\\ufe0f', fall: '\\ud83c\\udf42', winter: '\\u2744\\ufe0f' };\nlet telegramText = `${seasonEmoji[season] || ''} *GBP FAQ Rotation — ${season.charAt(0).toUpperCase() + season.slice(1)} ${quarter}*\\n\\n`;\ntelegramText += `${faqs.length} FAQs generated for review:\\n\\n`;\n\nfaqs.forEach((faq, i) => {\n  telegramText += `*Q${i + 1}:* ${faq.question}\\n`;\n  telegramText += `*A:* ${faq.answer}\\n\\n`;\n});\n\ntelegramText += `\\n_Add these to your GBP Q&A section. Go to Google Maps > Your Business > Q&A > Ask a question (ask & answer yourself)._`;\n\nreturn [{ json: { faqs, faq_count: faqs.length, season, quarter, telegram_text: telegramText } }];"
+      },
+      "id": "parse-format",
+      "name": "Parse & Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/gbp_faqs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ season: $json.season, quarter: $json.quarter, faq_content: $json.faqs, status: 'pending_review' }) }}",
+        "options": {}
+      },
+      "id": "store-supabase",
+      "name": "Store in Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1040, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ $('Parse & Format').first().json.telegram_text }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-notify",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1300, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Quarterly 9am CT": {
+      "main": [
+        [{ "node": "Determine Season", "type": "main", "index": 0 }]
+      ]
+    },
+    "Determine Season": {
+      "main": [
+        [{ "node": "AI Generate FAQs", "type": "main", "index": 0 }]
+      ]
+    },
+    "AI Generate FAQs": {
+      "main": [
+        [{ "node": "Parse & Format", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse & Format": {
+      "main": [
+        [{ "node": "Store in Supabase", "type": "main", "index": 0 }]
+      ]
+    },
+    "Store in Supabase": {
+      "main": [
+        [{ "node": "Send to Telegram", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "tags": [
+    { "name": "phase-18" },
+    { "name": "gbp-optimization" },
+    { "name": "faq-rotation" }
+  ]
+}
