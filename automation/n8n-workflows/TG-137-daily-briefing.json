@@ -1,0 +1,92 @@
+{
+  "name": "TG-137-daily-briefing",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 12 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily 7am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-137: Fetch all daily briefing data in one code node\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`\n};\n\nconst now = new Date();\nconst yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();\n\n// 1. New leads (last 24h)\nlet leads = [];\ntry {\n  leads = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/leads?created_at=gte.${yesterday}&select=id,name,source,phone,created_at&order=created_at.desc`,\n    headers: supabaseHeaders\n  });\n} catch (e) { leads = []; }\n\n// 2. Pending follow-ups (follow_up_stage > 0 and < 5)\nlet followUps = [];\ntry {\n  followUps = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/leads?follow_up_stage=gt.0&follow_up_stage=lt.5&select=id,name,follow_up_stage,next_follow_up`,\n    headers: supabaseHeaders\n  });\n} catch (e) { followUps = []; }\n\n// 3. Today's jobs from jobber_email_events\nlet jobs = [];\ntry {\n  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();\n  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString();\n  jobs = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/jobber_email_events?event_date=gte.${todayStart}&event_date=lt.${todayEnd}&select=id,event_type,client_name,job_description`,\n    headers: supabaseHeaders\n  });\n} catch (e) { jobs = []; }\n\n// 4. Weather for Madison WI (free, no key)\nlet weather = null;\ntry {\n  weather = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://wttr.in/Madison+WI?format=j1',\n    headers: { 'Accept': 'application/json' }\n  });\n} catch (e) { weather = null; }\n\n// 5. Recent Google reviews (last 24h)\nlet reviews = [];\ntry {\n  reviews = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/google_reviews?created_at=gte.${yesterday}&select=id,author_name,rating,text,created_at`,\n    headers: supabaseHeaders\n  });\n} catch (e) { reviews = []; }\n\n// 6. n8n execution errors (last 20)\nlet errors = [];\ntry {\n  errors = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://tgyardcare.app.n8n.cloud/api/v1/executions?limit=20&status=error',\n    headers: {\n      'X-N8N-API-KEY': 'N8N_API_KEY_PLACEHOLDER'\n    }\n  });\n  if (errors && errors.data) errors = errors.data;\n} catch (e) { errors = []; }\n\nreturn [{\n  json: {\n    leads: Array.isArray(leads) ? leads : [],\n    followUps: Array.isArray(followUps) ? followUps : [],\n    jobs: Array.isArray(jobs) ? jobs : [],\n    weather,\n    reviews: Array.isArray(reviews) ? reviews : [],\n    errors: Array.isArray(errors) ? errors : []\n  }\n}];"
+      },
+      "id": "fetch-all-data",
+      "name": "Fetch All Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-137: Build formatted Telegram briefing message\nconst data = $input.first().json;\n\nconst now = new Date();\nconst dateStr = now.toLocaleDateString('en-US', {\n  timeZone: 'America/Chicago',\n  weekday: 'long',\n  year: 'numeric',\n  month: 'long',\n  day: 'numeric'\n});\n\n// Weather section\nlet weatherSection = 'Unavailable';\nif (data.weather && data.weather.current_condition && data.weather.current_condition[0]) {\n  const w = data.weather.current_condition[0];\n  const tempF = w.temp_F || '?';\n  const desc = w.weatherDesc && w.weatherDesc[0] ? w.weatherDesc[0].value : 'Unknown';\n  const humidity = w.humidity || '?';\n  const windMph = w.windspeedMiles || '?';\n  weatherSection = `${tempF}\\u00b0F ${desc}\\nHumidity: ${humidity}% | Wind: ${windMph} mph`;\n}\n\n// Leads section\nconst leads = data.leads || [];\nlet leadsList = '';\nif (leads.length > 0) {\n  leadsList = leads.slice(0, 10).map(l => {\n    const name = l.name || 'Unknown';\n    const source = l.source || '?';\n    return `  \\u2022 ${name} (${source})`;\n  }).join('\\n');\n} else {\n  leadsList = '  None';\n}\nconst followUps = data.followUps || [];\n\n// Schedule section\nconst jobs = data.jobs || [];\n\n// Reviews section\nconst reviews = data.reviews || [];\nlet reviewsList = '';\nif (reviews.length > 0) {\n  reviewsList = reviews.slice(0, 5).map(r => {\n    const stars = '\\u2b50'.repeat(Math.min(r.rating || 0, 5));\n    return `  ${stars} ${r.author_name || 'Anonymous'}`;\n  }).join('\\n');\n}\n\n// Errors section\nconst errors = data.errors || [];\n\n// Build full message\nconst lines = [\n  `\\ud83d\\udcca TOTALGUARD DAILY BRIEFING`,\n  dateStr,\n  '',\n  `\\u2600\\ufe0f WEATHER`,\n  weatherSection,\n  '',\n  `\\ud83d\\udce5 LEADS (${leads.length} new)`,\n  leadsList,\n  `Pending follow-ups: ${followUps.length}`,\n  '',\n  `\\ud83d\\udcc5 SCHEDULE`,\n  `${jobs.length} jobs today`,\n  '',\n  `\\u2b50 REVIEWS (${reviews.length} new)`,\n  reviews.length > 0 ? reviewsList : '  None',\n  '',\n  `\\u2699\\ufe0f SYSTEM`,\n  `Errors (24h): ${errors.length}`,\n  '',\n  `Have a great day! \\ud83d\\ude80`\n];\n\nreturn [{ json: { message: lines.join('\\n') } }];"
+      },
+      "id": "build-briefing",
+      "name": "Build Briefing Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "send-telegram",
+      "name": "Send Briefing",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [780, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 7am CT": {
+      "main": [
+        [{ "node": "Fetch All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch All Data": {
+      "main": [
+        [{ "node": "Build Briefing Message", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Briefing Message": {
+      "main": [
+        [{ "node": "Send Briefing", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "tg-137-v1",
+  "meta": {
+    "instanceId": "tgyardcare"
+  },
+  "tags": [
+    { "name": "phase-19" },
+    { "name": "reporting" },
+    { "name": "daily" }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "name": "TG-138-weekly-report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 13 * * 0"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Sunday 8am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-138: Aggregate this week's metrics\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`\n};\n\nconst now = new Date();\nconst weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();\n\n// 1. Leads this week\nlet leads = [];\ntry {\n  leads = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/leads?created_at=gte.${weekAgo}&select=id,name,source,status,created_at`,\n    headers: supabaseHeaders\n  });\n} catch (e) { leads = []; }\n\n// 2. Jobs this week from jobber_email_events\nlet jobs = [];\ntry {\n  jobs = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/jobber_email_events?event_date=gte.${weekAgo}&select=id,event_type,client_name`,\n    headers: supabaseHeaders\n  });\n} catch (e) { jobs = []; }\n\n// 3. Google reviews this week\nlet reviews = [];\ntry {\n  reviews = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/google_reviews?created_at=gte.${weekAgo}&select=id,author_name,rating,text`,\n    headers: supabaseHeaders\n  });\n} catch (e) { reviews = []; }\n\n// 4. Blog posts published this week\nlet blogPosts = [];\ntry {\n  blogPosts = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/blog_posts?published_at=gte.${weekAgo}&status=eq.published&select=id,title,slug`,\n    headers: supabaseHeaders\n  });\n} catch (e) { blogPosts = []; }\n\n// 5. GBP posts this week\nlet gbpPosts = [];\ntry {\n  gbpPosts = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/gbp_posts?published_at=gte.${weekAgo}&select=id,post_type,topic`,\n    headers: supabaseHeaders\n  });\n} catch (e) { gbpPosts = []; }\n\n// 6. Social posts this week\nlet socialPosts = [];\ntry {\n  socialPosts = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/social_posts?published_at=gte.${weekAgo}&status=eq.published&select=id,platforms,pillar`,\n    headers: supabaseHeaders\n  });\n} catch (e) { socialPosts = []; }\n\n// 7. n8n executions this week\nlet executions = { total: 0, errors: 0 };\ntry {\n  const allExecs = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://tgyardcare.app.n8n.cloud/api/v1/executions?limit=100',\n    headers: { 'X-N8N-API-KEY': 'N8N_API_KEY_PLACEHOLDER' }\n  });\n  const data = allExecs.data || allExecs || [];\n  const weekData = Array.isArray(data) ? data.filter(e => new Date(e.startedAt) >= new Date(weekAgo)) : [];\n  executions.total = weekData.length;\n  executions.errors = weekData.filter(e => e.status === 'error' || e.finished === false).length;\n} catch (e) { /* defaults */ }\n\nreturn [{\n  json: {\n    leads: Array.isArray(leads) ? leads : [],\n    jobs: Array.isArray(jobs) ? jobs : [],\n    reviews: Array.isArray(reviews) ? reviews : [],\n    blogPosts: Array.isArray(blogPosts) ? blogPosts : [],\n    gbpPosts: Array.isArray(gbpPosts) ? gbpPosts : [],\n    socialPosts: Array.isArray(socialPosts) ? socialPosts : [],\n    executions,\n    weekAgo\n  }\n}];"
+      },
+      "id": "aggregate-metrics",
+      "name": "Aggregate Metrics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-138: Fetch previous week's metrics and calculate trends\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`\n};\n\nconst current = $input.first().json;\nconst now = new Date();\nconst weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();\nconst twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();\n\n// Previous week counts\nlet prevLeads = 0;\ntry {\n  const r = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/leads?created_at=gte.${twoWeeksAgo}&created_at=lt.${weekAgo}&select=id`,\n    headers: supabaseHeaders\n  });\n  prevLeads = Array.isArray(r) ? r.length : 0;\n} catch (e) { prevLeads = 0; }\n\nlet prevJobs = 0;\ntry {\n  const r = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/jobber_email_events?event_date=gte.${twoWeeksAgo}&event_date=lt.${weekAgo}&select=id`,\n    headers: supabaseHeaders\n  });\n  prevJobs = Array.isArray(r) ? r.length : 0;\n} catch (e) { prevJobs = 0; }\n\nlet prevReviews = 0;\ntry {\n  const r = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/google_reviews?created_at=gte.${twoWeeksAgo}&created_at=lt.${weekAgo}&select=id`,\n    headers: supabaseHeaders\n  });\n  prevReviews = Array.isArray(r) ? r.length : 0;\n} catch (e) { prevReviews = 0; }\n\nlet prevBlogPosts = 0;\ntry {\n  const r = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/blog_posts?published_at=gte.${twoWeeksAgo}&published_at=lt.${weekAgo}&status=eq.published&select=id`,\n    headers: supabaseHeaders\n  });\n  prevBlogPosts = Array.isArray(r) ? r.length : 0;\n} catch (e) { prevBlogPosts = 0; }\n\nfunction pctChange(current, previous) {\n  if (previous === 0) return current > 0 ? '+100%' : '0%';\n  const change = ((current - previous) / previous * 100).toFixed(0);\n  return change > 0 ? `+${change}%` : `${change}%`;\n}\n\nreturn [{\n  json: {\n    ...current,\n    trends: {\n      leads: pctChange(current.leads.length, prevLeads),\n      jobs: pctChange(current.jobs.length, prevJobs),\n      reviews: pctChange(current.reviews.length, prevReviews),\n      blogPosts: pctChange(current.blogPosts.length, prevBlogPosts)\n    },\n    prev: {\n      leads: prevLeads,\n      jobs: prevJobs,\n      reviews: prevReviews,\n      blogPosts: prevBlogPosts\n    }\n  }\n}];"
+      },
+      "id": "calculate-trends",
+      "name": "Calculate Trends",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-138: Build formatted weekly report for Telegram\nconst d = $input.first().json;\n\nconst now = new Date();\nconst weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)\n  .toLocaleDateString('en-US', { timeZone: 'America/Chicago', month: 'short', day: 'numeric' });\nconst weekEnd = now.toLocaleDateString('en-US', { timeZone: 'America/Chicago', month: 'short', day: 'numeric', year: 'numeric' });\n\nconst leads = d.leads || [];\nconst jobs = d.jobs || [];\nconst reviews = d.reviews || [];\nconst blogPosts = d.blogPosts || [];\nconst gbpPosts = d.gbpPosts || [];\nconst socialPosts = d.socialPosts || [];\nconst executions = d.executions || { total: 0, errors: 0 };\nconst trends = d.trends || {};\nconst prev = d.prev || {};\n\n// Lead sources breakdown\nconst leadSources = {};\nfor (const l of leads) {\n  const src = l.source || 'unknown';\n  leadSources[src] = (leadSources[src] || 0) + 1;\n}\nlet sourceLines = Object.entries(leadSources)\n  .map(([src, count]) => `  \\u2022 ${src}: ${count}`).join('\\n') || '  None';\n\n// Review avg rating\nlet avgRating = 0;\nif (reviews.length > 0) {\n  avgRating = (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length).toFixed(1);\n}\n\n// Social breakdown by pillar\nconst pillarCounts = {};\nfor (const p of socialPosts) {\n  const pillar = p.pillar || 'other';\n  pillarCounts[pillar] = (pillarCounts[pillar] || 0) + 1;\n}\nlet pillarLines = Object.entries(pillarCounts)\n  .map(([p, c]) => `  \\u2022 ${p}: ${c}`).join('\\n') || '  None';\n\n// System health\nconst successRate = executions.total > 0\n  ? ((1 - executions.errors / executions.total) * 100).toFixed(1)\n  : '100.0';\n\nconst lines = [\n  `\\ud83d\\udcca TOTALGUARD WEEKLY REPORT`,\n  `${weekStart} \\u2014 ${weekEnd}`,\n  '',\n  `\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501`,\n  '',\n  `\\ud83d\\udce5 LEADS`,\n  `New: ${leads.length} (${trends.leads || '0%'} vs last week)`,\n  `Previous week: ${prev.leads || 0}`,\n  sourceLines,\n  '',\n  `\\ud83d\\udee0\\ufe0f OPERATIONS`,\n  `Jobs: ${jobs.length} (${trends.jobs || '0%'} vs last week)`,\n  `Previous week: ${prev.jobs || 0}`,\n  '',\n  `\\u2b50 REPUTATION`,\n  `Reviews: ${reviews.length} (${trends.reviews || '0%'} vs last week)`,\n  reviews.length > 0 ? `Avg rating: ${avgRating}/5` : '',\n  '',\n  `\\ud83d\\udcdd CONTENT`,\n  `Blog posts: ${blogPosts.length} (${trends.blogPosts || '0%'} vs last week)`,\n  `GBP posts: ${gbpPosts.length}`,\n  `Social posts: ${socialPosts.length}`,\n  pillarLines,\n  '',\n  `\\u2699\\ufe0f SYSTEM HEALTH`,\n  `Executions: ${executions.total}`,\n  `Errors: ${executions.errors}`,\n  `Success rate: ${successRate}%`,\n  '',\n  `\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501\\u2501`,\n  '',\n  `\\ud83c\\udfc6 TOP WIN: ${leads.length > (prev.leads || 0) ? `Lead volume up ${trends.leads}` : reviews.length > 0 ? `${reviews.length} new reviews` : 'Steady operations'}`,\n  '',\n  `\\u26a0\\ufe0f TOP ISSUE: ${executions.errors > 5 ? `${executions.errors} workflow errors need attention` : leads.length === 0 ? 'Zero new leads this week' : 'All systems nominal'}`,\n  '',\n  `Have a great week! \\ud83d\\ude80`\n];\n\nreturn [{ json: { message: lines.filter(l => l !== undefined).join('\\n') } }];"
+      },
+      "id": "build-report",
+      "name": "Build Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "send-telegram",
+      "name": "Send Report",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1040, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Sunday 8am CT": {
+      "main": [
+        [{ "node": "Aggregate Metrics", "type": "main", "index": 0 }]
+      ]
+    },
+    "Aggregate Metrics": {
+      "main": [
+        [{ "node": "Calculate Trends", "type": "main", "index": 0 }]
+      ]
+    },
+    "Calculate Trends": {
+      "main": [
+        [{ "node": "Build Report", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Report": {
+      "main": [
+        [{ "node": "Send Report", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "tg-138-v1",
+  "meta": {
+    "instanceId": "tgyardcare"
+  },
+  "tags": [
+    { "name": "phase-19" },
+    { "name": "reporting" },
+    { "name": "weekly" }
+  ]
+}
