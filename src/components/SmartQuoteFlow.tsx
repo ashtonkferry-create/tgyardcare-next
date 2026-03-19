@@ -189,7 +189,7 @@ export default function SmartQuoteFlow({
       coordinates: [number, number];
     }) => {
       const [lng, lat] = data.coordinates;
-      setState((s) => ({ ...s, address: data.full_address, isLookingUpParcel: true }));
+      setState((s) => ({ ...s, address: data.full_address, isLookingUpParcel: true, manualInput: '' }));
 
       try {
         const res = await fetch('/api/parcel-lookup', {
@@ -597,14 +597,14 @@ export default function SmartQuoteFlow({
                                   onChange={(e) => {
                                     const val = e.target.value;
                                     const sqft = parseInt(val, 10);
-                                    const turf = sqft > 800 ? sqft - 800 : null;
+                                    const turf = sqft > 0 ? Math.max(sqft - 800, 500) : null;
                                     setState((s) => ({ ...s, manualSqft: val, lotSizeSqft: sqft || null, turfAreaSqft: turf }));
                                   }}
                                   className="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
                                   style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
                                   placeholder="e.g. 8400"
                                 />
-                                {state.manualSqft && parseInt(state.manualSqft, 10) > 800 && (
+                                {state.manualSqft && parseInt(state.manualSqft, 10) > 0 && (
                                   <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.40)' }}>
                                     Est. turf area: ~{(parseInt(state.manualSqft, 10) - 800).toLocaleString()} sq ft
                                   </p>
@@ -629,7 +629,7 @@ export default function SmartQuoteFlow({
                               onChange={(e) => {
                                 const val = e.target.value;
                                 const sqft = parseInt(val, 10);
-                                setState((s) => ({ ...s, manualSqft: val, lotSizeSqft: sqft || null, turfAreaSqft: sqft > 800 ? sqft - 800 : null }));
+                                setState((s) => ({ ...s, manualSqft: val, lotSizeSqft: sqft || null, turfAreaSqft: sqft > 0 ? Math.max(sqft - 800, 500) : null }));
                               }}
                               className="w-full rounded-xl px-4 py-3 text-sm text-white outline-none mb-2"
                               style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
@@ -638,7 +638,7 @@ export default function SmartQuoteFlow({
                             <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
                               We&apos;ll subtract ~800 sq ft for your home&apos;s footprint.
                             </p>
-                            {state.manualSqft && parseInt(state.manualSqft, 10) > 800 && (
+                            {state.manualSqft && parseInt(state.manualSqft, 10) > 0 && (
                               <p className="text-xs mt-1" style={{ color: '#a7f3d0' }}>
                                 Est. turf area: ~{(parseInt(state.manualSqft, 10) - 800).toLocaleString()} sq ft
                               </p>
