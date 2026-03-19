@@ -2,172 +2,142 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight } from 'lucide-react';
+import { X, ChevronRight, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { usePromoSettings } from '@/hooks/usePromoSettings';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
 import { useExitIntent } from '@/hooks/useExitIntent';
 import QuickQuoteDialog from '@/components/QuickQuoteDialog';
 
-/* ─── Seasonal theme tokens (mirrors PromoBanner + QuickQuoteDialog pattern) ─── */
-// Fix 4: Removed unreachable `spring` entry — SeasonalThemeContext.Season is 'summer' | 'fall' | 'winter'
-const themes = {
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Seasonal accent palette
+ *
+ * Card stays NEUTRAL DARK (obsidian glass). Only accent elements pick up
+ * the seasonal color: discount text, glow ring, CTA button, timer.
+ * Dark canvas, luminous product — jeweler's-display effect.
+ * ───────────────────────────────────────────────────────────────────────────── */
+const palette = {
   summer: {
-    cardBg: 'from-[#0a1f12] via-[#081a10] to-[#060e08]',
-    borderColor: '#4ade80',
-    glowA: 'rgba(74,222,128,0.10)',
-    glowB: 'rgba(74,222,128,0.22)',
-    badgeCls: 'bg-green-500/15 border border-green-400/25',
-    badgeText: 'text-green-300',
-    accentText: 'text-green-400',
-    timerCls: 'bg-black/30 border border-green-400/20',
-    timerText: 'text-green-300',
-    proofText: 'text-green-400/55',
-    ctaFrom: '#15803d',
-    ctaMid: '#16a34a',
-    ctaShadow: '0 4px 24px rgba(74,222,128,0.35)',
-    ctaShadowHover: '0 6px 32px rgba(74,222,128,0.52)',
-    secondaryText: 'text-white/35 hover:text-green-300',
-    divider: 'bg-green-400/10',
-    shimmer: 'via-green-400/12',
+    accent: '#4ade80',
+    accentMuted: 'rgba(74,222,128,0.50)',
+    glowSoft: 'rgba(74,222,128,0.06)',
+    glowMed: 'rgba(74,222,128,0.14)',
+    glowBorder: 'rgba(74,222,128,0.12)',
+    gradientFrom: '#22c55e',
+    gradientTo: '#86efac',
+    ctaBg: 'linear-gradient(135deg, #15803d 0%, #22c55e 50%, #15803d 100%)',
+    ctaShadow: '0 0 28px rgba(74,222,128,0.25)',
+    ctaShadowHover: '0 0 44px rgba(74,222,128,0.45)',
   },
   fall: {
-    cardBg: 'from-stone-950 via-[#1a0e05] to-stone-950',
-    borderColor: '#fbbf24',
-    glowA: 'rgba(251,191,36,0.10)',
-    glowB: 'rgba(251,191,36,0.22)',
-    badgeCls: 'bg-amber-500/15 border border-amber-400/25',
-    badgeText: 'text-amber-300',
-    accentText: 'text-amber-400',
-    timerCls: 'bg-black/30 border border-amber-400/20',
-    timerText: 'text-amber-300',
-    proofText: 'text-amber-400/55',
-    ctaFrom: '#d97706',
-    ctaMid: '#f59e0b',
-    ctaShadow: '0 4px 24px rgba(251,191,36,0.35)',
-    ctaShadowHover: '0 6px 32px rgba(251,191,36,0.52)',
-    secondaryText: 'text-white/35 hover:text-amber-300',
-    divider: 'bg-amber-400/10',
-    shimmer: 'via-amber-400/12',
+    accent: '#fbbf24',
+    accentMuted: 'rgba(251,191,36,0.50)',
+    glowSoft: 'rgba(251,191,36,0.06)',
+    glowMed: 'rgba(251,191,36,0.14)',
+    glowBorder: 'rgba(251,191,36,0.12)',
+    gradientFrom: '#f59e0b',
+    gradientTo: '#fde68a',
+    ctaBg: 'linear-gradient(135deg, #b45309 0%, #f59e0b 50%, #b45309 100%)',
+    ctaShadow: '0 0 28px rgba(251,191,36,0.25)',
+    ctaShadowHover: '0 0 44px rgba(251,191,36,0.45)',
   },
   winter: {
-    cardBg: 'from-slate-950 via-blue-950 to-indigo-950',
-    borderColor: '#38bdf8',
-    glowA: 'rgba(56,189,248,0.10)',
-    glowB: 'rgba(56,189,248,0.22)',
-    badgeCls: 'bg-cyan-500/15 border border-cyan-400/25',
-    badgeText: 'text-cyan-300',
-    accentText: 'text-cyan-400',
-    timerCls: 'bg-black/30 border border-cyan-400/20',
-    timerText: 'text-cyan-300',
-    proofText: 'text-cyan-400/55',
-    ctaFrom: '#0891b2',
-    ctaMid: '#0ea5e9',
-    ctaShadow: '0 4px 24px rgba(56,189,248,0.35)',
-    ctaShadowHover: '0 6px 32px rgba(56,189,248,0.52)',
-    secondaryText: 'text-white/35 hover:text-cyan-300',
-    divider: 'bg-cyan-400/10',
-    shimmer: 'via-cyan-400/12',
+    accent: '#38bdf8',
+    accentMuted: 'rgba(56,189,248,0.50)',
+    glowSoft: 'rgba(56,189,248,0.06)',
+    glowMed: 'rgba(56,189,248,0.14)',
+    glowBorder: 'rgba(56,189,248,0.12)',
+    gradientFrom: '#0ea5e9',
+    gradientTo: '#7dd3fc',
+    ctaBg: 'linear-gradient(135deg, #0369a1 0%, #0ea5e9 50%, #0369a1 100%)',
+    ctaShadow: '0 0 28px rgba(56,189,248,0.25)',
+    ctaShadowHover: '0 0 44px rgba(56,189,248,0.45)',
   },
 } as const;
 
-/* ─── Service → emoji map ─── */
+/* ─── Service → emoji ─── */
 const SERVICE_EMOJIS: [string, string][] = [
-  ['spring cleanup', '🌱'],
-  ['fall cleanup', '🍂'],
-  ['snow', '❄️'],
-  ['fertiliz', '🌾'],
-  ['gutter guard', '🔧'],
-  ['gutter', '🏠'],
-  ['hardscap', '🪨'],
-  ['mow', '🌿'],
-  ['lawn', '🌿'],
+  ['spring cleanup', '🌱'], ['fall cleanup', '🍂'], ['snow', '❄️'],
+  ['fertiliz', '🌾'], ['gutter guard', '🔧'], ['gutter', '🏠'],
+  ['hardscap', '🪨'], ['mow', '🌿'], ['lawn', '🌿'],
 ];
 
-function getEmoji(service: string): string {
-  const lower = service.toLowerCase();
-  return SERVICE_EMOJIS.find(([k]) => lower.includes(k))?.[1] ?? '🌿';
+function getEmoji(svc: string): string {
+  const s = svc.toLowerCase();
+  return SERVICE_EMOJIS.find(([k]) => s.includes(k))?.[1] ?? '🌿';
 }
 
-function fmt(n: number) {
+function pad(n: number) {
   return n.toString().padStart(2, '0');
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
 export function ExitIntentModal() {
   const { triggered, dismiss } = useExitIntent();
-  // Fix 3: Removed getTimeUntilNextPromo from destructure — calculated inline below
   const { promotions, isLoading, getPromoIndex } = usePromoSettings();
   const { activeSeason } = useSeasonalTheme();
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [isMobile, setIsMobile] = useState(false);
-  // Fix 7: useState hover instead of direct DOM mutation
   const [ctaHovered, setCtaHovered] = useState(false);
   const router = useRouter();
+  const dismissRef = useRef<HTMLButtonElement>(null);
+  const prevFocusRef = useRef<HTMLElement | null>(null);
 
-  // Fix 2: Refs for focus management
-  const dismissBtnRef = useRef<HTMLButtonElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
-
-  // Mobile detection (runs after hydration only)
+  /* ── Responsive detection ── */
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 768px)');
-    const check = () => setIsMobile(mq.matches);
-    check();
-    mq.addEventListener('change', check);
-    return () => mq.removeEventListener('change', check);
+    const handler = () => setIsMobile(mq.matches);
+    handler();
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
   }, []);
 
-  const currentPromo = promotions.length > 0
+  const promo = promotions.length > 0
     ? (promotions[getPromoIndex()] ?? promotions[0])
     : null;
 
-  // Fix 4: Safe cast — activeSeason is always 'summer' | 'fall' | 'winter' (SeasonalThemeContext guarantees this)
-  const t = (themes as unknown as Record<string, typeof themes.summer>)[activeSeason] ?? themes.summer;
+  const p = palette[activeSeason] ?? palette.summer;
 
-  // Fix 3: Inline calculation — no unstable function in deps array
-  // Live countdown — only ticks while modal is open
+  /* ── Countdown timer (only ticks while modal open) ── */
   useEffect(() => {
-    if (!triggered || !currentPromo) return;
-    const durationMs = (currentPromo.duration_hours ?? 24) * 3_600_000;
-    const startDate = new Date('2025-01-01T00:00:00').getTime();
-    const update = () => {
-      const elapsed = Date.now() - startDate;
-      const remaining = durationMs - (elapsed % durationMs);
+    if (!triggered || !promo) return;
+    const dur = (promo.duration_hours ?? 24) * 3_600_000;
+    const origin = new Date('2025-01-01T00:00:00').getTime();
+    const tick = () => {
+      const rem = dur - ((Date.now() - origin) % dur);
       setTimeLeft({
-        hours: Math.floor(remaining / 3_600_000),
-        minutes: Math.floor((remaining % 3_600_000) / 60_000),
-        seconds: Math.floor((remaining % 60_000) / 1_000),
+        hours: Math.floor(rem / 3_600_000),
+        minutes: Math.floor((rem % 3_600_000) / 60_000),
+        seconds: Math.floor((rem % 60_000) / 1_000),
       });
     };
-    update();
-    const id = setInterval(update, 1_000);
+    tick();
+    const id = setInterval(tick, 1_000);
     return () => clearInterval(id);
-  }, [triggered, currentPromo]);
+  }, [triggered, promo]);
 
-  // Fix 1: Escape key dismiss
+  /* ── Escape key ── */
   useEffect(() => {
     if (!triggered) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') dismiss();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') dismiss(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, [triggered, dismiss]);
 
-  // Fix 2: Focus management — save previous focus, move into dialog on open, restore on close
+  /* ── Focus management ── */
   useEffect(() => {
     if (triggered) {
-      previousFocusRef.current = document.activeElement as HTMLElement;
-      // Small delay to let AnimatePresence mount the dialog
-      const t = setTimeout(() => dismissBtnRef.current?.focus(), 50);
+      prevFocusRef.current = document.activeElement as HTMLElement;
+      const t = setTimeout(() => dismissRef.current?.focus(), 50);
       return () => clearTimeout(t);
-    } else {
-      previousFocusRef.current?.focus();
     }
+    prevFocusRef.current?.focus();
   }, [triggered]);
 
-  const handleOpenQuote = useCallback(() => setQuoteOpen(true), []);
+  /* ── Handlers ── */
+  const openQuote = useCallback(() => setQuoteOpen(true), []);
 
   const handleQuoteChange = useCallback((open: boolean) => {
     setQuoteOpen(open);
@@ -175,195 +145,232 @@ export function ExitIntentModal() {
   }, [dismiss]);
 
   const handleExplore = useCallback(() => {
-    if (currentPromo?.path) {
-      dismiss();
-      router.push(currentPromo.path);
-    }
-  }, [currentPromo, dismiss, router]);
+    if (promo?.path) { dismiss(); router.push(promo.path); }
+  }, [promo, dismiss, router]);
 
-  if (isLoading || !currentPromo) return null;
+  if (isLoading || !promo) return null;
 
   const show = triggered && !quoteOpen;
-  const emoji = getEmoji(currentPromo.service);
+  const emoji = getEmoji(promo.service);
+  const discount = promo.discount;
+  const hasOff = discount.toLowerCase().includes('off');
 
+  /* ── Motion variants ──
+   * Desktop: include x/y '-50%' in ALL states so framer-motion's composite
+   * transform never overrides the CSS centering (fixes the original bug). */
   const cardVariants = isMobile
-    ? { hidden: { y: '100%' }, visible: { y: 0 }, exit: { y: '100%' } }
-    : { hidden: { scale: 0.94, opacity: 0 }, visible: { scale: 1, opacity: 1 }, exit: { scale: 0.94, opacity: 0 } };
+    ? {
+        hidden: { y: '100%' },
+        visible: { y: 0 },
+        exit: { y: '100%' },
+      }
+    : {
+        hidden: { scale: 0.92, opacity: 0, x: '-50%', y: '-50%' },
+        visible: { scale: 1, opacity: 1, x: '-50%', y: '-50%' },
+        exit: { scale: 0.92, opacity: 0, x: '-50%', y: '-50%' },
+      };
 
   return (
     <>
-      {/* Fix 6: Direct children of AnimatePresence instead of wrapping fragment */}
       <AnimatePresence>
+        {/* ── Backdrop ── */}
         {show && (
           <motion.div
             key="eim-backdrop"
-            className="fixed inset-0 bg-black/55 backdrop-blur-sm z-[9998]"
+            className="fixed inset-0 bg-black/60 backdrop-blur-[6px] z-[9998]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
+            transition={{ duration: 0.2 }}
             onClick={dismiss}
             aria-hidden
           />
         )}
+
+        {/* ── Card ── */}
         {show && (
           <motion.div
             key="eim-card"
             role="dialog"
             aria-modal="true"
-            aria-label={`Special offer: ${currentPromo.discount} off ${currentPromo.service}`}
+            aria-label={`Special offer: ${discount} off ${promo.service}`}
             className={[
               'fixed z-[9999] overflow-hidden',
-              `bg-gradient-to-br ${t.cardBg}`,
-              'backdrop-blur-xl',
+              'bg-[#0b0b11]/[0.97] backdrop-blur-2xl',
               isMobile
-                ? 'bottom-0 left-0 right-0 rounded-t-[24px]'
-                : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] rounded-2xl',
+                ? 'bottom-0 left-0 right-0 rounded-t-3xl border-t border-x border-white/[0.06]'
+                : 'top-1/2 left-1/2 w-full max-w-[440px] rounded-2xl border border-white/[0.06]',
             ].join(' ')}
-            style={{ border: `1px solid ${t.borderColor}38` }}
             variants={cardVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            transition={{ type: 'spring', damping: 26, stiffness: 200 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 240 }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Animated glow border */}
+            {/* Animated glow ring */}
             <motion.div
-              className="absolute inset-0 rounded-[inherit] pointer-events-none"
+              className="absolute -inset-px rounded-[inherit] pointer-events-none"
               animate={{
                 boxShadow: [
-                  `inset 0 0 0 1px ${t.borderColor}22, 0 0 28px ${t.glowA}`,
-                  `inset 0 0 0 1px ${t.borderColor}55, 0 0 55px ${t.glowB}`,
-                  `inset 0 0 0 1px ${t.borderColor}22, 0 0 28px ${t.glowA}`,
+                  `0 0 20px ${p.glowSoft}, inset 0 0 0 1px ${p.glowBorder}`,
+                  `0 0 44px ${p.glowMed}, inset 0 0 0 1px ${p.accent}28`,
+                  `0 0 20px ${p.glowSoft}, inset 0 0 0 1px ${p.glowBorder}`,
                 ],
               }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
             />
 
-            {/* Shimmer line at top */}
-            <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent ${t.shimmer} to-transparent`} />
+            {/* Top accent line */}
+            <div
+              className="absolute top-0 left-0 right-0 h-px"
+              style={{
+                background: `linear-gradient(90deg, transparent 10%, ${p.accent}18 50%, transparent 90%)`,
+              }}
+            />
 
             {/* Mobile drag handle */}
             {isMobile && (
-              <div className="flex justify-center pt-3 pb-0">
-                <div className="w-10 h-1 rounded-full bg-white/20" />
+              <div className="flex justify-center pt-3">
+                <div className="w-10 h-1 rounded-full bg-white/12" />
               </div>
             )}
 
-            {/* Fix 2: ref added to dismiss button */}
-            {/* Dismiss × */}
+            {/* Dismiss */}
             <button
-              ref={dismissBtnRef}
+              ref={dismissRef}
               onClick={dismiss}
-              className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-white/10 transition-colors duration-200 group z-10"
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/[0.06] transition-colors group z-10"
               aria-label="Close offer"
             >
-              <X className="h-4 w-4 text-white/30 group-hover:text-white/65 transition-colors" />
+              <X className="h-4 w-4 text-white/20 group-hover:text-white/50 transition-colors" />
             </button>
 
-            {/* ── Body ── */}
-            <div className={`px-6 ${isMobile ? 'pt-3 pb-8' : 'pt-7 pb-6'}`}>
+            {/* ── Content (center-aligned announcement layout) ── */}
+            <div className={`text-center ${isMobile ? 'px-6 pt-4 pb-10' : 'px-8 pt-10 pb-9'}`}>
 
-              {/* Service label */}
+              {/* Service badge */}
               <motion.div
-                initial={{ opacity: 0, y: -6 }}
+                initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 }}
-                className={`flex items-center gap-1.5 text-sm font-medium ${t.accentText} mb-1`}
+                className="inline-flex items-center gap-1.5 text-sm font-medium mb-2"
+                style={{ color: p.accent }}
               >
                 <span className="text-base">{emoji}</span>
-                <span>{currentPromo.service}</span>
+                <span>{promo.service}</span>
               </motion.div>
 
-              {/* Soft headline */}
+              {/* Soft hook headline */}
               <motion.p
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.10 }}
-                className="text-white/35 text-sm mb-5"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.08 }}
+                className="text-white/25 text-sm mb-7"
               >
-                Before you go...
+                Before you go&hellip;
               </motion.p>
 
-              {/* Discount badge — the hero */}
+              {/* ── HERO: Discount as gradient text ── */}
               <motion.div
-                initial={{ opacity: 0, scale: 0.88 }}
+                initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.14, type: 'spring', stiffness: 220 }}
+                transition={{ delay: 0.12, type: 'spring', stiffness: 200 }}
+                className="mb-2"
               >
                 <motion.div
-                  className={`${t.badgeCls} rounded-xl px-5 py-4 mb-4`}
-                  animate={{ scale: [1, 1.025, 1] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 0.8 }}
+                  animate={{ scale: [1, 1.02, 1] }}
+                  transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
                 >
-                  <div className={`text-[2.25rem] font-black leading-none tracking-tight ${t.badgeText}`}>
-                    {currentPromo.discount} OFF
-                  </div>
-                  <div className="text-white/45 text-sm mt-1">
-                    your {currentPromo.service} service
-                  </div>
+                  <span
+                    className="text-[3.5rem] sm:text-[4rem] leading-none font-black tracking-tight"
+                    style={{
+                      background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})`,
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    }}
+                  >
+                    {discount}{!hasOff ? ' OFF' : ''}
+                  </span>
                 </motion.div>
               </motion.div>
+
+              {/* Service context */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.16 }}
+                className="text-white/35 text-sm mb-6"
+              >
+                your {promo.service} service
+              </motion.p>
 
               {/* Social proof */}
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.20 }}
-                className={`text-xs ${t.proofText} mb-3`}
+                className="text-xs mb-5"
+                style={{ color: p.accentMuted }}
               >
                 ★ 47+ Madison area homeowners booked this month
               </motion.p>
 
-              {/* Countdown */}
+              {/* Timer — inline, refined */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.25 }}
-                className={`${t.timerCls} rounded-lg px-4 py-2.5 flex items-center gap-3 mb-5`}
+                transition={{ delay: 0.24 }}
+                className="flex items-center justify-center gap-2.5 mb-8"
               >
-                <span className="text-white/35 text-xs uppercase tracking-wider">Offer expires in</span>
-                <span className={`font-mono font-bold text-sm ${t.timerText}`}>
-                  {fmt(timeLeft.hours)}:{fmt(timeLeft.minutes)}:{fmt(timeLeft.seconds)}
+                <Clock className="h-3 w-3 text-white/20" />
+                <span className="text-[11px] uppercase tracking-[0.12em] text-white/20">
+                  Offer expires in
+                </span>
+                <span
+                  className="font-mono text-sm font-bold tracking-wide"
+                  style={{ color: p.accent }}
+                >
+                  {pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
                 </span>
               </motion.div>
 
               {/* Divider */}
-              <div className={`h-px ${t.divider} mb-5`} />
+              <div className="h-px bg-white/[0.04] mx-6 mb-7" />
 
-              {/* Fix 7: Primary CTA — useState hover instead of direct DOM mutation */}
+              {/* Primary CTA — seasonal glow */}
               <motion.button
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.30 }}
-                onClick={handleOpenQuote}
-                className="relative w-full py-3.5 rounded-xl font-bold text-sm text-white overflow-hidden transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{
-                  background: `linear-gradient(to right, ${t.ctaFrom}, ${t.ctaMid}, ${t.ctaFrom})`,
-                  backgroundSize: '200% auto',
-                  boxShadow: ctaHovered ? t.ctaShadowHover : t.ctaShadow,
-                }}
+                transition={{ delay: 0.28 }}
+                onClick={openQuote}
                 onMouseEnter={() => setCtaHovered(true)}
                 onMouseLeave={() => setCtaHovered(false)}
+                className="relative w-full py-3.5 rounded-xl font-bold text-[15px] text-white overflow-hidden transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  background: p.ctaBg,
+                  backgroundSize: '200% auto',
+                  boxShadow: ctaHovered ? p.ctaShadowHover : p.ctaShadow,
+                }}
               >
-                {/* shimmer sweep — reuses existing keyframe from globals.css */}
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-shimmer-btn" />
+                {/* Shimmer sweep */}
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.10] to-transparent animate-shimmer-btn" />
                 <span className="relative">
-                  Claim {currentPromo.discount} Off — Get a Quote
+                  Claim {discount} Off — Get a Quote
                 </span>
               </motion.button>
 
-              {/* Fix 5: Secondary CTA — only render when a path exists */}
-              {currentPromo.path && (
+              {/* Secondary CTA */}
+              {promo.path && (
                 <motion.button
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.36 }}
+                  transition={{ delay: 0.34 }}
                   onClick={handleExplore}
-                  className={`w-full mt-3 py-2 text-sm transition-colors duration-200 flex items-center justify-center gap-1 ${t.secondaryText}`}
+                  className="mt-4 py-2 text-sm text-white/25 hover:text-white/50 transition-colors flex items-center justify-center gap-1 w-full"
                 >
-                  Explore {currentPromo.service}
+                  Explore {promo.service}
                   <ChevronRight className="h-3.5 w-3.5" />
                 </motion.button>
               )}
@@ -372,13 +379,13 @@ export function ExitIntentModal() {
         )}
       </AnimatePresence>
 
-      {/* Quote dialog — pre-populated with promo service + discount */}
-      {currentPromo && (
+      {/* Quote dialog — pre-populated with promo data */}
+      {promo && (
         <QuickQuoteDialog
           open={quoteOpen}
           onOpenChange={handleQuoteChange}
-          promoService={currentPromo.service}
-          promoDiscount={currentPromo.discount}
+          promoService={promo.service}
+          promoDiscount={promo.discount}
         />
       )}
     </>
