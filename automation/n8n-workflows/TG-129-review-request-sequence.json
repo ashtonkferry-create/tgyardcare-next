@@ -1,0 +1,259 @@
+{
+  "id": "F8lA6eWLeHANSsuI",
+  "name": "TG-129 Review Request Sequence",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 15
+            }
+          ]
+        }
+      },
+      "id": "tg129-trigger",
+      "name": "Daily 10 AM Review Request Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/jobber_email_events",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,customer_name,customer_phone,customer_email,service_type,created_at"
+            },
+            {
+              "name": "event_type",
+              "value": "eq.job_completed"
+            },
+            {
+              "name": "created_at",
+              "value": "=gte.{{ $now.minus({hours: 28}).toISO() }}"
+            },
+            {
+              "name": "created_at",
+              "value": "=lte.{{ $now.minus({hours: 20}).toISO() }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_ANON_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_ANON_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg129-fetch",
+      "name": "Fetch Jobs Completed 20-28h Ago",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        470,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "tg129-cond-phone",
+              "leftValue": "={{ $json.customer_phone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "tg129-filter-phone",
+      "name": "Filter: Has Phone Number",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        690,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const phone = item.json.customer_phone;\n  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();\n  \n  try {\n    const response = await this.helpers.httpRequest({\n      method: 'GET',\n      url: `https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/review_requests?customer_phone=eq.${encodeURIComponent(phone)}&created_at=gte.${thirtyDaysAgo}&select=id`,\n      headers: {\n        'apikey': 'SUPABASE_ANON_KEY',\n        'Authorization': 'Bearer SUPABASE_ANON_KEY'\n      }\n    });\n    \n    if (!response || !Array.isArray(response) || response.length === 0) {\n      results.push(item);\n    }\n  } catch (error) {\n    results.push(item);\n  }\n}\n\nreturn results;"
+      },
+      "id": "tg129-dedup",
+      "name": "Check If Review Already Requested",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        910,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst name = input.customer_name || 'there';\nconst firstName = name.split(' ')[0];\n\nconst message = `Hi ${firstName}! Thank you for choosing TotalGuard Yard Care. We would love to hear how we did! Would you take 30 seconds to leave us a Google review? It means the world to our small business: https://g.page/r/CQEMNig5DhIBEAI/review - Thank you! The TotalGuard Team`;\n\nreturn [{\n  json: {\n    to_phone: input.customer_phone,\n    message_body: message,\n    workflow_name: 'TG-129-review-request',\n    message_type: 'review_request',\n    customer_name: input.customer_name,\n    customer_email: input.customer_email,\n    customer_phone: input.customer_phone\n  }\n}];"
+      },
+      "id": "tg129-build-sms",
+      "name": "Build Review Request SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1130,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "AprqI2DgQA8lehij",
+        "options": {}
+      },
+      "id": "tg129-send-sms",
+      "name": "Send Review Request SMS via TG-94",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1350,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/review_requests",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_ANON_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_ANON_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ customer_phone: $json.customer_phone, customer_email: $json.customer_email, customer_name: $json.customer_name, request_type: 'sms_24h', source_workflow: 'TG-129' }) }}",
+        "options": {}
+      },
+      "id": "tg129-log",
+      "name": "Log Review Request to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1570,
+        300
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Daily 10 AM Review Request Check": {
+      "main": [
+        [
+          {
+            "node": "Fetch Jobs Completed 20-28h Ago",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Jobs Completed 20-28h Ago": {
+      "main": [
+        [
+          {
+            "node": "Filter: Has Phone Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Has Phone Number": {
+      "main": [
+        [
+          {
+            "node": "Check If Review Already Requested",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Review Already Requested": {
+      "main": [
+        [
+          {
+            "node": "Build Review Request SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Review Request SMS": {
+      "main": [
+        [
+          {
+            "node": "Send Review Request SMS via TG-94",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Review Request SMS via TG-94": {
+      "main": [
+        [
+          {
+            "node": "Log Review Request to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}
