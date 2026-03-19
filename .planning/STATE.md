@@ -93,12 +93,22 @@ Progress M2: [██████████████████████
 - [M4 Phase 15]: TG-22 deployed (n8n ID: YnLX05UbBgZI7YO6), active
 - [M4 Phase 15]: TG-34 deployed (n8n ID: Gu61j7HgsWFyMsEU), webhook URL: https://tgyardcare.app.n8n.cloud/webhook/tg34-referral-log
 - [M4 Phase 15]: 20 workflows now active (added TG-22, TG-34)
+- [M4 Phase 15]: TG-56 weather campaign rebuilt — 10 nodes, every 2h OpenWeatherMap check, 4 weather types, 48h dedup
+- [M4 Phase 15]: TG-56 deployed (n8n ID: ghoTVdCTc6zwq6UQ), active
+- [M4 Phase 15]: TG-63 win-back engine rebuilt — 10 nodes, weekly Monday, dual SMS+email, 10% discount, 30-day dedup
+- [M4 Phase 15]: TG-63 deployed (n8n ID: dvjImP2y2xvIsvXp), active
+- [M4 Phase 15]: 22 workflows now active (added TG-56, TG-63)
+
+- [M4 Phase 15]: TG-32 seasonal router deployed (n8n ID: 2kXMNdKdLW9l0m40), 1st of month 9am CT, routes March/Sept/Nov
+- [M4 Phase 15]: TG-14 spring deployed (nAYg8H9q6kqhtGbT), TG-15 fall (RRym6KRyPue6GABC), TG-16 snow (EUZtUKUAHDMUfgmi)
+- [M4 Phase 15]: Seasonal campaigns use FSRv5y8YzMjpyBtc (canonical TG-95), n8n POST /activate works
 
 ### Pending Todos
 
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-01 Build Telegram Alert node with Vance's actual Telegram chat ID
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-126 Send Telegram Warning node with Vance's actual Telegram chat ID
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-07 Send Hot Lead Telegram node with Vance's actual Telegram chat ID
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-14, TG-15, TG-16, TG-32 Telegram nodes with Vance's actual chat ID
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-132 Send Draft to Telegram node with Vance's actual Telegram chat ID
 - Create lead_alerts table in Supabase SQL Editor (see 12-02-SUMMARY.md for SQL)
 - Add follow_up_stage column to leads table: `ALTER TABLE leads ADD COLUMN IF NOT EXISTS follow_up_stage integer DEFAULT 0;`
