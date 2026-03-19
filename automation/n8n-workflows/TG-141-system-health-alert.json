@@ -1,0 +1,129 @@
+{
+  "name": "TG-141 System Health Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/5 * * * *"
+            }
+          ]
+        }
+      },
+      "id": "tg141-trigger",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://tgyardcare.app.n8n.cloud/api/v1/executions?limit=10&status=error",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "N8N_API_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg141-fetch-errors",
+      "name": "Fetch Recent Errors",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst executions = response.data || response.results || [];\n\nif (!executions.length) {\n  return [{ json: { hasNewErrors: false, errorCount: 0, errors: [] } }];\n}\n\n// Only errors in the last 5 minutes\nconst fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);\n\nconst recentErrors = executions.filter(exec => {\n  const finishedAt = exec.stoppedAt || exec.startedAt;\n  if (!finishedAt) return false;\n  return new Date(finishedAt) >= fiveMinAgo;\n});\n\nif (!recentErrors.length) {\n  return [{ json: { hasNewErrors: false, errorCount: 0, errors: [] } }];\n}\n\nconst errors = recentErrors.map(exec => ({\n  workflowName: exec.workflowData?.name || exec.workflowId || 'Unknown',\n  errorMessage: exec.data?.resultData?.error?.message || exec.stoppedAt ? 'Execution failed' : 'Unknown error',\n  timestamp: exec.stoppedAt || exec.startedAt,\n  executionId: exec.id\n}));\n\nreturn [{ json: {\n  hasNewErrors: true,\n  errorCount: errors.length,\n  errors\n} }];"
+      },
+      "id": "tg141-filter",
+      "name": "Filter New Errors",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-errors",
+              "leftValue": "={{ $json.hasNewErrors }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg141-if",
+      "name": "IF New Errors Found",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "=🚨 SYSTEM ERROR{{ $json.errorCount > 1 ? 'S (' + $json.errorCount + ')' : '' }}\n\n{{ $json.errors.map(e => 'Workflow: ' + e.workflowName + '\\nError: ' + e.errorMessage + '\\nTime: ' + new Date(e.timestamp).toLocaleString('en-US', { timeZone: 'America/Chicago' }) + '\\nExec ID: ' + e.executionId).join('\\n\\n---\\n\\n') }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "tg141-telegram",
+      "name": "Send Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [960, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every 5 Minutes": {
+      "main": [
+        [{ "node": "Fetch Recent Errors", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Recent Errors": {
+      "main": [
+        [{ "node": "Filter New Errors", "type": "main", "index": 0 }]
+      ]
+    },
+    "Filter New Errors": {
+      "main": [
+        [{ "node": "IF New Errors Found", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF New Errors Found": {
+      "main": [
+        [{ "node": "Send Telegram Alert", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

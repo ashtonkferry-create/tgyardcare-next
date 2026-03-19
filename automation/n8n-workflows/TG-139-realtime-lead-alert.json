@@ -1,0 +1,102 @@
+{
+  "name": "TG-139 Real-time Lead Alert",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "tg139-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { lead_name, email, phone, source, service, lead_score, lead_tier } = $json;\n\nconst tierEmoji = {\n  'hot': '🔥',\n  'warm': '🟡',\n  'cold': '🔵'\n};\n\nconst emoji = tierEmoji[lead_tier?.toLowerCase()] || '📋';\nconst timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' });\n\nconst message = [\n  `${emoji} NEW LEAD`,\n  ``,\n  `${lead_name || 'Unknown'}`,\n  `Phone: ${phone || 'N/A'}`,\n  `Email: ${email || 'N/A'}`,\n  `Source: ${source || 'Unknown'}`,\n  `Service: ${service || 'Not specified'}`,\n  `Score: ${lead_score ?? 'N/A'} (${lead_tier || 'unscored'})`,\n  ``,\n  `Respond within 5 minutes!`\n].join('\\n');\n\nreturn [{ json: {\n  alert_message: message,\n  lead_name: lead_name || 'Unknown',\n  lead_tier: lead_tier || 'unscored',\n  timestamp\n} }];"
+      },
+      "id": "tg139-build-alert",
+      "name": "Build Alert Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.alert_message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "tg139-telegram",
+      "name": "Send Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [480, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/automation_runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow_id\": \"TG-139\",\n  \"workflow_name\": \"Real-time Lead Alert\",\n  \"status\": \"success\",\n  \"metadata\": {\n    \"lead_name\": \"{{ $('Build Alert Message').first().json.lead_name }}\",\n    \"lead_tier\": \"{{ $('Build Alert Message').first().json.lead_tier }}\",\n    \"alerted_at\": \"{{ $('Build Alert Message').first().json.timestamp }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "tg139-log",
+      "name": "Log Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 300],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [{ "node": "Build Alert Message", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Alert Message": {
+      "main": [
+        [{ "node": "Send Telegram Alert", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Telegram Alert": {
+      "main": [
+        [{ "node": "Log Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1"
+  },
+  "active": false
+}
