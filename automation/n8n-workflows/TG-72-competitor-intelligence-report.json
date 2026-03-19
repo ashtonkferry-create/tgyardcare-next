@@ -7,24 +7,21 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "0 14 15 * *"
+              "expression": "0 14 1 * *"
             }
           ]
         }
       },
-      "id": "tg72-node-01",
-      "name": "Schedule Trigger",
+      "id": "tg72-trigger",
+      "name": "Monthly 1st 9am CT",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [
-        0,
-        0
-      ]
+      "position": [0, 300]
     },
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/competitor_snapshots?select=competitor_name,service,price,rating,review_count,captured_at&order=captured_at.desc&limit=100",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/competitors?is_active=eq.true&select=id,name,domain,services,location,priority",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -37,134 +34,87 @@
               "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
             }
           ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
         }
       },
-      "id": "tg72-node-02",
-      "name": "Get Competitor Data",
+      "id": "tg72-fetch-competitors",
+      "name": "Fetch Competitors",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        220,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const data = $json;\nconst summary = {};\ndata.forEach(d => {\n  if (!summary[d.competitor_name]) summary[d.competitor_name] = { services: [], avgRating: d.rating, reviewCount: d.review_count };\n  summary[d.competitor_name].services.push(`${d.service}: $${d.price}`);\n});\nreturn [{ json: { competitorSummary: JSON.stringify(summary), month: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }) } }];"
-      },
-      "id": "tg72-node-03",
-      "name": "Summarize Competitor Data",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        440,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.anthropic.com/v1/messages",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "={{ $vars.TG_ANTHROPIC_API_KEY }}"
-            },
-            {
-              "name": "anthropic-version",
-              "value": "2023-06-01"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ model: 'claude-3-5-haiku-20241022', max_tokens: 500, messages: [{ role: 'user', content: `Analyze TotalGuard Yard Care's competitive position in Madison WI lawn care market for ${$json.month}. What threats and opportunities exist? Give 2 threats and 2 opportunities with specific actions. Competitor data: ${$json.competitorSummary}` }] }) }}"
-      },
-      "id": "tg72-node-04",
-      "name": "AI Competitive Analysis",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        660,
-        0
-      ],
+      "position": [260, 300],
       "continueOnFail": true
     },
     {
       "parameters": {
-        "from": "={{ $vars.TG_TWILIO_PHONE_NUMBER }}",
-        "to": "={{ $vars.TG_OWNER_PHONE }}",
-        "message": "=TG Monthly Competitive Intel ready for {{ $('Summarize Competitor Data').item.json.month }}. Check admin panel for full analysis."
+        "jsCode": "// TG-72: Fetch all snapshots from last 30 days for trend analysis\nconst competitors = Array.isArray($input.first().json) ? $input.first().json : [];\nif (competitors.length === 0) {\n  return [{ json: { competitors: [], snapshots: [], error: 'No active competitors' } }];\n}\n\nconst supabaseUrl = $vars.TG_SUPABASE_URL + '/rest/v1';\nconst supabaseKey = $vars.TG_SUPABASE_SERVICE_KEY;\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`\n};\n\nconst thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];\n\n// Fetch all snapshots for all competitors in one query\nconst competitorIds = competitors.map(c => c.id);\nlet allSnapshots = [];\ntry {\n  allSnapshots = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/competitor_snapshots?snapshot_date=gte.${thirtyDaysAgo}&order=snapshot_date.desc`,\n    headers: supabaseHeaders\n  });\n} catch (e) { /* no snapshots */ }\n\n// Group snapshots by competitor_id\nconst byCompetitor = {};\nfor (const snap of (allSnapshots || [])) {\n  if (!byCompetitor[snap.competitor_id]) byCompetitor[snap.competitor_id] = [];\n  byCompetitor[snap.competitor_id].push(snap);\n}\n\n// Build enriched competitor data\nconst enriched = competitors.map(c => {\n  const snaps = byCompetitor[c.id] || [];\n  const latestSnap = snaps[0] || null;\n  const oldestSnap = snaps[snaps.length - 1] || null;\n\n  // Parse notable_changes from latest snapshot\n  let latestChanges = null;\n  if (latestSnap && latestSnap.notable_changes) {\n    try {\n      latestChanges = typeof latestSnap.notable_changes === 'string'\n        ? JSON.parse(latestSnap.notable_changes)\n        : latestSnap.notable_changes;\n    } catch (e) { /* not JSON */ }\n  }\n\n  return {\n    name: c.name,\n    domain: c.domain,\n    services: c.services,\n    location: c.location,\n    priority: c.priority,\n    snapshot_count: snaps.length,\n    latest_rating: latestSnap ? latestSnap.rating : null,\n    latest_review_count: latestSnap ? latestSnap.review_count : null,\n    oldest_rating: oldestSnap ? oldestSnap.rating : null,\n    oldest_review_count: oldestSnap ? oldestSnap.review_count : null,\n    review_growth: (latestSnap && oldestSnap) ? (latestSnap.review_count || 0) - (oldestSnap.review_count || 0) : 0,\n    rating_change: (latestSnap && oldestSnap) ? Math.round(((latestSnap.rating || 0) - (oldestSnap.rating || 0)) * 100) / 100 : 0,\n    website_title: latestChanges ? latestChanges.website_title : null,\n    website_status: latestChanges ? latestChanges.website_status : null\n  };\n});\n\nconst month = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });\nreturn [{ json: { competitors: enriched, month, total_snapshots: allSnapshots.length } }];"
       },
-      "id": "tg72-node-05",
-      "name": "SMS Competitive Summary",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
-      "position": [
-        880,
-        0
-      ],
+      "id": "tg72-analyze",
+      "name": "Analyze Trends",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-72: Build monthly intelligence report\nconst { competitors, month, total_snapshots } = $input.first().json;\n\nconst lines = [\n  `MONTHLY COMPETITOR INTELLIGENCE`,\n  `${month}`,\n  `Data points: ${total_snapshots} snapshots across ${competitors.length} competitors`,\n  ''\n];\n\n// Sort by priority\nconst sorted = [...competitors].sort((a, b) => (a.priority || 99) - (b.priority || 99));\n\nfor (const c of sorted) {\n  const statusIcon = c.website_status === 'up' ? '\\u2705' : (c.website_status ? '\\u274c' : '\\u2753');\n  lines.push(`${statusIcon} ${c.name}`);\n  lines.push(`   Domain: ${c.domain || 'unknown'}`);\n  lines.push(`   Services: ${(c.services || []).join(', ') || 'unknown'}`);\n  lines.push(`   Location: ${c.location || 'unknown'}`);\n  \n  if (c.latest_rating !== null) {\n    lines.push(`   Rating: ${c.latest_rating} (change: ${c.rating_change >= 0 ? '+' : ''}${c.rating_change})`);\n  }\n  if (c.latest_review_count !== null) {\n    lines.push(`   Reviews: ${c.latest_review_count} (growth: +${c.review_growth})`);\n  }\n  if (c.website_title) {\n    lines.push(`   Title: ${c.website_title.substring(0, 60)}`);\n  }\n  lines.push('');\n}\n\n// Summary insights\nlines.push('--- INSIGHTS ---');\nconst fastGrowers = sorted.filter(c => c.review_growth > 3);\nif (fastGrowers.length > 0) {\n  lines.push(`Fast review growers: ${fastGrowers.map(c => `${c.name} (+${c.review_growth})`).join(', ')}`);\n}\nconst downSites = sorted.filter(c => c.website_status === 'down_or_error');\nif (downSites.length > 0) {\n  lines.push(`Websites down: ${downSites.map(c => c.name).join(', ')}`);\n}\nif (fastGrowers.length === 0 && downSites.length === 0) {\n  lines.push('No significant changes detected this month.');\n}\n\nreturn [{ json: { report: lines.join('\\n'), month, competitor_count: competitors.length } }];"
+      },
+      "id": "tg72-build-report",
+      "name": "Build Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $vars.OWNER_TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.report }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "tg72-telegram",
+      "name": "Send Telegram Report",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1040, 300],
       "credentials": {
-        "twilioApi": {
-          "id": "twilio-cred",
-          "name": "twilioApi"
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram API"
         }
       }
     }
   ],
   "connections": {
-    "Schedule Trigger": {
+    "Monthly 1st 9am CT": {
       "main": [
-        [
-          {
-            "node": "Get Competitor Data",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{ "node": "Fetch Competitors", "type": "main", "index": 0 }]
       ]
     },
-    "Get Competitor Data": {
+    "Fetch Competitors": {
       "main": [
-        [
-          {
-            "node": "Summarize Competitor Data",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{ "node": "Analyze Trends", "type": "main", "index": 0 }]
       ]
     },
-    "Summarize Competitor Data": {
+    "Analyze Trends": {
       "main": [
-        [
-          {
-            "node": "AI Competitive Analysis",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{ "node": "Build Report", "type": "main", "index": 0 }]
       ]
     },
-    "AI Competitive Analysis": {
+    "Build Report": {
       "main": [
-        [
-          {
-            "node": "SMS Competitive Summary",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{ "node": "Send Telegram Report", "type": "main", "index": 0 }]
       ]
     }
   },
   "settings": {
-    "availableInMCP": true
+    "executionOrder": "v1"
   }
 }
