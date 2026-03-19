@@ -161,6 +161,12 @@ Progress M2: [██████████████████████
 - [M4 Phase 19]: TG-140 routes 1-2 star reviews through TG-113 critical channel
 - [M4 Phase 19]: 42 workflows now active (added TG-139, TG-140, TG-141)
 
+- [M4 Phase 18]: TG-147 FAQ rotation deployed (n8n ID: ed8yDBTZBLUjoFEq), quarterly Mar/Jun/Sep/Dec 1st 9am CT, active
+- [M4 Phase 18]: TG-148 GBP optimization score deployed (n8n ID: 6Jwk2EhjsfqDsg1q), monthly 1st 7am CT, active
+- [M4 Phase 18]: TG-147 uses Claude Haiku for seasonal FAQ generation (5-7 Q&A pairs per season)
+- [M4 Phase 18]: TG-148 scores GBP profile 0-100 across 6 dimensions (posts/reviews/rating/photos/FAQs/hours)
+- [M4 Phase 18]: 44 workflows now active (added TG-147, TG-148)
+
 ### Pending Todos
 
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-01 Build Telegram Alert node with Vance's actual Telegram chat ID
@@ -219,6 +225,13 @@ Progress M2: [██████████████████████
 - Create yard_sign_placements table in Supabase SQL Editor (see 20-01-SUMMARY.md for SQL)
 
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-139, TG-140, TG-141 Telegram nodes with Vance's actual Telegram chat ID
+- Create gbp_faqs table in Supabase SQL Editor (see 18-02-SUMMARY.md for SQL)
+- Create gbp_scores table in Supabase SQL Editor (see 18-02-SUMMARY.md for SQL)
+- Set ANTHROPIC_API_KEY in TG-147 AI Generate Seasonal FAQs node x-api-key header
+- Set GOOGLE_PLACES_API_KEY in TG-148 Fetch GBP Data via Places API node
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-147 Send FAQs for Review node with Vance's actual Telegram chat ID
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-148 Send GBP Score Report to Telegram node with Vance's actual Telegram chat ID
+- Set SUPABASE_SECRET_KEY in TG-147 Store FAQ Content node and TG-148 Store/Fetch nodes
 - Set GOOGLE_PLACES_API_KEY_PLACEHOLDER in TG-140 Fetch New Google Reviews node
 - Set N8N_API_KEY_PLACEHOLDER in TG-141 Fetch Recent Errors node
 - Create system_health_checks table in Supabase SQL Editor (see 19-02-SUMMARY.md for SQL)
@@ -237,6 +250,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 19-02-PLAN.md (Real-time alerts system) — deployed TG-139/TG-140/TG-141 to n8n
+Stopped at: Completed 18-02-PLAN.md (FAQ rotation + GBP optimization scoring) — deployed TG-147/TG-148 to n8n
 Resume file: None
-Next: 19-03-PLAN.md (Intelligence dashboard)
+Next: 19-03-PLAN.md (Intelligence dashboard) or remaining phase plans
