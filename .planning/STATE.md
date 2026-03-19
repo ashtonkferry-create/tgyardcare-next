@@ -10,20 +10,20 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 12 of 20 (Conversion Engine)
-Plan: 1 of 4 in Phase 12 (12-01 complete)
+Plan: 2 of 4 in Phase 12 (12-01, 12-02 complete)
 Status: In progress
-Last activity: 2026-03-19 — Completed 12-01-PLAN.md (TG-01 instant multi-channel response)
+Last activity: 2026-03-19 — Completed 12-02-PLAN.md (TG-126 speed-to-lead timer)
 
-Progress M4: [█████░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6/62 requirements (12-01 COMPLETE)
+Progress M4: [██████░░░░░░░░░░░░░░░░░░░░░░░░░░] 7/62 requirements (12-02 COMPLETE)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 74 (M2: 34 + M3: 36 + M4: 4)
+- Total plans completed: 75 (M2: 34 + M3: 36 + M4: 5)
 - M4 Phase 11: 5 requirements complete (INFRA-01, INFRA-02, 11-02 key audit, 11-03 auto-posting, 11-01 TG-92/TG-113 activation)
-- M4 Phase 12: 1 plan complete (12-01 instant multi-channel response)
+- M4 Phase 12: 2 plans complete (12-01 instant multi-channel response, 12-02 speed-to-lead timer)
 
 ## Accumulated Context
 
@@ -54,10 +54,16 @@ Progress M2: [██████████████████████
 - [M4 Phase 12]: Telegram alert uses OWNER_TELEGRAM_CHAT_ID placeholder — Vance must set actual chat ID
 - [M4 Phase 12]: Email confirmation reuses TG-09 branded HTML template (green/gold/dark footer)
 - [M4 Phase 12]: TG-01 now 15 nodes (was 7), deployed and active on n8n
+- [M4 Phase 12]: TG-126 speed-to-lead timer deployed (n8n ID: jfz05ofLDaMdKbBV), 6 nodes, active
+- [M4 Phase 12]: TG-126 uses real Telegram credential V404qLIDXjmyzNeS (not placeholder)
+- [M4 Phase 12]: lead_alerts table needs manual creation in Supabase for dedup (workflow degrades gracefully without it)
+- [M4 Phase 12]: 11 workflows now active: TG-05, TG-70, TG-74, TG-79, TG-94, TG-95, TG-92, TG-113, TG-76, TG-01, TG-126
 
 ### Pending Todos
 
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-01 Build Telegram Alert node with Vance's actual Telegram chat ID
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-126 Send Telegram Warning node with Vance's actual Telegram chat ID
+- Create lead_alerts table in Supabase SQL Editor (see 12-02-SUMMARY.md for SQL)
 
 ### Blockers/Concerns
 
@@ -71,6 +77,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 12-01-PLAN.md (TG-01 instant multi-channel response)
+Stopped at: Completed 12-02-PLAN.md (TG-126 speed-to-lead timer)
 Resume file: None
-Next: Execute 12-02-PLAN.md (next plan in Phase 12)
+Next: Execute 12-03-PLAN.md (next plan in Phase 12)
