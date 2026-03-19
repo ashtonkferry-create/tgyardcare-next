@@ -1,0 +1,110 @@
+{
+  "name": "TG-144-crew-field-reminders",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 21 * * *"
+            }
+          ]
+        }
+      },
+      "id": "tg144-trigger",
+      "name": "Daily 4pm CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-144: Fetch tomorrow's scheduled jobs from Supabase\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`\n};\n\n// Calculate tomorrow's date in CT (UTC-5/6)\nconst now = new Date();\nconst ctOffset = -6; // CST; adjust to -5 for CDT\nconst ctNow = new Date(now.getTime() + ctOffset * 60 * 60 * 1000);\nconst tomorrow = new Date(ctNow);\ntomorrow.setDate(tomorrow.getDate() + 1);\nconst tomorrowStr = tomorrow.toISOString().split('T')[0];\n\nlet jobs = [];\ntry {\n  jobs = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/jobber_email_events?event_type=eq.job_scheduled&parsed_scheduled_date=eq.${tomorrowStr}&select=client_name,client_address,job_description,parsed_scheduled_time`,\n    headers: supabaseHeaders\n  });\n} catch (e) {\n  jobs = [];\n}\n\nif (!Array.isArray(jobs) || jobs.length === 0) {\n  return [{ json: { jobs: [], _skip: true, message: 'No jobs scheduled for tomorrow' } }];\n}\n\nreturn [{ json: { jobs, tomorrowStr } }];"
+      },
+      "id": "tg144-fetch-jobs",
+      "name": "Fetch Tomorrow's Jobs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-144: Build crew field reminder messages with marketing checklist\nconst data = $input.first().json;\nif (data._skip) {\n  return [{ json: { message: `No jobs scheduled for tomorrow. Enjoy the evening!`, jobCount: 0 } }];\n}\n\nconst jobs = data.jobs;\nconst tomorrowStr = data.tomorrowStr;\n\nconst jobMessages = jobs.map((job, i) => {\n  const name = job.client_name || 'Unknown';\n  const address = job.client_address || 'Address TBD';\n  const service = job.job_description || 'Service TBD';\n  const time = job.parsed_scheduled_time || 'Time TBD';\n\n  return [\n    `JOB ${i + 1}`,\n    `Customer: ${name}`,\n    `Address: ${address}`,\n    `Service: ${service}`,\n    `Time: ${time}`,\n    '',\n    'FIELD MARKETING CHECKLIST:',\n    '[ ] Place yard sign in visible location',\n    '[ ] Leave 3 door hangers at neighboring houses',\n    '[ ] Carry business cards',\n    '[ ] Take before/after photos',\n    '[ ] Ask customer for Google review'\n  ].join('\\n');\n});\n\nconst fullMessage = [\n  `TOMORROW'S JOB REMINDERS`,\n  `Date: ${tomorrowStr}`,\n  `Total Jobs: ${jobs.length}`,\n  '',\n  '---',\n  '',\n  jobMessages.join('\\n\\n---\\n\\n')\n].join('\\n');\n\nreturn [{ json: { message: fullMessage, jobCount: jobs.length } }];"
+      },
+      "id": "tg144-build-reminder",
+      "name": "Build Reminder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "tg144-telegram",
+      "name": "Send Telegram Reminders",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [780, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-144: Log reminder run to automation_runs\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\n\nconst jobCount = $input.first().json.jobCount || 0;\n\ntry {\n  await this.helpers.httpRequest({\n    method: 'POST',\n    url: `${supabaseUrl}/automation_runs`,\n    headers: {\n      'apikey': supabaseKey,\n      'Authorization': `Bearer ${supabaseKey}`,\n      'Content-Type': 'application/json',\n      'Prefer': 'return=minimal'\n    },\n    body: {\n      workflow_name: 'TG-144',\n      event_type: 'crew_field_reminder',\n      status: 'success',\n      details: { job_count: jobCount },\n      created_at: new Date().toISOString()\n    }\n  });\n} catch (e) { /* continue on fail */ }\n\nreturn [{ json: { logged: true, jobCount } }];"
+      },
+      "id": "tg144-log",
+      "name": "Log Reminders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1040, 300],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Daily 4pm CT": {
+      "main": [
+        [{ "node": "Fetch Tomorrow's Jobs", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Tomorrow's Jobs": {
+      "main": [
+        [{ "node": "Build Reminder", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Reminder": {
+      "main": [
+        [{ "node": "Send Telegram Reminders", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Telegram Reminders": {
+      "main": [
+        [{ "node": "Log Reminders", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "tg-144-v1",
+  "meta": {
+    "instanceId": "tgyardcare"
+  },
+  "tags": [
+    { "name": "phase-20-01" },
+    { "name": "crew-reminders" },
+    { "name": "daily" },
+    { "name": "field-marketing" }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "name": "TG-143-neighbor-outreach",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 15 * * *"
+            }
+          ]
+        }
+      },
+      "id": "tg143-trigger",
+      "name": "Daily 10am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-143: Fetch yesterday's completed jobs from Supabase\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`\n};\n\nconst now = new Date();\nconst yesterday20h = new Date(now.getTime() - 28 * 60 * 60 * 1000).toISOString();\nconst yesterday28h = new Date(now.getTime() - 20 * 60 * 60 * 1000).toISOString();\n\nlet completions = [];\ntry {\n  completions = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/jobber_email_events?event_type=eq.job_completed&created_at=gte.${yesterday20h}&created_at=lte.${yesterday28h}&select=customer_name,customer_address,service_type`,\n    headers: supabaseHeaders\n  });\n} catch (e) {\n  completions = [];\n}\n\nif (!Array.isArray(completions) || completions.length === 0) {\n  return [{ json: { completions: [], _skip: true, message: 'No completed jobs yesterday' } }];\n}\n\nreturn [{ json: { completions } }];"
+      },
+      "id": "tg143-fetch-completions",
+      "name": "Fetch Yesterday's Completions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-143: Extract zip codes from completed job addresses\nconst data = $input.first().json;\nif (data._skip) return [{ json: data }];\n\nconst completions = data.completions || [];\nconst zipPattern = /\\b(\\d{5})(-\\d{4})?\\b/;\nconst jobsByZip = {};\n\nfor (const job of completions) {\n  const addr = job.customer_address || '';\n  const match = addr.match(zipPattern);\n  if (match) {\n    const zip = match[1];\n    if (!jobsByZip[zip]) jobsByZip[zip] = [];\n    jobsByZip[zip].push({\n      customerName: job.customer_name,\n      address: addr,\n      serviceType: job.service_type || 'lawn care'\n    });\n  }\n}\n\nconst zipCodes = Object.keys(jobsByZip);\nif (zipCodes.length === 0) {\n  return [{ json: { _skip: true, message: 'No valid zip codes found' } }];\n}\n\nreturn [{ json: { jobsByZip, zipCodes } }];"
+      },
+      "id": "tg143-extract-zips",
+      "name": "Extract Zip Codes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-143: Find neighbor leads in same zip codes, dedup by 30-day window\nconst data = $input.first().json;\nif (data._skip) return [{ json: data }];\n\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`\n};\n\nconst thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();\nconst neighborLeads = [];\n\nfor (const zip of data.zipCodes) {\n  const serviceType = data.jobsByZip[zip][0].serviceType;\n  try {\n    const leads = await this.helpers.httpRequest({\n      method: 'GET',\n      url: `${supabaseUrl}/leads?address=like.*${zip}*&status=neq.customer&select=id,name,phone,address,neighbor_sms_sent_at`,\n      headers: supabaseHeaders\n    });\n\n    if (Array.isArray(leads)) {\n      for (const lead of leads) {\n        // Skip if no phone\n        if (!lead.phone) continue;\n        // Skip if neighbor SMS sent within last 30 days\n        if (lead.neighbor_sms_sent_at && new Date(lead.neighbor_sms_sent_at) > new Date(thirtyDaysAgo)) continue;\n\n        neighborLeads.push({\n          leadId: lead.id,\n          name: lead.name || 'Neighbor',\n          phone: lead.phone,\n          zip,\n          serviceType\n        });\n      }\n    }\n  } catch (e) { /* continue */ }\n}\n\nif (neighborLeads.length === 0) {\n  return [{ json: { _skip: true, message: 'No eligible neighbor leads found' } }];\n}\n\nreturn [{ json: { neighborLeads, zipCodes: data.zipCodes } }];"
+      },
+      "id": "tg143-find-neighbors",
+      "name": "Find Neighbor Leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TG-143: Build neighbor outreach SMS messages\nconst data = $input.first().json;\nif (data._skip) return [{ json: data }];\n\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`,\n  'Content-Type': 'application/json'\n};\n\nconst messages = [];\n\nfor (const lead of data.neighborLeads) {\n  const firstName = lead.name.split(' ')[0];\n  const messageBody = `Hi ${firstName}! TotalGuard was just servicing a property in your neighborhood with ${lead.serviceType}. We'd love to help your yard look amazing too! Free quotes: (608) 535-6057 or tgyardcare.com \\u2014 TotalGuard`;\n\n  messages.push({\n    json: {\n      to_phone: lead.phone,\n      message_body: messageBody,\n      workflow_name: 'TG-143',\n      message_type: 'neighbor_outreach'\n    }\n  });\n\n  // Update neighbor_sms_sent_at for dedup\n  try {\n    await this.helpers.httpRequest({\n      method: 'PATCH',\n      url: `${supabaseUrl}/leads?id=eq.${lead.leadId}`,\n      headers: { ...supabaseHeaders, 'Prefer': 'return=minimal' },\n      body: { neighbor_sms_sent_at: new Date().toISOString() }\n    });\n  } catch (e) { /* continue */ }\n}\n\nreturn messages;"
+      },
+      "id": "tg143-build-sms",
+      "name": "Build Neighbor SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1040, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "AprqI2DgQA8lehij",
+        "options": {}
+      },
+      "id": "tg143-send-sms",
+      "name": "Send via TG-94",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ (function() {\n  const items = $input.all();\n  const count = items.length;\n  const zips = [...new Set(items.map(i => i.json.to_phone ? 'sent' : ''))].length;\n  return `NEIGHBOR OUTREACH\\n\\n${count} neighbor outreach SMS sent\\nWorkflow: TG-143`;\n})() }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "tg143-telegram",
+      "name": "Telegram Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1560, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 10am CT": {
+      "main": [
+        [{ "node": "Fetch Yesterday's Completions", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Yesterday's Completions": {
+      "main": [
+        [{ "node": "Extract Zip Codes", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extract Zip Codes": {
+      "main": [
+        [{ "node": "Find Neighbor Leads", "type": "main", "index": 0 }]
+      ]
+    },
+    "Find Neighbor Leads": {
+      "main": [
+        [{ "node": "Build Neighbor SMS", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Neighbor SMS": {
+      "main": [
+        [{ "node": "Send via TG-94", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send via TG-94": {
+      "main": [
+        [{ "node": "Telegram Summary", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "tg-143-v1",
+  "meta": {
+    "instanceId": "tgyardcare"
+  },
+  "tags": [
+    { "name": "phase-20-01" },
+    { "name": "neighbor-outreach" },
+    { "name": "daily" },
+    { "name": "sms" }
+  ]
+}
