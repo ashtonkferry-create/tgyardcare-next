@@ -98,6 +98,10 @@ Plans:
 **Goal**: Automated post-job review request pipeline that generates 5+ Google reviews per week, with AI-drafted responses and social proof amplification.
 **Depends on**: Phase 13 (job completion triggers)
 **Requirements**: REVW-01, REVW-02, REVW-03, REVW-04, REVW-05, REVW-06, REVW-07
+**Plans:** 2 plans
+Plans:
+- [ ] 14-01-PLAN.md — TG-129 review request SMS (24h) + TG-130 follow-up email (72h)
+- [ ] 14-02-PLAN.md — TG-131 Google review poller + TG-132 AI response drafter with Telegram approval
 **Success Criteria**:
   1. Review request SMS sent 24h after every job completion
   2. Follow-up email sent if no review after 72h
@@ -173,7 +177,7 @@ Plans:
 | 11. Foundation & Infrastructure | M4 | 5/5 | Complete | 2026-03-19 |
 | 12. Conversion Engine | M4 | 7/7 | Complete | 2026-03-19 |
 | 13. Delivery Excellence | M4 | 0/3 | In Progress | - |
-| 14. Review Generation | M4 | 0/? | Not Started | - |
+| 14. Review Generation | M4 | 0/2 | Not Started | - |
 | 15. Retention & LTV | M4 | 0/? | Not Started | - |
 | 16. Content & SEO | M4 | 0/? | Not Started | - |
 | 17. Social Media | M4 | 0/? | Not Started | - |
