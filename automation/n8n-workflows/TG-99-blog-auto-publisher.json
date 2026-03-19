@@ -259,7 +259,7 @@
         "workflowId": {
           "__rl": true,
           "mode": "id",
-          "value": "={{ $env.TG47_WORKFLOW_ID || 'TG-47' }}"
+          "value": "rshVSBVpDprurfIa"
         },
         "options": {
           "waitForSubWorkflow": true
