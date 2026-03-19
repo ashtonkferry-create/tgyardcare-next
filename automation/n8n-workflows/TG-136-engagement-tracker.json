@@ -1,0 +1,143 @@
+{
+  "name": "TG-136-engagement-tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 1 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Sunday 8pm CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/social_posts?status=eq.published&published_at=gte.{{ new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() }}&select=id,post_text,platforms,post_type,pillar,published_at",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "fetch-weekly-posts",
+      "name": "Fetch Published This Week",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "posts-found",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if-posts-found",
+      "name": "IF Posts Found",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate weekly social media stats\nconst posts = $input.all().map(item => item.json);\n\nconst totalPublished = posts.length;\n\n// Count by pillar\nconst byPillar = {};\nfor (const p of posts) {\n  const pillar = p.pillar || 'unknown';\n  byPillar[pillar] = (byPillar[pillar] || 0) + 1;\n}\n\n// Count by platform (platforms may be array or comma-separated string)\nconst byPlatform = {};\nfor (const p of posts) {\n  let platforms = p.platforms || [];\n  if (typeof platforms === 'string') {\n    platforms = platforms.split(',').map(s => s.trim());\n  }\n  // ALWAYS exclude facebook\n  platforms = platforms.filter(pl => pl !== 'facebook' && pl !== 'fb');\n  for (const pl of platforms) {\n    byPlatform[pl] = (byPlatform[pl] || 0) + 1;\n  }\n}\n\n// Count by post_type\nconst byType = {};\nfor (const p of posts) {\n  const t = p.post_type || 'unknown';\n  byType[t] = (byType[t] || 0) + 1;\n}\n\n// Build pillar breakdown text\nlet pillarLines = '';\nfor (const [pillar, count] of Object.entries(byPillar)) {\n  pillarLines += `  - ${pillar}: ${count}\\n`;\n}\n\n// Build platform breakdown text\nlet platformLines = '';\nfor (const [platform, count] of Object.entries(byPlatform)) {\n  platformLines += `  - ${platform}: ${count}\\n`;\n}\n\n// Build type breakdown text\nlet typeLines = '';\nfor (const [type, count] of Object.entries(byType)) {\n  typeLines += `  - ${type}: ${count}\\n`;\n}\n\nconst weekStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { timeZone: 'America/Chicago', month: 'short', day: 'numeric' });\nconst weekEnd = new Date().toLocaleDateString('en-US', { timeZone: 'America/Chicago', month: 'short', day: 'numeric' });\n\nconst report = `Weekly Social Media Report (${weekStart} - ${weekEnd})\\n\\nTotal Published: ${totalPublished}\\n\\nBy Pillar:\\n${pillarLines}\\nBy Platform:\\n${platformLines}\\nBy Type:\\n${typeLines}`;\n\nreturn [{ json: {\n  report,\n  total_published: totalPublished,\n  by_pillar: byPillar,\n  by_platform: byPlatform,\n  by_type: byType\n}}];"
+      },
+      "id": "calculate-stats",
+      "name": "Calculate Weekly Stats",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN || 'TELEGRAM_BOT_TOKEN' }}/sendMessage",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"chat_id\": \"{{ $env.OWNER_TELEGRAM_CHAT_ID || 'OWNER_TELEGRAM_CHAT_ID' }}\", \"text\": {{ JSON.stringify($json.report) }}, \"parse_mode\": \"HTML\" }",
+        "options": {}
+      },
+      "id": "telegram-report",
+      "name": "Send Telegram Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1040, 300]
+    }
+  ],
+  "connections": {
+    "Sunday 8pm CT": {
+      "main": [
+        [{ "node": "Fetch Published This Week", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Published This Week": {
+      "main": [
+        [{ "node": "IF Posts Found", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF Posts Found": {
+      "main": [
+        [{ "node": "Calculate Weekly Stats", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Calculate Weekly Stats": {
+      "main": [
+        [{ "node": "Send Telegram Report", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "tags": [
+    { "id": "fPXl9eiMhJc3ISQQ", "name": "phase-17" },
+    { "name": "social-media" },
+    { "name": "engagement-tracking" }
+  ]
+}

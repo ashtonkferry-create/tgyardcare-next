@@ -1,0 +1,379 @@
+{
+  "name": "TG-135-daily-social-publisher",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "55 14 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily 9:55am CT",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/social_posts?status=eq.scheduled&scheduled_for=lte.{{ new Date(Date.now() + 3600000).toISOString() }}&order=scheduled_for.asc&limit=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "fetch-todays-post",
+      "name": "Fetch Today's Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "post-found",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if-post-found",
+      "name": "IF Post Found",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/social_posts?id=eq.{{ $('IF Post Found').first().json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{ \"status\": \"publishing\" }",
+        "options": {}
+      },
+      "id": "mark-publishing",
+      "name": "Mark as Publishing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "PLACEHOLDER_AUTOPOST_ID",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "post_text",
+              "value": "={{ $('IF Post Found').first().json.post_text }}"
+            },
+            {
+              "name": "image_url",
+              "value": "={{ $('IF Post Found').first().json.image_url }}"
+            },
+            {
+              "name": "platforms",
+              "value": "={{ $('IF Post Found').first().json.platforms }}"
+            },
+            {
+              "name": "post_type",
+              "value": "={{ $('IF Post Found').first().json.post_type }}"
+            }
+          ]
+        }
+      },
+      "id": "call-autopost",
+      "name": "Call TG-AUTOPOST",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [1040, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-success",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "check-result",
+      "name": "Check Result",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/social_posts?id=eq.{{ $('IF Post Found').first().json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"status\": \"published\", \"published_at\": \"{{ new Date().toISOString() }}\" }",
+        "options": {}
+      },
+      "id": "update-published",
+      "name": "Update Published",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": "PLACEHOLDER_AUTOPOST_ID",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "post_text",
+              "value": "={{ $('IF Post Found').first().json.post_text }}"
+            },
+            {
+              "name": "image_url",
+              "value": "={{ $('IF Post Found').first().json.image_url }}"
+            },
+            {
+              "name": "platforms",
+              "value": "={{ $('IF Post Found').first().json.platforms }}"
+            },
+            {
+              "name": "post_type",
+              "value": "={{ $('IF Post Found').first().json.post_type }}"
+            }
+          ]
+        }
+      },
+      "id": "retry-autopost",
+      "name": "Retry TG-AUTOPOST",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [1560, 500]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/social_posts?id=eq.{{ $('IF Post Found').first().json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"status\": \"failed\" }",
+        "options": {}
+      },
+      "id": "update-failed",
+      "name": "Update Failed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1820, 500],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN || 'TELEGRAM_BOT_TOKEN' }}/sendMessage",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const post = $('IF Post Found').first().json; const published = $('Check Result').first().json.success === true; const postPreview = (post.post_text || '').substring(0, 50); if (published) { return JSON.stringify({ chat_id: $env.OWNER_TELEGRAM_CHAT_ID || 'OWNER_TELEGRAM_CHAT_ID', text: '\\u2705 Published: \"' + postPreview + '...\"', parse_mode: 'HTML' }); } else { return JSON.stringify({ chat_id: $env.OWNER_TELEGRAM_CHAT_ID || 'OWNER_TELEGRAM_CHAT_ID', text: '\\u274c FAILED to publish (ID: ' + post.id + ')', parse_mode: 'HTML' }); } })() }}",
+        "options": {}
+      },
+      "id": "telegram-summary",
+      "name": "Telegram Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2080, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN || 'TELEGRAM_BOT_TOKEN' }}/sendMessage",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"chat_id\": \"{{ $env.OWNER_TELEGRAM_CHAT_ID || 'OWNER_TELEGRAM_CHAT_ID' }}\", \"text\": \"No social post scheduled for today\", \"parse_mode\": \"HTML\" }",
+        "options": {}
+      },
+      "id": "telegram-no-post",
+      "name": "Telegram No Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [780, 500]
+    }
+  ],
+  "connections": {
+    "Daily 9:55am CT": {
+      "main": [
+        [{ "node": "Fetch Today's Post", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Today's Post": {
+      "main": [
+        [{ "node": "IF Post Found", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF Post Found": {
+      "main": [
+        [{ "node": "Mark as Publishing", "type": "main", "index": 0 }],
+        [{ "node": "Telegram No Post", "type": "main", "index": 0 }]
+      ]
+    },
+    "Mark as Publishing": {
+      "main": [
+        [{ "node": "Call TG-AUTOPOST", "type": "main", "index": 0 }]
+      ]
+    },
+    "Call TG-AUTOPOST": {
+      "main": [
+        [{ "node": "Check Result", "type": "main", "index": 0 }]
+      ]
+    },
+    "Check Result": {
+      "main": [
+        [{ "node": "Update Published", "type": "main", "index": 0 }],
+        [{ "node": "Retry TG-AUTOPOST", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Published": {
+      "main": [
+        [{ "node": "Telegram Summary", "type": "main", "index": 0 }]
+      ]
+    },
+    "Retry TG-AUTOPOST": {
+      "main": [
+        [{ "node": "Update Failed", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Failed": {
+      "main": [
+        [{ "node": "Telegram Summary", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "tags": [
+    { "id": "fPXl9eiMhJc3ISQQ", "name": "phase-17" },
+    { "name": "social-media" },
+    { "name": "daily-publisher" }
+  ]
+}
