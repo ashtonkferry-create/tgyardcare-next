@@ -1,0 +1,315 @@
+{
+  "name": "TG-148-gbp-optimization-score",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 12 1 * *"
+            }
+          ]
+        }
+      },
+      "id": "tg148-trigger",
+      "name": "Monthly GBP Optimization Audit",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://maps.googleapis.com/maps/api/place/details/json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "place_id",
+              "value": "ChIJMQEDNR3apwMRFbkOyDYmDAE"
+            },
+            {
+              "name": "fields",
+              "value": "name,rating,user_ratings_total,reviews,opening_hours,photos,url"
+            },
+            {
+              "name": "key",
+              "value": "=GOOGLE_PLACES_API_KEY"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "tg148-places",
+      "name": "Fetch GBP Data via Places API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/gbp_posts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer SUPABASE_SECRET_KEY"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,status,created_at"
+            },
+            {
+              "name": "status",
+              "value": "in.(published,approved)"
+            },
+            {
+              "name": "created_at",
+              "value": "gte.{{ new Date(Date.now() - 30*24*60*60*1000).toISOString() }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "tg148-posts",
+      "name": "Fetch Recent GBP Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/gbp_faqs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer SUPABASE_SECRET_KEY"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "created_at"
+            },
+            {
+              "name": "order",
+              "value": "created_at.desc"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "tg148-faqs",
+      "name": "Fetch Latest FAQ Date",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 400],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": {
+          "values": []
+        },
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "tg148-merge",
+      "name": "Merge Internal Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get Google Places data\nconst placesData = $('Fetch GBP Data via Places API').first().json;\nconst result = placesData.result || {};\n\n// Get internal metrics\nconst postsData = $('Fetch Recent GBP Posts').all();\nconst faqsData = $('Fetch Latest FAQ Date').all();\n\nconst postCount = Array.isArray(postsData) ? postsData.length : 0;\nconst reviewCount = result.user_ratings_total || 0;\nconst rating = result.rating || 0;\nconst photoCount = result.photos ? result.photos.length : 0;\nconst hasHours = result.opening_hours ? true : false;\n\n// FAQ freshness (days since last update)\nlet faqDaysSince = 999;\nif (faqsData && faqsData.length > 0 && faqsData[0].json && faqsData[0].json.created_at) {\n  const lastFaq = new Date(faqsData[0].json.created_at);\n  faqDaysSince = Math.floor((Date.now() - lastFaq.getTime()) / (1000 * 60 * 60 * 24));\n}\n\n// Scoring rubric (100 points total)\nlet postScore = 0;\nif (postCount >= 12) postScore = 25;\nelse if (postCount >= 8) postScore = 20;\nelse if (postCount >= 4) postScore = 15;\nelse if (postCount >= 1) postScore = 10;\n\nlet reviewScore = 0;\nif (reviewCount >= 50) reviewScore = 20;\nelse if (reviewCount >= 30) reviewScore = 15;\nelse if (reviewCount >= 15) reviewScore = 10;\nelse if (reviewCount >= 5) reviewScore = 5;\n\nlet ratingScore = 0;\nif (rating >= 4.5) ratingScore = 15;\nelse if (rating >= 4.0) ratingScore = 10;\nelse if (rating >= 3.5) ratingScore = 5;\n\nlet photoScore = 0;\nif (photoCount >= 20) photoScore = 15;\nelse if (photoCount >= 10) photoScore = 10;\nelse if (photoCount >= 5) photoScore = 5;\n\nlet faqScore = 0;\nif (faqDaysSince <= 90) faqScore = 15;\nelse if (faqDaysSince <= 180) faqScore = 10;\n\nlet hoursScore = hasHours ? 10 : 0;\n\nconst totalScore = postScore + reviewScore + ratingScore + photoScore + faqScore + hoursScore;\n\nlet grade;\nif (totalScore >= 90) grade = 'A';\nelse if (totalScore >= 75) grade = 'B';\nelse if (totalScore >= 60) grade = 'C';\nelse if (totalScore >= 40) grade = 'D';\nelse grade = 'F';\n\n// Generate recommendations\nconst recs = [];\nif (postScore < 25) recs.push('Increase posting frequency - aim for 12+ posts/month');\nif (reviewScore < 20) recs.push(`Get more reviews - currently at ${reviewCount}, target 50+`);\nif (ratingScore < 15) recs.push(`Improve rating - currently ${rating}, target 4.5+`);\nif (photoScore < 15) recs.push(`Add more photos - currently ${photoCount}, target 20+`);\nif (faqScore < 15) recs.push('Update FAQs - run FAQ rotation or update manually');\nif (hoursScore < 10) recs.push('Add business hours to your GBP profile');\nif (recs.length === 0) recs.push('Profile is fully optimized! Keep it up.');\n\nconst now = new Date();\nconst monthName = now.toLocaleString('en-US', { month: 'long' });\nconst year = now.getFullYear();\n\n// Build Telegram report\nconst trendArrow = '\\u2796'; // neutral for first run\nlet report = `\\ud83d\\udcca GBP OPTIMIZATION REPORT - ${monthName} ${year}\\n\\n`;\nreport += `Overall Score: ${totalScore}/100 (${grade})\\n`;\nreport += `${trendArrow} First audit (no prior data)\\n\\n`;\nreport += `Breakdown:\\n`;\nreport += `\\ud83d\\udcdd Posts (25): ${postScore}/25 (${postCount} posts in 30d)\\n`;\nreport += `\\u2b50 Reviews (20): ${reviewScore}/20 (${reviewCount} reviews)\\n`;\nreport += `\\ud83c\\udf1f Rating (15): ${ratingScore}/15 (${rating} stars)\\n`;\nreport += `\\ud83d\\udcf7 Photos (15): ${photoScore}/15 (${photoCount} photos)\\n`;\nreport += `\\u2753 FAQ Freshness (15): ${faqScore}/15 (${faqDaysSince < 999 ? faqDaysSince + ' days ago' : 'never'})\\n`;\nreport += `\\u23f0 Hours (10): ${hoursScore}/10\\n\\n`;\nreport += `Recommendations:\\n`;\nrecs.forEach(r => report += `\\u2022 ${r}\\n`);\n\nconst breakdown = {\n  posts: { score: postScore, max: 25, value: postCount },\n  reviews: { score: reviewScore, max: 20, value: reviewCount },\n  rating: { score: ratingScore, max: 15, value: rating },\n  photos: { score: photoScore, max: 15, value: photoCount },\n  faq_freshness: { score: faqScore, max: 15, days_since: faqDaysSince },\n  hours: { score: hoursScore, max: 10, present: hasHours }\n};\n\nreturn [{ json: {\n  score: totalScore,\n  grade,\n  breakdown,\n  review_count: reviewCount,\n  review_rating: rating,\n  post_count_30d: postCount,\n  telegramReport: report,\n  recommendations: recs\n} }];"
+      },
+      "id": "tg148-score",
+      "name": "Calculate GBP Optimization Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/gbp_scores",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"score\": {{ $json.score }},\n  \"grade\": \"{{ $json.grade }}\",\n  \"breakdown\": {{ JSON.stringify($json.breakdown) }},\n  \"review_count\": {{ $json.review_count }},\n  \"review_rating\": {{ $json.review_rating }},\n  \"post_count_30d\": {{ $json.post_count_30d }}\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "tg148-store",
+      "name": "Store Optimization Score",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "chatId": "=OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ $('Calculate GBP Optimization Score').first().json.telegramReport }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "tg148-report",
+      "name": "Send GBP Score Report to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1320, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Monthly GBP Optimization Audit": {
+      "main": [
+        [
+          {
+            "node": "Fetch GBP Data via Places API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch GBP Data via Places API": {
+      "main": [
+        [
+          {
+            "node": "Fetch Recent GBP Posts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Latest FAQ Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Recent GBP Posts": {
+      "main": [
+        [
+          {
+            "node": "Merge Internal Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Latest FAQ Date": {
+      "main": [
+        [
+          {
+            "node": "Merge Internal Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Internal Data": {
+      "main": [
+        [
+          {
+            "node": "Calculate GBP Optimization Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate GBP Optimization Score": {
+      "main": [
+        [
+          {
+            "node": "Store Optimization Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Optimization Score": {
+      "main": [
+        [
+          {
+            "node": "Send GBP Score Report to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
