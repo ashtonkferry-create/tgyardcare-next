@@ -1,0 +1,224 @@
+{
+  "name": "TG-130 Review Follow-up Email",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 19
+            }
+          ]
+        }
+      },
+      "id": "tg130-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/review_requests",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "created_at",
+              "value": "=gte.{{ $now.minus({ hours: 76 }).toISO() }}"
+            },
+            {
+              "name": "created_at",
+              "value": "=lte.{{ $now.minus({ hours: 68 }).toISO() }}"
+            },
+            {
+              "name": "google_review_received",
+              "value": "eq.false"
+            },
+            {
+              "name": "request_type",
+              "value": "eq.sms_24h"
+            },
+            {
+              "name": "followup_sent",
+              "value": "eq.false"
+            },
+            {
+              "name": "select",
+              "value": "id,customer_name,customer_email,customer_phone"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg130-fetch",
+      "name": "Fetch Stale Requests",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 0],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "filter-email-not-empty",
+              "leftValue": "={{ $json.customer_email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "tg130-filter-email",
+      "name": "Filter Has Email",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const name = (item.json.customer_name || 'Valued Customer').split(' ')[0];\n  const email = item.json.customer_email;\n  const reviewUrl = 'https://g.page/r/CQEMNig5DhIBEAI/review';\n  const requestId = item.json.id;\n\n  const subject = `${name}, how did we do? (30-sec review)`;\n\n  const html_body = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family:Arial, Helvetica, sans-serif;\">\n  <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f4f4f4; padding:20px 0;\">\n    <tr>\n      <td align=\"center\">\n        <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#ffffff; border-radius:8px; overflow:hidden;\">\n          <!-- Header -->\n          <tr>\n            <td style=\"background:linear-gradient(135deg, #166534, #15803d); padding:32px 40px; text-align:center;\">\n              <h1 style=\"margin:0; color:#ffffff; font-size:24px; font-weight:700; letter-spacing:0.5px;\">TotalGuard Yard Care</h1>\n            </td>\n          </tr>\n          <!-- Body -->\n          <tr>\n            <td style=\"padding:40px;\">\n              <p style=\"margin:0 0 16px; font-size:16px; line-height:1.6; color:#333333;\">Hi ${name},</p>\n              <p style=\"margin:0 0 16px; font-size:16px; line-height:1.6; color:#333333;\">A few days ago we had the pleasure of caring for your lawn. We hope everything looks great!</p>\n              <p style=\"margin:0 0 24px; font-size:16px; line-height:1.6; color:#333333;\">If you have 30 seconds, a quick Google review would mean the world to our small, local team. It helps other homeowners find reliable yard care and keeps us doing what we love.</p>\n              <!-- CTA Button -->\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                <tr>\n                  <td align=\"center\" style=\"padding:8px 0 32px;\">\n                    <a href=\"${reviewUrl}\" target=\"_blank\" style=\"display:inline-block; background-color:#166534; color:#ffffff; font-size:18px; font-weight:700; text-decoration:none; padding:16px 48px; border-radius:8px;\">Leave a Quick Review</a>\n                  </td>\n                </tr>\n              </table>\n              <p style=\"margin:0; font-size:16px; line-height:1.6; color:#333333;\">Thank you for trusting us with your yard!</p>\n              <p style=\"margin:16px 0 0; font-size:16px; line-height:1.6; color:#333333;\">Warm regards,<br><strong>The TotalGuard Team</strong></p>\n            </td>\n          </tr>\n          <!-- Footer -->\n          <tr>\n            <td style=\"background-color:#1a1a2e; padding:24px 40px; text-align:center;\">\n              <p style=\"margin:0 0 8px; font-size:14px; color:#a0a0b0;\">TotalGuard Yard Care</p>\n              <p style=\"margin:0 0 8px; font-size:14px; color:#a0a0b0;\">Madison, WI &bull; (608) 535-6057</p>\n              <p style=\"margin:0; font-size:12px; color:#666680;\">You received this because we recently serviced your property.</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>`;\n\n  results.push({\n    json: {\n      to_email: email,\n      subject: subject,\n      html_body: html_body,\n      workflow_name: 'TG-130-review-followup',\n      email_type: 'review_followup',\n      _review_request_id: requestId\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "tg130-build-email",
+      "name": "Build Email Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "workflowId": "IUDLrQrAkcLFLsIC"
+      },
+      "id": "tg130-send-email",
+      "name": "Send via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [880, 0]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/review_requests?id=eq.{{ $json._review_request_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"followup_sent\": true,\n  \"followup_sent_at\": \"{{ $now.toISO() }}\"\n}",
+        "options": {}
+      },
+      "id": "tg130-update",
+      "name": "Update Request Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 0],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Stale Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Stale Requests": {
+      "main": [
+        [
+          {
+            "node": "Filter Has Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Has Email": {
+      "main": [
+        [
+          {
+            "node": "Build Email Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email Payload": {
+      "main": [
+        [
+          {
+            "node": "Send via TG-95",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send via TG-95": {
+      "main": [
+        [
+          {
+            "node": "Update Request Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

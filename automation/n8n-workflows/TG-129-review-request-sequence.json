@@ -1,6 +1,5 @@
 {
-  "id": "F8lA6eWLeHANSsuI",
-  "name": "TG-129 Review Request Sequence",
+  "name": "TG-129 Review Request SMS Sequence",
   "nodes": [
     {
       "parameters": {
@@ -13,36 +12,34 @@
         }
       },
       "id": "tg129-trigger",
-      "name": "Daily 10 AM Review Request Check",
+      "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [
-        250,
-        300
-      ]
+      "position": [0, 0]
     },
     {
       "parameters": {
-        "method": "GET",
         "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/jobber_email_events",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
-            {
-              "name": "select",
-              "value": "id,customer_name,customer_phone,customer_email,service_type,created_at"
-            },
             {
               "name": "event_type",
               "value": "eq.job_completed"
             },
             {
-              "name": "created_at",
-              "value": "=gte.{{ $now.minus({hours: 28}).toISO() }}"
+              "name": "select",
+              "value": "id,customer_name,customer_phone,customer_email,service_type,created_at"
             },
             {
               "name": "created_at",
-              "value": "=lte.{{ $now.minus({hours: 20}).toISO() }}"
+              "value": "=gte.{{ $now.minus({ hours: 28 }).toISO() }}"
+            },
+            {
+              "name": "created_at",
+              "value": "=lte.{{ $now.minus({ hours: 20 }).toISO() }}"
             }
           ]
         },
@@ -51,24 +48,21 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
+              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY"
+              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
             }
           ]
         },
         "options": {}
       },
       "id": "tg129-fetch",
-      "name": "Fetch Jobs Completed 20-28h Ago",
+      "name": "Fetch Recent Completions",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        470,
-        300
-      ],
+      "position": [220, 0],
       "continueOnFail": true
     },
     {
@@ -81,12 +75,12 @@
           },
           "conditions": [
             {
-              "id": "tg129-cond-phone",
+              "id": "filter-phone-not-empty",
               "leftValue": "={{ $json.customer_phone }}",
               "rightValue": "",
               "operator": {
                 "type": "string",
-                "operation": "notEmpty"
+                "operation": "isNotEmpty"
               }
             }
           ],
@@ -95,53 +89,40 @@
         "options": {}
       },
       "id": "tg129-filter-phone",
-      "name": "Filter: Has Phone Number",
+      "name": "Filter Has Phone",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2,
-      "position": [
-        690,
-        300
-      ]
+      "position": [440, 0]
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const phone = item.json.customer_phone;\n  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();\n  \n  try {\n    const response = await this.helpers.httpRequest({\n      method: 'GET',\n      url: `https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/review_requests?customer_phone=eq.${encodeURIComponent(phone)}&created_at=gte.${thirtyDaysAgo}&select=id`,\n      headers: {\n        'apikey': 'SUPABASE_ANON_KEY',\n        'Authorization': 'Bearer SUPABASE_ANON_KEY'\n      }\n    });\n    \n    if (!response || !Array.isArray(response) || response.length === 0) {\n      results.push(item);\n    }\n  } catch (error) {\n    results.push(item);\n  }\n}\n\nreturn results;"
+        "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  const phone = item.json.customer_phone;\n  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();\n\n  try {\n    const response = await this.helpers.httpRequest({\n      method: 'GET',\n      url: `https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/review_requests`,\n      qs: {\n        customer_phone: `eq.${phone}`,\n        created_at: `gte.${thirtyDaysAgo}`,\n        select: 'id'\n      },\n      headers: {\n        apikey: 'SUPABASE_ANON_KEY_PLACEHOLDER',\n        Authorization: 'Bearer SUPABASE_ANON_KEY_PLACEHOLDER'\n      },\n      json: true\n    });\n\n    if (!response || response.length === 0) {\n      results.push(item);\n    }\n  } catch (error) {\n    // On error, include the item anyway so we don't miss a review request\n    results.push(item);\n  }\n}\n\nreturn results;"
       },
       "id": "tg129-dedup",
-      "name": "Check If Review Already Requested",
+      "name": "Check Already Requested",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        910,
-        300
-      ]
+      "position": [660, 0]
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first().json;\nconst name = input.customer_name || 'there';\nconst firstName = name.split(' ')[0];\n\nconst message = `Hi ${firstName}! Thank you for choosing TotalGuard Yard Care. We would love to hear how we did! Would you take 30 seconds to leave us a Google review? It means the world to our small business: https://g.page/r/CQEMNig5DhIBEAI/review - Thank you! The TotalGuard Team`;\n\nreturn [{\n  json: {\n    to_phone: input.customer_phone,\n    message_body: message,\n    workflow_name: 'TG-129-review-request',\n    message_type: 'review_request',\n    customer_name: input.customer_name,\n    customer_email: input.customer_email,\n    customer_phone: input.customer_phone\n  }\n}];"
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const name = (item.json.customer_name || 'there').split(' ')[0];\n  const phone = item.json.customer_phone;\n\n  const message = `Hi ${name}! Thank you for choosing TotalGuard Yard Care. We would love to hear how we did! Would you take 30 seconds to leave us a Google review? It means the world to our small business: https://g.page/r/CQEMNig5DhIBEAI/review - Thank you! The TotalGuard Team`;\n\n  results.push({\n    json: {\n      to_phone: phone,\n      message_body: message,\n      workflow_name: 'TG-129-review-request',\n      message_type: 'review_request',\n      customer_name: item.json.customer_name,\n      customer_email: item.json.customer_email,\n      customer_phone: phone\n    }\n  });\n}\n\nreturn results;"
       },
       "id": "tg129-build-sms",
-      "name": "Build Review Request SMS",
+      "name": "Build SMS Payload",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        1130,
-        300
-      ]
+      "position": [880, 0]
     },
     {
       "parameters": {
-        "workflowId": "AprqI2DgQA8lehij",
-        "options": {}
+        "workflowId": "AprqI2DgQA8lehij"
       },
       "id": "tg129-send-sms",
-      "name": "Send Review Request SMS via TG-94",
+      "name": "Send via TG-94",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
-      "position": [
-        1350,
-        300
-      ]
+      "position": [1100, 0]
     },
     {
       "parameters": {
@@ -152,11 +133,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY"
+              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY"
+              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
             },
             {
               "name": "Content-Type",
@@ -170,81 +151,78 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ customer_phone: $json.customer_phone, customer_email: $json.customer_email, customer_name: $json.customer_name, request_type: 'sms_24h', source_workflow: 'TG-129' }) }}",
+        "jsonBody": "={\n  \"customer_phone\": \"{{ $json.customer_phone }}\",\n  \"customer_email\": \"{{ $json.customer_email }}\",\n  \"customer_name\": \"{{ $json.customer_name }}\",\n  \"request_type\": \"sms_24h\",\n  \"source_workflow\": \"TG-129\"\n}",
         "options": {}
       },
       "id": "tg129-log",
-      "name": "Log Review Request to Supabase",
+      "name": "Log Review Request",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        1570,
-        300
-      ],
+      "position": [1320, 0],
       "continueOnFail": true
     }
   ],
   "connections": {
-    "Daily 10 AM Review Request Check": {
+    "Schedule Trigger": {
       "main": [
         [
           {
-            "node": "Fetch Jobs Completed 20-28h Ago",
+            "node": "Fetch Recent Completions",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Fetch Jobs Completed 20-28h Ago": {
+    "Fetch Recent Completions": {
       "main": [
         [
           {
-            "node": "Filter: Has Phone Number",
+            "node": "Filter Has Phone",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Filter: Has Phone Number": {
+    "Filter Has Phone": {
       "main": [
         [
           {
-            "node": "Check If Review Already Requested",
+            "node": "Check Already Requested",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Check If Review Already Requested": {
+    "Check Already Requested": {
       "main": [
         [
           {
-            "node": "Build Review Request SMS",
+            "node": "Build SMS Payload",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Build Review Request SMS": {
+    "Build SMS Payload": {
       "main": [
         [
           {
-            "node": "Send Review Request SMS via TG-94",
+            "node": "Send via TG-94",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Send Review Request SMS via TG-94": {
+    "Send via TG-94": {
       "main": [
         [
           {
-            "node": "Log Review Request to Supabase",
+            "node": "Log Review Request",
             "type": "main",
             "index": 0
           }
@@ -253,7 +231,7 @@
     }
   },
   "settings": {
-    "executionOrder": "v1",
-    "callerPolicy": "workflowsFromSameOwner"
-  }
+    "executionOrder": "v1"
+  },
+  "active": false
 }
