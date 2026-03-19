@@ -349,7 +349,7 @@ export default function ContactContent() {
         }} />
 
         {/* Ambient particle layer */}
-        <AmbientParticles density="dense" />
+        <AmbientParticles density="ultra" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
