@@ -15,7 +15,7 @@ const DIRECTORIES = [
   },
   {
     name: "Facebook",
-    url: "https://www.facebook.com/totalguardyardcare",
+    url: "https://www.facebook.com/totalguardyard/",
     checkable: true,
   },
   {

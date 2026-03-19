@@ -152,7 +152,7 @@ export const BUSINESS_CONFIG = {
   website: 'https://tgyardcare.com',
   foundedYear: 2023,
   socialMedia: {
-    facebook: 'https://facebook.com/totalguardyardcare',
+    facebook: 'https://www.facebook.com/totalguardyard/',
     instagram: 'https://www.instagram.com/totalguardyardcare',
   },
 } as const;

@@ -418,7 +418,7 @@ export default function Footer({
               </p>
               <div className="flex gap-3">
                 <a
-                  href="https://facebook.com/totalguardyardcare"
+                  href="https://www.facebook.com/totalguardyard/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`group relative flex items-center justify-center h-12 w-12 rounded-lg border ${t.seasonBorder} ${t.seasonBg} hover:border-white/20 transition-all duration-300`}

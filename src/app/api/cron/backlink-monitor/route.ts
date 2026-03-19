@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 // Known backlinks to track (add new ones as they're discovered)
 const KNOWN_BACKLINKS = [
   {
-    sourceUrl: "https://www.facebook.com/totalguardyardcare",
+    sourceUrl: "https://www.facebook.com/totalguardyard/",
     sourceName: "Facebook Page",
     expectedAnchor: "tgyardcare.com",
   },

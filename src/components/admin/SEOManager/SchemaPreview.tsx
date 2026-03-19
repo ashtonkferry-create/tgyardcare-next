@@ -107,7 +107,7 @@ export function SchemaPreview({ page }: SchemaPreviewProps) {
           "@type": "Organization",
           "logo": `${CANONICAL_DOMAIN}/lovable-uploads/785f87d1-0deb-4f52-bb55-562cc863177a.webp`,
           "sameAs": [
-            "https://facebook.com/totalguardyardcare",
+            "https://www.facebook.com/totalguardyard/",
             "https://www.instagram.com/totalguardyardcare"
           ]
         };

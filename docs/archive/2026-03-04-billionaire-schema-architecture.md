@@ -94,7 +94,7 @@ export const OPENING_HOURS = [
 ];
 
 export const SOCIAL_PROFILES = [
-  'https://facebook.com/totalguardyardcare',
+  'https://facebook.com/totalguardyard/',
   'https://instagram.com/tgyardcare',
 ];
 

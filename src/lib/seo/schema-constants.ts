@@ -93,7 +93,7 @@ export const OPENING_HOURS = [
 // ---------------------------------------------------------------------------
 
 export const SOCIAL_PROFILES = [
-  'https://www.facebook.com/totalguardyardcare',
+  'https://www.facebook.com/totalguardyard/',
   'https://www.instagram.com/totalguardyardcare',
 ] as const;
 
