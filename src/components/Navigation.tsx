@@ -523,7 +523,7 @@ function MegaMenu({
 
   return (
     <div className={cn(
-      "w-[920px] rounded-xl shadow-2xl overflow-hidden relative",
+      "w-[720px] rounded-xl shadow-2xl overflow-hidden relative",
       "border border-white/[0.08]",
       "bg-gradient-to-br",
       season === 'winter' ? 'from-slate-950 via-slate-900 to-blue-950' :
@@ -550,7 +550,7 @@ function MegaMenu({
       <div className="flex relative">
         {/* ---- 3 Service Columns + Hardscaping Link ---- */}
         <div className="flex-1 flex flex-col">
-          <div className="p-5 pb-2 grid grid-cols-3 gap-6">
+          <div className="p-4 pb-2 grid grid-cols-3 gap-4">
             {columns.map((col) => {
               const ColIcon = col.icon;
               return (
@@ -655,7 +655,7 @@ function MegaMenu({
         </div>
 
         {/* ---- Sidebar Panel (dynamic — updates on service hover) ---- */}
-        <motion.div variants={sidebarVariants} className="w-[240px] bg-white/[0.05] border-l border-white/[0.06] p-5 flex flex-col">
+        <motion.div variants={sidebarVariants} className="w-[200px] bg-white/[0.05] border-l border-white/[0.06] p-4 flex flex-col">
           {/* Icon + heading */}
           <div className="flex items-center gap-2 mb-3 transition-all duration-200">
             <div className={`p-2 ${accent.sidebarIconBg} rounded-lg transition-colors duration-200`}>
@@ -871,7 +871,7 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
         {/* Bottom accent glow line */}
         <div className={`absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent ${t.glowLine} to-transparent`} />
       </div>
-      <div className="container mx-auto px-3 sm:px-4 relative z-10">
+      <div className="container mx-auto px-3 sm:px-4 relative">
         <div className={cn("flex items-center justify-between transition-all duration-300", isCondensed ? "h-14 md:h-15 lg:h-16" : "h-16 md:h-18 lg:h-20")}>
           {/* ---- Logo ---- */}
           <Link href="/" className="flex items-center group flex-shrink-0 -my-4 relative z-20">
