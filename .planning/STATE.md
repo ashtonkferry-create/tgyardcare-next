@@ -5,27 +5,28 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Build an autonomous business nervous system — acquires customers, converts leads, delivers excellence, retains accounts, amplifies brand, reports via Telegram.
-**Current focus:** M4 TG-OS Business Automation — Phase 15 COMPLETE (Retention & Lifetime Value)
+**Current focus:** M4 TG-OS Business Automation — Phase 16 In Progress (Content & SEO Engine)
 
 ## Current Position
 
-Phase: 15 of 20 (Retention & Lifetime Value)
-Plan: 4 of 4 in Phase 15
-Status: Phase 15 COMPLETE
-Last activity: 2026-03-19 — Completed 15-04-PLAN.md (monthly newsletter + cross-sell engine)
+Phase: 16 of 20 (Content & SEO Engine)
+Plan: 2 of 3 in Phase 16
+Status: In progress
+Last activity: 2026-03-19 — Completed 16-02-PLAN.md (rank monitoring pipeline)
 
-Progress M4: [████████████████████░░░░░░░░░░░░] 25/62 requirements (Phase 15 COMPLETE)
+Progress M4: [█████████████████████░░░░░░░░░░░] 27/62 requirements (Phase 16 in progress)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 82 (M2: 34 + M3: 36 + M4: 12)
+- Total plans completed: 84 (M2: 34 + M3: 36 + M4: 14)
 - M4 Phase 11: 5 requirements complete (INFRA-01, INFRA-02, 11-02 key audit, 11-03 auto-posting, 11-01 TG-92/TG-113 activation)
 - M4 Phase 12: 4 plans complete (12-01 instant response, 12-02 speed-to-lead, 12-03 follow-up sequence, 12-04 lead scoring) -- PHASE COMPLETE
 - M4 Phase 14: 2 plans complete (14-01 review request, 14-02 review monitoring + response pipeline)
 - M4 Phase 15: 4 plans complete (15-01 referral, 15-02 loyalty, 15-03 winback, 15-04 newsletter + cross-sell) -- PHASE COMPLETE
+- M4 Phase 16: 2 plans complete (16-01 content generation pipeline, 16-02 rank monitoring pipeline)
 
 ## Accumulated Context
 
@@ -110,6 +111,12 @@ Progress M2: [██████████████████████
 - [M4 Phase 15]: Newsletter uses TG-95 per-recipient; recommend Brevo campaigns if customer count exceeds 100
 - [M4 Phase 15]: n8n API PUT requires removing 'active' field from body (read-only field causes 400)
 - [M4 Phase 15]: Two TG-95 copies exist — FSRv5y8YzMjpyBtc (canonical) and IUDLrQrAkcLFLsIC (old copy, also active)
+- [M4 Phase 16]: TG-96 GSC daily sync deployed (n8n ID: Vt8uzm8RGy3QXv3B), 6am UTC, needs Google credential setup
+- [M4 Phase 16]: TG-45 keyword rank tracker deployed (n8n ID: niQsYkoGk7EZvAqo), 8am UTC, 177 keywords across 12 cities
+- [M4 Phase 16]: TG-97 rank drop detector deployed (n8n ID: NPxVFCf05a15PjBH), 10am UTC, Telegram alerts on drops > 3 positions
+- [M4 Phase 16]: 30 workflows now active (added TG-96, TG-45, TG-97)
+- [M4 Phase 16]: TG-96 uses n8n Google Service Account credential reference (GOOGLE_CREDENTIAL_ID placeholder)
+- [M4 Phase 16]: TG-97 detects disappeared keywords + CTR anomalies in addition to rank drops
 
 ### Pending Todos
 
@@ -141,6 +148,10 @@ Progress M2: [██████████████████████
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-10 Telegram Summary node with Vance's actual Telegram chat ID
 - Set SUPABASE_ANON_KEY_PLACEHOLDER in TG-81 (Fetch 5-Star Review + Fetch Active Customers, 4 occurrences)
 - Set SUPABASE_ANON_KEY_PLACEHOLDER in TG-10 (Fetch Customers, 2 occurrences)
+- Create Google Service Account credential in n8n for GSC access (TG-96 needs it)
+- Update GOOGLE_CREDENTIAL_ID in TG-96 with actual n8n credential ID
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-97 Send Telegram Alert node with Vance's actual Telegram chat ID
+- Create gsc_pages, gsc_search_queries, seo_rankings, seo_weekly_reports tables in Supabase
 
 ### Blockers/Concerns
 
@@ -154,6 +165,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 15-04-PLAN.md (monthly newsletter + cross-sell engine) -- Phase 15 COMPLETE
+Stopped at: Completed 16-02-PLAN.md (rank monitoring pipeline)
 Resume file: None
-Next: Phase 16 planning
+Next: 16-03-PLAN.md (weekly SEO digest)
