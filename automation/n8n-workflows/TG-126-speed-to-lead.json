@@ -1,0 +1,200 @@
+{
+  "name": "TG-126-speed-to-lead",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?status=eq.new&select=id,first_name,last_name,phone,email,service,source,created_at,lead_score,lead_tier",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-uncontacted",
+      "name": "Fetch Uncontacted Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [300, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/lead_alerts?alert_type=like.speed_to_lead*&sent_at=gte.{{ new Date(Date.now() - 24*60*60*1000).toISOString() }}&select=lead_id,alert_type,sent_at",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-alert-history",
+      "name": "Fetch Alert History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [300, 400],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const leads = $('Fetch Uncontacted Leads').all().map(i => i.json);\nconst alertHistoryRaw = $('Fetch Alert History').all().map(i => i.json);\n\n// Handle case where lead_alerts table doesn't exist (alertHistory may be error)\nconst alertHistory = Array.isArray(alertHistoryRaw) ? alertHistoryRaw.filter(a => a.lead_id && a.alert_type) : [];\n\n// Build set of already-alerted: \"lead_id|alert_type\"\nconst alerted = new Set();\nfor (const a of alertHistory) {\n  alerted.add(`${a.lead_id}|${a.alert_type}`);\n}\n\n// Check business hours (CT = America/Chicago)\nconst now = new Date();\nconst ctHour = new Date(now.toLocaleString('en-US', { timeZone: 'America/Chicago' })).getHours();\nif (ctHour < 8 || ctHour >= 21) return []; // Outside business hours\n\nconst results = [];\nfor (const lead of leads) {\n  const ageMs = Date.now() - new Date(lead.created_at).getTime();\n  const ageHours = ageMs / (1000 * 60 * 60);\n\n  let alertLevel = null;\n  let severity = '';\n  let emoji = '';\n\n  if (ageHours >= 8) {\n    alertLevel = 'speed_to_lead_8h';\n    severity = 'CRITICAL';\n    emoji = '\\ud83d\\udea8\\ud83d\\udea8\\ud83d\\udea8';\n  } else if (ageHours >= 4) {\n    alertLevel = 'speed_to_lead_4h';\n    severity = 'WARNING';\n    emoji = '\\u26a0\\ufe0f\\u26a0\\ufe0f';\n  } else if (ageHours >= 2) {\n    alertLevel = 'speed_to_lead_2h';\n    severity = 'ALERT';\n    emoji = '\\u23f0';\n  }\n\n  if (!alertLevel) continue;\n  if (alerted.has(`${lead.id}|${alertLevel}`)) continue;\n\n  const name = `${lead.first_name || ''} ${lead.last_name || ''}`.trim() || 'Unknown';\n  const phone = lead.phone || 'No phone';\n  const service = lead.service || 'Not specified';\n  const hoursAgo = Math.round(ageHours * 10) / 10;\n  const tierEmoji = (lead.lead_tier === 'hot') ? '\\ud83d\\udd25' : (lead.lead_tier === 'warm') ? '\\ud83d\\udfe1' : '\\ud83d\\udd35';\n\n  const msg = `${emoji} SPEED TO LEAD ${severity}\\n\\n` +\n    `Lead waiting ${hoursAgo} hours!\\n\\n` +\n    `\\ud83d\\udc64 ${name}\\n` +\n    `\\ud83d\\udcf1 ${phone}\\n` +\n    `\\ud83d\\udd27 ${service}\\n` +\n    `${tierEmoji} Score: ${lead.lead_score || 0} (${lead.lead_tier || 'unknown'})\\n\\n` +\n    `\\ud83d\\udcde Call NOW: tel:${(phone || '').replace(/[^+\\d]/g, '')}`;\n\n  results.push({\n    json: {\n      lead_id: lead.id,\n      alert_type: alertLevel,\n      message: msg,\n      severity,\n      hours_waiting: hoursAgo\n    }\n  });\n}\nreturn results;"
+      },
+      "id": "process-stale-leads",
+      "name": "Process Stale Leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.message }}",
+        "additionalFields": {}
+      },
+      "id": "send-telegram-warning",
+      "name": "Send Telegram Warning",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [900, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/lead_alerts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"lead_id\": \"{{ $json.lead_id }}\", \"alert_type\": \"{{ $json.alert_type }}\" }",
+        "options": {}
+      },
+      "id": "log-alert",
+      "name": "Log Alert Sent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1200, 300],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Uncontacted Leads",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Alert History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Uncontacted Leads": {
+      "main": [
+        [
+          {
+            "node": "Process Stale Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Alert History": {
+      "main": [
+        [
+          {
+            "node": "Process Stale Leads",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Process Stale Leads": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Warning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Warning": {
+      "main": [
+        [
+          {
+            "node": "Log Alert Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  }
+}
