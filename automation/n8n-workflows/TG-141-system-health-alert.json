@@ -21,7 +21,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "https://tgyardcare.app.n8n.cloud/api/v1/executions?limit=10&status=error",
+        "url": "https://tgyardcare.app.n8n.cloud/api/v1/executions?limit=50&status=error",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -37,18 +37,44 @@
       "name": "Fetch Recent Errors",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [240, 300],
+      "position": [260, 300],
       "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "const response = $input.first().json;\nconst executions = response.data || response.results || [];\n\nif (!executions.length) {\n  return [{ json: { hasNewErrors: false, errorCount: 0, errors: [] } }];\n}\n\n// Only errors in the last 5 minutes\nconst fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);\n\nconst recentErrors = executions.filter(exec => {\n  const finishedAt = exec.stoppedAt || exec.startedAt;\n  if (!finishedAt) return false;\n  return new Date(finishedAt) >= fiveMinAgo;\n});\n\nif (!recentErrors.length) {\n  return [{ json: { hasNewErrors: false, errorCount: 0, errors: [] } }];\n}\n\nconst errors = recentErrors.map(exec => ({\n  workflowName: exec.workflowData?.name || exec.workflowId || 'Unknown',\n  errorMessage: exec.data?.resultData?.error?.message || exec.stoppedAt ? 'Execution failed' : 'Unknown error',\n  timestamp: exec.stoppedAt || exec.startedAt,\n  executionId: exec.id\n}));\n\nreturn [{ json: {\n  hasNewErrors: true,\n  errorCount: errors.length,\n  errors\n} }];"
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/system_health_checks?select=checked_at,last_error_id&order=checked_at.desc&limit=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg141-fetch-last-check",
+      "name": "Fetch Last Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 520],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const errorResp = $('Fetch Recent Errors').first().json;\nconst lastCheckRaw = $('Fetch Last Check').first().json;\n\nconst executions = errorResp?.data || [];\nif (!executions.length) {\n  return [{ json: { hasNewErrors: false, errorCount: 0, criticalCount: 0, errors: [], lastErrorId: null } }];\n}\n\n// Get last check timestamp for dedup\nconst lastChecks = Array.isArray(lastCheckRaw) ? lastCheckRaw : (lastCheckRaw?.checked_at ? [lastCheckRaw] : []);\nconst lastCheckTime = lastChecks.length ? new Date(lastChecks[0].checked_at) : new Date(Date.now() - 5 * 60 * 1000);\nconst lastErrorId = lastChecks.length ? lastChecks[0].last_error_id : null;\n\n// Filter to only new errors since last check\nconst newErrors = executions.filter(exec => {\n  const finishedAt = exec.stoppedAt || exec.startedAt;\n  if (!finishedAt) return false;\n  if (new Date(finishedAt) <= lastCheckTime) return false;\n  if (lastErrorId && exec.id === lastErrorId) return false;\n  return true;\n});\n\nif (!newErrors.length) {\n  return [{ json: { hasNewErrors: false, errorCount: 0, criticalCount: 0, errors: [], lastErrorId: executions[0]?.id || null } }];\n}\n\n// Infrastructure workflows = CRITICAL\nconst criticalWorkflows = ['TG-01', 'TG-05', 'TG-94', 'TG-95'];\nconst warningWorkflows = ['TG-09', 'TG-07', 'TG-126', 'TG-127', 'TG-128'];\n\n// Count errors per workflow for escalation\nconst errorCounts = {};\nfor (const exec of executions) {\n  const wfName = exec.workflowData?.name || '';\n  const finishedAt = exec.stoppedAt || exec.startedAt;\n  const oneHourAgo = Date.now() - 60 * 60 * 1000;\n  if (finishedAt && new Date(finishedAt).getTime() > oneHourAgo) {\n    errorCounts[wfName] = (errorCounts[wfName] || 0) + 1;\n  }\n}\n\nconst errors = newErrors.map(exec => {\n  const wfName = exec.workflowData?.name || exec.workflowId || 'Unknown';\n  const errorMsg = exec.data?.resultData?.error?.message || 'Execution failed';\n  const timestamp = exec.stoppedAt || exec.startedAt;\n  const hourlyCount = errorCounts[wfName] || 1;\n\n  // Determine base severity\n  let severity = 'INFO';\n  if (criticalWorkflows.some(cw => wfName.includes(cw))) {\n    severity = 'CRITICAL';\n  } else if (warningWorkflows.some(ww => wfName.includes(ww))) {\n    severity = 'WARNING';\n  }\n\n  // Escalate if 3+ errors in 1 hour for same workflow\n  if (hourlyCount >= 3) {\n    if (severity === 'INFO') severity = 'WARNING';\n    else if (severity === 'WARNING') severity = 'CRITICAL';\n  }\n\n  return {\n    workflowName: wfName,\n    workflowId: exec.workflowId || '',\n    errorMessage: errorMsg,\n    timestamp,\n    executionId: exec.id,\n    severity,\n    hourlyCount\n  };\n});\n\nconst criticalCount = errors.filter(e => e.severity === 'CRITICAL').length;\n\nreturn [{ json: {\n  hasNewErrors: true,\n  errorCount: errors.length,\n  criticalCount,\n  errors,\n  lastErrorId: executions[0]?.id || null\n} }];"
       },
       "id": "tg141-filter",
-      "name": "Filter New Errors",
+      "name": "Filter and Classify Errors",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [480, 300]
+      "position": [560, 400]
     },
     {
       "parameters": {
@@ -76,54 +102,229 @@
       "name": "IF New Errors Found",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [720, 300]
+      "position": [820, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { errors, errorCount, criticalCount } = $json;\n\n// Split into critical and non-critical\nconst criticalErrors = errors.filter(e => e.severity === 'CRITICAL');\nconst otherErrors = errors.filter(e => e.severity !== 'CRITICAL');\n\nconst formatError = (e) => {\n  const time = new Date(e.timestamp).toLocaleString('en-US', { timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit', hour12: true });\n  return `Workflow: ${e.workflowName}\\nError: ${e.errorMessage}\\nCount: ${e.hourlyCount} in last hour\\nTime: ${time}\\nView: https://tgyardcare.app.n8n.cloud/workflow/${e.workflowId}/executions`;\n};\n\nconst results = [];\n\nif (criticalErrors.length) {\n  const critMsg = [\n    `\\ud83d\\udea8\\ud83d\\udea8\\ud83d\\udea8 CRITICAL SYSTEM ALERT`,\n    ``,\n    `${criticalErrors.length} critical error(s) detected`,\n    `LEADS MAY BE DROPPING - check immediately`,\n    ``,\n    criticalErrors.map(formatError).join('\\n\\n---\\n\\n')\n  ].join('\\n');\n  results.push({ json: { severity: 'CRITICAL', alert_message: critMsg, errors: criticalErrors } });\n}\n\nif (otherErrors.length) {\n  const sevEmoji = otherErrors.some(e => e.severity === 'WARNING') ? '\\u26a0\\ufe0f' : '\\u2139\\ufe0f';\n  const otherMsg = [\n    `${sevEmoji} SYSTEM ALERT`,\n    ``,\n    `${otherErrors.length} workflow error(s) detected`,\n    ``,\n    otherErrors.map(formatError).join('\\n\\n---\\n\\n')\n  ].join('\\n');\n  results.push({ json: { severity: 'OTHER', alert_message: otherMsg, errors: otherErrors } });\n}\n\nreturn results;"
+      },
+      "id": "tg141-classify",
+      "name": "Build Alert Messages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1080, 300]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.severity }}",
+                    "rightValue": "CRITICAL",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CRITICAL"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.severity }}",
+                    "rightValue": "OTHER",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "OTHER"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg141-route",
+      "name": "Route by Error Severity",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "GHL1BUPFZL8Ic6Bc",
+        "options": {},
+        "workflowInputs": {
+          "value": {
+            "alert_type": "system_error",
+            "alert_title": "=CRITICAL System Error - {{ $json.errors[0]?.workflowName || 'Unknown' }}",
+            "alert_body": "={{ $json.alert_message }}",
+            "severity": "critical",
+            "source_workflow": "TG-141",
+            "metadata": "={{ JSON.stringify({ error_count: $json.errors.length, workflows: $json.errors.map(e => e.workflowName) }) }}"
+          }
+        }
+      },
+      "id": "tg141-critical",
+      "name": "CRITICAL System Alert via TG-113",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1600, 180]
     },
     {
       "parameters": {
         "chatId": "OWNER_TELEGRAM_CHAT_ID",
-        "text": "=🚨 SYSTEM ERROR{{ $json.errorCount > 1 ? 'S (' + $json.errorCount + ')' : '' }}\n\n{{ $json.errors.map(e => 'Workflow: ' + e.workflowName + '\\nError: ' + e.errorMessage + '\\nTime: ' + new Date(e.timestamp).toLocaleString('en-US', { timeZone: 'America/Chicago' }) + '\\nExec ID: ' + e.executionId).join('\\n\\n---\\n\\n') }}",
-        "additionalFields": {
-          "parse_mode": "HTML"
-        }
+        "text": "={{ $('Build Alert Messages').first().json.alert_message }}",
+        "additionalFields": {}
       },
-      "id": "tg141-telegram",
-      "name": "Send Telegram Alert",
+      "id": "tg141-critical-tg",
+      "name": "Send Critical to Telegram",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [960, 200],
+      "position": [1860, 180],
       "credentials": {
         "telegramApi": {
           "id": "V404qLIDXjmyzNeS",
-          "name": "Telegram"
+          "name": "Telegram account"
         }
       }
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.alert_message }}",
+        "additionalFields": {}
+      },
+      "id": "tg141-alert",
+      "name": "Send System Alert to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1600, 440],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/system_health_checks",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"error_count\": {{ $('Filter and Classify Errors').first().json.errorCount }},\n  \"critical_count\": {{ $('Filter and Classify Errors').first().json.criticalCount }},\n  \"workflows_checked\": 50,\n  \"last_error_id\": {{ $('Filter and Classify Errors').first().json.lastErrorId ? '\"' + $('Filter and Classify Errors').first().json.lastErrorId + '\"' : 'null' }}\n}",
+        "options": {}
+      },
+      "id": "tg141-log",
+      "name": "Log Health Check Result",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2120, 300],
+      "continueOnFail": true
     }
   ],
   "connections": {
     "Every 5 Minutes": {
       "main": [
-        [{ "node": "Fetch Recent Errors", "type": "main", "index": 0 }]
+        [
+          { "node": "Fetch Recent Errors", "type": "main", "index": 0 },
+          { "node": "Fetch Last Check", "type": "main", "index": 0 }
+        ]
       ]
     },
     "Fetch Recent Errors": {
       "main": [
-        [{ "node": "Filter New Errors", "type": "main", "index": 0 }]
+        [{ "node": "Filter and Classify Errors", "type": "main", "index": 0 }]
       ]
     },
-    "Filter New Errors": {
+    "Fetch Last Check": {
+      "main": [
+        [{ "node": "Filter and Classify Errors", "type": "main", "index": 0 }]
+      ]
+    },
+    "Filter and Classify Errors": {
       "main": [
         [{ "node": "IF New Errors Found", "type": "main", "index": 0 }]
       ]
     },
     "IF New Errors Found": {
       "main": [
-        [{ "node": "Send Telegram Alert", "type": "main", "index": 0 }],
-        []
+        [{ "node": "Build Alert Messages", "type": "main", "index": 0 }],
+        [{ "node": "Log Health Check Result", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Alert Messages": {
+      "main": [
+        [{ "node": "Route by Error Severity", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route by Error Severity": {
+      "main": [
+        [{ "node": "CRITICAL System Alert via TG-113", "type": "main", "index": 0 }],
+        [{ "node": "Send System Alert to Telegram", "type": "main", "index": 0 }]
+      ]
+    },
+    "CRITICAL System Alert via TG-113": {
+      "main": [
+        [{ "node": "Send Critical to Telegram", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Critical to Telegram": {
+      "main": [
+        [{ "node": "Log Health Check Result", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send System Alert to Telegram": {
+      "main": [
+        [{ "node": "Log Health Check Result", "type": "main", "index": 0 }]
       ]
     }
   },
   "settings": {
     "executionOrder": "v1"
-  },
-  "active": false
+  }
 }
