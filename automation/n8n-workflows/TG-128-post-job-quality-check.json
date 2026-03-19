@@ -1,0 +1,412 @@
+{
+  "id": "GZ7ZxOanSNceWeVV",
+  "name": "TG-128 Post-Job Quality Check",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "tg128-trigger",
+      "name": "When Called by TG-05",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "tg128-cond-phone",
+              "leftValue": "={{ $json.customer_phone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "tg128-if-phone",
+      "name": "Has Customer Phone?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        470,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst name = input.customer_name || 'there';\nconst service = input.service ? ` ${input.service}` : ' service';\n\nconst message = `Hi ${name}! TotalGuard just finished your${service}. How does everything look? Reply GREAT if you're happy, or let us know if anything needs attention. We want your yard to be perfect! - TotalGuard Yard Care`;\n\nreturn [{\n  json: {\n    to_phone: input.customer_phone,\n    message_body: message,\n    workflow_name: 'TG-128-post-job-quality-check',\n    message_type: 'quality_check',\n    customer_name: input.customer_name,\n    customer_email: input.customer_email,\n    event_id: input.event_id,\n    service: input.service\n  }\n}];"
+      },
+      "id": "tg128-build-sms",
+      "name": "Build Quality Check SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        690,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "AprqI2DgQA8lehij",
+        "options": {}
+      },
+      "id": "tg128-send-sms",
+      "name": "Send Quality Check SMS via TG-94",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        910,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/jobber_email_events?id=eq.{{ $(\"When Called by TG-05\").item.json.event_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_ANON_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_ANON_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{ \"processing_status\": \"quality_check_sent\" }",
+        "options": {}
+      },
+      "id": "tg128-log",
+      "name": "Log Quality Check to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1130,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tg128-quality-reply",
+        "options": {}
+      },
+      "id": "tg128-webhook",
+      "name": "Receive Reply Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        600
+      ],
+      "webhookId": "tg128-quality-reply"
+    },
+    {
+      "parameters": {
+        "jsCode": "const reply = ($input.first().json.Body || $input.first().json.body || $input.first().json.message || '').toLowerCase().trim();\nconst from = $input.first().json.From || $input.first().json.from || $input.first().json.phone || '';\n\nconst positiveWords = ['great', 'good', 'awesome', 'perfect', 'love', 'amazing', 'excellent', 'wonderful', 'fantastic', 'thank', 'thanks', 'happy', 'beautiful', 'nice', 'yes', 'looks great', 'well done'];\nconst negativeWords = ['bad', 'terrible', 'awful', 'horrible', 'missed', 'wrong', 'not good', 'unhappy', 'disappointed', 'poor', 'complaint', 'problem', 'issue', 'no', 'nope', 'fix', 'redo', 'again', 'unacceptable'];\n\nconst isPositive = positiveWords.some(w => reply.includes(w));\nconst isNegative = negativeWords.some(w => reply.includes(w));\n\nlet sentiment = 'neutral';\nif (isPositive && !isNegative) sentiment = 'positive';\nelse if (isNegative) sentiment = 'negative';\n\nreturn [{ json: { sentiment, reply_text: reply, from_phone: from } }];"
+      },
+      "id": "tg128-sentiment",
+      "name": "Analyze Reply Sentiment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        470,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.sentiment }}",
+                    "rightValue": "positive",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "positive"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.sentiment }}",
+                    "rightValue": "negative",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "negative"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg128-sentiment-switch",
+      "name": "Route by Sentiment",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        690,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  to_phone: input.from_phone,\n  message_body: \"Thank you so much! We're thrilled you're happy with our work! Would you mind leaving us a quick Google review? It takes 30 seconds and really helps us: https://g.page/r/CQEMNig5DhIBEAI/review - TotalGuard Team\",\n  workflow_name: 'TG-128-review-request',\n  message_type: 'review_request'\n}}];"
+      },
+      "id": "tg128-build-review",
+      "name": "Build Review Request Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        910,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "AprqI2DgQA8lehij",
+        "options": {}
+      },
+      "id": "tg128-review-request",
+      "name": "Send Review Request SMS",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1130,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  alert_type: 'negative_quality_feedback',\n  severity: 'URGENT',\n  title: 'NEGATIVE Customer Feedback',\n  message: `Customer replied \"${input.reply_text}\" from ${input.from_phone}. Immediate attention needed.`,\n  source_workflow: 'TG-128'\n}}];"
+      },
+      "id": "tg128-build-alert",
+      "name": "Build Negative Alert Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        910,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "GHL1BUPFZL8Ic6Bc",
+        "options": {}
+      },
+      "id": "tg128-alert",
+      "name": "Send URGENT Alert via TG-113",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1130,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  to_phone: input.from_phone,\n  message_body: \"We're sorry to hear that and we take this seriously. Our owner Vance will personally follow up with you shortly to make this right. Thank you for letting us know. - TotalGuard Yard Care\",\n  workflow_name: 'TG-128-apology',\n  message_type: 'apology'\n}}];"
+      },
+      "id": "tg128-build-apology",
+      "name": "Build Apology SMS Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1350,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "AprqI2DgQA8lehij",
+        "options": {}
+      },
+      "id": "tg128-apology",
+      "name": "Send Auto-Apology SMS",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1570,
+        700
+      ]
+    }
+  ],
+  "connections": {
+    "When Called by TG-05": {
+      "main": [
+        [
+          {
+            "node": "Has Customer Phone?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Customer Phone?": {
+      "main": [
+        [
+          {
+            "node": "Build Quality Check SMS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Build Quality Check SMS": {
+      "main": [
+        [
+          {
+            "node": "Send Quality Check SMS via TG-94",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Quality Check SMS via TG-94": {
+      "main": [
+        [
+          {
+            "node": "Log Quality Check to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Reply Webhook": {
+      "main": [
+        [
+          {
+            "node": "Analyze Reply Sentiment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Reply Sentiment": {
+      "main": [
+        [
+          {
+            "node": "Route by Sentiment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Sentiment": {
+      "main": [
+        [
+          {
+            "node": "Build Review Request Payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Negative Alert Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Review Request Payload": {
+      "main": [
+        [
+          {
+            "node": "Send Review Request SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Negative Alert Payload": {
+      "main": [
+        [
+          {
+            "node": "Send URGENT Alert via TG-113",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send URGENT Alert via TG-113": {
+      "main": [
+        [
+          {
+            "node": "Build Apology SMS Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Apology SMS Payload": {
+      "main": [
+        [
+          {
+            "node": "Send Auto-Apology SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}
