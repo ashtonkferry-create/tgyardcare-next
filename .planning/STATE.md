@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Build an autonomous business nervous system — acquires customers, converts leads, delivers excellence, retains accounts, amplifies brand, reports via Telegram.
-**Current focus:** M4 TG-OS Business Automation — Phase 12 in progress (Conversion Engine)
+**Current focus:** M4 TG-OS Business Automation — Phase 13 in progress (Delivery Excellence)
 
 ## Current Position
 
-Phase: 12 of 20 (Conversion Engine)
-Plan: 4 of 4 in Phase 12 (ALL COMPLETE: 12-01, 12-02, 12-03, 12-04)
-Status: Phase 12 COMPLETE
-Last activity: 2026-03-19 — Completed 12-03-PLAN.md (TG-09 5-touch follow-up sequence)
+Phase: 13 of 20 (Delivery Excellence)
+Plan: 1 of 3 in Phase 13 (COMPLETE: 13-01)
+Status: In progress
+Last activity: 2026-03-19 — Completed 13-01-PLAN.md (TG-05 enhanced email parser)
 
-Progress M4: [████████░░░░░░░░░░░░░░░░░░░░░░░░] 9/62 requirements (Phase 12 COMPLETE)
+Progress M4: [█████████░░░░░░░░░░░░░░░░░░░░░░░] 10/62 requirements (Phase 13: 1/3)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
@@ -65,6 +65,10 @@ Progress M2: [██████████████████████
 - [M4 Phase 12]: TG-09 rebuilt as 5-touch follow-up (Day 1/5 SMS, Day 3/7/14 email) with dynamic Google reviews
 - [M4 Phase 12]: TG-09 uses flat JSON data flow — SMS/email payloads at root level for TG-94/TG-95 compatibility
 - [M4 Phase 12]: TG-09 stage tracking via leads.follow_up_stage integer (0-5), not sequence_enrollments table
+- [M4 Phase 13]: TG-05 enhanced with scheduled_date/time/crew_name extraction, job_created event type, 8 Switch outputs
+- [M4 Phase 13]: TG-05 Switch output indices shifted — job_created at index 1, all others +1
+- [M4 Phase 13]: PLACEHOLDER_TG127_ID and PLACEHOLDER_TG128_ID in TG-05 need replacement when sub-workflows created
+- [M4 Phase 13]: n8n API PUT returns 400 "Could not find property option" — deploy via UI import only
 - [M4 Phase 12]: TG-09 deployed and active (n8n ID: ZjG32DE8KI9SHyxo), daily 10am CT
 - [M4 Phase 12]: follow_up_stage column needs manual addition to leads table (workflow degrades gracefully without it)
 
@@ -75,6 +79,8 @@ Progress M2: [██████████████████████
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-07 Send Hot Lead Telegram node with Vance's actual Telegram chat ID
 - Create lead_alerts table in Supabase SQL Editor (see 12-02-SUMMARY.md for SQL)
 - Add follow_up_stage column to leads table: `ALTER TABLE leads ADD COLUMN IF NOT EXISTS follow_up_stage integer DEFAULT 0;`
+- Add parsed_scheduled_date, parsed_scheduled_time, parsed_crew_name columns to jobber_email_events table
+- Deploy updated TG-05 JSON to n8n via UI import (API PUT broken)
 
 ### Blockers/Concerns
 
@@ -88,6 +94,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 12-03-PLAN.md (TG-09 5-touch follow-up sequence) — Phase 12 COMPLETE
+Stopped at: Completed 13-01-PLAN.md (TG-05 enhanced email parser)
 Resume file: None
-Next: Execute Phase 13 (Retention Engine)
+Next: Execute 13-02-PLAN.md (TG-127 pre-job notifications)
