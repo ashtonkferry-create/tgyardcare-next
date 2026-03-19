@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Build an autonomous business nervous system — acquires customers, converts leads, delivers excellence, retains accounts, amplifies brand, reports via Telegram.
-**Current focus:** M4 TG-OS Business Automation — Phase 17 In Progress (Social Media Machine)
+**Current focus:** M4 TG-OS Business Automation — Phase 18 In Progress (GBP Domination)
 
 ## Current Position
 
-Phase: 17 of 20 (Social Media Machine)
-Plan: 3 of 3 in Phase 17 -- PHASE COMPLETE
-Status: Phase 17 complete
-Last activity: 2026-03-19 — Completed 17-03-PLAN.md (daily publisher + engagement tracker)
+Phase: 18 of 20 (GBP Domination)
+Plan: 1 of ? in Phase 18
+Status: In progress
+Last activity: 2026-03-19 — Completed 18-01-PLAN.md (GBP post generator + publisher)
 
-Progress M4: [████████████████████████░░░░░░░░] 31/62 requirements (Phase 17 COMPLETE)
+Progress M4: [█████████████████████████░░░░░░░] 32/62 requirements (Phase 18 started)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
@@ -138,6 +138,13 @@ Progress M2: [██████████████████████
 - [M4 Phase 17]: social_posted flag on google_reviews for dedup, Wednesday 10am CT scheduled posting
 - [M4 Phase 17]: 36 workflows now active (added TG-133, TG-134)
 
+- [M4 Phase 18]: TG-145 GBP Post Generator deployed (n8n ID: X9byozM8gU9V2Zn8), Mon/Wed/Fri 8am CT, active
+- [M4 Phase 18]: TG-146 GBP Post Publisher deployed (n8n ID: hkMHYs7WMtvLzI5C), Telegram trigger, needs manual activation
+- [M4 Phase 18]: Renamed from TG-133/TG-134 to TG-145/TG-146 to avoid Phase 17 n8n ID collisions
+- [M4 Phase 18]: GBP API flag in TG-146 Check GBP API node -- flip gbpApiAvailable to true when verified
+- [M4 Phase 18]: Phone number corrected from (608) 995-3554 to (608) 535-6057 in AI prompt
+- [M4 Phase 18]: 37 workflows now active (added TG-145; TG-146 pending manual activation)
+
 ### Pending Todos
 
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-01 Build Telegram Alert node with Vance's actual Telegram chat ID
@@ -184,6 +191,11 @@ Progress M2: [██████████████████████
 - Set ANTHROPIC_API_KEY in TG-133 Generate 7 Posts node x-api-key header
 - Set TELEGRAM_BOT_TOKEN and OWNER_TELEGRAM_CHAT_ID env variables in n8n for TG-133 Telegram notification
 
+- Create gbp_posts table in Supabase SQL Editor (see 18-01-SUMMARY.md for SQL)
+- Activate TG-146 in n8n UI (Telegram trigger can't be activated via API)
+- Set ANTHROPIC_API_KEY in TG-145 AI Generate Post node x-api-key header
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-145 Send Telegram Approval node with Vance's actual Telegram chat ID
+
 ### Blockers/Concerns
 
 - Twilio A2P 10DLC campaign status unknown — ALL outbound SMS may be carrier-filtered
@@ -196,6 +208,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 17-01-PLAN.md (weekly content batch generator) — deployed TG-133 to n8n
+Stopped at: Completed 18-01-PLAN.md (GBP post generator + publisher) — deployed TG-145/TG-146 to n8n
 Resume file: None
-Next: 17-03-PLAN.md (daily social publisher) or next Phase 17 plan
+Next: 18-02-PLAN.md or next Phase 18 plan
