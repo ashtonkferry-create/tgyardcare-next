@@ -20,41 +20,63 @@
     },
     {
       "parameters": {
-        "jsCode": "// TG-142: Fetch competitor Google Places data\nconst apiKey = 'GOOGLE_PLACES_API_KEY_PLACEHOLDER';\nconst competitors = [\n  { name: 'Ace Lawn Care Madison', placeId: 'COMPETITOR_1_PLACE_ID' },\n  { name: 'Greenmaster Lawn Madison', placeId: 'COMPETITOR_2_PLACE_ID' },\n  { name: 'Capital Lawn Care Madison', placeId: 'COMPETITOR_3_PLACE_ID' }\n];\n\nconst results = [];\n\nfor (const comp of competitors) {\n  try {\n    const data = await this.helpers.httpRequest({\n      method: 'GET',\n      url: `https://places.googleapis.com/v1/places/${comp.placeId}`,\n      headers: {\n        'X-Goog-Api-Key': apiKey,\n        'X-Goog-FieldMask': 'rating,userRatingCount,reviews'\n      }\n    });\n    results.push({\n      name: comp.name,\n      placeId: comp.placeId,\n      rating: data.rating || null,\n      reviewCount: data.userRatingCount || 0,\n      latestReviews: (data.reviews || []).slice(0, 3).map(r => ({\n        author: r.authorAttribution ? r.authorAttribution.displayName : 'Anonymous',\n        rating: r.rating || 0,\n        text: r.text ? r.text.text : '',\n        time: r.publishTime || ''\n      })),\n      error: null\n    });\n  } catch (e) {\n    results.push({\n      name: comp.name,\n      placeId: comp.placeId,\n      rating: null,\n      reviewCount: 0,\n      latestReviews: [],\n      error: e.message || 'Failed to fetch'\n    });\n  }\n}\n\nreturn [{ json: { competitors: results } }];"
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/competitors?is_active=eq.true&select=id,name,domain,services,location",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
       },
-      "id": "tg142-fetch-competitors",
-      "name": "Fetch Competitor Data",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "id": "tg142-fetch-list",
+      "name": "Fetch Competitor List",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [260, 300],
       "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "// TG-142: Fetch TotalGuard Google Places data\nconst apiKey = 'GOOGLE_PLACES_API_KEY_PLACEHOLDER';\nconst placeId = 'ChIJMQEDNR3apwMRFbkOyDYmDAE';\n\nconst competitors = $input.first().json.competitors;\n\nlet tg = { name: 'TotalGuard', rating: null, reviewCount: 0, error: null };\ntry {\n  const data = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `https://places.googleapis.com/v1/places/${placeId}`,\n    headers: {\n      'X-Goog-Api-Key': apiKey,\n      'X-Goog-FieldMask': 'rating,userRatingCount,reviews'\n    }\n  });\n  tg.rating = data.rating || null;\n  tg.reviewCount = data.userRatingCount || 0;\n} catch (e) {\n  tg.error = e.message || 'Failed to fetch';\n}\n\nreturn [{ json: { totalguard: tg, competitors } }];"
+        "jsCode": "// TG-142: Scrape competitor websites + fetch previous snapshots for delta\nconst competitors = Array.isArray($input.first().json) ? $input.first().json : [];\nif (competitors.length === 0) {\n  return [{ json: { competitors: [], error: 'No active competitors found' } }];\n}\n\nconst supabaseUrl = $vars.TG_SUPABASE_URL + '/rest/v1';\nconst supabaseKey = $vars.TG_SUPABASE_SERVICE_KEY;\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`,\n  'Content-Type': 'application/json'\n};\n\nconst oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];\nconst results = [];\n\nfor (const comp of competitors) {\n  const result = {\n    id: comp.id,\n    name: comp.name,\n    domain: comp.domain,\n    services: comp.services,\n    location: comp.location,\n    website_title: null,\n    website_description: null,\n    website_status: null,\n    notable_changes: [],\n    previous_snapshot: null,\n    error: null\n  };\n\n  // 1. Scrape competitor website for meta info\n  if (comp.domain) {\n    try {\n      const html = await this.helpers.httpRequest({\n        method: 'GET',\n        url: `https://${comp.domain}`,\n        options: { redirect: { follow: true }, timeout: 10000 }\n      });\n      result.website_status = 'up';\n      // Extract title\n      const titleMatch = typeof html === 'string' ? html.match(/<title[^>]*>([^<]+)<\\/title>/i) : null;\n      result.website_title = titleMatch ? titleMatch[1].trim() : null;\n      // Extract meta description\n      const descMatch = typeof html === 'string' ? html.match(/<meta[^>]*name=[\"']description[\"'][^>]*content=[\"']([^\"']+)[\"']/i) : null;\n      result.website_description = descMatch ? descMatch[1].trim() : null;\n    } catch (e) {\n      result.website_status = 'down_or_error';\n      result.error = e.message || 'Failed to fetch website';\n    }\n  }\n\n  // 2. Fetch previous snapshot for delta comparison\n  try {\n    const snapshots = await this.helpers.httpRequest({\n      method: 'GET',\n      url: `${supabaseUrl}/competitor_snapshots?competitor_id=eq.${comp.id}&order=snapshot_date.desc&limit=1`,\n      headers: supabaseHeaders\n    });\n    if (Array.isArray(snapshots) && snapshots.length > 0) {\n      result.previous_snapshot = snapshots[0];\n    }\n  } catch (e) { /* no previous data */ }\n\n  results.push(result);\n}\n\nreturn [{ json: { competitors: results, snapshot_date: new Date().toISOString().split('T')[0] } }];"
       },
-      "id": "tg142-fetch-totalguard",
-      "name": "Fetch TotalGuard Data",
+      "id": "tg142-scrape",
+      "name": "Scrape Websites & Get History",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [520, 300]
+      "position": [520, 300],
+      "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "// TG-142: Compare & Score competitors vs TotalGuard\nconst { totalguard, competitors } = $input.first().json;\n\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`,\n  'Content-Type': 'application/json'\n};\n\nconst today = new Date().toISOString().split('T')[0];\nconst oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];\n\nconst alerts = [];\nconst scored = [];\n\nfor (const comp of competitors) {\n  // Fetch last week's snapshot for delta calculation\n  let lastSnapshot = null;\n  try {\n    const snapshots = await this.helpers.httpRequest({\n      method: 'GET',\n      url: `${supabaseUrl}/competitor_snapshots?competitor_name=eq.${encodeURIComponent(comp.name)}&snapshot_date=gte.${oneWeekAgo}&order=snapshot_date.desc&limit=1`,\n      headers: supabaseHeaders\n    });\n    if (Array.isArray(snapshots) && snapshots.length > 0) {\n      lastSnapshot = snapshots[0];\n    }\n  } catch (e) { /* no previous data */ }\n\n  const reviewDelta = lastSnapshot ? comp.reviewCount - (lastSnapshot.review_count || 0) : 0;\n  const ratingDelta = lastSnapshot ? (comp.rating || 0) - (lastSnapshot.rating || 0) : 0;\n\n  if (reviewDelta >= 5) {\n    alerts.push(`ALERT: ${comp.name} gained ${reviewDelta} reviews this week!`);\n  }\n\n  scored.push({\n    name: comp.name,\n    rating: comp.rating,\n    reviewCount: comp.reviewCount,\n    reviewDelta,\n    ratingDelta: Math.round(ratingDelta * 100) / 100,\n    error: comp.error\n  });\n}\n\nreturn [{ json: { totalguard, competitors: scored, alerts, snapshot_date: today } }];"
+        "jsCode": "// TG-142: Detect changes and build alerts\nconst { competitors, snapshot_date } = $input.first().json;\n\nconst alerts = [];\nconst scored = [];\n\nfor (const comp of competitors) {\n  const prev = comp.previous_snapshot;\n  const changes = [];\n\n  // Detect website title change (could indicate rebrand or new services)\n  if (prev && prev.notable_changes) {\n    try {\n      const prevData = typeof prev.notable_changes === 'string' ? JSON.parse(prev.notable_changes) : prev.notable_changes;\n      if (prevData.website_title && comp.website_title && prevData.website_title !== comp.website_title) {\n        changes.push(`Title changed: \"${prevData.website_title}\" -> \"${comp.website_title}\"`);\n        alerts.push(`${comp.name}: Website title changed! May indicate rebrand or new services.`);\n      }\n    } catch (e) { /* not JSON, skip */ }\n  }\n\n  // Detect website down\n  if (comp.website_status === 'down_or_error') {\n    changes.push('Website unreachable');\n    alerts.push(`${comp.name}: Website is DOWN (${comp.error})`);\n  }\n\n  scored.push({\n    id: comp.id,\n    name: comp.name,\n    domain: comp.domain,\n    website_status: comp.website_status,\n    website_title: comp.website_title,\n    website_description: comp.website_description,\n    changes,\n    review_count: prev ? prev.review_count : null,\n    rating: prev ? prev.rating : null,\n    new_reviews_since_last: 0\n  });\n}\n\nreturn [{ json: { competitors: scored, alerts, snapshot_date } }];"
       },
-      "id": "tg142-compare",
-      "name": "Compare & Score",
+      "id": "tg142-detect",
+      "name": "Detect Changes & Alerts",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [780, 300]
     },
     {
       "parameters": {
-        "jsCode": "// TG-142: Store competitor snapshots in Supabase\nconst { competitors, snapshot_date, totalguard } = $input.first().json;\n\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`,\n  'Content-Type': 'application/json',\n  'Prefer': 'return=minimal'\n};\n\n// Store each competitor snapshot\nfor (const comp of competitors) {\n  try {\n    await this.helpers.httpRequest({\n      method: 'POST',\n      url: `${supabaseUrl}/competitor_snapshots`,\n      headers: supabaseHeaders,\n      body: {\n        competitor_name: comp.name,\n        rating: comp.rating,\n        review_count: comp.reviewCount,\n        snapshot_date\n      }\n    });\n  } catch (e) { /* continue on fail */ }\n}\n\n// Also store TotalGuard's own snapshot for trend tracking\ntry {\n  await this.helpers.httpRequest({\n    method: 'POST',\n    url: `${supabaseUrl}/competitor_snapshots`,\n    headers: supabaseHeaders,\n    body: {\n      competitor_name: 'TotalGuard',\n      rating: totalguard.rating,\n      review_count: totalguard.reviewCount,\n      snapshot_date\n    }\n  });\n} catch (e) { /* continue on fail */ }\n\nreturn $input.all();"
+        "jsCode": "// TG-142: Store competitor snapshots in Supabase\nconst { competitors, snapshot_date } = $input.first().json;\n\nconst supabaseUrl = $vars.TG_SUPABASE_URL + '/rest/v1';\nconst supabaseKey = $vars.TG_SUPABASE_SERVICE_KEY;\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`,\n  'Content-Type': 'application/json',\n  'Prefer': 'return=minimal'\n};\n\nlet stored = 0;\nlet failed = 0;\n\nfor (const comp of competitors) {\n  try {\n    await this.helpers.httpRequest({\n      method: 'POST',\n      url: `${supabaseUrl}/competitor_snapshots`,\n      headers: supabaseHeaders,\n      body: {\n        competitor_id: comp.id,\n        rating: comp.rating,\n        review_count: comp.review_count,\n        new_reviews_since_last: comp.new_reviews_since_last || 0,\n        notable_changes: JSON.stringify({\n          website_title: comp.website_title,\n          website_description: comp.website_description,\n          website_status: comp.website_status,\n          changes: comp.changes\n        }),\n        snapshot_date\n      }\n    });\n    stored++;\n  } catch (e) {\n    failed++;\n  }\n}\n\nreturn [{ json: { ...$input.first().json, stored, failed } }];"
       },
       "id": "tg142-store",
-      "name": "Store in Supabase",
+      "name": "Store Snapshots",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1040, 300],
@@ -62,8 +84,8 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
-        "text": "={{ (function() {\n  const d = $json;\n  const tg = d.totalguard;\n  const lines = [\n    'COMPETITOR INTELLIGENCE',\n    `Week of ${d.snapshot_date}`,\n    '',\n    `TotalGuard: ${tg.rating || 'N/A'} \\u2b50 (${tg.reviewCount} reviews)`,\n    ''\n  ];\n  for (const c of d.competitors) {\n    const delta = c.reviewDelta > 0 ? ` (+${c.reviewDelta})` : c.reviewDelta < 0 ? ` (${c.reviewDelta})` : '';\n    const rDelta = c.ratingDelta !== 0 ? ` [rating ${c.ratingDelta > 0 ? '+' : ''}${c.ratingDelta}]` : '';\n    lines.push(`${c.name}: ${c.rating || 'N/A'} \\u2b50 (${c.reviewCount} reviews${delta})${rDelta}`);\n  }\n  if (d.alerts.length > 0) {\n    lines.push('');\n    lines.push('\\u26a0\\ufe0f ALERTS:');\n    for (const a of d.alerts) lines.push(a);\n  }\n  return lines.join('\\n');\n})() }}",
+        "chatId": "={{ $vars.OWNER_TELEGRAM_CHAT_ID }}",
+        "text": "={{ (function() {\n  const d = $json;\n  const lines = [\n    '\\ud83d\\udd0d COMPETITOR MONITOR',\n    `Week of ${d.snapshot_date}`,\n    `Tracked: ${d.competitors.length} competitors`,\n    `Snapshots stored: ${d.stored}/${d.competitors.length}`,\n    ''\n  ];\n  for (const c of d.competitors) {\n    const status = c.website_status === 'up' ? '\\u2705' : '\\u274c';\n    lines.push(`${status} ${c.name} (${c.domain || 'no domain'})`);\n    if (c.website_title) lines.push(`   Title: ${c.website_title.substring(0, 60)}`);\n    if (c.changes && c.changes.length > 0) {\n      for (const ch of c.changes) lines.push(`   \\u26a0\\ufe0f ${ch}`);\n    }\n  }\n  if (d.alerts && d.alerts.length > 0) {\n    lines.push('');\n    lines.push('\\ud83d\\udea8 ALERTS:');\n    for (const a of d.alerts) lines.push(`- ${a}`);\n  }\n  return lines.join('\\n');\n})() }}",
         "additionalFields": {
           "parse_mode": "HTML"
         }
@@ -84,25 +106,25 @@
   "connections": {
     "Weekly Friday 7am CT": {
       "main": [
-        [{ "node": "Fetch Competitor Data", "type": "main", "index": 0 }]
+        [{ "node": "Fetch Competitor List", "type": "main", "index": 0 }]
       ]
     },
-    "Fetch Competitor Data": {
+    "Fetch Competitor List": {
       "main": [
-        [{ "node": "Fetch TotalGuard Data", "type": "main", "index": 0 }]
+        [{ "node": "Scrape Websites & Get History", "type": "main", "index": 0 }]
       ]
     },
-    "Fetch TotalGuard Data": {
+    "Scrape Websites & Get History": {
       "main": [
-        [{ "node": "Compare & Score", "type": "main", "index": 0 }]
+        [{ "node": "Detect Changes & Alerts", "type": "main", "index": 0 }]
       ]
     },
-    "Compare & Score": {
+    "Detect Changes & Alerts": {
       "main": [
-        [{ "node": "Store in Supabase", "type": "main", "index": 0 }]
+        [{ "node": "Store Snapshots", "type": "main", "index": 0 }]
       ]
     },
-    "Store in Supabase": {
+    "Store Snapshots": {
       "main": [
         [{ "node": "Send Telegram Report", "type": "main", "index": 0 }]
       ]
@@ -112,7 +134,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "tg-142-v1",
+  "versionId": "tg-142-v2",
   "meta": {
     "instanceId": "tgyardcare"
   },
