@@ -1,0 +1,277 @@
+{
+  "name": "TG-133 Weekly Content Batch",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 11 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "node-1-schedule",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Determine current context for content generation\nconst now = new Date();\nconst month = now.toLocaleString('en-US', { month: 'long' });\nconst monthNum = now.getMonth();\n\n// Determine season\nlet season;\nif (monthNum >= 2 && monthNum <= 4) season = 'Spring';\nelse if (monthNum >= 5 && monthNum <= 7) season = 'Summer';\nelse if (monthNum >= 8 && monthNum <= 10) season = 'Fall';\nelse season = 'Winter';\n\n// Calculate batch_week (Monday of this week)\nconst monday = new Date(now);\nmonday.setDate(now.getDate() - ((now.getDay() + 6) % 7));\nmonday.setHours(0, 0, 0, 0);\nconst batchWeek = monday.toISOString().split('T')[0];\n\n// Pillar assignments by day_of_week\nconst pillars = [\n  { day_of_week: 1, pillar: 'tips', post_type: 'tip', label: 'Monday - Tips' },\n  { day_of_week: 2, pillar: 'before_after', post_type: 'showcase', label: 'Tuesday - Before/After' },\n  { day_of_week: 3, pillar: 'review_spotlight', post_type: 'review', label: 'Wednesday - Review Spotlight' },\n  { day_of_week: 4, pillar: 'seasonal', post_type: 'seasonal', label: 'Thursday - Seasonal' },\n  { day_of_week: 5, pillar: 'community', post_type: 'community', label: 'Friday - Community' },\n  { day_of_week: 6, pillar: 'education', post_type: 'education', label: 'Saturday - Education' },\n  { day_of_week: 0, pillar: 'promo', post_type: 'promo', label: 'Sunday - Promo' }\n];\n\nreturn [{\n  json: {\n    month,\n    season,\n    batchWeek,\n    pillars,\n    year: now.getFullYear()\n  }\n}];"
+      },
+      "id": "node-2-context",
+      "name": "Get Current Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/social_posts?batch_week=eq.{{ $json.batchWeek }}&select=id",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Prefer",
+              "value": "count=exact"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-3-check-batch",
+      "name": "Check Existing Batch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-no-posts",
+              "leftValue": "={{ $json.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-4-if-no-posts",
+      "name": "IF No Existing Posts",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "ANTHROPIC_API_KEY"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-haiku-4-5-20251001\",\n  \"max_tokens\": 4096,\n  \"system\": \"You are the social media copywriter for TotalGuard Yard Care, a premium lawn care and landscaping company in Madison, Wisconsin.\\n\\nBrand voice:\\n- Friendly, knowledgeable, and approachable\\n- Confident but never arrogant\\n- Local pride in Madison, WI and surrounding Dane County communities\\n- Professional yet conversational — like a trusted neighbor who happens to be an expert\\n- Use 'we' and 'our team' — never corporate jargon\\n\\nRules:\\n- Include 5-8 relevant hashtags at the end of every post\\n- Always include at least one Madison/Wisconsin-specific hashtag\\n- Keep posts under 1,500 characters\\n- No emojis in the first sentence\\n- End with a soft CTA when appropriate\\n- Reference local landmarks, neighborhoods, or seasonal events when relevant\\n- Never mention competitors by name\\n- Platforms are Instagram and Google Business Profile only — NO Facebook\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Generate 7 social media posts for TotalGuard Yard Care for the week of {{ $('Get Current Context').item.json.batchWeek }}. Current month: {{ $('Get Current Context').item.json.month }}. Season: {{ $('Get Current Context').item.json.season }}.\\n\\nCreate one post for each day following this pillar calendar:\\n1. Monday — Tips: Lawn care tip or quick how-to\\n2. Tuesday — Before/After: Transformation showcase (describe vividly)\\n3. Wednesday — Review Spotlight: Write a placeholder review highlight post (will be replaced by real review if available)\\n4. Thursday — Seasonal: Timely seasonal content for Madison WI\\n5. Friday — Community: Madison WI community involvement\\n6. Saturday — Education: Deep-dive lawn science\\n7. Sunday — Promo: Service promotion with natural CTA\\n\\nReturn ONLY a JSON array of 7 objects with these exact fields:\\n- post_text (string)\\n- pillar (string: tips|before_after|review_spotlight|seasonal|community|education|promo)\\n- post_type (string: tip|showcase|review|seasonal|community|education|promo)\\n- day_of_week (number: 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 0=Sun)\\n- platforms (array: always [\\\"instagram\\\", \\\"google_business_profile\\\"])\\n\\nReturn raw JSON only, no markdown fences.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "node-5-generate-posts",
+      "name": "Generate 7 Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the AI response and prepare posts for insertion\nconst aiResponse = $input.first().json;\nconst content = aiResponse.content[0].text;\n\n// Parse JSON from response\nlet posts;\ntry {\n  posts = JSON.parse(content);\n} catch (e) {\n  // Try extracting JSON array from response\n  const match = content.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (match) {\n    posts = JSON.parse(match[0]);\n  } else {\n    throw new Error('Failed to parse AI response as JSON: ' + content.substring(0, 200));\n  }\n}\n\n// Validate we got 7 posts\nif (!Array.isArray(posts) || posts.length !== 7) {\n  throw new Error(`Expected 7 posts, got ${Array.isArray(posts) ? posts.length : 'non-array'}`);\n}\n\nconst batchWeek = $('Get Current Context').item.json.batchWeek;\nconst mondayDate = new Date(batchWeek + 'T00:00:00Z');\n\n// Map day_of_week to offset from Monday\nconst dayOffsets = { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 0: 6 };\n\nconst enrichedPosts = posts.map(post => {\n  const offset = dayOffsets[post.day_of_week];\n  const postDate = new Date(mondayDate);\n  postDate.setDate(mondayDate.getDate() + offset);\n  // Schedule for 10:00 AM CT (UTC-5 standard / UTC-6 daylight)\n  // Use 15:00 UTC as approximate 10am CT (CDT)\n  postDate.setUTCHours(15, 0, 0, 0);\n\n  return {\n    post_text: post.post_text,\n    image_url: null,\n    platforms: post.platforms || ['instagram', 'google_business_profile'],\n    post_type: post.post_type,\n    pillar: post.pillar,\n    day_of_week: post.day_of_week,\n    scheduled_for: postDate.toISOString(),\n    status: 'scheduled',\n    batch_week: batchWeek,\n    source: post.pillar === 'review_spotlight' ? 'review_highlight' : 'ai_generated',\n    engagement_data: {}\n  };\n});\n\nreturn enrichedPosts.map(p => ({ json: p }));"
+      },
+      "id": "node-6-parse-response",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/social_posts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($input.all().map(item => item.json)) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 7
+            }
+          }
+        }
+      },
+      "id": "node-7-insert-posts",
+      "name": "Insert Posts to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $env.OWNER_TELEGRAM_CHAT_ID }}\",\n  \"parse_mode\": \"Markdown\",\n  \"text\": \"*Weekly Content Batch Ready*\\n\\n7 social posts generated for week of {{ $('Get Current Context').item.json.batchWeek }}.\\n\\nSeason: {{ $('Get Current Context').item.json.season }}\\nMonth: {{ $('Get Current Context').item.json.month }}\\n\\nPosts are scheduled at 10am CT each day (Mon-Sun).\\n\\nReview and edit in Supabase table editor if needed.\"\n}",
+        "options": {}
+      },
+      "id": "node-8-telegram-notify",
+      "name": "Telegram Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1760, 200]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Current Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current Context": {
+      "main": [
+        [
+          {
+            "node": "Check Existing Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing Batch": {
+      "main": [
+        [
+          {
+            "node": "IF No Existing Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF No Existing Posts": {
+      "main": [
+        [
+          {
+            "node": "Generate 7 Posts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Generate 7 Posts": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Response": {
+      "main": [
+        [
+          {
+            "node": "Insert Posts to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Posts to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Telegram Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "id": "fPXl9eiMhJc3ISQQ"
+    }
+  ],
+  "pinData": {}
+}
