@@ -7,53 +7,54 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "0 15 * * *"
+              "expression": "0 16 * * *"
             }
           ]
         }
       },
       "id": "tg143-trigger",
-      "name": "Daily 10am CT",
+      "name": "Daily 11 AM Neighbor Outreach",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [0, 300]
     },
     {
       "parameters": {
-        "jsCode": "// TG-143: Fetch yesterday's completed jobs from Supabase\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`\n};\n\nconst now = new Date();\nconst yesterday20h = new Date(now.getTime() - 28 * 60 * 60 * 1000).toISOString();\nconst yesterday28h = new Date(now.getTime() - 20 * 60 * 60 * 1000).toISOString();\n\nlet completions = [];\ntry {\n  completions = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/jobber_email_events?event_type=eq.job_completed&created_at=gte.${yesterday20h}&created_at=lte.${yesterday28h}&select=customer_name,customer_address,service_type`,\n    headers: supabaseHeaders\n  });\n} catch (e) {\n  completions = [];\n}\n\nif (!Array.isArray(completions) || completions.length === 0) {\n  return [{ json: { completions: [], _skip: true, message: 'No completed jobs yesterday' } }];\n}\n\nreturn [{ json: { completions } }];"
+        "jsCode": "// TG-143: Fetch yesterday's completed jobs from Supabase\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`\n};\n\n// Look back 24 hours for completed jobs\nconst now = new Date();\nconst twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();\n\nlet completions = [];\ntry {\n  completions = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/jobber_email_events?event_type=eq.job_completed&created_at=gte.${twentyFourHoursAgo}&select=customer_name,customer_address,service_type,created_at`,\n    headers: supabaseHeaders\n  });\n} catch (e) {\n  completions = [];\n}\n\nif (!Array.isArray(completions) || completions.length === 0) {\n  return [{ json: { completions: [], _skip: true, message: 'No completed jobs in last 24h' } }];\n}\n\nreturn [{ json: { completions, jobCount: completions.length } }];"
       },
-      "id": "tg143-fetch-completions",
-      "name": "Fetch Yesterday's Completions",
+      "id": "tg143-jobs",
+      "name": "Fetch Jobs Completed Yesterday",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [260, 300]
+      "position": [260, 300],
+      "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "// TG-143: Extract zip codes from completed job addresses\nconst data = $input.first().json;\nif (data._skip) return [{ json: data }];\n\nconst completions = data.completions || [];\nconst zipPattern = /\\b(\\d{5})(-\\d{4})?\\b/;\nconst jobsByZip = {};\n\nfor (const job of completions) {\n  const addr = job.customer_address || '';\n  const match = addr.match(zipPattern);\n  if (match) {\n    const zip = match[1];\n    if (!jobsByZip[zip]) jobsByZip[zip] = [];\n    jobsByZip[zip].push({\n      customerName: job.customer_name,\n      address: addr,\n      serviceType: job.service_type || 'lawn care'\n    });\n  }\n}\n\nconst zipCodes = Object.keys(jobsByZip);\nif (zipCodes.length === 0) {\n  return [{ json: { _skip: true, message: 'No valid zip codes found' } }];\n}\n\nreturn [{ json: { jobsByZip, zipCodes } }];"
+        "jsCode": "// TG-143: Extract zip codes from completed job addresses\nconst data = $input.first().json;\nif (data._skip) return [{ json: data }];\n\nconst completions = data.completions || [];\nconst zipPattern = /\\b(\\d{5})(-\\d{4})?\\b/;\nconst jobsByZip = {};\n\n// Madison area zip codes for validation\nconst madisonAreaZips = new Set([\n  '53703', '53704', '53705', '53706', '53711', '53713', '53714',\n  '53716', '53717', '53718', '53719', '53726',\n  '53562', '53597', '53590', '53593', '53558'\n]);\n\nfor (const job of completions) {\n  const addr = job.customer_address || '';\n  const match = addr.match(zipPattern);\n  if (match) {\n    const zip = match[1];\n    // Only process Madison area zips\n    if (!madisonAreaZips.has(zip)) continue;\n    if (!jobsByZip[zip]) jobsByZip[zip] = [];\n    jobsByZip[zip].push({\n      customerName: job.customer_name,\n      address: addr,\n      serviceType: job.service_type || 'lawn care'\n    });\n  }\n}\n\nconst zipCodes = Object.keys(jobsByZip);\nif (zipCodes.length === 0) {\n  return [{ json: { _skip: true, message: 'No valid Madison-area zip codes found in completed jobs' } }];\n}\n\nreturn [{ json: { jobsByZip, zipCodes, jobCount: data.jobCount } }];"
       },
-      "id": "tg143-extract-zips",
-      "name": "Extract Zip Codes",
+      "id": "tg143-zips",
+      "name": "Extract Zip Codes from Completed Jobs",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [520, 300]
     },
     {
       "parameters": {
-        "jsCode": "// TG-143: Find neighbor leads in same zip codes, dedup by 30-day window\nconst data = $input.first().json;\nif (data._skip) return [{ json: data }];\n\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`\n};\n\nconst thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();\nconst neighborLeads = [];\n\nfor (const zip of data.zipCodes) {\n  const serviceType = data.jobsByZip[zip][0].serviceType;\n  try {\n    const leads = await this.helpers.httpRequest({\n      method: 'GET',\n      url: `${supabaseUrl}/leads?address=like.*${zip}*&status=neq.customer&select=id,name,phone,address,neighbor_sms_sent_at`,\n      headers: supabaseHeaders\n    });\n\n    if (Array.isArray(leads)) {\n      for (const lead of leads) {\n        // Skip if no phone\n        if (!lead.phone) continue;\n        // Skip if neighbor SMS sent within last 30 days\n        if (lead.neighbor_sms_sent_at && new Date(lead.neighbor_sms_sent_at) > new Date(thirtyDaysAgo)) continue;\n\n        neighborLeads.push({\n          leadId: lead.id,\n          name: lead.name || 'Neighbor',\n          phone: lead.phone,\n          zip,\n          serviceType\n        });\n      }\n    }\n  } catch (e) { /* continue */ }\n}\n\nif (neighborLeads.length === 0) {\n  return [{ json: { _skip: true, message: 'No eligible neighbor leads found' } }];\n}\n\nreturn [{ json: { neighborLeads, zipCodes: data.zipCodes } }];"
+        "jsCode": "// TG-143: Find neighbor leads in same zip codes, dedup 30-day window\nconst data = $input.first().json;\nif (data._skip) return [{ json: data }];\n\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`\n};\n\nconst thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();\nconst neighborLeads = [];\n\nfor (const zip of data.zipCodes) {\n  const serviceType = data.jobsByZip[zip][0].serviceType;\n\n  try {\n    // Find leads in this zip code that are not converted customers\n    const leads = await this.helpers.httpRequest({\n      method: 'GET',\n      url: `${supabaseUrl}/leads?address=like.*${zip}*&lead_tier=neq.converted&select=id,name,phone,address`,\n      headers: supabaseHeaders\n    });\n\n    if (!Array.isArray(leads)) continue;\n\n    // Check neighbor_outreach table for 30-day dedup\n    let recentOutreach = [];\n    try {\n      recentOutreach = await this.helpers.httpRequest({\n        method: 'GET',\n        url: `${supabaseUrl}/neighbor_outreach?sent_at=gte.${thirtyDaysAgo}&zip_code=eq.${zip}&select=lead_phone`,\n        headers: supabaseHeaders\n      });\n    } catch (e) {\n      recentOutreach = [];\n    }\n    const recentPhones = new Set((recentOutreach || []).map(r => r.lead_phone));\n\n    for (const lead of leads) {\n      if (!lead.phone) continue;\n      // Skip if already contacted in last 30 days\n      if (recentPhones.has(lead.phone)) continue;\n\n      neighborLeads.push({\n        leadId: lead.id,\n        name: lead.name || 'Neighbor',\n        phone: lead.phone,\n        zip,\n        serviceType\n      });\n    }\n  } catch (e) { /* continue to next zip */ }\n}\n\nif (neighborLeads.length === 0) {\n  return [{ json: { _skip: true, message: 'No eligible neighbor leads found', zipCodes: data.zipCodes, jobCount: data.jobCount } }];\n}\n\nreturn [{ json: { neighborLeads, zipCodes: data.zipCodes, jobCount: data.jobCount, leadCount: neighborLeads.length } }];"
       },
-      "id": "tg143-find-neighbors",
-      "name": "Find Neighbor Leads",
+      "id": "tg143-leads",
+      "name": "Find Leads in Same Zip Codes",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [780, 300]
     },
     {
       "parameters": {
-        "jsCode": "// TG-143: Build neighbor outreach SMS messages\nconst data = $input.first().json;\nif (data._skip) return [{ json: data }];\n\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`,\n  'Content-Type': 'application/json'\n};\n\nconst messages = [];\n\nfor (const lead of data.neighborLeads) {\n  const firstName = lead.name.split(' ')[0];\n  const messageBody = `Hi ${firstName}! TotalGuard was just servicing a property in your neighborhood with ${lead.serviceType}. We'd love to help your yard look amazing too! Free quotes: (608) 535-6057 or tgyardcare.com \\u2014 TotalGuard`;\n\n  messages.push({\n    json: {\n      to_phone: lead.phone,\n      message_body: messageBody,\n      workflow_name: 'TG-143',\n      message_type: 'neighbor_outreach'\n    }\n  });\n\n  // Update neighbor_sms_sent_at for dedup\n  try {\n    await this.helpers.httpRequest({\n      method: 'PATCH',\n      url: `${supabaseUrl}/leads?id=eq.${lead.leadId}`,\n      headers: { ...supabaseHeaders, 'Prefer': 'return=minimal' },\n      body: { neighbor_sms_sent_at: new Date().toISOString() }\n    });\n  } catch (e) { /* continue */ }\n}\n\nreturn messages;"
+        "jsCode": "// TG-143: Build neighbor outreach SMS messages with rotation\nconst data = $input.first().json;\nif (data._skip) return [{ json: data }];\n\nconst templates = [\n  (first, svc) => `Hi ${first}! TotalGuard Yard Care was just working in your neighborhood today on a ${svc} job. Your neighbors trust us with their lawn \\u2014 we'd love to help you too! Free quote: tgyardcare.com or call (608) 535-6057. Reply STOP to opt out.`,\n  (first, svc) => `Hi ${first}! We just finished a ${svc} job near you. While we're in the neighborhood, we'd be happy to give you a free estimate! tgyardcare.com | (608) 535-6057. Reply STOP to opt out.`\n];\n\nconst messages = [];\n\nfor (let i = 0; i < data.neighborLeads.length; i++) {\n  const lead = data.neighborLeads[i];\n  const firstName = lead.name.split(' ')[0];\n  const template = templates[i % templates.length];\n  const messageBody = template(firstName, lead.serviceType);\n\n  messages.push({\n    json: {\n      to_phone: lead.phone,\n      message_body: messageBody,\n      workflow_name: 'TG-143-neighbor-outreach',\n      message_type: 'neighbor_marketing',\n      _lead_name: lead.name,\n      _lead_phone: lead.phone,\n      _zip: lead.zip,\n      _service: lead.serviceType\n    }\n  });\n}\n\nreturn messages;"
       },
-      "id": "tg143-build-sms",
-      "name": "Build Neighbor SMS",
+      "id": "tg143-sms",
+      "name": "Build Neighbor Outreach SMS",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1040, 300]
@@ -63,25 +64,36 @@
         "workflowId": "AprqI2DgQA8lehij",
         "options": {}
       },
-      "id": "tg143-send-sms",
-      "name": "Send via TG-94",
+      "id": "tg143-send",
+      "name": "Send Neighbor SMS via TG-94",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [1300, 300]
     },
     {
       "parameters": {
+        "jsCode": "// TG-143: Log each outreach to neighbor_outreach table\nconst supabaseUrl = 'https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1';\nconst supabaseKey = 'sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v';\nconst supabaseHeaders = {\n  'apikey': supabaseKey,\n  'Authorization': `Bearer ${supabaseKey}`,\n  'Content-Type': 'application/json',\n  'Prefer': 'return=minimal'\n};\n\nconst items = $input.all();\nconst logged = [];\n\nfor (const item of items) {\n  const d = item.json;\n  try {\n    await this.helpers.httpRequest({\n      method: 'POST',\n      url: `${supabaseUrl}/neighbor_outreach`,\n      headers: supabaseHeaders,\n      body: {\n        lead_phone: d._lead_phone || d.to_phone,\n        lead_name: d._lead_name || '',\n        zip_code: d._zip || '',\n        job_service_type: d._service || '',\n        sent_at: new Date().toISOString()\n      }\n    });\n    logged.push({ name: d._lead_name, zip: d._zip });\n  } catch (e) {\n    logged.push({ name: d._lead_name, zip: d._zip, error: e.message });\n  }\n}\n\nreturn [{ json: { logged, loggedCount: logged.length } }];"
+      },
+      "id": "tg143-log",
+      "name": "Log Neighbor Outreach",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
         "chatId": "OWNER_TELEGRAM_CHAT_ID",
-        "text": "={{ (function() {\n  const items = $input.all();\n  const count = items.length;\n  const zips = [...new Set(items.map(i => i.json.to_phone ? 'sent' : ''))].length;\n  return `NEIGHBOR OUTREACH\\n\\n${count} neighbor outreach SMS sent\\nWorkflow: TG-143`;\n})() }}",
+        "text": "={{ (function() {\n  const d = $input.first().json;\n  const logged = d.logged || [];\n  const zips = [...new Set(logged.map(l => l.zip).filter(Boolean))];\n  const details = logged.map(l => `  - ${l.name || 'Unknown'} (${l.zip})`).join('\\n');\n  return `NEIGHBOR OUTREACH COMPLETE\\n\\nLeads contacted: ${logged.length}\\nZip codes covered: ${zips.join(', ') || 'none'}\\n\\n${details || 'No leads contacted today.'}`;\n})() }}",
         "additionalFields": {
           "parse_mode": "HTML"
         }
       },
-      "id": "tg143-telegram",
-      "name": "Telegram Summary",
+      "id": "tg143-summary",
+      "name": "Send Outreach Summary to Telegram",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [1560, 300],
+      "position": [1820, 300],
       "credentials": {
         "telegramApi": {
           "id": "V404qLIDXjmyzNeS",
@@ -91,34 +103,39 @@
     }
   ],
   "connections": {
-    "Daily 10am CT": {
+    "Daily 11 AM Neighbor Outreach": {
       "main": [
-        [{ "node": "Fetch Yesterday's Completions", "type": "main", "index": 0 }]
+        [{ "node": "Fetch Jobs Completed Yesterday", "type": "main", "index": 0 }]
       ]
     },
-    "Fetch Yesterday's Completions": {
+    "Fetch Jobs Completed Yesterday": {
       "main": [
-        [{ "node": "Extract Zip Codes", "type": "main", "index": 0 }]
+        [{ "node": "Extract Zip Codes from Completed Jobs", "type": "main", "index": 0 }]
       ]
     },
-    "Extract Zip Codes": {
+    "Extract Zip Codes from Completed Jobs": {
       "main": [
-        [{ "node": "Find Neighbor Leads", "type": "main", "index": 0 }]
+        [{ "node": "Find Leads in Same Zip Codes", "type": "main", "index": 0 }]
       ]
     },
-    "Find Neighbor Leads": {
+    "Find Leads in Same Zip Codes": {
       "main": [
-        [{ "node": "Build Neighbor SMS", "type": "main", "index": 0 }]
+        [{ "node": "Build Neighbor Outreach SMS", "type": "main", "index": 0 }]
       ]
     },
-    "Build Neighbor SMS": {
+    "Build Neighbor Outreach SMS": {
       "main": [
-        [{ "node": "Send via TG-94", "type": "main", "index": 0 }]
+        [{ "node": "Send Neighbor SMS via TG-94", "type": "main", "index": 0 }]
       ]
     },
-    "Send via TG-94": {
+    "Send Neighbor SMS via TG-94": {
       "main": [
-        [{ "node": "Telegram Summary", "type": "main", "index": 0 }]
+        [{ "node": "Log Neighbor Outreach", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Neighbor Outreach": {
+      "main": [
+        [{ "node": "Send Outreach Summary to Telegram", "type": "main", "index": 0 }]
       ]
     }
   },
@@ -126,12 +143,12 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "tg-143-v1",
+  "versionId": "tg-143-v2",
   "meta": {
     "instanceId": "tgyardcare"
   },
   "tags": [
-    { "name": "phase-20-01" },
+    { "name": "phase-20" },
     { "name": "neighbor-outreach" },
     { "name": "daily" },
     { "name": "sms" }
