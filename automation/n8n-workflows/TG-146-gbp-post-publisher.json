@@ -1,0 +1,400 @@
+{
+  "name": "TG-146 GBP Post Publisher",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"]
+      },
+      "id": "node-1-telegram-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [220, 300],
+      "webhookId": "tg-134-gbp-publisher",
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "TG - Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse incoming Telegram command\n// Expected formats:\n//   approve <uuid>\n//   reject <uuid>\n//   edit <uuid> <new post text>\nconst message = $input.first().json.message;\nconst text = (message.text || '').trim();\n\nconst regex = /^(approve|reject|edit)\\s+([a-f0-9-]+)\\s*(.*)?$/i;\nconst match = text.match(regex);\n\nif (!match) {\n  return [{\n    json: {\n      command: 'invalid',\n      postId: null,\n      editText: null,\n      chatId: message.chat.id,\n      originalText: text,\n      error: 'Unrecognized command. Use: approve <id>, reject <id>, or edit <id> <new text>'\n    }\n  }];\n}\n\nconst command = match[1].toLowerCase();\nconst postId = match[2];\nconst editText = match[3] ? match[3].trim() : null;\n\n// Validate edit has replacement text\nif (command === 'edit' && (!editText || editText.length === 0)) {\n  return [{\n    json: {\n      command: 'invalid',\n      postId,\n      editText: null,\n      chatId: message.chat.id,\n      originalText: text,\n      error: 'Edit command requires replacement text. Use: edit <id> <new text>'\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    command,\n    postId,\n    editText,\n    chatId: message.chat.id,\n    originalText: text\n  }\n}];"
+      },
+      "id": "node-2-parse-command",
+      "name": "Parse Command",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "outputIndex": 0,
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "outputIndex": 1,
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "outputIndex": 2,
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "edit",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "outputIndex": 3,
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "invalid",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "node-3-route-command",
+      "name": "Route by Command",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/gbp_posts?id=eq.{{ $('Parse Command').item.json.postId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"status\": \"approved\",\n  \"approved_at\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": {}
+      },
+      "id": "node-4a-approve-patch",
+      "name": "Approve Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if GBP API is available for direct posting\n// Currently always returns false — placeholder for future GBP API integration\nconst post = $input.first().json;\n\nconst gbpApiAvailable = false;\n\nreturn [{\n  json: {\n    ...post,\n    gbpApiAvailable,\n    message: gbpApiAvailable\n      ? 'GBP API connected — auto-posting'\n      : 'GBP API not connected — manual posting required'\n  }\n}];"
+      },
+      "id": "node-4b-check-gbp-api",
+      "name": "Check GBP API",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format the approved post as copy-paste ready for manual GBP posting\nconst data = $input.first().json;\nconst post = Array.isArray(data) ? data[0] : data;\nconst postContent = post.post_content || post[0]?.post_content || 'Post content unavailable';\nconst topic = $('Parse Command').first().json.postId;\n\nconst formatted = [\n  '━━━━━━━━━━━━━━━━━━━━━━━━',\n  '📋 COPY THIS TEXT FOR GBP:',\n  '━━━━━━━━━━━━━━━━━━━━━━━━',\n  '',\n  postContent,\n  '',\n  '━━━━━━━━━━━━━━━━━━━━━━━━',\n  '',\n  '📍 Post to: Google Business Profile',\n  '🔗 https://business.google.com',\n  '📸 Image suggestion: ' + (post.image_prompt || 'Use a seasonal lawn photo'),\n  '',\n  '✅ Post ID: ' + topic + ' — APPROVED'\n].join('\\n');\n\nreturn [{\n  json: {\n    formatted,\n    chatId: $('Parse Command').first().json.chatId\n  }\n}];"
+      },
+      "id": "node-4c-format-copy-paste",
+      "name": "Format Copy-Paste Ready",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 100]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.formatted }}",
+        "additionalFields": {}
+      },
+      "id": "node-4d-approve-confirm",
+      "name": "Approve Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1540, 100],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "TG - Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/gbp_posts?id=eq.{{ $('Parse Command').item.json.postId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"status\": \"rejected\"\n}",
+        "options": {}
+      },
+      "id": "node-5a-reject-patch",
+      "name": "Reject Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 340]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Command').item.json.chatId }}",
+        "text": "=❌ Post `{{ $('Parse Command').item.json.postId }}` has been rejected.\n\nA new post will be generated on the next scheduled run.",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "node-5b-reject-confirm",
+      "name": "Reject Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1100, 340],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "TG - Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/gbp_posts?id=eq.{{ $('Parse Command').item.json.postId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"post_content\": {{ JSON.stringify($('Parse Command').item.json.editText) }},\n  \"char_count\": {{ $('Parse Command').item.json.editText.length }},\n  \"status\": \"pending_approval\"\n}",
+        "options": {}
+      },
+      "id": "node-6a-edit-patch",
+      "name": "Edit Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 560]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Command').item.json.chatId }}",
+        "text": "=✏️ Post `{{ $('Parse Command').item.json.postId }}` updated.\n\n*New text:*\n{{ $('Parse Command').item.json.editText }}\n\n📏 Characters: {{ $('Parse Command').item.json.editText.length }}/300\n\nStatus reset to *pending\\_approval*. Use `approve {{ $('Parse Command').item.json.postId }}` to finalize.",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "node-6b-edit-confirm",
+      "name": "Edit Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1100, 560],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "TG - Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Command": {
+      "main": [
+        [
+          {
+            "node": "Route by Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Command": {
+      "main": [
+        [
+          {
+            "node": "Approve Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reject Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Approve Post": {
+      "main": [
+        [
+          {
+            "node": "Check GBP API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check GBP API": {
+      "main": [
+        [
+          {
+            "node": "Format Copy-Paste Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Copy-Paste Ready": {
+      "main": [
+        [
+          {
+            "node": "Approve Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reject Post": {
+      "main": [
+        [
+          {
+            "node": "Reject Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Post": {
+      "main": [
+        [
+          {
+            "node": "Edit Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "tg-146-gbp-post-publisher-v1",
+  "meta": {
+    "instanceId": "tgyardcare.app.n8n.cloud"
+  },
+  "tags": [
+    {
+      "name": "Phase 18",
+      "id": "phase-18"
+    },
+    {
+      "name": "GBP",
+      "id": "gbp"
+    }
+  ]
+}
