@@ -2,9 +2,18 @@
   "name": "TG-63-winback-engine",
   "nodes": [
     {
-      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 10 1 * *" }] } },
-      "id": "schedule",
-      "name": "Monthly 1st 10am CT",
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 15 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Weekly Monday 10am CT",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [0, 300]
@@ -12,112 +21,254 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/customers?select=id,first_name,last_name,email,phone,last_job_date,total_spend,sms_consent&health_segment=eq.dormant&last_job_date=lt.{{ new Date(Date.now()-90*86400000).toISOString() }}&limit=50",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?status=in.(customer,active,converted)&select=id,first_name,last_name,email,phone,service,updated_at,winback_sent_at",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+          ]
+        },
+        "options": {}
       },
-      "id": "fetch-dormant",
-      "name": "Fetch Dormant Customers",
+      "id": "fetch-customers",
+      "name": "Fetch All Customers",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 200]
+      "position": [220, 300]
     },
     {
       "parameters": {
-        "method": "GET",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/email_sends?workflow_name=eq.winback&select=contact_email,email_type",
-        "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }] }
+        "jsCode": "const customers = $input.all().map(i => i.json);\nconst now = Date.now();\nconst NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;\nconst THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;\n\nconst dormant = [];\nfor (const c of customers) {\n  const lastActivity = new Date(c.updated_at || '2020-01-01').getTime();\n  const daysSince = Math.floor((now - lastActivity) / (24 * 60 * 60 * 1000));\n\n  // Skip if not dormant (< 90 days)\n  if (now - lastActivity < NINETY_DAYS) continue;\n\n  // Skip if win-back already sent in last 30 days\n  if (c.winback_sent_at) {\n    const lastWinback = new Date(c.winback_sent_at).getTime();\n    if (now - lastWinback < THIRTY_DAYS) continue;\n  }\n\n  // Must have email or phone\n  if (!c.email && !c.phone) continue;\n\n  dormant.push({ json: { ...c, days_dormant: daysSince } });\n}\n\nreturn dormant;"
       },
-      "id": "fetch-sent",
-      "name": "Fetch Sent History",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [220, 400]
-    },
-    {
-      "parameters": {
-        "jsCode": "const customers = $('Fetch Dormant Customers').all().map(i => i.json);\nconst sentHistory = $('Fetch Sent History').all().map(i => i.json);\nconst now = new Date();\nconst month = now.toISOString().substring(0, 7);\n\nconst sentSet = new Set(sentHistory.map(s => `${s.contact_email}|${s.email_type}`));\n\nconst results = [];\nfor (const c of customers) {\n  if (!c.email) continue;\n  const daysSince = c.last_job_date ? Math.floor((now - new Date(c.last_job_date)) / 86400000) : 999;\n  \n  let offer, discount;\n  if ((c.total_spend || 0) >= 500) {\n    offer = 'loyal_comeback';\n    discount = '20% off your next service';\n  } else if (daysSince < 365) {\n    offer = 'seasonal_return';\n    discount = '15% off + free estimate';\n  } else {\n    offer = 'reactivation';\n    discount = '$25 off your first service back';\n  }\n  \n  const emailType = `winback_${offer}_${month}`;\n  if (sentSet.has(`${c.email}|${emailType}`)) continue;\n  \n  results.push({ json: { ...c, days_since_last_job: daysSince, offer, discount, emailType } });\n}\nreturn results.length > 0 ? results : [{ json: { _skip: true } }];"
-      },
-      "id": "prepare-offers",
-      "name": "Prepare Winback Offers",
+      "id": "identify-dormant",
+      "name": "Identify Dormant (90+ Days)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [440, 300]
     },
     {
       "parameters": {
-        "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
-          "conditions": [{ "leftValue": "={{ $json._skip }}", "rightValue": true, "operator": { "type": "boolean", "operation": "notEquals" } }],
-          "combinator": "and"
-        }
+        "jsCode": "const dormant = $input.all();\nconst results = [];\n\nfor (const item of dormant) {\n  const c = item.json;\n  const firstName = c.first_name || 'Neighbor';\n  const days = c.days_dormant;\n\n  // SMS message (if has phone)\n  if (c.phone) {\n    results.push({\n      json: {\n        channel: 'sms',\n        lead_id: c.id,\n        to_phone: c.phone,\n        message_body: `Hi ${firstName}! It's been a while since TotalGuard took care of your yard. We miss you! Book this week and get 10% off your first service back. Call (608) 535-6057 or visit tgyardcare.com — TotalGuard`,\n        workflow_name: 'TG-63',\n        message_type: 'winback'\n      }\n    });\n  }\n\n  // Email (if has email)\n  if (c.email) {\n    const html = `<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head><body style=\"margin:0;padding:0;background-color:#1a1a2e;font-family:Arial,sans-serif;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#1a1a2e;padding:20px 0;\"><tr><td align=\"center\"><table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#16213e;border-radius:12px;overflow:hidden;\"><tr><td style=\"background:linear-gradient(135deg,#0f3d0f,#1a5c1a);padding:30px;text-align:center;\"><h1 style=\"color:#f5c518;margin:0;font-size:28px;\">TotalGuard</h1><p style=\"color:#a8d5a8;margin:5px 0 0;font-size:14px;\">Yard Care &amp; Snow Removal</p></td></tr><tr><td style=\"padding:30px;\"><h2 style=\"color:#f5c518;margin:0 0 15px;font-size:22px;\">It's Been Too Long!</h2><p style=\"color:#e0e0e0;font-size:16px;line-height:1.6;margin:0 0 10px;\">Hi ${firstName},</p><p style=\"color:#e0e0e0;font-size:16px;line-height:1.6;margin:0 0 15px;\">We noticed it's been ${days} days since TotalGuard last took care of your yard. Your lawn deserves the best — and we'd love to have you back.</p><p style=\"color:#e0e0e0;font-size:16px;line-height:1.6;margin:0 0 20px;\">As a welcome-back gift, we're offering you <strong style=\"color:#f5c518;\">10% off your first service back</strong>. Whether it's mowing, landscaping, or snow removal — we've got you covered.</p><table cellpadding=\"0\" cellspacing=\"0\" style=\"margin:25px auto;\"><tr><td style=\"background:linear-gradient(135deg,#f5c518,#d4a813);border-radius:8px;padding:14px 32px;\"><a href=\"https://tgyardcare.com/contact\" style=\"color:#1a1a2e;text-decoration:none;font-weight:bold;font-size:16px;\">Reclaim My 10% Discount</a></td></tr></table><div style=\"background:#1a2a3e;border-radius:8px;padding:15px;margin:20px 0;\"><p style=\"color:#f5c518;font-size:14px;margin:0 0 5px;\">What Our Customers Say</p><p style=\"color:#e0e0e0;font-size:14px;margin:0;font-style:italic;\">\"TotalGuard does an amazing job every time. Professional, reliable, and my yard has never looked better.\" — Madison homeowner</p></div><p style=\"color:#888;font-size:13px;margin:20px 0 0;\">This offer expires in 30 days. Reply STOP to opt out of future emails.</p></td></tr><tr><td style=\"padding:20px 30px;border-top:1px solid #2a2a4a;\"><p style=\"color:#666;font-size:12px;margin:0;text-align:center;\">TotalGuard Yard Care | Madison, WI | (608) 535-6057<br><a href=\"https://tgyardcare.com\" style=\"color:#a8d5a8;\">tgyardcare.com</a></p></td></tr></table></td></tr></table></body></html>`;\n\n    results.push({\n      json: {\n        channel: 'email',\n        lead_id: c.id,\n        to_email: c.email,\n        subject: `We miss you, ${firstName}! Come back to TotalGuard`,\n        html_body: html,\n        workflow_name: 'TG-63',\n        email_type: 'winback'\n      }\n    });\n  }\n}\n\nreturn results;"
       },
-      "id": "filter-skip",
-      "name": "Filter Skipped",
-      "type": "n8n-nodes-base.filter",
+      "id": "build-winback",
+      "name": "Build Win-Back Messages",
+      "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [600, 300]
+      "position": [660, 300]
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://api.brevo.com/v3/smtp/email",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.channel }}",
+                    "rightValue": "sms",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "SMS"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.channel }}",
+                    "rightValue": "email",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Email"
+            }
+          ]
+        },
+        "options": {
+          "allMatchingOutputs": false
+        }
+      },
+      "id": "route-channel",
+      "name": "Route by Channel",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "AprqI2DgQA8lehij",
+          "mode": "id"
+        }
+      },
+      "id": "send-sms",
+      "name": "Send SMS via TG-94",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "FSRv5y8YzMjpyBtc",
+          "mode": "id"
+        }
+      },
+      "id": "send-email",
+      "name": "Send Email via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1100, 400]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?id=eq.{{ $json.lead_id }}",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "api-key", "value": "={{$vars.TG_BREVO_API_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"sender\": { \"name\": \"TotalGuard Yard Care\", \"email\": \"totalguardllc@gmail.com\" }, \"to\": [{ \"email\": \"{{ $json.email }}\", \"name\": \"{{ $json.first_name }}\" }], \"subject\": \"We miss you, {{ $json.first_name }}! Here's {{ $json.discount }}\", \"htmlContent\": \"<h2>Hi {{ $json.first_name }},</h2><p>It's been a while since we've cared for your yard - we miss you! As a valued past customer, we'd love to have you back.</p><p><strong>Special offer just for you: {{ $json.discount }}</strong></p><p>Madison's weather is always changing, and your yard deserves professional care year-round. Call or text us at (608) 535-6057 to schedule.</p><p>This offer expires in 30 days.</p><p>- The TotalGuard Team</p>\" }"
+        "jsonBody": "={ \"winback_sent_at\": \"{{ new Date().toISOString() }}\" }",
+        "options": {}
       },
-      "id": "send-winback-email",
-      "name": "Send Winback Email",
+      "id": "mark-sent-sms",
+      "name": "Mark Win-Back Sent (SMS)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [780, 300],
+      "position": [1320, 200],
       "continueOnFail": true
     },
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/customers?id=eq.{{$('Prepare Winback Offers').item.json.id}}",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?id=eq.{{ $json.lead_id }}",
         "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"last_winback_attempt\": \"{{ new Date().toISOString() }}\" }"
+        "jsonBody": "={ \"winback_sent_at\": \"{{ new Date().toISOString() }}\" }",
+        "options": {}
       },
-      "id": "log-winback",
-      "name": "Log Winback Attempt",
+      "id": "mark-sent-email",
+      "name": "Mark Win-Back Sent (Email)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1000, 200],
+      "position": [1320, 400],
       "continueOnFail": true
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/email_sends",
-        "sendHeaders": true,
-        "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }, { "name": "Content-Type", "value": "application/json" }, { "name": "Prefer", "value": "return=minimal" }] },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={ \"contact_email\": \"{{ $('Prepare Winback Offers').item.json.email }}\", \"workflow_name\": \"winback\", \"email_type\": \"{{ $('Prepare Winback Offers').item.json.emailType }}\" }"
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "=Win-back campaign complete!\n\nDormant customers contacted: {{ $input.all().length }}\nChannels: SMS + Email\nDiscount: 10% off first service back\n\nNext run: Monday 10am CT",
+        "additionalFields": {}
       },
-      "id": "log-send",
-      "name": "Log to email_sends",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [1000, 400],
-      "continueOnFail": true
+      "id": "telegram-summary",
+      "name": "Telegram Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1540, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "TotalGuard Telegram Bot"
+        }
+      }
     }
   ],
   "connections": {
-    "Monthly 1st 10am CT": { "main": [[{ "node": "Fetch Dormant Customers", "type": "main", "index": 0 }, { "node": "Fetch Sent History", "type": "main", "index": 0 }]] },
-    "Fetch Dormant Customers": { "main": [[{ "node": "Prepare Winback Offers", "type": "main", "index": 0 }]] },
-    "Fetch Sent History": { "main": [[{ "node": "Prepare Winback Offers", "type": "main", "index": 1 }]] },
-    "Prepare Winback Offers": { "main": [[{ "node": "Filter Skipped", "type": "main", "index": 0 }]] },
-    "Filter Skipped": { "main": [[{ "node": "Send Winback Email", "type": "main", "index": 0 }]] },
-    "Send Winback Email": { "main": [[{ "node": "Log Winback Attempt", "type": "main", "index": 0 }, { "node": "Log to email_sends", "type": "main", "index": 0 }]] }
+    "Weekly Monday 10am CT": {
+      "main": [
+        [
+          { "node": "Fetch All Customers", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch All Customers": {
+      "main": [
+        [
+          { "node": "Identify Dormant (90+ Days)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Identify Dormant (90+ Days)": {
+      "main": [
+        [
+          { "node": "Build Win-Back Messages", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Build Win-Back Messages": {
+      "main": [
+        [
+          { "node": "Route by Channel", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Route by Channel": {
+      "main": [
+        [
+          { "node": "Send SMS via TG-94", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Send Email via TG-95", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Send SMS via TG-94": {
+      "main": [
+        [
+          { "node": "Mark Win-Back Sent (SMS)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Send Email via TG-95": {
+      "main": [
+        [
+          { "node": "Mark Win-Back Sent (Email)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Mark Win-Back Sent (SMS)": {
+      "main": [
+        [
+          { "node": "Telegram Summary", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Mark Win-Back Sent (Email)": {
+      "main": [
+        [
+          { "node": "Telegram Summary", "type": "main", "index": 0 }
+        ]
+      ]
+    }
   },
-  "settings": { "availableInMCP": true }
+  "settings": {
+    "executionOrder": "v1"
+  }
 }
