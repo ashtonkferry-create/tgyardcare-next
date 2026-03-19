@@ -182,7 +182,7 @@ export function ExitIntentModal() {
       });
       if (!res.ok) throw new Error('Submission failed');
       setFormState('success');
-      try { localStorage.setItem('tg-converted', 'true'); } catch {}
+      try { localStorage.setItem('tg-converted', 'true'); } catch { /* private browsing — safe to ignore */ }
     } catch {
       setFormState('idle');
       setFormError('Something went wrong. Please call us at (608) 535-6057.');
