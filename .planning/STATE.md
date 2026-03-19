@@ -10,20 +10,20 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 12 of 20 (Conversion Engine)
-Plan: 3 of 4 in Phase 12 (12-01, 12-02, 12-04 complete)
-Status: In progress
-Last activity: 2026-03-19 — Completed 12-04-PLAN.md (TG-07 engagement-based lead scoring)
+Plan: 4 of 4 in Phase 12 (ALL COMPLETE: 12-01, 12-02, 12-03, 12-04)
+Status: Phase 12 COMPLETE
+Last activity: 2026-03-19 — Completed 12-03-PLAN.md (TG-09 5-touch follow-up sequence)
 
-Progress M4: [███████░░░░░░░░░░░░░░░░░░░░░░░░░] 8/62 requirements (12-04 COMPLETE)
+Progress M4: [████████░░░░░░░░░░░░░░░░░░░░░░░░] 9/62 requirements (Phase 12 COMPLETE)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 76 (M2: 34 + M3: 36 + M4: 6)
+- Total plans completed: 77 (M2: 34 + M3: 36 + M4: 7)
 - M4 Phase 11: 5 requirements complete (INFRA-01, INFRA-02, 11-02 key audit, 11-03 auto-posting, 11-01 TG-92/TG-113 activation)
-- M4 Phase 12: 3 plans complete (12-01 instant multi-channel response, 12-02 speed-to-lead timer, 12-04 engagement-based lead scoring)
+- M4 Phase 12: 4 plans complete (12-01 instant response, 12-02 speed-to-lead, 12-03 follow-up sequence, 12-04 lead scoring) -- PHASE COMPLETE
 
 ## Accumulated Context
 
@@ -62,6 +62,11 @@ Progress M2: [██████████████████████
 - [M4 Phase 12]: TG-07 writes scores directly to leads table (lead_score, lead_tier) — no longer uses lead_scores table
 - [M4 Phase 12]: TG-07 newly-hot detection prevents repeat Telegram alerts for already-hot leads
 - [M4 Phase 12]: TG-07 deployed (n8n ID: rCRdV1aDoIlEpHiH), daily 7am CT
+- [M4 Phase 12]: TG-09 rebuilt as 5-touch follow-up (Day 1/5 SMS, Day 3/7/14 email) with dynamic Google reviews
+- [M4 Phase 12]: TG-09 uses flat JSON data flow — SMS/email payloads at root level for TG-94/TG-95 compatibility
+- [M4 Phase 12]: TG-09 stage tracking via leads.follow_up_stage integer (0-5), not sequence_enrollments table
+- [M4 Phase 12]: TG-09 deployed and active (n8n ID: ZjG32DE8KI9SHyxo), daily 10am CT
+- [M4 Phase 12]: follow_up_stage column needs manual addition to leads table (workflow degrades gracefully without it)
 
 ### Pending Todos
 
@@ -69,6 +74,7 @@ Progress M2: [██████████████████████
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-126 Send Telegram Warning node with Vance's actual Telegram chat ID
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-07 Send Hot Lead Telegram node with Vance's actual Telegram chat ID
 - Create lead_alerts table in Supabase SQL Editor (see 12-02-SUMMARY.md for SQL)
+- Add follow_up_stage column to leads table: `ALTER TABLE leads ADD COLUMN IF NOT EXISTS follow_up_stage integer DEFAULT 0;`
 
 ### Blockers/Concerns
 
@@ -82,6 +88,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 12-04-PLAN.md (TG-07 engagement-based lead scoring)
+Stopped at: Completed 12-03-PLAN.md (TG-09 5-touch follow-up sequence) — Phase 12 COMPLETE
 Resume file: None
-Next: Execute 12-03-PLAN.md (remaining plan in Phase 12)
+Next: Execute Phase 13 (Retention Engine)
