@@ -16,10 +16,7 @@
       "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [
-        0,
-        200
-      ]
+      "position": [0, 200]
     },
     {
       "parameters": {},
@@ -27,10 +24,7 @@
       "name": "Manual Trigger",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [
-        0,
-        400
-      ]
+      "position": [0, 400]
     },
     {
       "parameters": {
@@ -41,11 +35,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SERVICE_KEY"
+              "value": "=SUPABASE_SECRET_KEY"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "=Bearer SUPABASE_SECRET_KEY"
             }
           ]
         },
@@ -57,25 +51,22 @@
       "name": "Get Target Cities",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        280,
-        300
-      ]
+      "position": [280, 300]
     },
     {
       "parameters": {
         "method": "GET",
-        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/blog_posts?ai_generated=eq.true&select=title,slug",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/blog_posts?ai_generated=eq.true&select=title,slug,category,keywords",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SERVICE_KEY"
+              "value": "=SUPABASE_SECRET_KEY"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "=Bearer SUPABASE_SECRET_KEY"
             }
           ]
         },
@@ -87,23 +78,17 @@
       "name": "Get Existing AI Content",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        280,
-        500
-      ]
+      "position": [280, 500]
     },
     {
       "parameters": {
-        "jsCode": "const citiesResponse = $('Get Target Cities').first().json;\nconst existingResponse = $('Get Existing AI Content').first().json;\n\nconst cities = Array.isArray(citiesResponse.body) ? citiesResponse.body : (Array.isArray(citiesResponse) ? citiesResponse : []);\nconst existing = Array.isArray(existingResponse.body) ? existingResponse.body : (Array.isArray(existingResponse) ? existingResponse : []);\n\n// Build set of cities that already have AI-generated content\nconst existingSlugs = new Set(existing.map(p => p.slug));\nconst existingTitles = new Set(existing.map(p => (p.title || '').toLowerCase()));\n\nconst citiesToProcess = cities.filter(city => {\n  const slug = 'lawn-care-' + city.city.toLowerCase().replace(/\\s+/g, '-') + '-wi';\n  const titleCheck = city.city.toLowerCase();\n  // Skip if we already have content with this city slug or title containing city name\n  if (existingSlugs.has(slug)) return false;\n  for (const t of existingTitles) {\n    if (t.includes(titleCheck) && t.includes('lawn care')) return false;\n  }\n  return true;\n});\n\nreturn [{ json: { cities: citiesToProcess, count: citiesToProcess.length, totalCities: cities.length, existingCount: existing.length } }];"
+        "jsCode": "const citiesResponse = $('Get Target Cities').first().json;\nconst existingResponse = $('Get Existing AI Content').first().json;\n\nconst cities = Array.isArray(citiesResponse.body) ? citiesResponse.body : (Array.isArray(citiesResponse) ? citiesResponse : []);\nconst existing = Array.isArray(existingResponse.body) ? existingResponse.body : (Array.isArray(existingResponse) ? existingResponse : []);\n\n// Build set of cities that already have AI-generated content\nconst existingSlugs = new Set(existing.map(p => p.slug));\nconst existingTitles = new Set(existing.map(p => (p.title || '').toLowerCase()));\n\nconst citiesToProcess = cities.filter(city => {\n  const slug = 'lawn-care-' + city.city.toLowerCase().replace(/\\s+/g, '-') + '-wi';\n  const titleCheck = city.city.toLowerCase();\n  if (existingSlugs.has(slug)) return false;\n  for (const t of existingTitles) {\n    if (t.includes(titleCheck) && t.includes('lawn care')) return false;\n  }\n  return true;\n});\n\n// Also collect recent blog posts for internal linking\nconst recentPosts = existing\n  .filter(p => p.slug && p.title)\n  .slice(0, 20)\n  .map(p => ({ title: p.title, slug: p.slug, category: p.category }));\n\nreturn [{ json: { cities: citiesToProcess, count: citiesToProcess.length, totalCities: cities.length, existingCount: existing.length, recentPosts } }];"
       },
       "id": "find-cities-needing-content",
       "name": "Find Cities Needing Content",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        560,
-        300
-      ]
+      "position": [560, 300]
     },
     {
       "parameters": {
@@ -131,23 +116,17 @@
       "name": "Has Cities to Process",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [
-        780,
-        300
-      ]
+      "position": [780, 300]
     },
     {
       "parameters": {
-        "jsCode": "const data = $('Find Cities Needing Content').first().json;\nconst cities = data.cities || [];\nreturn cities.map(city => ({ json: city }));"
+        "jsCode": "const data = $('Find Cities Needing Content').first().json;\nconst cities = data.cities || [];\nconst recentPosts = data.recentPosts || [];\nreturn cities.map(city => ({ json: { ...city, recentPosts } }));"
       },
       "id": "split-cities",
       "name": "Split Into Cities",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        1000,
-        200
-      ]
+      "position": [1000, 200]
     },
     {
       "parameters": {
@@ -158,23 +137,17 @@
       "name": "SplitInBatches",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
-      "position": [
-        1220,
-        200
-      ]
+      "position": [1220, 200]
     },
     {
       "parameters": {
-        "jsCode": "const city = $input.first().json;\nconst cityName = city.city;\nconst county = city.county || 'Dane';\nconst state = city.state || 'WI';\nconst pop = city.population || '';\nconst distance = city.distance_from_madison_miles || 0;\n\n// Local details map for Dane County cities\nconst localDetails = {\n  'Madison': {\n    neighborhoods: 'Maple Bluff, Nakoma, Shorewood Hills, Midvale Heights, Westmorland',\n    parks: 'Vilas Park, Warner Park, Olbrich Botanical Gardens, UW Arboretum',\n    soil: 'silt loam over glacial till with moderate clay content',\n    quirks: 'isthmus between Lakes Mendota and Monona creates unique microclimate, heavy lake-effect moisture',\n    zones: 'USDA Zone 5a (some sheltered areas borderline 5b)'\n  },\n  'Middleton': {\n    neighborhoods: 'Pheasant Branch, Stonefield, Middleton Hills, Century Avenue corridor',\n    parks: 'Pheasant Branch Conservancy, Lakeview Park, Stricker Pond',\n    soil: 'Plano silt loam, well-drained prairie soils with good organic matter',\n    quirks: 'National Main Street award community, newer subdivisions on former farmland with compacted subsoil',\n    zones: 'USDA Zone 5a'\n  },\n  'Sun Prairie': {\n    neighborhoods: 'Vandenburg Heights, Prairie View, Smith\\'s Crossing, Cannery Row',\n    parks: 'Angell Park, Sheehan Park, Wetmore Park',\n    soil: 'Dodge silt loam, heavy glacial clay underneath requiring aeration',\n    quirks: 'fastest-growing city in Dane County, many new-construction lawns needing establishment care',\n    zones: 'USDA Zone 5a'\n  },\n  'Fitchburg': {\n    neighborhoods: 'Nine Springs, Seminole Hills, Jamestown, Lacy Heights',\n    parks: 'McGaw Park, McKee Farms Park, Nine Springs E-Way',\n    soil: 'McHenry silt loam, moderately well-drained with limestone bedrock influence',\n    quirks: 'mix of established 1970s neighborhoods and new development, Capital City Trail access',\n    zones: 'USDA Zone 5a'\n  },\n  'Verona': {\n    neighborhoods: 'Hawthorne Hills, Cathedral Point, Westridge, Sugar Creek',\n    parks: 'Fireman\\'s Park, Badger Prairie Park, Ice Age Trail access',\n    soil: 'Griswold silt loam, rolling glacial terrain with variable drainage',\n    quirks: 'Epic Systems campus draws young professionals, rapid subdivision growth on former dairy land',\n    zones: 'USDA Zone 5a'\n  },\n  'Monona': {\n    neighborhoods: 'Winnequah, Bridge-Lakeview, Maywood, Nichols',\n    parks: 'Winnequah Park, Schluter Beach, Frost Woods',\n    soil: 'Kidder silt loam with lake-influence moisture retention',\n    quirks: 'lakefront community bordered by Lake Monona, smaller lots with mature shade trees',\n    zones: 'USDA Zone 5a'\n  },\n  'Waunakee': {\n    neighborhoods: 'Kilkenny Farms, Savannah Village, South Waunakee, Downtown Historic',\n    parks: 'Ripp Park, Centennial Park, Village Center Park',\n    soil: 'Plano silt loam over dolomite bedrock, excellent natural drainage',\n    quirks: 'self-proclaimed \"only Waunakee in the world,\" rapid growth with many new subdivisions',\n    zones: 'USDA Zone 5a'\n  },\n  'DeForest': {\n    neighborhoods: 'Windsor Gardens, Savannah Oaks, DeForest Ridge, Yahara Hills',\n    parks: 'Fireman\\'s Park, Library Park, DeForest Area Community Garden',\n    soil: 'Dodge silt loam with clay subsoil, needs regular core aeration',\n    quirks: 'Interstate 90-94 corridor community, many homeowners commute to Madison, newer construction',\n    zones: 'USDA Zone 5a'\n  },\n  'Stoughton': {\n    neighborhoods: 'Viking Village, Stoughton Meadows, Kegonsa Hills, Norse Ridge',\n    parks: 'Mandt Park, Racetrack Park, Lake Kegonsa State Park nearby',\n    soil: 'Batavia silt loam, river bottomland soil near Yahara River',\n    quirks: 'Norwegian heritage community, annual Syttende Mai festival, older tree-lined streets',\n    zones: 'USDA Zone 5a'\n  },\n  'Oregon': {\n    neighborhoods: 'Bergamont, Netherwood Knoll, Prairie Meadows, Downtown Oregon',\n    parks: 'Jaycee Park, Fireman\\'s Park, Badger State Trail access',\n    soil: 'Plano-Ringwood silt loam, former prairie with deep topsoil',\n    quirks: 'small-town feel south of Madison, many acreage properties needing scaled lawn programs',\n    zones: 'USDA Zone 5a'\n  },\n  'McFarland': {\n    neighborhoods: 'McFarland Lakes, Holscher Farms, McDivot, Exchange Street',\n    parks: 'McDaniel Park, McFarland Lions Park, Lower Mud Lake Wildlife Area',\n    soil: 'Elburn silt loam, lake-adjacent with high water table in spots',\n    quirks: 'sandwiched between Lake Waubesa and farmland, compact village with active outdoor culture',\n    zones: 'USDA Zone 5a'\n  },\n  'Cottage Grove': {\n    neighborhoods: 'Viney Meadows, Coyle Highlands, Westlawn, Crystal Lake area',\n    parks: 'Fireman\\'s Park, Crystal Lake Beach, Taylor Prairie Preserve',\n    soil: 'Plano silt loam transitioning to Dodge clay, variable drainage across subdivisions',\n    quirks: 'growing bedroom community east of Madison, mix of farmette and suburban lots',\n    zones: 'USDA Zone 5a'\n  },\n  'Cross Plains': {\n    neighborhoods: 'Indian Hills, Cross Plains Village, Pine Bluff area',\n    parks: 'Zander Park, Ice Age Trail (Verona segment), Cross Plains State Ice Age Trail Area',\n    soil: 'Fayette silt loam, hilly Driftless Area terrain with erosion concerns',\n    quirks: 'edge of Driftless Area (unglaciated), steeper yards with unique drainage challenges',\n    zones: 'USDA Zone 5a'\n  },\n  'Windsor': {\n    neighborhoods: 'Windsor Gardens, Westport Meadows, Heritage Farms',\n    parks: 'Windsor Village Park, Token Creek County Park',\n    soil: 'Plano silt loam, former agricultural land with good natural fertility',\n    quirks: 'rapidly developing north of Madison, many newly-sodded lawns needing establishment programs',\n    zones: 'USDA Zone 5a'\n  },\n  'Mount Horeb': {\n    neighborhoods: 'Blue Mounds View, Military Ridge, Trollway District, Springdale Hills',\n    parks: 'Military Ridge State Trail, Grundahl Park, Donald County Park',\n    soil: 'Fayette silt loam, Driftless Area hilltop soils with limestone influence',\n    quirks: 'troll capital of the world, Driftless Area microclimate slightly cooler than Madison, altitude 1200ft+',\n    zones: 'USDA Zone 4b-5a (cooler due to elevation)'\n  }\n};\n\nconst details = localDetails[cityName] || {\n  neighborhoods: 'various residential neighborhoods',\n  parks: 'local community parks',\n  soil: 'silt loam typical of Dane County Wisconsin',\n  quirks: 'growing Dane County community near Madison',\n  zones: 'USDA Zone 5a'\n};\n\nconst prompt = `You are a lawn care content writer for TotalGuard Yard Care, a professional lawn care and landscaping company serving Dane County, Wisconsin. Write a comprehensive, SEO-optimized lawn care guide specifically for ${cityName}, ${state} homeowners.\n\nIMPORTANT LOCAL DETAILS TO WEAVE IN NATURALLY:\n- Neighborhoods: ${details.neighborhoods}\n- Local parks/landmarks: ${details.parks}\n- Soil type: ${details.soil}\n- Local context: ${details.quirks}\n- Growing zone: ${details.zones}\n- County: ${county}\n- Distance from Madison: ${distance} miles\n${pop ? '- Population: approximately ' + pop.toLocaleString() : ''}\n\nREQUIREMENTS:\n1. Title format: \"Complete Lawn Care Guide for ${cityName}, WI Homeowners\"\n2. 1000-1500 words of substantive content\n3. Use HTML formatting with H2 and H3 headings\n4. Include at least 5 H2 sections covering: seasonal lawn care calendar, soil & grass types, common problems, professional services, and a local section\n5. Reference specific neighborhoods, parks, or landmarks AT LEAST 3 times\n6. Mention Wisconsin, Dane County, and the growing zone naturally\n7. Include a CTA mentioning TotalGuard Yard Care and phone number (608) 995-3554\n8. Include a CTA linking to tgyardcare.com\n9. Write in a helpful, authoritative but approachable tone\n10. NO placeholder text like [insert here] or [TBD]\n11. NO generic filler — every paragraph should contain specific, actionable advice\n12. Include local soil recommendations specific to the soil type mentioned above\n\nAlso provide a meta_description (under 160 characters) for SEO.\n\nFormat your response as JSON:\n{\n  \"title\": \"...\",\n  \"content\": \"<html content here>\",\n  \"meta_description\": \"...\",\n  \"excerpt\": \"2-3 sentence summary\"\n}`;\n\nreturn [{ json: { city: cityName, state, county, slug: 'lawn-care-' + cityName.toLowerCase().replace(/\\s+/g, '-') + '-wi', prompt, population: pop, distance } }];"
+        "jsCode": "const city = $input.first().json;\nconst cityName = city.city;\nconst county = city.county || 'Dane';\nconst state = city.state || 'WI';\nconst pop = city.population || '';\nconst distance = city.distance_from_madison_miles || 0;\nconst recentPosts = city.recentPosts || [];\n\n// Build internal links section for the prompt\nconst blogLinksText = recentPosts.slice(0, 5).map(p => `- /blog/${p.slug} — ${p.title}`).join('\\n');\n\n// Local details map for Dane County cities\nconst localDetails = {\n  'Madison': { neighborhoods: 'Maple Bluff, Nakoma, Shorewood Hills, Midvale Heights, Westmorland', parks: 'Vilas Park, Warner Park, Olbrich Botanical Gardens, UW Arboretum', soil: 'silt loam over glacial till with moderate clay content', quirks: 'isthmus between Lakes Mendota and Monona creates unique microclimate, heavy lake-effect moisture', zones: 'USDA Zone 5a (some sheltered areas borderline 5b)' },\n  'Middleton': { neighborhoods: 'Pheasant Branch, Stonefield, Middleton Hills, Century Avenue corridor', parks: 'Pheasant Branch Conservancy, Lakeview Park, Stricker Pond', soil: 'Plano silt loam, well-drained prairie soils with good organic matter', quirks: 'National Main Street award community, newer subdivisions on former farmland with compacted subsoil', zones: 'USDA Zone 5a' },\n  'Sun Prairie': { neighborhoods: 'Vandenburg Heights, Prairie View, Smith\\'s Crossing, Cannery Row', parks: 'Angell Park, Sheehan Park, Wetmore Park', soil: 'Dodge silt loam, heavy glacial clay underneath requiring aeration', quirks: 'fastest-growing city in Dane County, many new-construction lawns needing establishment care', zones: 'USDA Zone 5a' },\n  'Fitchburg': { neighborhoods: 'Nine Springs, Seminole Hills, Jamestown, Lacy Heights', parks: 'McGaw Park, McKee Farms Park, Nine Springs E-Way', soil: 'McHenry silt loam, moderately well-drained with limestone bedrock influence', quirks: 'mix of established 1970s neighborhoods and new development, Capital City Trail access', zones: 'USDA Zone 5a' },\n  'Verona': { neighborhoods: 'Hawthorne Hills, Cathedral Point, Westridge, Sugar Creek', parks: 'Fireman\\'s Park, Badger Prairie Park, Ice Age Trail access', soil: 'Griswold silt loam, rolling glacial terrain with variable drainage', quirks: 'Epic Systems campus draws young professionals, rapid subdivision growth on former dairy land', zones: 'USDA Zone 5a' },\n  'Monona': { neighborhoods: 'Winnequah, Bridge-Lakeview, Maywood, Nichols', parks: 'Winnequah Park, Schluter Beach, Frost Woods', soil: 'Kidder silt loam with lake-influence moisture retention', quirks: 'lakefront community bordered by Lake Monona, smaller lots with mature shade trees', zones: 'USDA Zone 5a' },\n  'Waunakee': { neighborhoods: 'Kilkenny Farms, Savannah Village, South Waunakee, Downtown Historic', parks: 'Ripp Park, Centennial Park, Village Center Park', soil: 'Plano silt loam over dolomite bedrock, excellent natural drainage', quirks: 'self-proclaimed \"only Waunakee in the world,\" rapid growth with many new subdivisions', zones: 'USDA Zone 5a' },\n  'DeForest': { neighborhoods: 'Windsor Gardens, Savannah Oaks, DeForest Ridge, Yahara Hills', parks: 'Fireman\\'s Park, Library Park, DeForest Area Community Garden', soil: 'Dodge silt loam with clay subsoil, needs regular core aeration', quirks: 'Interstate 90-94 corridor community, many homeowners commute to Madison, newer construction', zones: 'USDA Zone 5a' },\n  'Stoughton': { neighborhoods: 'Viking Village, Stoughton Meadows, Kegonsa Hills, Norse Ridge', parks: 'Mandt Park, Racetrack Park, Lake Kegonsa State Park nearby', soil: 'Batavia silt loam, river bottomland soil near Yahara River', quirks: 'Norwegian heritage community, annual Syttende Mai festival, older tree-lined streets', zones: 'USDA Zone 5a' },\n  'Oregon': { neighborhoods: 'Bergamont, Netherwood Knoll, Prairie Meadows, Downtown Oregon', parks: 'Jaycee Park, Fireman\\'s Park, Badger State Trail access', soil: 'Plano-Ringwood silt loam, former prairie with deep topsoil', quirks: 'small-town feel south of Madison, many acreage properties needing scaled lawn programs', zones: 'USDA Zone 5a' },\n  'McFarland': { neighborhoods: 'McFarland Lakes, Holscher Farms, McDivot, Exchange Street', parks: 'McDaniel Park, McFarland Lions Park, Lower Mud Lake Wildlife Area', soil: 'Elburn silt loam, lake-adjacent with high water table in spots', quirks: 'sandwiched between Lake Waubesa and farmland, compact village with active outdoor culture', zones: 'USDA Zone 5a' },\n  'Cottage Grove': { neighborhoods: 'Viney Meadows, Coyle Highlands, Westlawn, Crystal Lake area', parks: 'Fireman\\'s Park, Crystal Lake Beach, Taylor Prairie Preserve', soil: 'Plano silt loam transitioning to Dodge clay, variable drainage across subdivisions', quirks: 'growing bedroom community east of Madison, mix of farmette and suburban lots', zones: 'USDA Zone 5a' }\n};\n\nconst details = localDetails[cityName] || { neighborhoods: 'various residential neighborhoods', parks: 'local community parks', soil: 'silt loam typical of Dane County Wisconsin', quirks: 'growing Dane County community near Madison', zones: 'USDA Zone 5a' };\n\nconst prompt = `You are a lawn care content writer for TotalGuard Yard Care, a professional lawn care and landscaping company serving Dane County, Wisconsin. Write a comprehensive, SEO-optimized lawn care guide specifically for ${cityName}, ${state} homeowners.\n\nIMPORTANT LOCAL DETAILS TO WEAVE IN NATURALLY:\n- Neighborhoods: ${details.neighborhoods}\n- Local parks/landmarks: ${details.parks}\n- Soil type: ${details.soil}\n- Local context: ${details.quirks}\n- Growing zone: ${details.zones}\n- County: ${county}\n- Distance from Madison: ${distance} miles\n${pop ? '- Population: approximately ' + pop.toLocaleString() : ''}\n\nINTERNAL LINKING REQUIREMENTS (CRITICAL):\nYou MUST include these internal links naturally in the article:\n1. Link to the parent service page: <a href=\"/services/mowing\">lawn mowing</a> (and 2-3 other relevant service pages)\n2. Link to 2-3 of these recent blog posts where relevant:\n${blogLinksText}\n3. Link to the contact page: <a href=\"/contact\">get a free quote</a>\n\nSERVICE PAGES (use exact URLs):\n- /services/mowing — Lawn Mowing\n- /services/fertilization — Fertilization\n- /services/aeration — Aeration\n- /services/herbicide — Weed Control\n- /services/mulching — Mulching\n- /services/garden-beds — Garden Beds\n- /services/spring-cleanup — Spring Cleanup\n- /services/fall-cleanup — Fall Cleanup\n- /services/leaf-removal — Leaf Removal\n- /services/snow-removal — Snow Removal\n- /services/gutter-cleaning — Gutter Cleaning\n- /contact — Get a Free Quote\n\nREQUIREMENTS:\n1. Title format: \"Complete Lawn Care Guide for ${cityName}, WI Homeowners\"\n2. 1000-1500 words of substantive content\n3. Use HTML formatting with H2 and H3 headings\n4. Include at least 5 H2 sections covering: seasonal lawn care calendar, soil & grass types, common problems, professional services, and a local section\n5. Reference specific neighborhoods, parks, or landmarks AT LEAST 3 times\n6. Mention Wisconsin, Dane County, and the growing zone naturally\n7. Include a CTA mentioning TotalGuard Yard Care and phone number (608) 995-3554\n8. Include a CTA linking to tgyardcare.com\n9. Write in a helpful, authoritative but approachable tone\n10. NO placeholder text like [insert here] or [TBD]\n11. NO generic filler — every paragraph should contain specific, actionable advice\n12. Include local soil recommendations specific to the soil type mentioned above\n\nFormat your response as JSON:\n{\n  \"title\": \"...\",\n  \"content\": \"<html content here with internal links>\",\n  \"meta_description\": \"...\",\n  \"excerpt\": \"2-3 sentence summary\",\n  \"internal_links\": [\"list of internal URLs used in the content\"]\n}`;\n\nreturn [{ json: { city: cityName, state, county, slug: 'lawn-care-' + cityName.toLowerCase().replace(/\\s+/g, '-') + '-wi', prompt, population: pop, distance } }];"
       },
       "id": "build-city-prompt",
       "name": "Build City Prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        1440,
-        200
-      ]
+      "position": [1440, 200]
     },
     {
       "parameters": {
@@ -185,7 +158,7 @@
           "parameters": [
             {
               "name": "x-api-key",
-              "value": "ANTHROPIC_API_KEY"
+              "value": "=ANTHROPIC_API_KEY"
             },
             {
               "name": "anthropic-version",
@@ -208,23 +181,17 @@
       "name": "Generate Content via Claude",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        1660,
-        200
-      ]
+      "position": [1660, 200]
     },
     {
       "parameters": {
-        "jsCode": "const response = $input.first().json;\nconst cityData = $('Build City Prompt').first().json;\n\nlet content, title, metaDesc, excerpt;\n\ntry {\n  // Claude returns content in response.content[0].text\n  const rawText = response.content[0].text;\n  \n  // Try to parse as JSON first\n  const jsonMatch = rawText.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    const parsed = JSON.parse(jsonMatch[0]);\n    title = parsed.title;\n    content = parsed.content;\n    metaDesc = parsed.meta_description;\n    excerpt = parsed.excerpt;\n  } else {\n    throw new Error('No JSON found in response');\n  }\n} catch (e) {\n  // Fallback: use raw text as content\n  const rawText = response.content[0].text;\n  title = `Complete Lawn Care Guide for ${cityData.city}, WI Homeowners`;\n  content = rawText;\n  metaDesc = `Professional lawn care guide for ${cityData.city}, WI. Local tips for Dane County homeowners from TotalGuard Yard Care.`;\n  excerpt = `A comprehensive lawn care guide tailored for ${cityData.city}, Wisconsin homeowners covering seasonal care, local soil conditions, and professional services.`;\n}\n\n// Build slug\nconst slug = cityData.slug;\n\n// Calculate word count (strip HTML)\nconst textOnly = content.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();\nconst wordCount = textOnly.split(' ').length;\n\n// Build keywords array\nconst keywords = [\n  `lawn care ${cityData.city} WI`,\n  `${cityData.city} lawn service`,\n  `${cityData.city} Wisconsin landscaping`,\n  `Dane County lawn care`,\n  `${cityData.city} yard maintenance`\n];\n\nreturn [{ json: {\n  title,\n  slug,\n  content,\n  excerpt,\n  meta_title: title,\n  meta_description: metaDesc,\n  category: 'location-guides',\n  keywords,\n  status: 'draft',\n  ai_generated: true,\n  ai_model: 'claude-sonnet-4-6',\n  ai_generated_at: new Date().toISOString(),\n  word_count: wordCount,\n  reading_time_minutes: Math.ceil(wordCount / 200),\n  tags: ['local-seo', cityData.city.toLowerCase().replace(/\\s+/g, '-'), 'dane-county'],\n  city: cityData.city,\n  state: cityData.state\n} }];"
+        "jsCode": "const response = $input.first().json;\nconst cityData = $('Build City Prompt').first().json;\n\nlet content, title, metaDesc, excerpt;\n\ntry {\n  const rawText = response.content[0].text;\n  const jsonMatch = rawText.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    const parsed = JSON.parse(jsonMatch[0]);\n    title = parsed.title;\n    content = parsed.content;\n    metaDesc = parsed.meta_description;\n    excerpt = parsed.excerpt;\n  } else {\n    throw new Error('No JSON found in response');\n  }\n} catch (e) {\n  const rawText = response.content[0].text;\n  title = `Complete Lawn Care Guide for ${cityData.city}, WI Homeowners`;\n  content = rawText;\n  metaDesc = `Professional lawn care guide for ${cityData.city}, WI. Local tips for Dane County homeowners from TotalGuard Yard Care.`;\n  excerpt = `A comprehensive lawn care guide tailored for ${cityData.city}, Wisconsin homeowners covering seasonal care, local soil conditions, and professional services.`;\n}\n\nconst slug = cityData.slug;\nconst textOnly = content.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();\nconst wordCount = textOnly.split(' ').length;\n\n// Count internal links\nconst serviceLinks = (content.match(/href=\"\\/services\\/[^\"]+\"/g) || []);\nconst blogLinks = (content.match(/href=\"\\/blog\\/[^\"]+\"/g) || []);\nconst contactLinks = (content.match(/href=\"\\/contact\"/g) || []);\nconst internalLinkCount = serviceLinks.length + blogLinks.length + contactLinks.length;\n\nconst keywords = [\n  `lawn care ${cityData.city} WI`,\n  `${cityData.city} lawn service`,\n  `${cityData.city} Wisconsin landscaping`,\n  `Dane County lawn care`,\n  `${cityData.city} yard maintenance`\n];\n\nreturn [{ json: {\n  title,\n  slug,\n  content,\n  excerpt,\n  meta_title: title,\n  meta_description: metaDesc,\n  category: 'location-guides',\n  keywords,\n  status: 'draft',\n  ai_generated: true,\n  ai_model: 'claude-sonnet-4-6',\n  ai_generated_at: new Date().toISOString(),\n  word_count: wordCount,\n  reading_time_minutes: Math.ceil(wordCount / 200),\n  internal_link_count: internalLinkCount,\n  tags: ['local-seo', cityData.city.toLowerCase().replace(/\\s+/g, '-'), 'dane-county'],\n  city: cityData.city,\n  state: cityData.state\n} }];"
       },
       "id": "parse-response",
       "name": "Parse Claude Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        1880,
-        200
-      ]
+      "position": [1880, 200]
     },
     {
       "parameters": {
@@ -235,11 +202,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SERVICE_KEY"
+              "value": "=SUPABASE_SECRET_KEY"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SERVICE_KEY"
+              "value": "=Bearer SUPABASE_SECRET_KEY"
             },
             {
               "name": "Content-Type",
@@ -260,10 +227,25 @@
       "name": "Save Draft to blog_posts",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        2100,
-        200
-      ]
+      "position": [2100, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $env.TG47_WORKFLOW_ID || 'TG-47' }}"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "call-indexnow",
+      "name": "Call TG-47 IndexNow",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [2320, 200],
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -274,28 +256,42 @@
       "name": "Wait 2s Between Cities",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [
-        2320,
-        200
-      ]
+      "position": [2540, 200]
     },
     {
       "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "mode": "id",
-          "value": "qzRRPT7goiYxJsxL"
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/automation_runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer SUPABASE_SECRET_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
         },
-        "options": {}
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"automation_slug\": \"TG-103-city-content-generator\", \"status\": \"success\", \"result_summary\": \"Batch complete. Processed {{ $('Find Cities Needing Content').first().json.count }} cities.\", \"pages_affected\": {{ $('Find Cities Needing Content').first().json.count }}, \"completed_at\": \"{{ new Date().toISOString() }}\" }"
       },
-      "id": "trigger-quality-check",
-      "name": "Trigger TG-104 Quality Check",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.1,
-      "position": [
-        1440,
-        400
-      ]
+      "id": "log-batch-complete",
+      "name": "Log Batch Complete",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1220, 500]
     },
     {
       "parameters": {},
@@ -303,38 +299,7 @@
       "name": "No Cities to Process",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [
-        1000,
-        400
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.indexnow.org/indexnow",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={ \"host\": \"tgyardcare.com\", \"key\": \"tg2026indexnow8x4k\", \"urlList\": [\"https://tgyardcare.com/blog/{{ $('Parse Claude Response').first().json.slug }}\"] }",
-        "options": {}
-      },
-      "id": "ping-indexnow",
-      "name": "Ping IndexNow",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1660,
-        400
-      ],
-      "continueOnFail": true
+      "position": [1000, 400]
     }
   ],
   "connections": {
@@ -433,7 +398,7 @@
         ],
         [
           {
-            "node": "Trigger TG-104 Quality Check",
+            "node": "Log Batch Complete",
             "type": "main",
             "index": 0
           }
@@ -477,6 +442,17 @@
       "main": [
         [
           {
+            "node": "Call TG-47 IndexNow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call TG-47 IndexNow": {
+      "main": [
+        [
+          {
             "node": "Wait 2s Between Cities",
             "type": "main",
             "index": 0
@@ -489,17 +465,6 @@
         [
           {
             "node": "SplitInBatches",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Trigger TG-104 Quality Check": {
-      "main": [
-        [
-          {
-            "node": "Ping IndexNow",
             "type": "main",
             "index": 0
           }

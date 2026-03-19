@@ -41,7 +41,18 @@
       "name": "Submit to IndexNow",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 300]
+      "position": [440, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const indexNowResult = $input.first().json;\nconst urls = $('Normalize Input').first().json.urls;\nconst success = !indexNowResult.error && indexNowResult.code !== 'ERR';\n\nreturn [{ json: {\n  indexnow_success: success,\n  indexnow_status: success ? 'ok' : 'failed',\n  indexnow_error: success ? null : JSON.stringify(indexNowResult).slice(0, 500),\n  urls,\n  url_count: urls.length\n} }];"
+      },
+      "id": "check-indexnow-result",
+      "name": "Check IndexNow Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
     },
     {
       "parameters": {
@@ -58,14 +69,15 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"host\": \"tgyardcare.com\", \"key\": \"tg2026indexnow8x4k\", \"urlList\": {{ JSON.stringify($('Normalize Input').first().json.urls) }} }",
+        "jsonBody": "={ \"host\": \"tgyardcare.com\", \"key\": \"tg2026indexnow8x4k\", \"urlList\": {{ JSON.stringify($json.urls) }} }",
         "options": {}
       },
       "id": "submit-bing",
       "name": "Submit to Bing",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [660, 300]
+      "position": [880, 300],
+      "continueOnFail": true
     },
     {
       "parameters": {
@@ -94,13 +106,13 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"automation_slug\": \"TG-47-indexnow-submitter\", \"status\": \"success\", \"result_summary\": \"Submitted {{ $('Normalize Input').first().json.urls.length }} URL(s) to IndexNow + Bing\", \"pages_affected\": {{ $('Normalize Input').first().json.urls.length }}, \"completed_at\": \"{{ new Date().toISOString() }}\" }"
+        "jsonBody": "={ \"automation_slug\": \"TG-47-indexnow-submitter\", \"status\": \"{{ $('Check IndexNow Result').first().json.indexnow_success ? 'success' : 'error' }}\", \"result_summary\": \"Submitted {{ $('Check IndexNow Result').first().json.url_count }} URL(s) to IndexNow + Bing. IndexNow: {{ $('Check IndexNow Result').first().json.indexnow_status }}\", \"error_message\": {{ JSON.stringify($('Check IndexNow Result').first().json.indexnow_error) }}, \"pages_affected\": {{ $('Check IndexNow Result').first().json.url_count }}, \"completed_at\": \"{{ new Date().toISOString() }}\" }"
       },
       "id": "log-submission",
       "name": "Log to automation_runs",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [880, 300],
+      "position": [1100, 300],
       "continueOnFail": true
     }
   ],
@@ -128,6 +140,17 @@
       ]
     },
     "Submit to IndexNow": {
+      "main": [
+        [
+          {
+            "node": "Check IndexNow Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check IndexNow Result": {
       "main": [
         [
           {

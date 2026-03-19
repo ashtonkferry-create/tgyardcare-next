@@ -16,10 +16,7 @@
       "name": "Mon Wed Fri 3pm UTC",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [
-        0,
-        300
-      ]
+      "position": [0, 300]
     },
     {
       "parameters": {
@@ -43,10 +40,7 @@
       "name": "Fetch Existing Posts",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        240,
-        300
-      ]
+      "position": [240, 300]
     },
     {
       "parameters": {
@@ -56,10 +50,7 @@
       "name": "Pick Topic",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        480,
-        300
-      ]
+      "position": [480, 300]
     },
     {
       "parameters": {
@@ -87,10 +78,7 @@
       "name": "IF Topics Available",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [
-        720,
-        300
-      ]
+      "position": [720, 300]
     },
     {
       "parameters": {
@@ -125,10 +113,7 @@
       "name": "Log Topics Exhausted",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        960,
-        500
-      ]
+      "position": [960, 550]
     },
     {
       "parameters": {
@@ -153,29 +138,23 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 4096, \"system\": \"You are a professional blog writer for TotalGuard Yard Care, a lawn care and landscaping company in Madison, Wisconsin. You write helpful, engaging, SEO-optimized blog posts that position TotalGuard as the trusted local expert.\\n\\nWRITING RULES:\\n- Write 1200-1500 words\\n- Use HTML tags for formatting: <h2>, <h3>, <p>, <ul>, <li>, <blockquote>, <strong>, <em>\\n- Start with a compelling intro paragraph (no H1 — the title is rendered separately)\\n- Use numbered H2 sections (e.g., <h2>1. Section title</h2>) for main points\\n- Include a <blockquote> callout box with a useful tip or interesting fact\\n- Always mention Madison, Wisconsin, Dane County, or specific local details\\n- Reference specific TotalGuard services with links: <a href=\\\"/services/mowing\\\">lawn mowing</a>, <a href=\\\"/services/gutter-cleaning\\\">gutter cleaning</a>, etc.\\n- Include seasonal timing specific to Wisconsin climate\\n- End with a section titled \\\"Need professional help?\\\" that mentions TotalGuard\\n- Tone: Professional but approachable, knowledgeable but not condescending\\n- Reading level: 8th grade accessible\\n- DO NOT include an H1 tag — the title is rendered separately by the template\\n- DO NOT include any meta tags or frontmatter — just the article HTML body\\n\\nTOTALGUARD SERVICES (for internal links):\\n- /services/mowing — Lawn Mowing\\n- /services/fertilization — Fertilization\\n- /services/aeration — Aeration\\n- /services/herbicide — Weed Control\\n- /services/mulching — Mulching\\n- /services/garden-beds — Garden Beds\\n- /services/weeding — Weeding\\n- /services/pruning — Pruning\\n- /services/spring-cleanup — Spring Cleanup\\n- /services/fall-cleanup — Fall Cleanup\\n- /services/leaf-removal — Leaf Removal\\n- /services/snow-removal — Snow Removal\\n- /services/gutter-cleaning — Gutter Cleaning\\n- /services/gutter-guards — Gutter Guards\\n- /contact — Get a Free Quote\\n\\nSERVICE AREAS: Madison, Middleton, Waunakee, Monona, Sun Prairie, Fitchburg, Verona, McFarland, Cottage Grove, DeForest, Oregon, Stoughton\", \"messages\": [{ \"role\": \"user\", \"content\": \"Write a blog post about: {{ $json.topic }}\\nCategory: {{ $json.category }}\\nTarget keywords: {{ $json.keywords.join(', ') }}\\nCurrent season: {{ $json.season }}\\nCurrent month: {{ $json.month }}\\n\\nReturn a JSON object with these exact fields:\\n{\\n  \\\"title\\\": \\\"SEO-optimized title with Madison WI (under 65 characters)\\\",\\n  \\\"slug\\\": \\\"url-friendly-slug\\\",\\n  \\\"excerpt\\\": \\\"1-2 sentence teaser (under 160 chars)\\\",\\n  \\\"content\\\": \\\"full HTML article body\\\",\\n  \\\"meta_title\\\": \\\"SEO title for browser tab (under 60 chars)\\\",\\n  \\\"meta_description\\\": \\\"SEO meta description (under 155 chars)\\\",\\n  \\\"keywords\\\": [\\\"keyword1\\\", \\\"keyword2\\\", \\\"keyword3\\\", \\\"keyword4\\\", \\\"keyword5\\\"]\\n}\" }] }"
+        "jsonBody": "={ \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 4096, \"system\": \"You are a professional blog writer for TotalGuard Yard Care, a lawn care and landscaping company in Madison, Wisconsin. You write helpful, engaging, SEO-optimized blog posts that position TotalGuard as the trusted local expert.\\n\\nWRITING RULES:\\n- Write 1200-1500 words\\n- Use HTML tags for formatting: <h2>, <h3>, <p>, <ul>, <li>, <blockquote>, <strong>, <em>\\n- Start with a compelling intro paragraph (no H1 — the title is rendered separately)\\n- Use numbered H2 sections (e.g., <h2>1. Section title</h2>) for main points\\n- Include a <blockquote> callout box with a useful tip or interesting fact\\n- Always mention Madison, Wisconsin, Dane County, or specific local details\\n- Reference specific TotalGuard services with links: <a href=\\\"/services/mowing\\\">lawn mowing</a>, <a href=\\\"/services/gutter-cleaning\\\">gutter cleaning</a>, etc.\\n- Include seasonal timing specific to Wisconsin climate\\n- End with a section titled \\\"Need professional help?\\\" that mentions TotalGuard\\n- Tone: Professional but approachable, knowledgeable but not condescending\\n- Reading level: 8th grade accessible\\n- DO NOT include an H1 tag — the title is rendered separately by the template\\n- DO NOT include any meta tags or frontmatter — just the article HTML body\\n\\nINTERNAL LINKING REQUIREMENTS (CRITICAL):\\n- You MUST include 2-3 internal links to relevant TotalGuard service pages\\n- You MUST include at least 1 internal link to a city/location page if the topic mentions a specific area\\n- Use natural anchor text — not \\\"click here\\\"\\n- Distribute links throughout the article, not clustered in one spot\\n\\nTOTALGUARD SERVICE PAGES (use these exact URLs for internal links):\\n- /services/mowing — Lawn Mowing\\n- /services/fertilization — Fertilization\\n- /services/aeration — Aeration\\n- /services/herbicide — Weed Control\\n- /services/mulching — Mulching\\n- /services/garden-beds — Garden Beds\\n- /services/weeding — Weeding\\n- /services/pruning — Pruning\\n- /services/spring-cleanup — Spring Cleanup\\n- /services/fall-cleanup — Fall Cleanup\\n- /services/leaf-removal — Leaf Removal\\n- /services/snow-removal — Snow Removal\\n- /services/gutter-cleaning — Gutter Cleaning\\n- /services/gutter-guards — Gutter Guards\\n- /contact — Get a Free Quote\\n\\nCITY/LOCATION PAGES (link to these when mentioning specific cities):\\n- /areas/madison — Madison\\n- /areas/middleton — Middleton\\n- /areas/waunakee — Waunakee\\n- /areas/monona — Monona\\n- /areas/sun-prairie — Sun Prairie\\n- /areas/fitchburg — Fitchburg\\n- /areas/verona — Verona\\n- /areas/mcfarland — McFarland\\n- /areas/cottage-grove — Cottage Grove\\n- /areas/deforest — DeForest\\n- /areas/oregon — Oregon\\n- /areas/stoughton — Stoughton\\n\\nSERVICE AREAS: Madison, Middleton, Waunakee, Monona, Sun Prairie, Fitchburg, Verona, McFarland, Cottage Grove, DeForest, Oregon, Stoughton\", \"messages\": [{ \"role\": \"user\", \"content\": \"Write a blog post about: {{ $json.topic }}\\nCategory: {{ $json.category }}\\nTarget keywords: {{ $json.keywords.join(', ') }}\\nCurrent season: {{ $json.season }}\\nCurrent month: {{ $json.month }}\\n\\nIMPORTANT: Include 2-3 internal links to relevant service pages and at least 1 link to a city page. Use the exact URLs provided in the system prompt.\\n\\nReturn a JSON object with these exact fields:\\n{\\n  \\\"title\\\": \\\"SEO-optimized title with Madison WI (under 65 characters)\\\",\\n  \\\"slug\\\": \\\"url-friendly-slug\\\",\\n  \\\"excerpt\\\": \\\"1-2 sentence teaser (under 160 chars)\\\",\\n  \\\"content\\\": \\\"full HTML article body with internal links to service and city pages\\\",\\n  \\\"meta_title\\\": \\\"SEO title for browser tab (under 60 chars)\\\",\\n  \\\"meta_description\\\": \\\"SEO meta description (under 155 chars)\\\",\\n  \\\"keywords\\\": [\\\"keyword1\\\", \\\"keyword2\\\", \\\"keyword3\\\", \\\"keyword4\\\", \\\"keyword5\\\"],\\n  \\\"internal_links\\\": [\\\"list of internal link URLs included in the article\\\"]\\n}\" }] }"
       },
       "id": "generate-article",
       "name": "Generate Article",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        960,
-        300
-      ]
+      "position": [960, 300]
     },
     {
       "parameters": {
-        "jsCode": "const raw = $input.first().json;\nconst topicData = $('Pick Topic').first().json;\n\nconst textBlock = (raw.content || []).find(b => b.type === 'text');\nconst rawText = textBlock ? textBlock.text : '';\n\nfunction parseClaudeJson(text) {\n  try { return JSON.parse(text); } catch {}\n  const fence = text.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n  if (fence) { try { return JSON.parse(fence[1].trim()); } catch {} }\n  const first = text.indexOf('{');\n  const last = text.lastIndexOf('}');\n  if (first !== -1 && last > first) { try { return JSON.parse(text.slice(first, last + 1)); } catch {} }\n  return null;\n}\n\nconst parsed = parseClaudeJson(rawText);\nif (!parsed || !parsed.title || !parsed.content) {\n  return [{ json: { error: true, reason: 'Failed to parse Claude JSON response' } }];\n}\n\nconst plainText = parsed.content.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();\nconst wordCount = plainText.split(/\\s+/).filter(Boolean).length;\n\nif (wordCount < 800) {\n  return [{ json: { error: true, reason: `Content too thin: ${wordCount} words (min 800)` } }];\n}\n\nconst title = String(parsed.title).slice(0, 65);\nconst metaDesc = String(parsed.meta_description || parsed.excerpt || '').slice(0, 155);\nconst readingTime = Math.ceil(wordCount / 200);\nconst slug = parsed.slug ? String(parsed.slug) : topicData.slug;\n\nreturn [{ json: {\n  error: false,\n  title, slug,\n  excerpt: String(parsed.excerpt || ''),\n  content: String(parsed.content),\n  category: topicData.category,\n  keywords: Array.isArray(parsed.keywords) ? parsed.keywords : topicData.keywords,\n  meta_title: String(parsed.meta_title || title).slice(0, 60),\n  meta_description: metaDesc,\n  reading_time: readingTime,\n  reading_time_minutes: readingTime,\n  word_count: wordCount,\n  status: 'published',\n  published_at: new Date().toISOString(),\n  ai_generated: true,\n  ai_model: 'claude-sonnet-4-6',\n  ai_generated_at: new Date().toISOString()\n} }];"
+        "jsCode": "const raw = $input.first().json;\nconst topicData = $('Pick Topic').first().json;\n\nconst textBlock = (raw.content || []).find(b => b.type === 'text');\nconst rawText = textBlock ? textBlock.text : '';\n\nfunction parseClaudeJson(text) {\n  try { return JSON.parse(text); } catch {}\n  const fence = text.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n  if (fence) { try { return JSON.parse(fence[1].trim()); } catch {} }\n  const first = text.indexOf('{');\n  const last = text.lastIndexOf('}');\n  if (first !== -1 && last > first) { try { return JSON.parse(text.slice(first, last + 1)); } catch {} }\n  return null;\n}\n\nconst parsed = parseClaudeJson(rawText);\nif (!parsed || !parsed.title || !parsed.content) {\n  return [{ json: { error: true, reason: 'Failed to parse Claude JSON response' } }];\n}\n\nconst plainText = parsed.content.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();\nconst wordCount = plainText.split(/\\s+/).filter(Boolean).length;\n\nif (wordCount < 800) {\n  return [{ json: { error: true, reason: `Content too thin: ${wordCount} words (min 800)` } }];\n}\n\n// Validate internal links exist in content\nconst serviceLinks = (parsed.content.match(/href=\"\\/services\\/[^\"]+\"/g) || []);\nconst cityLinks = (parsed.content.match(/href=\"\\/areas\\/[^\"]+\"/g) || []);\nconst internalLinkCount = serviceLinks.length + cityLinks.length;\n\nconst title = String(parsed.title).slice(0, 65);\nconst metaDesc = String(parsed.meta_description || parsed.excerpt || '').slice(0, 155);\nconst readingTime = Math.ceil(wordCount / 200);\nconst slug = parsed.slug ? String(parsed.slug) : topicData.slug;\n\nreturn [{ json: {\n  error: false,\n  title, slug,\n  excerpt: String(parsed.excerpt || ''),\n  content: String(parsed.content),\n  category: topicData.category,\n  keywords: Array.isArray(parsed.keywords) ? parsed.keywords : topicData.keywords,\n  meta_title: String(parsed.meta_title || title).slice(0, 60),\n  meta_description: metaDesc,\n  reading_time: readingTime,\n  reading_time_minutes: readingTime,\n  word_count: wordCount,\n  internal_link_count: internalLinkCount,\n  service_links: serviceLinks,\n  city_links: cityLinks,\n  status: 'published',\n  published_at: new Date().toISOString(),\n  ai_generated: true,\n  ai_model: 'claude-sonnet-4-6',\n  ai_generated_at: new Date().toISOString()\n} }];"
       },
       "id": "validate-structure",
       "name": "Validate + Structure",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        1200,
-        300
-      ]
+      "position": [1200, 300]
     },
     {
       "parameters": {
@@ -203,10 +182,7 @@
       "name": "IF Validation Passed",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [
-        1440,
-        300
-      ]
+      "position": [1440, 300]
     },
     {
       "parameters": {
@@ -241,10 +217,7 @@
       "name": "Log Validation Error",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        1680,
-        500
-      ]
+      "position": [1680, 550]
     },
     {
       "parameters": {
@@ -279,38 +252,25 @@
       "name": "Publish to Supabase",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        1680,
-        300
-      ]
+      "position": [1680, 300]
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://api.indexnow.org/indexnow",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $env.TG47_WORKFLOW_ID || 'TG-47' }}"
         },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={ \"host\": \"tgyardcare.com\", \"key\": \"tg2026indexnow8x4k\", \"urlList\": [\"https://tgyardcare.com/blog/{{ $('Validate + Structure').first().json.slug }}\"] }",
-        "options": {}
+        "options": {
+          "waitForSubWorkflow": true
+        }
       },
-      "id": "ping-indexnow",
-      "name": "Ping IndexNow",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1920,
-        300
-      ],
-      "continueOnFail": true
+      "id": "call-indexnow",
+      "name": "Call TG-47 IndexNow",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1920, 300],
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -339,35 +299,31 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"automation_slug\": \"TG-99-blog-auto-publisher\", \"status\": \"success\", \"result_summary\": \"Published: {{ $('Validate + Structure').first().json.title }} ({{ $('Validate + Structure').first().json.word_count }} words)\", \"pages_affected\": 1, \"completed_at\": \"{{ new Date().toISOString() }}\" }"
+        "jsonBody": "={ \"automation_slug\": \"TG-99-blog-auto-publisher\", \"status\": \"success\", \"result_summary\": \"Published: {{ $('Validate + Structure').first().json.title }} ({{ $('Validate + Structure').first().json.word_count }} words, {{ $('Validate + Structure').first().json.internal_link_count }} internal links)\", \"pages_affected\": 1, \"completed_at\": \"{{ new Date().toISOString() }}\" }"
       },
       "id": "log-success",
       "name": "Log Success",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        2160,
-        300
-      ]
+      "position": [2160, 300]
     },
     {
       "parameters": {
-        "from": "+16089953554",
-        "to": "+19206296934",
-        "message": "=New blog published: \"{{ $('Validate + Structure').first().json.title }}\" — tgyardcare.com/blog/{{ $('Validate + Structure').first().json.slug }}"
+        "chatId": "=OWNER_TELEGRAM_CHAT_ID",
+        "text": "=New blog published!\n\n{{ $('Validate + Structure').first().json.title }}\n{{ $('Validate + Structure').first().json.word_count }} words | {{ $('Validate + Structure').first().json.internal_link_count }} internal links\nCategory: {{ $('Validate + Structure').first().json.category }}\n\nhttps://tgyardcare.com/blog/{{ $('Validate + Structure').first().json.slug }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
       },
-      "id": "sms-notify",
-      "name": "SMS Notification",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
-      "position": [
-        2400,
-        300
-      ],
+      "id": "telegram-notify",
+      "name": "Telegram Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2400, 300],
       "credentials": {
-        "twilioApi": {
-          "id": "Qd6M2hA9hDWRKGPR",
-          "name": "TG - Twilio"
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "TG - Telegram Bot"
         }
       }
     }
@@ -468,14 +424,14 @@
       "main": [
         [
           {
-            "node": "Ping IndexNow",
+            "node": "Call TG-47 IndexNow",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Ping IndexNow": {
+    "Call TG-47 IndexNow": {
       "main": [
         [
           {
@@ -490,7 +446,7 @@
       "main": [
         [
           {
-            "node": "SMS Notification",
+            "node": "Telegram Notification",
             "type": "main",
             "index": 0
           }
