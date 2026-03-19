@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Phone, FileText } from 'lucide-react';
-import Link from 'next/link';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
+import SmartQuoteFlow from '@/components/SmartQuoteFlow';
 
 const seasonalCtaBg: Record<string, string> = {
   summer: '#052e16',
@@ -20,6 +20,7 @@ const seasonalBtnGradient: Record<string, string> = {
 export default function MobileStickyCTA() {
   const [visible, setVisible] = useState(false);
   const [atFooter, setAtFooter] = useState(false);
+  const [quoteOpen, setQuoteOpen] = useState(false);
   const { activeSeason } = useSeasonalTheme();
 
   const ctaBg = seasonalCtaBg[activeSeason] ?? seasonalCtaBg.summer;
@@ -59,14 +60,18 @@ export default function MobileStickyCTA() {
         style={{ backgroundColor: `${ctaBg}f2` }}
       >
         <div className="flex gap-3 max-w-lg mx-auto">
-          <Link
-            href="/contact"
-            onClick={handleCTATap}
-            className={`flex-1 flex items-center justify-center gap-2 bg-gradient-to-r ${btnGradient} text-white font-semibold text-sm rounded-lg py-3 px-4 shadow-lg transition-all duration-200`}
+          <button
+            onClick={() => { handleCTATap(); setQuoteOpen(true); }}
+            className={`flex-1 flex items-center justify-center gap-2 bg-gradient-to-r ${btnGradient} text-white font-semibold text-sm rounded-lg py-3 px-4 shadow-lg transition-all duration-200 relative overflow-hidden`}
           >
-            <FileText className="w-4 h-4" />
-            Get Free Quote
-          </Link>
+            {/* Subtle shimmer on the button */}
+            <span
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+              style={{ animation: 'shimmer-sticky 3s infinite linear' }}
+            />
+            <FileText className="w-4 h-4 relative" />
+            <span className="relative">Get Free Quote</span>
+          </button>
 
           <a
             href="tel:+16085356057"
@@ -79,6 +84,20 @@ export default function MobileStickyCTA() {
           </a>
         </div>
       </div>
+      {/* Quote modal */}
+      <SmartQuoteFlow
+        serviceSlug=""
+        serviceName=""
+        serviceEmoji="🌿"
+        isOpen={quoteOpen}
+        onClose={() => setQuoteOpen(false)}
+      />
+      <style>{`
+        @keyframes shimmer-sticky {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
+        }
+      `}</style>
     </div>
   );
 }
