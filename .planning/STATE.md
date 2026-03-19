@@ -5,25 +5,26 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Build an autonomous business nervous system — acquires customers, converts leads, delivers excellence, retains accounts, amplifies brand, reports via Telegram.
-**Current focus:** M4 TG-OS Business Automation — Phase 14 next (Review Generation Machine)
+**Current focus:** M4 TG-OS Business Automation — Phase 14 (Review Generation Machine)
 
 ## Current Position
 
 Phase: 14 of 20 (Review Generation Machine)
-Plan: 0 of 3 in Phase 14 (Plans created, ready to execute)
-Status: Phase 13 COMPLETE, Phase 14 PLANNED
-Last activity: 2026-03-19 — Completed all Phase 13 plans (13-01, 13-02, 13-03)
+Plan: 2 of 3 in Phase 14 (14-01 COMPLETE, 14-02 COMPLETE)
+Status: Phase 14 IN PROGRESS (14-03 remaining)
+Last activity: 2026-03-19 — Completed 14-01-PLAN.md (review request pipeline)
 
-Progress M4: [████████████░░░░░░░░░░░░░░░░░░░░] 14/62 requirements (Phase 13 COMPLETE)
+Progress M4: [██████████████░░░░░░░░░░░░░░░░░░] 16/62 requirements (Phase 14 in progress)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 78 (M2: 34 + M3: 36 + M4: 8)
+- Total plans completed: 80 (M2: 34 + M3: 36 + M4: 10)
 - M4 Phase 11: 5 requirements complete (INFRA-01, INFRA-02, 11-02 key audit, 11-03 auto-posting, 11-01 TG-92/TG-113 activation)
 - M4 Phase 12: 4 plans complete (12-01 instant response, 12-02 speed-to-lead, 12-03 follow-up sequence, 12-04 lead scoring) -- PHASE COMPLETE
+- M4 Phase 14: 2 plans complete (14-01 review request, 14-02 review monitoring + response pipeline)
 
 ## Accumulated Context
 
@@ -75,6 +76,11 @@ Progress M2: [██████████████████████
 - [M4 Phase 13]: n8n API PUT returns 400 "Could not find property option" — deploy via UI import only
 - [M4 Phase 12]: TG-09 deployed and active (n8n ID: ZjG32DE8KI9SHyxo), daily 10am CT
 - [M4 Phase 12]: follow_up_stage column needs manual addition to leads table (workflow degrades gracefully without it)
+- [M4 Phase 14]: TG-129 deployed (n8n ID: F8lA6eWLeHANSsuI), daily 10 AM CT, 7 nodes, review request SMS
+- [M4 Phase 14]: TG-130 deployed (n8n ID: oSCqlDyHoKpC6aFy), daily 2 PM CT, 6 nodes, follow-up email
+- [M4 Phase 14]: TG-95 reactivated — was inactive, blocking TG-130 sub-workflow dependency
+- [M4 Phase 14]: review_requests table needs manual creation in Supabase (see 14-01-SUMMARY.md for SQL)
+- [M4 Phase 14]: 17 workflows now active (added TG-129, TG-130, reactivated TG-95)
 
 ### Pending Todos
 
@@ -84,6 +90,7 @@ Progress M2: [██████████████████████
 - Create lead_alerts table in Supabase SQL Editor (see 12-02-SUMMARY.md for SQL)
 - Add follow_up_stage column to leads table: `ALTER TABLE leads ADD COLUMN IF NOT EXISTS follow_up_stage integer DEFAULT 0;`
 - Add parsed_scheduled_date, parsed_scheduled_time, parsed_crew_name columns to jobber_email_events table
+- Create review_requests table in Supabase SQL Editor (see 14-01-SUMMARY.md for SQL)
 
 ### Blockers/Concerns
 
