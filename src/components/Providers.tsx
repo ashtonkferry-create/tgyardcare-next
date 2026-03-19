@@ -8,6 +8,7 @@ import { ChatProvider } from '@/contexts/ChatContext';
 import { SeasonalThemeProvider } from '@/contexts/SeasonalThemeContext';
 import BackToTop from '@/components/BackToTop';
 import { DeferredChatBot } from '@/components/DeferredChatBot';
+import { ExitIntentModal } from '@/components/ExitIntentModal';
 import { useState } from 'react';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -21,6 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <Sonner />
             <BackToTop />
             <DeferredChatBot />
+            <ExitIntentModal />
 
             {children}
           </SeasonalThemeProvider>
