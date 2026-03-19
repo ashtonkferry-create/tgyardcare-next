@@ -223,6 +223,167 @@ NEW: TG-123 — Storm forecast → increase ad spend. Nice weather → reduce.
 
 ---
 
+## LAYER 5B: GOOGLE BUSINESS PROFILE DOMINATION
+
+GBP is TotalGuard's #1 asset (4.9 stars, 80+ reviews). Once API access is approved, this becomes fully automated. Until then, we build the content engine and queue everything.
+
+### GBP Profile Optimization (GOD TIER)
+
+**Business Information:**
+- Name: TotalGuard Yard Care
+- Primary Category: Lawn care service
+- Secondary Categories: Landscaper, Garden maintenance, Snow removal service, Fertilization service
+- Description (750 chars, keyword-rich):
+  "TotalGuard Yard Care is Madison's premier full-service lawn care and landscaping company. We deliver professional lawn mowing, fertilization programs, spring and fall cleanups, mulching, edging, aeration, overseeding, hardscaping, gutter cleaning, and snow removal across Madison, Middleton, Sun Prairie, Fitchburg, Verona, Waunakee, and surrounding Dane County communities. Our 5-step fertilizer program and annual care plans keep your lawn lush year-round. 4.9-star rated with 80+ Google reviews. Locally owned. Licensed and insured. Free estimates — call or text today."
+- Service area: Madison, Middleton, Sun Prairie, Fitchburg, Verona, Oregon, Waunakee, DeForest, Stoughton, McFarland, Monona, Cottage Grove, Cross Plains, Mount Horeb
+- Hours: Mon-Sat 7:00 AM - 7:00 PM, Sun Closed
+- Phone: (608) 535-6057
+- Website: https://tgyardcare.com
+- Appointment URL: https://tgyardcare.com/quote
+
+**Services (SEO-Optimized Titles & Descriptions):**
+
+| Service Title | Description | Price Display |
+|--------------|-------------|---------------|
+| Professional Lawn Mowing & Maintenance | Weekly or bi-weekly precision mowing with trimming, edging, and blowing. Consistent cut height for a healthy, manicured lawn all season. | From $45 |
+| 5-Step Fertilizer & Weed Control Program | Science-based fertilization: spring wake-up, weed defense, summer stress support, fall recovery, and winterizer. Custom-blended for Wisconsin soil. | From $55/step |
+| Spring Cleanup & Lawn Revival | Complete spring refresh: debris removal, bed edging, first mow, soil prep. Wake your lawn up right after Wisconsin winters. | From $150 |
+| Fall Cleanup & Leaf Removal | Full leaf removal, final mow, bed cleanup, gutter clearing, and winterization prep. Protect your lawn before the freeze. | From $175 |
+| Core Aeration & Overseeding | Professional core aeration to relieve compaction + premium seed blend for thicker, healthier turf. Best done in fall. | From $125 |
+| Mulch Installation & Bed Maintenance | Fresh mulch delivery and installation for landscape beds. Weed suppression, moisture retention, and curb appeal. | From $75/yard |
+| Hardscaping & Patio Installation | Custom patios, retaining walls, fire pits, and walkways. Transform your outdoor living space with professional hardscape design. | Custom quote |
+| Gutter Cleaning & Guard Installation | Complete gutter flush, downspout clearing, and optional guard installation. Prevent water damage and ice dams. | From $125 |
+| Snow Removal & Ice Management | Reliable residential and commercial snow plowing, shoveling, and salt/sand application. Priority response for contract customers. | From $50/visit |
+| Annual Lawn Care Plan | All-inclusive yearly plan: weekly mowing, 5-step fertilizer, spring and fall cleanup, aeration. One price, zero hassle. | Custom quote |
+| Landscape Design & Installation | Custom landscape design, plant selection, and professional installation. Native Wisconsin plants and drought-resistant options. | Custom quote |
+| Bush & Hedge Trimming | Professional shaping and trimming of shrubs, hedges, and ornamental plants. Maintain clean lines and healthy growth. | From $75 |
+
+**Products (for service packages):**
+
+| Product Title | Description |
+|--------------|-------------|
+| TotalGuard Annual Plan | Complete year-round lawn care package. Weekly mowing, 5-step fertilizer, spring and fall cleanups, aeration, and priority scheduling. Save 15% vs individual services. |
+| TotalGuard Fertilizer Program | 5-step professional fertilizer and weed control program. Applications in April, June (x2), September, and October. Customized for your lawn's needs. |
+| Spring Starter Package | Spring cleanup + first mow + fertilizer Step 1. Everything your lawn needs to wake up from winter. |
+| Fall Protection Package | Fall cleanup + leaf removal + aeration + winterizer. Set your lawn up for a strong spring comeback. |
+
+### GBP Posting Strategy (Billionaire Schedule)
+
+**Posting Cadence:** 3x/week (Mon, Wed, Fri at 10 AM CT)
+- This cadence keeps the profile algorithmically active without over-posting
+- Each post type rotates on a strategic schedule
+
+**Weekly Rotation:**
+
+| Day | Post Type | Content Strategy |
+|-----|-----------|-----------------|
+| **Monday** | UPDATE post | Seasonal tip or lawn care education. Positions TotalGuard as the local authority. Include a relevant photo. CTA: "Learn More" → blog post |
+| **Wednesday** | OFFER post | Service promotion with urgency. Seasonal discount, limited-time deal, or package highlight. CTA: "Get Offer" → quote form |
+| **Friday** | EVENT or WHAT'S NEW post | Before/after showcase, recent 5-star review highlight, team spotlight, or community involvement. CTA: "Call Now" or "Book Online" |
+
+**Monthly Content Calendar:**
+
+| Month | Monday Topics | Wednesday Offers | Friday Showcases |
+|-------|-------------|-----------------|-----------------|
+| **Jan** | "Preparing your lawn for spring" series | Early bird annual plan signup | Year-in-review, team intro |
+| **Feb** | Winter lawn damage prevention | Pre-season booking discount 15% | Snow removal highlights |
+| **Mar** | Spring lawn care checklist | Spring cleanup package deal | First cleanup before/afters |
+| **Apr** | Fertilizer Step 1 education | Annual plan enrollment push | Green-up transformations |
+| **May** | Mowing height & frequency tips | New customer first-mow discount | Best transformations of spring |
+| **Jun** | Summer stress & watering guide | Mulch + mow combo deal | Lush lawn showcases |
+| **Jul** | Drought survival tips | Mid-season checkup offer | Customer testimonial spotlight |
+| **Aug** | Fall prep planning guide | Early fall cleanup booking | Summer's best work compilation |
+| **Sep** | Aeration education series | Aeration + overseeding package | Fall color transformations |
+| **Oct** | Winterization guide | Leaf cleanup + winterizer combo | Satisfying leaf cleanup content |
+| **Nov** | Snow prep & contract info | Snow removal contract early bird | Community involvement spotlight |
+| **Dec** | Year-end lawn care recap | Gift certificate promotion | Thank you to customers |
+
+**Post Best Practices:**
+- Every post includes a high-quality photo (before/after, crew at work, or result shot)
+- Every post includes a CTA button (Call, Book, Get Offer, Learn More)
+- Keywords naturally embedded: "lawn care Madison," "landscaping," service-specific terms
+- Character sweet spot: 150-300 words per post
+- Include seasonal emojis sparingly for visual appeal
+
+### GBP FAQ Strategy (Rotating & SEO-Optimized)
+
+**Core FAQs (Always Active — Never Remove):**
+
+| Question | Answer |
+|----------|--------|
+| How much does lawn mowing cost in Madison? | Our professional mowing starts at $45 per visit for standard residential lots. Price depends on lawn size, obstacles, and frequency. We offer weekly and bi-weekly options with discounts for annual plan members. Call (608) 535-6057 for a free estimate. |
+| Do you offer free estimates? | Yes! We provide free, no-obligation estimates for all services. Call or text us at (608) 535-6057, or fill out the form on our website at tgyardcare.com/quote. We typically respond within 1 hour. |
+| What areas do you serve? | We serve Madison and the greater Dane County area including Middleton, Sun Prairie, Fitchburg, Verona, Oregon, Waunakee, DeForest, Stoughton, McFarland, Monona, Cottage Grove, Cross Plains, and Mount Horeb. |
+| What is your 5-step fertilizer program? | Our 5-step program includes: (1) Early Spring Wake-Up, (2) Late Spring Weed Defense, (3) Summer Stress Support, (4) Fall Recovery, and (5) Winterizer. Each application is timed to Wisconsin's growing season for maximum results. |
+| Are you licensed and insured? | Yes, TotalGuard Yard Care is fully licensed and insured. We carry general liability insurance and all crew members are covered by workers' compensation. |
+| Do you offer annual lawn care plans? | Yes! Our Annual Plan includes weekly mowing, the full 5-step fertilizer program, spring and fall cleanups, and aeration — all for one simple price. Annual plan members save 15% compared to individual services. |
+
+**Seasonal FAQ Rotation (Swap quarterly):**
+
+**Spring FAQs (March-May):**
+| Question | Answer |
+|----------|--------|
+| When should I start mowing in Madison? | In the Madison area, we typically begin mowing in mid-to-late April once grass reaches 3-3.5 inches. We monitor conditions and will let you know when it's time to start your service. |
+| What does a spring cleanup include? | Our spring cleanup includes debris removal, leaf cleanup, bed edging, first mow of the season, and assessment of any winter damage. We'll get your property looking pristine for the growing season. |
+| When should I apply the first fertilizer in Wisconsin? | Step 1 of our fertilizer program goes down in mid-April when soil temperatures consistently reach 55 degrees F. Timing is critical — too early wastes product, too late misses the growth window. |
+
+**Summer FAQs (June-August):**
+| Question | Answer |
+|----------|--------|
+| How often should I water my lawn in summer? | Water deeply 2-3 times per week rather than daily light watering. Aim for 1 inch of water per week total (including rain). Water early morning to reduce evaporation and disease risk. |
+| Should I mow shorter in hot weather? | No — keep your mowing height at 3-3.5 inches during summer. Taller grass shades the soil, retains moisture, and handles heat stress better. We adjust our cutting height seasonally. |
+| Do you treat for grubs? | We offer targeted grub treatment as part of our lawn health services. Signs of grub damage include brown patches that pull up like carpet. Contact us for an assessment if you notice these signs. |
+
+**Fall FAQs (September-November):**
+| Question | Answer |
+|----------|--------|
+| When should I aerate my lawn in Wisconsin? | The ideal window for core aeration in the Madison area is September through mid-October. Fall aeration combined with overseeding produces the best results for thickening your lawn before winter. |
+| Do you do leaf removal? | Yes! Our fall cleanup includes complete leaf removal from lawn, beds, and hard surfaces. We also clear gutters and do a final mow. Book early — fall fills up fast. |
+| What is winterizer fertilizer? | Our Step 5 winterizer is applied in October and provides essential nutrients that help grassroots store energy for winter dormancy. This is the most important fertilizer application of the year for Wisconsin lawns. |
+
+**Winter FAQs (December-February):**
+| Question | Answer |
+|----------|--------|
+| Do you offer snow removal? | Yes! We provide reliable residential and commercial snow plowing, shoveling, walkway clearing, and salt/sand application. Contract customers get priority response and guaranteed service within 4 hours of snowfall ending. |
+| When should I book snow removal? | We recommend booking snow removal contracts by November 1st to guarantee priority service. Spots are limited — once our routes are full, we stop accepting new contracts. |
+| Can I book spring services now? | Absolutely! Booking spring services in winter locks in your spot on our schedule and often qualifies for early-bird pricing. Call (608) 535-6057 or visit tgyardcare.com/quote to get on the spring calendar. |
+
+**FAQ Automation Workflow:**
+| Workflow | What It Does |
+|----------|-------------|
+| NEW: TG-127 GBP FAQ Rotator | Quarterly: swap seasonal FAQs on GBP via API. Keep core FAQs permanent. Alert on Telegram before swap for approval. |
+| NEW: TG-128 GBP FAQ Monitor | Weekly: check if competitors have new Q&A, suggest new FAQs to add |
+
+### GBP Photo Strategy
+
+**Minimum 50 photos organized by category:**
+- Logo (1)
+- Cover photo (1, seasonal rotation)
+- Interior/team (5-10)
+- At work (10-15: crew mowing, trimming, mulching)
+- Before/After (15-20: the money shots)
+- Equipment (3-5)
+- Completed projects (10+)
+
+**Photo Automation:**
+- Every "job complete" Jobber email → Telegram prompt: "Upload before/after photos for [customer] job"
+- Monthly Telegram reminder: "Upload 5+ new GBP photos this month"
+- Seasonal cover photo rotation (auto-remind on equinox/solstice dates)
+
+### GBP Workflows Summary
+| ID | Name | Status |
+|----|------|--------|
+| TG-19 | Google Review Sync | Fix & reactivate (works with Places API now) |
+| TG-20 | AI Review Response | Fix & reactivate (draft → Telegram for approval) |
+| TG-46 | GBP Post Scheduler | Rebuild (3x/week schedule, queue in Supabase) |
+| TG-55 | GBP Optimization Scorer | Fix & reactivate |
+| NEW: TG-127 | GBP FAQ Rotator | Quarterly FAQ swap |
+| NEW: TG-128 | GBP FAQ Monitor | Competitor Q&A tracking |
+| NEW: TG-129 | GBP Photo Reminder | Monthly photo upload prompts |
+| NEW: TG-130 | GBP Post Generator | AI-generate posts following monthly calendar |
+
+---
+
 ## LAYER 6: CONTENT & BRAND ENGINE
 
 ### Content Machine
@@ -230,7 +391,7 @@ NEW: TG-123 — Storm forecast → increase ad spend. Nice weather → reduce.
 |------|---------|----------|
 | Blog posts | 3x/week | TG-99 |
 | City/service pages | On-demand | TG-103 |
-| GBP posts | 2x/week | TG-46 |
+| GBP posts | 3x/week (Mon/Wed/Fri) | TG-46 + TG-130 |
 | Social captions | Daily | TG-37 |
 | Newsletter | Monthly | TG-81 |
 
@@ -335,5 +496,6 @@ TG-105 (test router), TG-106 (auto-winner)
 | **Total (before ads)** | **~$50/mo** |
 
 ## Final Workflow Count
-**~81 workflows** (down from 114) — 68 existing rebuilt + 13 new
+**~85 workflows** (down from 114) — 68 existing rebuilt + 17 new
 Every single one has a data source, a purpose, and a revenue impact.
+New GBP workflows: TG-127 (FAQ Rotator), TG-128 (FAQ Monitor), TG-129 (Photo Reminder), TG-130 (Post Generator)
