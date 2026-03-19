@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 15 of 20 (Retention & Lifetime Value)
-Plan: 0 of ? in Phase 15 (Plans being created)
-Status: Phase 14 COMPLETE, Phase 15 PLANNED
-Last activity: 2026-03-19 — Completed all Phase 14 plans (14-01, 14-02)
+Plan: 4 of 4 in Phase 15
+Status: In progress
+Last activity: 2026-03-19 — Completed 15-01-PLAN.md (review-to-referral + referral tracking)
 
-Progress M4: [████████████████░░░░░░░░░░░░░░░░] 19/62 requirements (Phase 14 COMPLETE)
+Progress M4: [██████████████████░░░░░░░░░░░░░░] 23/62 requirements (Phase 15 in progress)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
@@ -87,6 +87,12 @@ Progress M2: [██████████████████████
 - [M4 Phase 14]: Google Places API (New) used — no GBP verification required, returns 5 most recent reviews
 - [M4 Phase 14]: Hash-based review dedup (gr_ + hash of author+publishTime)
 - [M4 Phase 14]: 18 workflows active (TG-132 added; TG-131 pending manual activation)
+- [M4 Phase 15]: TG-22 rebuilt — 10 nodes, polls google_reviews every 30 min for 5-star reviews, sends referral SMS via TG-94
+- [M4 Phase 15]: TG-34 rebuilt — 12 nodes, webhook POST at /tg34-referral-log, logs to referrals table, thanks referrer via SMS
+- [M4 Phase 15]: Name-based lead lookup for phone numbers (Google reviews don't include phone)
+- [M4 Phase 15]: TG-22 deployed (n8n ID: YnLX05UbBgZI7YO6), active
+- [M4 Phase 15]: TG-34 deployed (n8n ID: Gu61j7HgsWFyMsEU), webhook URL: https://tgyardcare.app.n8n.cloud/webhook/tg34-referral-log
+- [M4 Phase 15]: 20 workflows now active (added TG-22, TG-34)
 
 ### Pending Todos
 
@@ -102,6 +108,11 @@ Progress M2: [██████████████████████
 - Activate TG-131 in n8n UI (schedule trigger can't be activated via API)
 - Set GOOGLE_PLACES_API_KEY_PLACEHOLDER in TG-131 Fetch Place Details node
 - Set SUPABASE_ANON_KEY_PLACEHOLDER in TG-131 dedup and save nodes (3 occurrences)
+- Add referral_sms_sent column to google_reviews table: `ALTER TABLE google_reviews ADD COLUMN IF NOT EXISTS referral_sms_sent boolean DEFAULT false;`
+- Create referrals table in Supabase SQL Editor (see 15-01-SUMMARY.md for SQL)
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-22 Telegram Notification node with Vance's actual Telegram chat ID
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-34 Telegram Alert node with Vance's actual Telegram chat ID
+- Replace SUPABASE_ANON_KEY_PLACEHOLDER in TG-22 (3 occurrences) and TG-34 (3 occurrences) via n8n UI
 
 ### Blockers/Concerns
 
@@ -115,6 +126,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 14-02-PLAN.md (review monitoring + response pipeline)
+Stopped at: Completed 15-01-PLAN.md (review-to-referral + referral tracking)
 Resume file: None
-Next: Execute 14-03-PLAN.md (review analytics dashboard)
+Next: Continue Phase 15 remaining plans
