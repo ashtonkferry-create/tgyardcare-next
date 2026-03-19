@@ -2,60 +2,227 @@
   "name": "TG-140 Review Alert",
   "nodes": [
     {
-      "parameters": {},
-      "id": "tg140-trigger",
-      "name": "Execute Workflow Trigger",
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1,
-      "position": [0, 300]
-    },
-    {
       "parameters": {
-        "jsCode": "const { rating } = $json;\n\nlet severity;\nif (rating <= 3) {\n  severity = 'CRITICAL';\n} else if (rating === 4) {\n  severity = 'WARNING';\n} else {\n  severity = 'INFO';\n}\n\nreturn [{ json: { ...$json, severity } }];"
-      },
-      "id": "tg140-severity",
-      "name": "Determine Severity",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [240, 300]
-    },
-    {
-      "parameters": {
-        "jsCode": "const { author_name, rating, review_text, review_id, severity } = $json;\n\nconst stars = '⭐'.repeat(rating) + '☆'.repeat(5 - rating);\n\nlet header = '';\nif (severity === 'CRITICAL') {\n  header = '🚨 RESPOND IMMEDIATELY\\n\\n';\n}\n\nconst message = [\n  `${header}📝 NEW REVIEW (${severity})`,\n  ``,\n  `${stars} (${rating}/5)`,\n  `Author: ${author_name || 'Anonymous'}`,\n  ``,\n  `\"${review_text || 'No text provided'}\"`,\n  ``,\n  `Review ID: ${review_id || 'N/A'}`\n].join('\\n');\n\nreturn [{ json: {\n  alert_message: message,\n  severity,\n  author_name: author_name || 'Anonymous',\n  rating,\n  review_id\n} }];"
-      },
-      "id": "tg140-build-alert",
-      "name": "Build Alert",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [480, 300]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict"
-          },
-          "conditions": [
+        "rule": {
+          "interval": [
             {
-              "id": "critical-check",
-              "leftValue": "={{ $json.severity }}",
-              "rightValue": "CRITICAL",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
+              "field": "cronExpression",
+              "expression": "30 * * * *"
             }
-          ],
-          "combinator": "and"
+          ]
         }
       },
+      "id": "tg140-trigger",
+      "name": "Hourly Review Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 200]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tg140-review-alert",
+        "options": {}
+      },
+      "id": "tg140-webhook",
+      "name": "Review Alert Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 500],
+      "webhookId": "tg140-review-alert"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://maps.googleapis.com/maps/api/place/details/json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "place_id",
+              "value": "ChIJMQEDNR3apwMRFbkOyDYmDAE"
+            },
+            {
+              "name": "fields",
+              "value": "reviews"
+            },
+            {
+              "name": "key",
+              "value": "GOOGLE_PLACES_API_KEY_PLACEHOLDER"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg140-fetch",
+      "name": "Fetch New Google Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [300, 200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/google_reviews?select=author_name,review_time&order=created_at.desc&limit=50",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg140-fetch-known",
+      "name": "Fetch Known Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [300, 450],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const googleResp = $('Fetch New Google Reviews').first().json;\nconst knownRaw = $('Fetch Known Reviews').first().json;\n\n// Parse Google response\nconst reviews = googleResp?.result?.reviews || [];\nif (!reviews.length) return [];\n\n// Build set of known reviews for dedup\nconst knownReviews = Array.isArray(knownRaw) ? knownRaw : (knownRaw?.length ? [knownRaw] : []);\nconst knownSet = new Set();\nfor (const r of knownReviews) {\n  if (r.author_name && r.review_time) {\n    knownSet.add(`${r.author_name}|${r.review_time}`);\n  }\n}\n\n// Filter to truly new reviews\nconst newReviews = [];\nfor (const r of reviews) {\n  const key = `${r.author_name}|${new Date(r.time * 1000).toISOString()}`;\n  if (!knownSet.has(key)) {\n    // Also check if review is recent (within last 7 days)\n    const reviewAge = Date.now() - (r.time * 1000);\n    if (reviewAge < 7 * 24 * 60 * 60 * 1000) {\n      newReviews.push({\n        author_name: r.author_name || 'Anonymous',\n        rating: r.rating || 0,\n        review_text: r.text || '',\n        review_time: new Date(r.time * 1000).toISOString(),\n        profile_photo_url: r.profile_photo_url || '',\n        relative_time: r.relative_time_description || ''\n      });\n    }\n  }\n}\n\nif (!newReviews.length) return [];\n\nreturn newReviews.map(r => ({ json: r }));"
+      },
+      "id": "tg140-check",
+      "name": "Compare Against Known Reviews",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const r = $json;\nconst rating = parseInt(r.rating) || 0;\n\nlet severity, emoji;\nif (rating <= 2) {\n  severity = 'CRITICAL';\n  emoji = '\\ud83d\\udea8\\ud83d\\udea8\\ud83d\\udea8';\n} else if (rating === 3) {\n  severity = 'WARNING';\n  emoji = '\\u26a0\\ufe0f';\n} else if (rating === 4) {\n  severity = 'INFO';\n  emoji = '\\ud83d\\udc4d';\n} else {\n  severity = 'INFO';\n  emoji = '\\u2b50';\n}\n\nconst stars = '\\u2b50'.repeat(rating) + '\\u2606'.repeat(5 - rating);\n\nlet lines = [\n  `${emoji} NEW GOOGLE REVIEW (${severity})`,\n  ``,\n  `${stars}`,\n  `By: ${r.author_name}`,\n  ``,\n  `\"${r.review_text || 'No text provided'}\"`\n];\n\nif (severity === 'CRITICAL') {\n  lines.push(``);\n  lines.push(`\\ud83d\\udea8 RESPOND IMMEDIATELY at business.google.com`);\n} else if (rating === 5) {\n  lines.push(``);\n  lines.push(`\\ud83d\\udcac Consider sending referral request!`);\n}\n\nreturn [{ json: {\n  ...r,\n  severity,\n  alert_message: lines.join('\\n')\n} }];"
+      },
+      "id": "tg140-classify",
+      "name": "Classify Review Severity",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.TG_SUPABASE_URL }}/rest/v1/google_reviews",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $vars.TG_SUPABASE_ANON_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.TG_SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"author_name\": \"{{ $json.author_name }}\",\n  \"rating\": {{ $json.rating }},\n  \"review_text\": {{ JSON.stringify($json.review_text) }},\n  \"review_time\": \"{{ $json.review_time }}\",\n  \"severity\": \"{{ $json.severity }}\"\n}",
+        "options": {}
+      },
+      "id": "tg140-store",
+      "name": "Store Review in Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.severity }}",
+                    "rightValue": "CRITICAL",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CRITICAL"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.severity }}",
+                    "rightValue": "WARNING",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "WARNING"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.severity }}",
+                    "rightValue": "INFO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "INFO"
+            }
+          ]
+        },
+        "options": {}
+      },
       "id": "tg140-route",
-      "name": "Route by Severity",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [720, 300]
+      "name": "Route by Review Severity",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1380, 300]
     },
     {
       "parameters": {
@@ -68,87 +235,109 @@
             "alert_body": "={{ $json.alert_message }}",
             "severity": "critical",
             "source_workflow": "TG-140",
-            "metadata": "={{ JSON.stringify({ review_id: $json.review_id, rating: $json.rating }) }}"
+            "metadata": "={{ JSON.stringify({ rating: $json.rating, author: $json.author_name }) }}"
           }
         }
       },
-      "id": "tg140-alert-router",
-      "name": "Call TG-113 Alert Router",
+      "id": "tg140-critical",
+      "name": "CRITICAL Review Alert via TG-113",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
-      "position": [960, 200]
+      "position": [1640, 100]
     },
     {
       "parameters": {
         "chatId": "OWNER_TELEGRAM_CHAT_ID",
-        "text": "={{ $('Build Alert').first().json.alert_message }}",
-        "additionalFields": {
-          "parse_mode": "HTML"
-        }
+        "text": "={{ $json.alert_message }}",
+        "additionalFields": {}
       },
-      "id": "tg140-telegram-critical",
-      "name": "Send Telegram (Critical)",
+      "id": "tg140-critical-tg",
+      "name": "Send Critical to Telegram",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [1200, 200],
+      "position": [1900, 100],
       "credentials": {
         "telegramApi": {
           "id": "V404qLIDXjmyzNeS",
-          "name": "Telegram"
+          "name": "Telegram account"
         }
       }
     },
     {
       "parameters": {
         "chatId": "OWNER_TELEGRAM_CHAT_ID",
-        "text": "={{ $('Build Alert').first().json.alert_message }}",
-        "additionalFields": {
-          "parse_mode": "HTML"
-        }
+        "text": "={{ $json.alert_message }}",
+        "additionalFields": {}
       },
-      "id": "tg140-telegram-other",
-      "name": "Send Telegram",
+      "id": "tg140-normal",
+      "name": "Send Review Alert to Telegram",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [960, 420],
+      "position": [1640, 450],
       "credentials": {
         "telegramApi": {
           "id": "V404qLIDXjmyzNeS",
-          "name": "Telegram"
+          "name": "Telegram account"
         }
       }
     }
   ],
   "connections": {
-    "Execute Workflow Trigger": {
+    "Hourly Review Check": {
       "main": [
-        [{ "node": "Determine Severity", "type": "main", "index": 0 }]
+        [
+          { "node": "Fetch New Google Reviews", "type": "main", "index": 0 },
+          { "node": "Fetch Known Reviews", "type": "main", "index": 0 }
+        ]
       ]
     },
-    "Determine Severity": {
+    "Review Alert Webhook": {
       "main": [
-        [{ "node": "Build Alert", "type": "main", "index": 0 }]
+        [
+          { "node": "Fetch New Google Reviews", "type": "main", "index": 0 },
+          { "node": "Fetch Known Reviews", "type": "main", "index": 0 }
+        ]
       ]
     },
-    "Build Alert": {
+    "Fetch New Google Reviews": {
       "main": [
-        [{ "node": "Route by Severity", "type": "main", "index": 0 }]
+        [{ "node": "Compare Against Known Reviews", "type": "main", "index": 0 }]
       ]
     },
-    "Route by Severity": {
+    "Fetch Known Reviews": {
       "main": [
-        [{ "node": "Call TG-113 Alert Router", "type": "main", "index": 0 }],
-        [{ "node": "Send Telegram", "type": "main", "index": 0 }]
+        [{ "node": "Compare Against Known Reviews", "type": "main", "index": 0 }]
       ]
     },
-    "Call TG-113 Alert Router": {
+    "Compare Against Known Reviews": {
       "main": [
-        [{ "node": "Send Telegram (Critical)", "type": "main", "index": 0 }]
+        [{ "node": "Classify Review Severity", "type": "main", "index": 0 }]
+      ]
+    },
+    "Classify Review Severity": {
+      "main": [
+        [{ "node": "Store Review in Supabase", "type": "main", "index": 0 }]
+      ]
+    },
+    "Store Review in Supabase": {
+      "main": [
+        [{ "node": "Route by Review Severity", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route by Review Severity": {
+      "main": [
+        [{ "node": "CRITICAL Review Alert via TG-113", "type": "main", "index": 0 }],
+        [{ "node": "Send Review Alert to Telegram", "type": "main", "index": 0 }],
+        [{ "node": "Send Review Alert to Telegram", "type": "main", "index": 0 }]
+      ]
+    },
+    "CRITICAL Review Alert via TG-113": {
+      "main": [
+        [{ "node": "Send Critical to Telegram", "type": "main", "index": 0 }]
       ]
     }
   },
   "settings": {
-    "callerPolicy": "workflowsFromSameOwner",
     "executionOrder": "v1"
   },
   "active": false

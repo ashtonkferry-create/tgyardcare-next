@@ -2,40 +2,53 @@
   "name": "TG-139 Real-time Lead Alert",
   "nodes": [
     {
-      "parameters": {},
-      "id": "tg139-trigger",
-      "name": "Execute Workflow Trigger",
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1,
-      "position": [0, 300]
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tg139-lead-alert",
+        "options": {}
+      },
+      "id": "tg139-webhook",
+      "name": "New Lead Intelligence Alert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "tg139-lead-alert"
     },
     {
       "parameters": {
-        "jsCode": "const { lead_name, email, phone, source, service, lead_score, lead_tier } = $json;\n\nconst tierEmoji = {\n  'hot': '🔥',\n  'warm': '🟡',\n  'cold': '🔵'\n};\n\nconst emoji = tierEmoji[lead_tier?.toLowerCase()] || '📋';\nconst timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' });\n\nconst message = [\n  `${emoji} NEW LEAD`,\n  ``,\n  `${lead_name || 'Unknown'}`,\n  `Phone: ${phone || 'N/A'}`,\n  `Email: ${email || 'N/A'}`,\n  `Source: ${source || 'Unknown'}`,\n  `Service: ${service || 'Not specified'}`,\n  `Score: ${lead_score ?? 'N/A'} (${lead_tier || 'unscored'})`,\n  ``,\n  `Respond within 5 minutes!`\n].join('\\n');\n\nreturn [{ json: {\n  alert_message: message,\n  lead_name: lead_name || 'Unknown',\n  lead_tier: lead_tier || 'unscored',\n  timestamp\n} }];"
+        "jsCode": "const input = $json;\nconst name = input.name || `${input.first_name || ''} ${input.last_name || ''}`.trim() || 'Unknown';\nconst email = input.email || 'N/A';\nconst phone = input.phone || 'N/A';\nconst source = input.source || 'website';\nconst serviceType = input.service_type || input.service || 'Not specified';\nconst message = input.message || '';\nconst leadScore = parseInt(input.lead_score) || 0;\nconst leadTier = input.lead_tier || 'unscored';\n\n// Determine urgency based on score\nlet urgency, urgencyEmoji;\nif (leadScore >= 80) {\n  urgency = 'HOT';\n  urgencyEmoji = '\\ud83d\\udd25\\ud83d\\udd25\\ud83d\\udd25';\n} else if (leadScore >= 50) {\n  urgency = 'WARM';\n  urgencyEmoji = '\\ud83d\\udfe1\\ud83d\\udfe1';\n} else {\n  urgency = 'COOL';\n  urgencyEmoji = '\\ud83d\\udd35';\n}\n\n// Check for high-value services\nconst highAovServices = ['hardscaping', 'gutter guard', 'gutter guards', 'patio', 'retaining wall', 'landscape design', 'full renovation'];\nconst isHighAov = highAovServices.some(s => serviceType.toLowerCase().includes(s));\n\n// Calculate response deadline (5 min from now in CT)\nconst deadline = new Date(Date.now() + 5 * 60 * 1000);\nconst deadlineStr = deadline.toLocaleString('en-US', { timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit', hour12: true });\n\nreturn [{ json: {\n  name,\n  email,\n  phone,\n  source,\n  service_type: serviceType,\n  message,\n  lead_score: leadScore,\n  lead_tier: leadTier,\n  urgency,\n  urgency_emoji: urgencyEmoji,\n  is_high_aov: isHighAov,\n  response_deadline: deadlineStr\n} }];"
       },
-      "id": "tg139-build-alert",
-      "name": "Build Alert Message",
+      "id": "tg139-enrich",
+      "name": "Enrich Lead Context",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [240, 300]
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json;\nconst tierEmoji = { 'hot': '\\ud83d\\udd25', 'warm': '\\ud83d\\udfe1', 'cold': '\\ud83d\\udd35' };\n\nlet lines = [\n  `${d.urgency_emoji} NEW LEAD ALERT`,\n  ``,\n  `\\ud83d\\udc64 ${d.name} | ${d.phone}`,\n  `\\ud83d\\udce7 ${d.email}`,\n  `\\ud83d\\udce1 Source: ${d.source}`,\n  `\\ud83d\\udd27 Service: ${d.service_type}`,\n  `\\ud83c\\udfaf Score: ${d.lead_score} (${d.lead_tier}) ${tierEmoji[d.lead_tier] || ''}`\n];\n\nif (d.is_high_aov) {\n  lines.push(`\\ud83d\\udcb0 HIGH VALUE SERVICE`);\n}\n\nif (d.message) {\n  lines.push(``);\n  lines.push(`\\ud83d\\udcac Message: ${d.message}`);\n}\n\nlines.push(``);\nlines.push(`\\u23f0 Response deadline: ${d.response_deadline}`);\nlines.push(`\\ud83d\\udcde Call NOW: tel:${(d.phone || '').replace(/[^+\\d]/g, '')}`);\n\nreturn [{ json: { alert_message: lines.join('\\n'), ...d } }];"
+      },
+      "id": "tg139-format",
+      "name": "Format Lead Intelligence Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 300]
     },
     {
       "parameters": {
         "chatId": "OWNER_TELEGRAM_CHAT_ID",
         "text": "={{ $json.alert_message }}",
-        "additionalFields": {
-          "parse_mode": "HTML"
-        }
+        "additionalFields": {}
       },
-      "id": "tg139-telegram",
-      "name": "Send Telegram Alert",
+      "id": "tg139-send",
+      "name": "Send Lead Alert",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [480, 300],
+      "position": [780, 300],
       "credentials": {
         "telegramApi": {
           "id": "V404qLIDXjmyzNeS",
-          "name": "Telegram"
+          "name": "Telegram account"
         }
       }
     },
@@ -66,36 +79,40 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"workflow_id\": \"TG-139\",\n  \"workflow_name\": \"Real-time Lead Alert\",\n  \"status\": \"success\",\n  \"metadata\": {\n    \"lead_name\": \"{{ $('Build Alert Message').first().json.lead_name }}\",\n    \"lead_tier\": \"{{ $('Build Alert Message').first().json.lead_tier }}\",\n    \"alerted_at\": \"{{ $('Build Alert Message').first().json.timestamp }}\"\n  }\n}",
+        "jsonBody": "={\n  \"workflow_id\": \"TG-139\",\n  \"workflow_name\": \"Real-time Lead Alert\",\n  \"status\": \"success\",\n  \"metadata\": {\n    \"lead_name\": \"{{ $json.name }}\",\n    \"lead_tier\": \"{{ $json.lead_tier }}\",\n    \"urgency\": \"{{ $json.urgency }}\",\n    \"is_high_aov\": {{ $json.is_high_aov }}\n  }\n}",
         "options": {}
       },
       "id": "tg139-log",
       "name": "Log Alert",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [720, 300],
+      "position": [1040, 300],
       "continueOnFail": true
     }
   ],
   "connections": {
-    "Execute Workflow Trigger": {
+    "New Lead Intelligence Alert": {
       "main": [
-        [{ "node": "Build Alert Message", "type": "main", "index": 0 }]
+        [{ "node": "Enrich Lead Context", "type": "main", "index": 0 }]
       ]
     },
-    "Build Alert Message": {
+    "Enrich Lead Context": {
       "main": [
-        [{ "node": "Send Telegram Alert", "type": "main", "index": 0 }]
+        [{ "node": "Format Lead Intelligence Alert", "type": "main", "index": 0 }]
       ]
     },
-    "Send Telegram Alert": {
+    "Format Lead Intelligence Alert": {
+      "main": [
+        [{ "node": "Send Lead Alert", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Lead Alert": {
       "main": [
         [{ "node": "Log Alert", "type": "main", "index": 0 }]
       ]
     }
   },
   "settings": {
-    "callerPolicy": "workflowsFromSameOwner",
     "executionOrder": "v1"
   },
   "active": false
