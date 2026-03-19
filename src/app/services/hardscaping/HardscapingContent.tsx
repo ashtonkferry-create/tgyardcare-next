@@ -9,7 +9,6 @@ import { ScrollProgress } from "@/components/ScrollProgress";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
 import { TrustStrip } from "@/components/TrustStrip";
-import { AmbientParticles } from "@/components/AmbientParticles";
 import { ResidentialProblemSection, ResidentialSolutionSection } from "@/components/ResidentialSections";
 import { Button } from "@/components/ui/button";
 import {
@@ -125,7 +124,6 @@ export default function HardscapingContent() {
                               repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.04) 40px, rgba(255,255,255,0.04) 41px)`,
           }}
         />
-        <AmbientParticles density="sparse" />
 
         <div className="container mx-auto px-6 md:px-8 relative z-10 max-w-6xl">
           <ScrollReveal>

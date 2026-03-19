@@ -9,7 +9,6 @@ import { WebPageSchema } from "@/components/schemas/WebPageSchema";
 import { GlassCard } from '@/components/GlassCard';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
-import { AmbientParticles } from '@/components/AmbientParticles';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
 import Link from "next/link";
 
@@ -81,7 +80,6 @@ export default function ReviewsContent() {
         className="relative overflow-hidden py-28 md:py-40"
         style={{ background: bg.hero }}
       >
-        <AmbientParticles density="sparse" className="absolute inset-0" />
         <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-10 ${acc.bg}`} />
 
         <div className="container mx-auto px-4 relative z-10 text-center">

@@ -16,7 +16,6 @@ import pruningCombined2 from "@/assets/before-after/pruning-combined-2.png";
 import heroImage from "@/assets/service-pruning.jpg";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
 import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
-import { AmbientParticles } from "@/components/AmbientParticles";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
 import { CrossSellGrid } from "@/components/CrossSellGrid";
@@ -67,7 +66,6 @@ export default function PruningContent() {
             <div className="absolute inset-0 bg-gradient-to-b from-[#052e16]/90 via-[#052e16]/50 to-[#052e16]/85" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(5,46,22,0.4)_100%)]" />
           </div>
-          <AmbientParticles density="sparse" />
           <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
             <ScrollReveal>
               <div className="inline-flex items-center bg-white/10 backdrop-blur-sm border border-white/10 text-white/80 px-4 py-1.5 rounded-full text-sm font-medium mb-6">

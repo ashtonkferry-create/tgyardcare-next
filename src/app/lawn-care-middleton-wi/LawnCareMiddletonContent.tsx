@@ -11,7 +11,6 @@ import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
 import { WebPageSchema } from "@/components/schemas/WebPageSchema";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { SectionDivider } from "@/components/SectionTransition";
-import { AmbientParticles } from "@/components/AmbientParticles";
 import { WhatHappensNextSection } from "@/components/SearchIntentSections";
 import {
   CheckCircle2,
@@ -108,7 +107,6 @@ export default function LawnCareMiddletonContent() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.3)_100%)]" />
         </div>
 
-        <AmbientParticles density="sparse" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">

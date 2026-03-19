@@ -7,7 +7,6 @@ import { TrustStrip } from '@/components/TrustStrip';
 import { GlassCard } from '@/components/GlassCard';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
-import { AmbientParticles } from '@/components/AmbientParticles';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
 import {
   Clock, CheckCircle2, Shield, Users, ArrowRight,
@@ -125,8 +124,6 @@ export default function AboutContent() {
         className="relative overflow-hidden py-28 md:py-40"
         style={{ background: bg.hero }}
       >
-        <AmbientParticles density="sparse" className="absolute inset-0" />
-
         {/* Glow orbs */}
         <div className={`absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-10 ${acc.bg}`} />
         <div className={`absolute bottom-0 right-1/4 w-64 h-64 rounded-full blur-3xl opacity-8 ${acc.bg}`} />

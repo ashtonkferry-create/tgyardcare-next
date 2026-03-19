@@ -17,7 +17,6 @@ import ServiceFAQ from "@/components/ServiceFAQ";
 import { snowRemovalFAQs } from "@/data/serviceFAQs";
 import { ResidentialProblemSection, ResidentialSolutionSection, ResidentialHomeownerTypesSection, ResidentialExpectationsSection } from "@/components/ResidentialSections";
 import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
-import { AmbientParticles } from "@/components/AmbientParticles";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
 import { TrustStrip } from "@/components/TrustStrip";
@@ -81,7 +80,6 @@ export default function SnowRemovalContent() {
             <div className="absolute inset-0 bg-gradient-to-b from-[#020810]/90 via-[#020810]/50 to-[#020810]/85" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(2,8,16,0.4)_100%)]" />
           </div>
-          <AmbientParticles density="sparse" />
 
           <div className="relative z-10 container mx-auto px-4 text-center text-white">
             <ScrollReveal>

@@ -11,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { GlassCard } from '@/components/GlassCard';
 import { ScrollReveal } from '@/components/ScrollReveal';
-import { AmbientParticles } from '@/components/AmbientParticles';
 import { TrustStrip } from '@/components/TrustStrip';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
 import {
@@ -265,7 +264,6 @@ export default function ContactContent() {
         className="relative overflow-hidden py-24 md:py-36"
         style={{ background: bg.hero }}
       >
-        <AmbientParticles density="sparse" className="absolute inset-0" />
         <div className={`absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-10 ${acc.bg}`} />
 
         <div className="container mx-auto px-4 relative z-10 text-center">

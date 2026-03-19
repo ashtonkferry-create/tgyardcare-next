@@ -9,7 +9,6 @@ import { ItemListSchema } from "@/components/schemas/ItemListSchema";
 import { WebPageSchema } from "@/components/schemas/WebPageSchema";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import CTASection from '@/components/CTASection';
-import { AmbientParticles } from '@/components/AmbientParticles';
 import { GlassCard } from '@/components/GlassCard';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { TrustStrip } from '@/components/TrustStrip';
@@ -171,7 +170,6 @@ export default function ServicesContent() {
         className="relative py-28 md:py-36 overflow-hidden"
         style={{ background: bg.hero }}
       >
-        <AmbientParticles density="sparse" className="absolute inset-0" />
         <div className={`absolute top-0 left-1/4 w-[600px] h-[400px] rounded-full blur-3xl opacity-10 ${acc.bg}`} />
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] rounded-full blur-3xl opacity-8 bg-white/5" />
 

@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { Providers } from '@/components/Providers';
+import { SiteAmbientParticles } from '@/components/SiteAmbientParticles';
 import { GlobalSchema } from '@/components/GlobalSchema';
 import { NavigationSchema } from '@/components/schemas/NavigationSchema';
 import { AutoSchema } from '@/components/schemas/AutoSchema';
@@ -102,7 +103,10 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <AutoSchema />
-        <Providers>{children}</Providers>
+        <Providers>
+          <SiteAmbientParticles />
+          {children}
+        </Providers>
         <Analytics />
         <SpeedInsights />
       </body>
