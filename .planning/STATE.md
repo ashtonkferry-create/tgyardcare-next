@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Build an autonomous business nervous system — acquires customers, converts leads, delivers excellence, retains accounts, amplifies brand, reports via Telegram.
-**Current focus:** M4 TG-OS Business Automation — Phase 18 In Progress (GBP Domination)
+**Current focus:** M4 TG-OS Business Automation — Phase 20 In Progress (Community & Field Marketing)
 
 ## Current Position
 
-Phase: 18 of 20 (GBP Domination)
-Plan: 1 of ? in Phase 18
+Phase: 20 of 20 (Community & Field Marketing)
+Plan: 1 of ? in Phase 20
 Status: In progress
-Last activity: 2026-03-19 — Completed 18-01-PLAN.md (GBP post generator + publisher)
+Last activity: 2026-03-19 — Completed 20-01-PLAN.md (Neighbor outreach + crew field marketing)
 
-Progress M4: [█████████████████████████░░░░░░░] 32/62 requirements (Phase 18 started)
+Progress M4: [██████████████████████████░░░░░░] 33/62 requirements (Phase 20 started)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
@@ -145,6 +145,13 @@ Progress M2: [██████████████████████
 - [M4 Phase 18]: Phone number corrected from (608) 995-3554 to (608) 535-6057 in AI prompt
 - [M4 Phase 18]: 37 workflows now active (added TG-145; TG-146 pending manual activation)
 
+- [M4 Phase 20]: TG-143 neighbor outreach deployed (n8n ID: n9mFQIJyE1RDfELe), daily 11am CT, 8 nodes, active
+- [M4 Phase 20]: TG-144 crew field reminders deployed (n8n ID: 7I6mwt3Mqim69RSy), daily 6am CT, 6 nodes, active
+- [M4 Phase 20]: 30-day dedup via neighbor_outreach table (not leads table field)
+- [M4 Phase 20]: Yard sign auto-expire at 14 days, collection reminders at 7 days
+- [M4 Phase 20]: A2P opt-out "Reply STOP" included in all neighbor outreach SMS
+- [M4 Phase 20]: 39 workflows now active (added TG-143, TG-144)
+
 ### Pending Todos
 
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-01 Build Telegram Alert node with Vance's actual Telegram chat ID
@@ -196,6 +203,11 @@ Progress M2: [██████████████████████
 - Set ANTHROPIC_API_KEY in TG-145 AI Generate Post node x-api-key header
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-145 Send Telegram Approval node with Vance's actual Telegram chat ID
 
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-143 Telegram Summary node with Vance's actual Telegram chat ID
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-144 Send Telegram Reminders node with Vance's actual Telegram chat ID
+- Create neighbor_outreach table in Supabase SQL Editor (see 20-01-SUMMARY.md for SQL)
+- Create yard_sign_placements table in Supabase SQL Editor (see 20-01-SUMMARY.md for SQL)
+
 ### Blockers/Concerns
 
 - Twilio A2P 10DLC campaign status unknown — ALL outbound SMS may be carrier-filtered
@@ -208,6 +220,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 18-01-PLAN.md (GBP post generator + publisher) — deployed TG-145/TG-146 to n8n
+Stopped at: Completed 20-01-PLAN.md (Neighbor outreach + crew field marketing) — deployed TG-143/TG-144 to n8n
 Resume file: None
-Next: 18-02-PLAN.md or next Phase 18 plan
+Next: 20-02-PLAN.md or next Phase 20 plan
