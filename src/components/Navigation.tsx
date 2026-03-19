@@ -970,7 +970,7 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
     <SmartBreadcrumb />
     </div>
     {/* Spacer dynamically matches fixed header height (nav ± breadcrumb) */}
-    <div style={{ height: fixedHeight }} />
+    <div style={{ height: fixedHeight }} className="bg-[#052e16]" />
     </>
   );
 }
