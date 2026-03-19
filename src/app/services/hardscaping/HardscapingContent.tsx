@@ -11,6 +11,7 @@ import { GlassCard } from "@/components/GlassCard";
 import { TrustStrip } from "@/components/TrustStrip";
 import { AmbientParticles } from "@/components/AmbientParticles";
 import { ResidentialProblemSection, ResidentialSolutionSection } from "@/components/ResidentialSections";
+import ServicePageQuickQuote from '@/components/ServicePageQuickQuote';
 import { Button } from "@/components/ui/button";
 import {
   Phone, ArrowRight, CheckCircle2, Star, Shield, Users, Award,
@@ -482,6 +483,8 @@ export default function HardscapingContent() {
           </div>
         </div>
       </section>
+
+      <ServicePageQuickQuote serviceSlug="hardscaping" serviceName="Hardscaping" />
 
       <Footer showCloser={false} />
     </div>
