@@ -5,28 +5,29 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Build an autonomous business nervous system — acquires customers, converts leads, delivers excellence, retains accounts, amplifies brand, reports via Telegram.
-**Current focus:** M4 TG-OS Business Automation — Phase 16 In Progress (Content & SEO Engine)
+**Current focus:** M4 TG-OS Business Automation — Phase 17 In Progress (Social Media Machine)
 
 ## Current Position
 
-Phase: 16 of 20 (Content & SEO Engine) -- PHASE COMPLETE
-Plan: 3 of 3 in Phase 16
-Status: Phase 16 complete
-Last activity: 2026-03-19 — Completed 16-03-PLAN.md (content refresh pipeline)
+Phase: 17 of 20 (Social Media Machine)
+Plan: 2 of 3 in Phase 17
+Status: In progress
+Last activity: 2026-03-19 — Completed 17-02-PLAN.md (review-to-social pipeline)
 
-Progress M4: [██████████████████████░░░░░░░░░░] 28/62 requirements (Phase 16 complete)
+Progress M4: [███████████████████████░░░░░░░░░] 30/62 requirements (Phase 17 in progress)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 84 (M2: 34 + M3: 36 + M4: 14)
+- Total plans completed: 86 (M2: 34 + M3: 36 + M4: 16)
 - M4 Phase 11: 5 requirements complete (INFRA-01, INFRA-02, 11-02 key audit, 11-03 auto-posting, 11-01 TG-92/TG-113 activation)
 - M4 Phase 12: 4 plans complete (12-01 instant response, 12-02 speed-to-lead, 12-03 follow-up sequence, 12-04 lead scoring) -- PHASE COMPLETE
 - M4 Phase 14: 2 plans complete (14-01 review request, 14-02 review monitoring + response pipeline)
 - M4 Phase 15: 4 plans complete (15-01 referral, 15-02 loyalty, 15-03 winback, 15-04 newsletter + cross-sell) -- PHASE COMPLETE
 - M4 Phase 16: 3 plans complete (16-01 content generation, 16-02 rank monitoring, 16-03 content refresh) -- PHASE COMPLETE
+- M4 Phase 17: 2 plans complete (17-01 content batch generator, 17-02 review-to-social pipeline)
 
 ## Accumulated Context
 
@@ -128,6 +129,10 @@ Progress M2: [██████████████████████
 - [M4 Phase 16]: TG-50 uses dual fetch: rank-prioritized RPC with age-based fallback (90-day threshold)
 - [M4 Phase 16]: TG-50 direct HTTP to IndexNow (not sub-workflow), structured Claude prompt format
 - [M4 Phase 16]: 34 workflows now active (added TG-50) — Phase 16 COMPLETE, all 8 SEO requirements covered
+- [M4 Phase 17]: TG-134 review-to-social deployed (n8n ID: KQ8jyy2xFQ4ud6YH), daily 8am CT, 8 nodes
+- [M4 Phase 17]: TG-134 converts 5-star reviews into branded social posts for Instagram/LinkedIn/Pinterest
+- [M4 Phase 17]: social_posted flag on google_reviews for dedup, Wednesday 10am CT scheduled posting
+- [M4 Phase 17]: 35 workflows now active (added TG-134)
 
 ### Pending Todos
 
