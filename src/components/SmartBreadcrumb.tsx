@@ -73,7 +73,7 @@ export function SmartBreadcrumb() {
               {item.href ? (
                 <Link
                   href={item.href}
-                  className="text-white/40 hover:text-white/70 transition-colors duration-150"
+                  className="text-white/40 hover:text-white transition-colors duration-150"
                 >
                   {item.label}
                 </Link>
