@@ -5,26 +5,27 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Build an autonomous business nervous system — acquires customers, converts leads, delivers excellence, retains accounts, amplifies brand, reports via Telegram.
-**Current focus:** M4 TG-OS Business Automation — Phase 15 next (Retention & Lifetime Value)
+**Current focus:** M4 TG-OS Business Automation — Phase 15 COMPLETE (Retention & Lifetime Value)
 
 ## Current Position
 
 Phase: 15 of 20 (Retention & Lifetime Value)
 Plan: 4 of 4 in Phase 15
-Status: In progress
-Last activity: 2026-03-19 — Completed 15-01-PLAN.md (review-to-referral + referral tracking)
+Status: Phase 15 COMPLETE
+Last activity: 2026-03-19 — Completed 15-04-PLAN.md (monthly newsletter + cross-sell engine)
 
-Progress M4: [██████████████████░░░░░░░░░░░░░░] 23/62 requirements (Phase 15 in progress)
+Progress M4: [████████████████████░░░░░░░░░░░░] 25/62 requirements (Phase 15 COMPLETE)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 80 (M2: 34 + M3: 36 + M4: 10)
+- Total plans completed: 82 (M2: 34 + M3: 36 + M4: 12)
 - M4 Phase 11: 5 requirements complete (INFRA-01, INFRA-02, 11-02 key audit, 11-03 auto-posting, 11-01 TG-92/TG-113 activation)
 - M4 Phase 12: 4 plans complete (12-01 instant response, 12-02 speed-to-lead, 12-03 follow-up sequence, 12-04 lead scoring) -- PHASE COMPLETE
 - M4 Phase 14: 2 plans complete (14-01 review request, 14-02 review monitoring + response pipeline)
+- M4 Phase 15: 4 plans complete (15-01 referral, 15-02 loyalty, 15-03 winback, 15-04 newsletter + cross-sell) -- PHASE COMPLETE
 
 ## Accumulated Context
 
@@ -124,6 +125,12 @@ Progress M2: [██████████████████████
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-34 Telegram Alert node with Vance's actual Telegram chat ID
 - Replace SUPABASE_ANON_KEY_PLACEHOLDER in TG-22 (3 occurrences) and TG-34 (3 occurrences) via n8n UI
 
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-56 Telegram Alert node with Vance's actual Telegram chat ID
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-63 Telegram Summary node with Vance's actual Telegram chat ID
+- Ensure TG_OPENWEATHER_API_KEY n8n variable is set for TG-56 weather checks
+- Create weather_campaigns table in Supabase (see 15-03-SUMMARY.md for SQL)
+- Add winback_sent_at column to leads table: `ALTER TABLE leads ADD COLUMN IF NOT EXISTS winback_sent_at timestamptz;`
+
 ### Blockers/Concerns
 
 - Twilio A2P 10DLC campaign status unknown — ALL outbound SMS may be carrier-filtered
@@ -136,6 +143,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 15-01-PLAN.md (review-to-referral + referral tracking)
+Stopped at: Completed 15-03-PLAN.md (weather campaigns + win-back engine)
 Resume file: None
 Next: Continue Phase 15 remaining plans
