@@ -7,46 +7,58 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "0 7 * * *"
+              "expression": "0 */2 * * *"
             }
           ]
         }
       },
-      "id": "schedule",
-      "name": "Daily 7am CT",
+      "id": "schedule-trigger",
+      "name": "Every 2 Hours",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [
-        0,
-        300
-      ]
+      "position": [0, 300]
     },
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://api.openweathermap.org/data/2.5/weather?q=Madison,WI,US&appid={{$vars.TG_OPENWEATHER_API_KEY}}&units=imperial"
+        "url": "=https://api.openweathermap.org/data/2.5/weather?lat=43.0731&lon=-89.4012&units=imperial&appid={{$vars.TG_OPENWEATHER_API_KEY}}",
+        "options": {}
       },
       "id": "fetch-weather",
       "name": "Fetch Madison Weather",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        220,
-        300
-      ]
+      "position": [220, 300]
     },
     {
       "parameters": {
-        "jsCode": "const w = $input.first().json;\nconst temp = w.main?.temp || 50;\nconst condition = w.weather?.[0]?.main || 'Clear';\nconst windSpeed = w.wind?.speed || 0;\nconst snow = w.snow?.['1h'] || 0;\nconst rain = w.rain?.['1h'] || 0;\n\nlet campaign = null;\nif (snow > 0.5 || (temp < 32 && condition.includes('Snow'))) {\n  campaign = { type: 'snow_emergency', message: 'Snow emergency! Book TotalGuard snow removal now — crews mobilizing for Madison.', service: 'snow-removal' };\n} else if (temp > 90) {\n  campaign = { type: 'heat_wave', message: 'Heat wave alert! Protect your lawn — TotalGuard summer care keeps it green all season.', service: 'lawn-mowing' };\n} else if (rain > 0.5) {\n  campaign = { type: 'post_rain', message: 'After the rain, your lawn is ready to thrive! Schedule TotalGuard mowing while growth is peak.', service: 'lawn-mowing' };\n} else if (temp > 50 && temp < 70 && condition === 'Clear') {\n  campaign = { type: 'perfect_day', message: 'Perfect yard care weather in Madison! Get a free TotalGuard estimate today.', service: 'lawn-mowing' };\n}\n\nreturn [{ json: { temp, condition, windSpeed, snow, rain, campaign, should_send: campaign !== null, checked_at: new Date().toISOString() } }];"
+        "jsCode": "const weather = $input.first().json;\nconst temp = weather.main?.temp || 70;\nconst conditions = (weather.weather || []).map(w => w.main.toLowerCase());\nconst windSpeed = weather.wind?.speed || 0;\nconst snow = weather.snow?.['1h'] || weather.snow?.['3h'] || 0;\nconst rain = weather.rain?.['1h'] || weather.rain?.['3h'] || 0;\nconst description = (weather.weather || []).map(w => w.description).join(', ');\n\nlet triggers = [];\n\n// Heavy snow or active snow with low temp\nif (snow > 0 || (conditions.includes('snow') && temp < 35)) {\n  triggers.push({ type: 'snow', subject: 'Snow alert! TotalGuard has you covered', service: 'Snow Removal', urgency: 'high' });\n}\n\n// Heatwave (>90F)\nif (temp > 90) {\n  triggers.push({ type: 'heatwave', subject: 'Beat the heat — protect your lawn', service: 'Lawn Care', urgency: 'medium' });\n}\n\n// Severe storm (high wind + rain)\nif (windSpeed > 30 || (rain > 1 && windSpeed > 20)) {\n  triggers.push({ type: 'storm', subject: 'Storm cleanup? We\\'re ready to help', service: 'Storm Cleanup', urgency: 'high' });\n}\n\n// Freeze warning (<28F in shoulder seasons)\nconst month = new Date().getMonth() + 1;\nif (temp < 28 && (month >= 3 && month <= 5 || month >= 9 && month <= 11)) {\n  triggers.push({ type: 'freeze', subject: 'Freeze warning — protect your landscaping', service: 'Winterization', urgency: 'medium' });\n}\n\nif (triggers.length === 0) return [];\n\nreturn triggers.map(t => ({\n  json: {\n    ...t,\n    current_temp: temp,\n    conditions: description,\n    wind_speed: windSpeed\n  }\n}));"
       },
       "id": "analyze-weather",
-      "name": "Analyze Weather & Select Campaign",
+      "name": "Analyze Weather Conditions",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        440,
-        300
-      ]
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/weather_campaigns?type=eq.{{$json.type}}&sent_at=gte.{{ new Date(Date.now()-48*60*60*1000).toISOString() }}&select=id&limit=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-dedup",
+      "name": "Check 48h Dedup",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 300],
+      "continueOnFail": true
     },
     {
       "parameters": {
@@ -58,210 +70,177 @@
           },
           "conditions": [
             {
-              "leftValue": "={{$json.should_send}}",
-              "rightValue": true,
+              "id": "dedup-check",
+              "leftValue": "={{ Array.isArray($json) ? $json.length : (typeof $json === 'object' && $json.id ? 1 : 0) }}",
+              "rightValue": 0,
               "operator": {
-                "type": "boolean",
-                "operation": "true"
+                "type": "number",
+                "operation": "equals"
               }
             }
           ],
           "combinator": "and"
         }
       },
-      "id": "should-campaign",
-      "name": "Weather Campaign Needed?",
+      "id": "if-not-sent",
+      "name": "Not Already Sent?",
       "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [
-        660,
-        300
-      ]
+      "typeVersion": 2.2,
+      "position": [880, 300]
     },
     {
       "parameters": {
-        "method": "GET",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/customers?select=id,first_name,phone,sms_consent&sms_consent=eq.true&tier=neq.churned&limit=200",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "apikey",
-              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
-            },
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
-            }
-          ]
-        }
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "=Weather campaign triggered!\n\nType: {{ $('Analyze Weather Conditions').item.json.type }}\nTemp: {{ $('Analyze Weather Conditions').item.json.current_temp }}F\nConditions: {{ $('Analyze Weather Conditions').item.json.conditions }}\nWind: {{ $('Analyze Weather Conditions').item.json.wind_speed }} mph\n\nSending email campaign to all active customers.",
+        "additionalFields": {}
       },
-      "id": "fetch-customers",
-      "name": "Fetch SMS-Consented Customers",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        880,
-        200
-      ]
-    },
-    {
-      "id": "send-sms",
-      "name": "Send Weather SMS",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1100,
-        200
-      ],
-      "continueOnFail": false,
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.brevo.com/v3/transactionalSMS/sms",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "api-key",
-              "value": "={{$vars.TG_BREVO_API_KEY}}"
-            }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "json",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "sender",
-              "value": "TotalGuard"
-            },
-            {
-              "name": "recipient",
-              "value": "={{$json.phone}}"
-            },
-            {
-              "name": "content",
-              "value": "=Hi {{$json.first_name}}! {{$('Analyze Weather & Select Campaign').first().json.campaign.message}} Reply STOP to opt out. - TotalGuard Yard Care"
-            }
-          ]
-        },
-        "options": {}
+      "id": "telegram-alert",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1100, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "TotalGuard Telegram Bot"
+        }
       }
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "=={{$vars.TG_SUPABASE_URL}}/rest/v1/seo_intelligence_log",
+        "method": "GET",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/leads?status=in.(customer,active,converted)&select=id,first_name,email&email=not.is.null",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "apikey",
-              "value": "={{$vars.TG_SUPABASE_ANON_KEY}}"
-            },
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-customers",
+      "name": "Fetch Active Customers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const customers = $input.all().map(i => i.json);\nconst trigger = $('Analyze Weather Conditions').first().json;\nconst type = trigger.type;\nconst subject = trigger.subject;\nconst temp = trigger.current_temp;\nconst conditions = trigger.conditions;\n\nconst serviceBlocks = {\n  snow: {\n    headline: 'Snow Is Here — We\\'ve Got You Covered',\n    body: 'Madison is getting hit with snow and your driveway and walkways need clearing. TotalGuard crews are mobilizing now — book your snow removal before the rush.',\n    cta: 'Book Snow Removal',\n    ctaUrl: 'https://tgyardcare.com/contact'\n  },\n  heatwave: {\n    headline: 'Extreme Heat Alert — Protect Your Lawn',\n    body: 'With temperatures above ' + Math.round(temp) + 'F, your lawn is under serious heat stress. Our lawn care team can help it survive with proper mowing, watering guidance, and treatment.',\n    cta: 'Schedule Lawn Care',\n    ctaUrl: 'https://tgyardcare.com/contact'\n  },\n  storm: {\n    headline: 'Storm Cleanup — We\\'re Ready to Help',\n    body: 'Severe weather has hit Madison with ' + Math.round(trigger.wind_speed) + ' mph winds. If you have storm damage — fallen branches, debris, or damaged landscaping — TotalGuard offers same-day cleanup for existing customers.',\n    cta: 'Request Storm Cleanup',\n    ctaUrl: 'https://tgyardcare.com/contact'\n  },\n  freeze: {\n    headline: 'Freeze Warning — Protect Your Landscaping',\n    body: 'Temperatures are dropping to ' + Math.round(temp) + 'F in Madison. Protect your plants, irrigation, and landscape investment. We can winterize your property today.',\n    cta: 'Schedule Winterization',\n    ctaUrl: 'https://tgyardcare.com/contact'\n  }\n};\n\nconst block = serviceBlocks[type] || serviceBlocks.storm;\n\nconst results = [];\nfor (const c of customers) {\n  if (!c.email) continue;\n  const firstName = c.first_name || 'Neighbor';\n\n  const html = `<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head><body style=\"margin:0;padding:0;background-color:#1a1a2e;font-family:Arial,sans-serif;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#1a1a2e;padding:20px 0;\"><tr><td align=\"center\"><table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#16213e;border-radius:12px;overflow:hidden;\"><tr><td style=\"background:linear-gradient(135deg,#0f3d0f,#1a5c1a);padding:30px;text-align:center;\"><h1 style=\"color:#f5c518;margin:0;font-size:28px;\">TotalGuard</h1><p style=\"color:#a8d5a8;margin:5px 0 0;font-size:14px;\">Yard Care &amp; Snow Removal</p></td></tr><tr><td style=\"padding:30px;\"><h2 style=\"color:#f5c518;margin:0 0 15px;font-size:22px;\">${block.headline}</h2><p style=\"color:#e0e0e0;font-size:16px;line-height:1.6;margin:0 0 10px;\">Hi ${firstName},</p><p style=\"color:#e0e0e0;font-size:16px;line-height:1.6;margin:0 0 20px;\">${block.body}</p><table cellpadding=\"0\" cellspacing=\"0\" style=\"margin:25px auto;\"><tr><td style=\"background:linear-gradient(135deg,#f5c518,#d4a813);border-radius:8px;padding:14px 32px;\"><a href=\"${block.ctaUrl}\" style=\"color:#1a1a2e;text-decoration:none;font-weight:bold;font-size:16px;\">${block.cta}</a></td></tr></table><p style=\"color:#888;font-size:13px;margin:20px 0 0;\">Current conditions: ${conditions} | ${Math.round(temp)}F</p></td></tr><tr><td style=\"padding:20px 30px;border-top:1px solid #2a2a4a;\"><p style=\"color:#666;font-size:12px;margin:0;text-align:center;\">TotalGuard Yard Care | Madison, WI | (608) 535-6057<br><a href=\"https://tgyardcare.com\" style=\"color:#a8d5a8;\">tgyardcare.com</a></p></td></tr></table></td></tr></table></body></html>`;\n\n  results.push({\n    json: {\n      to_email: c.email,\n      subject: subject,\n      html_body: html,\n      workflow_name: 'TG-56',\n      email_type: 'weather_campaign_' + type,\n      lead_id: c.id,\n      customer_name: firstName\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "build-email",
+      "name": "Build Weather Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "FSRv5y8YzMjpyBtc",
+          "mode": "id"
+        }
+      },
+      "id": "send-email",
+      "name": "Send via TG-95",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1760, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.TG_SUPABASE_URL}}/rest/v1/weather_campaigns",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "event_type",
-              "value": "weather_campaign_skipped"
-            },
-            {
-              "name": "notes",
-              "value": "=No campaign needed. Temp: {{$('Analyze Weather & Select Campaign').first().json.temp}}F, {{$('Analyze Weather & Select Campaign').first().json.condition}}"
-            },
-            {
-              "name": "logged_at",
-              "value": "={{ new Date().toISOString() }}"
-            }
-          ]
-        }
+        "specifyBody": "json",
+        "jsonBody": "={ \"type\": \"{{ $('Analyze Weather Conditions').item.json.type }}\", \"customer_count\": {{ $input.all().length }}, \"conditions\": \"{{ $('Analyze Weather Conditions').item.json.conditions }}\" }"
       },
-      "id": "log-skip",
-      "name": "Log No Campaign",
+      "id": "log-campaign",
+      "name": "Log Campaign",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        880,
-        400
-      ]
+      "position": [1980, 200],
+      "continueOnFail": true
     }
   ],
   "connections": {
-    "Daily 7am CT": {
+    "Every 2 Hours": {
       "main": [
         [
-          {
-            "node": "Fetch Madison Weather",
-            "type": "main",
-            "index": 0
-          }
+          { "node": "Fetch Madison Weather", "type": "main", "index": 0 }
         ]
       ]
     },
     "Fetch Madison Weather": {
       "main": [
         [
-          {
-            "node": "Analyze Weather & Select Campaign",
-            "type": "main",
-            "index": 0
-          }
+          { "node": "Analyze Weather Conditions", "type": "main", "index": 0 }
         ]
       ]
     },
-    "Analyze Weather & Select Campaign": {
+    "Analyze Weather Conditions": {
       "main": [
         [
-          {
-            "node": "Weather Campaign Needed?",
-            "type": "main",
-            "index": 0
-          }
+          { "node": "Check 48h Dedup", "type": "main", "index": 0 }
         ]
       ]
     },
-    "Weather Campaign Needed?": {
+    "Check 48h Dedup": {
       "main": [
         [
-          {
-            "node": "Fetch SMS-Consented Customers",
-            "type": "main",
-            "index": 0
-          }
+          { "node": "Not Already Sent?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Not Already Sent?": {
+      "main": [
+        [
+          { "node": "Telegram Alert", "type": "main", "index": 0 }
         ],
+        []
+      ]
+    },
+    "Telegram Alert": {
+      "main": [
         [
-          {
-            "node": "Log No Campaign",
-            "type": "main",
-            "index": 0
-          }
+          { "node": "Fetch Active Customers", "type": "main", "index": 0 }
         ]
       ]
     },
-    "Fetch SMS-Consented Customers": {
+    "Fetch Active Customers": {
       "main": [
         [
-          {
-            "node": "Send Weather SMS",
-            "type": "main",
-            "index": 0
-          }
+          { "node": "Build Weather Email", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Build Weather Email": {
+      "main": [
+        [
+          { "node": "Send via TG-95", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Send via TG-95": {
+      "main": [
+        [
+          { "node": "Log Campaign", "type": "main", "index": 0 }
         ]
       ]
     }
   },
   "settings": {
-    "availableInMCP": true
+    "executionOrder": "v1"
   }
 }
