@@ -157,9 +157,13 @@ Plans:
   4. Engagement metrics tracked in Supabase
 
 ### Phase 18: GBP Domination
-**Goal**: Google Business Profile fully automated with 3x/week posts, quarterly FAQ rotation, and optimization scoring.
+**Goal**: Google Business Profile fully automated with 3x/week posts, quarterly FAQ rotation, and optimization scoring. GBP API pending verification -- builds manual posting queue via Telegram approval, ready to auto-post when API arrives.
 **Depends on**: Phase 14 (review system)
 **Requirements**: GBP-01 through GBP-05
+**Plans:** 2 plans
+Plans:
+- [ ] 18-01-PLAN.md — TG-133 GBP post generator (AI + Telegram approval) + TG-134 publisher (manual/API dual-mode)
+- [ ] 18-02-PLAN.md — TG-135 quarterly FAQ rotation + TG-136 monthly GBP optimization score
 **Success Criteria**:
   1. GBP posts generated and queued 3x/week (Mon/Wed/Fri)
   2. Seasonal FAQs rotate quarterly with Telegram approval
@@ -167,8 +171,13 @@ Plans:
 
 ### Phase 19: Intelligence Command Center
 **Goal**: Complete business visibility via Telegram — daily briefing, weekly report, real-time alerts for leads/reviews/competitors/system health.
-**Depends on**: All previous phases (aggregates data from all systems)
+**Depends on**: All previous phases (aggregates data from all systems, degrades gracefully)
 **Requirements**: INTL-01 through INTL-06
+**Plans:** 3 plans
+Plans:
+- [ ] 19-01-PLAN.md — TG-137 daily 7 AM briefing + TG-138 Sunday weekly business report
+- [ ] 19-02-PLAN.md — TG-139 real-time lead alert + TG-140 review alert + TG-141 system health monitor
+- [ ] 19-03-PLAN.md — TG-142 weekly competitor monitoring via Google Places API
 **Success Criteria**:
   1. Daily 7 AM Telegram briefing with leads, weather, reviews, SEO, system health
   2. Weekly Sunday report with full business metrics rollup
@@ -179,6 +188,9 @@ Plans:
 **Goal**: Neighbor marketing automation and field marketing crew coordination.
 **Depends on**: Phase 13 (job completion triggers)
 **Requirements**: COMM-01 through COMM-03
+**Plans:** 1 plan
+Plans:
+- [ ] 20-01-PLAN.md — TG-143 neighbor outreach SMS (same-zip leads) + TG-144 crew field marketing reminders + yard sign tracking
 **Success Criteria**:
   1. Job completion triggers outreach to same-zip leads
   2. Crew receives field marketing reminders via Telegram
@@ -197,6 +209,6 @@ Plans:
 | 15. Retention & LTV | M4 | 0/4 | Not Started | - |
 | 16. Content & SEO | M4 | 0/3 | Not Started | - |
 | 17. Social Media | M4 | 0/3 | Not Started | - |
-| 18. GBP Domination | M4 | 0/? | Not Started | - |
-| 19. Intelligence Center | M4 | 0/? | Not Started | - |
-| 20. Community Marketing | M4 | 0/? | Not Started | - |
+| 18. GBP Domination | M4 | 0/2 | Not Started | - |
+| 19. Intelligence Center | M4 | 0/3 | Not Started | - |
+| 20. Community Marketing | M4 | 0/1 | Not Started | - |
