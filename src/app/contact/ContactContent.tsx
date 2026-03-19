@@ -22,6 +22,7 @@ import { validateContactForm } from "@/lib/validation";
 import { ConciergeConfirmation } from "@/components/ConciergeConfirmation";
 import { getServiceTemplate } from "@/lib/serviceTemplates";
 import { AmbientParticles } from "@/components/AmbientParticles";
+import { ContactParticles } from "@/components/ContactParticles";
 
 const seasonalAccent = {
   summer: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', solid: '#10b981', focus: 'focus:border-emerald-500' },
@@ -333,8 +334,9 @@ export default function ContactContent() {
       <TrustStrip variant="dark" />
 
       {/* ── FORM + INFO ── */}
-      <section className="py-16 md:py-24" style={{ background: bg.page }}>
-        <div className="container mx-auto px-4">
+      <section className="relative py-16 md:py-24" style={{ background: bg.page }}>
+        <ContactParticles className="z-0" />
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
 
             {/* Form Column */}
