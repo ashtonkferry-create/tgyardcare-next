@@ -335,7 +335,7 @@ export default function ContactContent() {
 
       {/* ── FORM + INFO ── */}
       <section className="relative py-16 md:py-24" style={{ background: bg.page }}>
-        <ContactParticles className="z-0" />
+        <ContactParticles className="z-20" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
 
