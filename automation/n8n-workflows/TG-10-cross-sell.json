@@ -1,7 +1,5 @@
 {
-  "name": "TG-10-cross-sell",
-  "active": false,
-  "settings": { "executionOrder": "v1" },
+  "name": "TG-10 Cross-Sell Engine",
   "nodes": [
     {
       "parameters": {
@@ -14,124 +12,202 @@
           ]
         }
       },
-      "id": "schedule",
-      "name": "Bi-Monthly 1st 10am CT",
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [0, 300]
     },
     {
       "parameters": {
-        "method": "GET",
-        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads?status=in.(customer,active,converted)&select=id,first_name,email,service",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "in.(customer,active,converted)"
+            },
+            {
+              "name": "select",
+              "value": "id,first_name,last_name,email,phone,service"
+            }
+          ]
+        },
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
-            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+            {
+              "name": "apikey",
+              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+            }
           ]
-        }
+        },
+        "options": {}
       },
       "id": "fetch-customers",
-      "name": "Fetch Customers",
+      "name": "Fetch Customers with Service History",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 300]
+      "position": [260, 300],
+      "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "const crossSellMap = {\n  'mowing':        ['fertilization', 'aeration'],\n  'lawn mowing':   ['fertilization', 'aeration'],\n  'fertilization': ['aeration', 'herbicide'],\n  'aeration':      ['fertilization', 'mulching'],\n  'herbicide':     ['fertilization', 'aeration'],\n  'spring-cleanup':['mulching', 'fertilization'],\n  'spring cleanup':['mulching', 'fertilization'],\n  'fall-cleanup':  ['leaf-removal', 'gutter-cleaning'],\n  'fall cleanup':  ['leaf-removal', 'gutter-cleaning'],\n  'leaf-removal':  ['gutter-cleaning', 'fall-cleanup'],\n  'leaf removal':  ['gutter-cleaning', 'fall-cleanup'],\n  'gutter-cleaning':['gutter-guards', 'fall-cleanup'],\n  'gutter cleaning':['gutter-guards', 'fall-cleanup'],\n  'mulching':      ['garden-bed-care', 'bush-trimming'],\n  'garden-bed-care':['mulching', 'bush-trimming'],\n  'bush-trimming': ['mulching', 'garden-bed-care'],\n  'bush trimming': ['mulching', 'garden-bed-care'],\n  'snow-removal':  ['spring-cleanup', 'gutter-cleaning'],\n  'snow removal':  ['spring-cleanup', 'gutter-cleaning'],\n  'hardscaping':   ['mulching', 'garden-bed-care']\n};\n\nconst formatService = (s) => s.replace(/[-_]/g, ' ').replace(/\\b\\w/g, c => c.toUpperCase());\n\nconst FONT = \"-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif\";\nconst GREEN = '#2D5A27';\nconst GOLD = '#C5A55A';\nconst DARK = '#1a1a2e';\n\nfunction buildCrossSellHtml(name, currentService, rec1, rec2) {\n  const cs = formatService(currentService);\n  const r1 = formatService(rec1);\n  const r2 = formatService(rec2);\n  return `<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head><body style=\"margin:0;padding:0;background:#f4f4f4;font-family:${FONT};\">\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f4f4f4;\"><tr><td align=\"center\" style=\"padding:20px 0;\">\n<table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:600px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);\">\n<!-- Header -->\n<tr><td style=\"background:${GREEN};padding:16px 24px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"font-size:18px;font-weight:700;color:#fff;\">TotalGuard Yard Care</td><td align=\"right\" style=\"font-size:14px;\"><a href=\"tel:+16085356057\" style=\"color:#fff;text-decoration:none;font-weight:600;\">(608) 535-6057</a></td></tr></table></td></tr>\n<!-- Body -->\n<tr><td style=\"padding:32px 32px 16px;\"><h1 style=\"margin:0 0 16px;font-size:22px;color:${GREEN};line-height:1.3;\">Get Even More From Your Property</h1><p style=\"margin:0 0 20px;font-size:15px;color:#333;line-height:1.7;\">Hi ${name},</p><p style=\"margin:0 0 20px;font-size:15px;color:#333;line-height:1.7;\">You already trust us with <strong>${cs}</strong> &mdash; here's how to get even more from your property. Based on what we know about your yard, we think you'd love these services:</p></td></tr>\n<!-- Recommendations -->\n<tr><td style=\"padding:0 32px 16px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f0f8f0;border:2px solid ${GREEN};border-radius:8px;\"><tr><td style=\"padding:20px 24px;\"><p style=\"margin:0 0 4px;font-size:11px;color:${GOLD};text-transform:uppercase;letter-spacing:2px;font-weight:700;\">RECOMMENDED FOR YOU</p><p style=\"margin:8px 0 4px;font-size:16px;font-weight:700;color:${GREEN};\">&bull; ${r1}</p><p style=\"margin:4px 0;font-size:16px;font-weight:700;color:${GREEN};\">&bull; ${r2}</p></td></tr></table></td></tr>\n<!-- CTA -->\n<tr><td style=\"padding:16px 32px 24px;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;\"><tr><td align=\"center\" style=\"border-radius:6px;background:${GREEN};\"><a href=\"https://tgyardcare.com/contact?utm_source=email&utm_medium=cross-sell&utm_campaign=tg10\" style=\"display:block;padding:16px 32px;font-size:16px;font-weight:700;color:#fff;text-decoration:none;border-radius:6px;text-align:center;\">Add a Service</a></td></tr></table></td></tr>\n<!-- Trust Bar -->\n<tr><td style=\"padding:0 32px 24px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:${GREEN};border-radius:6px;\"><tr><td align=\"center\" style=\"padding:14px 16px;font-size:12px;color:#fff;line-height:2;\">&#10003; Licensed &amp; Insured &bull; &#10003; 4.9&#9733; Rating &bull; &#10003; 500+ Properties</td></tr></table></td></tr>\n<!-- Footer -->\n<tr><td style=\"background:${DARK};border-radius:0 0 8px 8px;padding:24px 32px;text-align:center;\"><p style=\"margin:0 0 8px;font-size:16px;font-weight:700;color:#fff;\">TotalGuard Yard Care</p><p style=\"margin:0 0 8px;font-size:13px;color:#999;\">7610 Welton Dr, Madison, WI 53711 &bull; <a href=\"tel:+16085356057\" style=\"color:${GOLD};text-decoration:none;\">(608) 535-6057</a></p><p style=\"margin:8px 0 0;font-size:11px;color:#666;\">You're receiving this because you're a TotalGuard customer. <a href=\"https://tgyardcare.com/unsubscribe\" style=\"color:#999;text-decoration:underline;\">Unsubscribe</a></p></td></tr>\n</table></td></tr></table></body></html>`;\n}\n\nconst customers = $input.all().map(i => i.json);\nconst results = [];\nlet sent = 0;\n\nfor (const c of customers) {\n  if (!c.email || !c.service) continue;\n  const svc = (c.service || '').toLowerCase().trim();\n  const recs = crossSellMap[svc] || ['fertilization', 'aeration'];\n  const rec1 = recs[0];\n  const rec2 = recs[1] || recs[0];\n  const firstName = c.first_name || 'there';\n  const subject = `${firstName}, have you tried ${formatService(rec1)}?`;\n  const html_body = buildCrossSellHtml(firstName, c.service, rec1, rec2);\n\n  results.push({\n    json: {\n      to_email: c.email,\n      subject: subject,\n      html_body: html_body,\n      workflow_name: 'TG-10',\n      email_type: 'cross_sell'\n    }\n  });\n  sent++;\n}\n\nif (results.length === 0) {\n  return [{ json: { _skip: true, reason: 'No eligible customers', _sent_count: 0 } }];\n}\n\n// Append count to last item for Telegram\nresults[results.length - 1].json._sent_count = sent;\nreturn results;"
+        "jsCode": "const customers = $input.all().map(i => i.json);\n\nconst crossSellMap = {\n  'mowing': ['fertilization', 'aeration', 'spring cleanup', 'fall cleanup'],\n  'lawn mowing': ['fertilization', 'aeration', 'spring cleanup', 'fall cleanup'],\n  'lawn care': ['mulching', 'garden bed care', 'bush trimming', 'gutter cleaning'],\n  'fertilization': ['aeration', 'herbicide', 'overseeding'],\n  'aeration': ['fertilization', 'overseeding'],\n  'spring cleanup': ['mulching', 'garden bed care', 'fertilization'],\n  'fall cleanup': ['leaf removal', 'gutter cleaning', 'snow removal'],\n  'mulching': ['garden bed care', 'bush trimming', 'weeding'],\n  'snow removal': ['gutter guard installation', 'gutter cleaning'],\n  'gutter cleaning': ['gutter guard installation'],\n  'hardscaping': ['mulching', 'garden bed care', 'lawn care']\n};\n\nconst results = [];\nfor (const c of customers) {\n  if (!c.email) continue;\n  const currentService = (c.service || '').toLowerCase().trim();\n  const recommendations = crossSellMap[currentService] || ['fertilization', 'aeration'];\n  const topRecs = recommendations.slice(0, 2);\n\n  results.push({\n    json: {\n      lead_id: c.id,\n      first_name: c.first_name || 'Neighbor',\n      email: c.email,\n      current_service: c.service || 'yard care',\n      recommended_services: topRecs,\n      rec1: topRecs[0] || 'fertilization',\n      rec2: topRecs[1] || 'aeration'\n    }\n  });\n}\n\nif (results.length === 0) {\n  return [{ json: { _skip: true, _sent_count: 0 } }];\n}\n\nreturn results;"
       },
-      "id": "analyze-cross-sell",
-      "name": "Analyze Cross-Sell",
+      "id": "analyze-crosssell",
+      "name": "Analyze Cross-Sell Opportunities",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 300]
+      "position": [520, 300]
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
           "conditions": [
             {
+              "id": "filter-has-email",
               "leftValue": "={{ $json._skip }}",
               "rightValue": true,
-              "operator": { "type": "boolean", "operation": "notEquals" }
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
             }
           ],
           "combinator": "and"
-        }
+        },
+        "options": {}
       },
       "id": "filter-skip",
-      "name": "Filter Skipped",
+      "name": "Filter Valid Customers",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2,
-      "position": [660, 300]
+      "position": [740, 300]
     },
     {
       "parameters": {
-        "workflowId": "IUDLrQrAkcLFLsIC"
+        "jsCode": "const items = $input.all();\nconst results = [];\nlet count = 0;\n\nconst formatService = (s) => (s || '').replace(/[-_]/g, ' ').replace(/\\b\\w/g, c => c.toUpperCase());\n\nfor (const item of items) {\n  const d = item.json;\n  const name = d.first_name || 'Neighbor';\n  const currentService = formatService(d.current_service);\n  const rec1 = formatService(d.rec1);\n  const rec2 = formatService(d.rec2);\n\n  const subject = `${name}, have you tried ${rec1}?`;\n\n  const html_body = `<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family:Arial, Helvetica, sans-serif;\">\n  <span style=\"display:none;font-size:0;color:#f4f4f4;\">Level up your yard care with services tailored just for you</span>\n  <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f4f4f4; padding:20px 0;\">\n    <tr>\n      <td align=\"center\">\n        <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#ffffff; border-radius:8px; overflow:hidden;\">\n          <!-- Header -->\n          <tr>\n            <td style=\"background:linear-gradient(135deg, #166534, #15803d); padding:32px 40px; text-align:center;\">\n              <h1 style=\"margin:0; color:#ffffff; font-size:24px; font-weight:700;\">TotalGuard Yard Care</h1>\n              <p style=\"margin:8px 0 0; color:#bbf7d0; font-size:14px;\">Level Up Your Yard Care</p>\n            </td>\n          </tr>\n          <!-- Greeting -->\n          <tr>\n            <td style=\"padding:32px 40px 16px;\">\n              <p style=\"margin:0; font-size:18px; color:#333; font-weight:600;\">Hi ${name},</p>\n              <p style=\"margin:12px 0 0; font-size:15px; line-height:1.6; color:#555;\">You already trust us with <strong>${currentService}</strong> -- here's how to get even more from your property:</p>\n            </td>\n          </tr>\n          <!-- Recommendation 1 -->\n          <tr>\n            <td style=\"padding:0 40px 16px;\">\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f0fdf4; border-radius:8px; border-left:4px solid #166534;\">\n                <tr>\n                  <td style=\"padding:20px 24px;\">\n                    <p style=\"margin:0 0 4px; font-size:13px; color:#166534; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;\">Recommended for You</p>\n                    <p style=\"margin:0 0 8px; font-size:18px; font-weight:700; color:#166534;\">${rec1}</p>\n                    <p style=\"margin:0; font-size:14px; line-height:1.6; color:#555;\">A perfect complement to your ${currentService} service. Many of our customers bundle these together for the best results.</p>\n                  </td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n          <!-- Recommendation 2 -->\n          <tr>\n            <td style=\"padding:0 40px 24px;\">\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#fffbeb; border-radius:8px; border-left:4px solid #d4a017;\">\n                <tr>\n                  <td style=\"padding:20px 24px;\">\n                    <p style=\"margin:0 0 4px; font-size:13px; color:#92400e; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;\">Also Consider</p>\n                    <p style=\"margin:0 0 8px; font-size:18px; font-weight:700; color:#92400e;\">${rec2}</p>\n                    <p style=\"margin:0; font-size:14px; line-height:1.6; color:#555;\">Take your yard to the next level. Ask us about adding this to your service plan.</p>\n                  </td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n          <!-- CTA -->\n          <tr>\n            <td style=\"padding:0 40px 24px;\" align=\"center\">\n              <a href=\"https://tgyardcare.com/contact?utm_source=email&utm_medium=cross-sell&utm_campaign=tg10\" target=\"_blank\" style=\"display:inline-block; background-color:#166534; color:#ffffff; font-size:16px; font-weight:700; text-decoration:none; padding:14px 40px; border-radius:8px;\">Add a Service</a>\n            </td>\n          </tr>\n          <!-- Social Proof -->\n          <tr>\n            <td style=\"padding:0 40px 32px;\">\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#fafafa; border-radius:8px;\">\n                <tr>\n                  <td style=\"padding:16px 24px; text-align:center;\">\n                    <p style=\"margin:0 0 4px; font-size:18px; color:#d4a017;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p>\n                    <p style=\"margin:0; font-size:13px; color:#888;\">4.9 average rating &bull; 500+ properties served &bull; Licensed &amp; insured</p>\n                  </td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n          <!-- Footer -->\n          <tr>\n            <td style=\"background-color:#1a1a2e; padding:24px 40px; text-align:center;\">\n              <p style=\"margin:0 0 8px; font-size:14px; color:#a0a0b0;\">TotalGuard Yard Care</p>\n              <p style=\"margin:0 0 8px; font-size:14px; color:#a0a0b0;\">Madison, WI &bull; (608) 535-6057</p>\n              <p style=\"margin:0; font-size:12px; color:#666680;\">You received this because you are a valued TotalGuard customer.</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>`;\n\n  results.push({\n    json: {\n      to_email: d.email,\n      subject,\n      html_body,\n      workflow_name: 'TG-10',\n      email_type: 'cross_sell'\n    }\n  });\n  count++;\n}\n\nif (results.length > 0) {\n  results[results.length - 1].json._sent_count = count;\n}\n\nreturn results;"
       },
-      "id": "send-via-tg95",
+      "id": "build-email",
+      "name": "Build Cross-Sell Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "FSRv5y8YzMjpyBtc"
+      },
+      "id": "send-email",
       "name": "Send via TG-95",
       "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1,
-      "position": [880, 300]
+      "typeVersion": 1.1,
+      "position": [1200, 300]
     },
     {
       "parameters": {
         "chatId": "OWNER_TELEGRAM_CHAT_ID",
-        "text": "=\ud83d\udce6 TG-10 Cross-Sell Complete\n\nCustomers queried: {{ $('Fetch Customers').all().length }}\nEmails sent: {{ $('Analyze Cross-Sell').all().filter(i => !i.json._skip).length }}\nSchedule: Bi-monthly (1st of Jan/Mar/May/Jul/Sep/Nov)",
-        "additionalFields": {}
+        "text": "=**TG-10 Cross-Sell Campaign Complete**\n\nEmails sent: {{ $json._sent_count || 0 }}\nSchedule: Bi-monthly (1st of Jan/Mar/May/Jul/Sep/Nov)\nNext run: 1st of next odd month at 10am CT",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
       },
       "id": "telegram-summary",
       "name": "Telegram Summary",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [1100, 300],
+      "position": [1440, 300],
       "credentials": {
         "telegramApi": {
           "id": "V404qLIDXjmyzNeS",
-          "name": "Telegram account"
+          "name": "Telegram"
         }
       }
     }
   ],
   "connections": {
-    "Bi-Monthly 1st 10am CT": {
+    "Schedule Trigger": {
       "main": [
         [
-          { "node": "Fetch Customers", "type": "main", "index": 0 }
+          {
+            "node": "Fetch Customers with Service History",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
-    "Fetch Customers": {
+    "Fetch Customers with Service History": {
       "main": [
         [
-          { "node": "Analyze Cross-Sell", "type": "main", "index": 0 }
+          {
+            "node": "Analyze Cross-Sell Opportunities",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
-    "Analyze Cross-Sell": {
+    "Analyze Cross-Sell Opportunities": {
       "main": [
         [
-          { "node": "Filter Skipped", "type": "main", "index": 0 }
+          {
+            "node": "Filter Valid Customers",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
-    "Filter Skipped": {
+    "Filter Valid Customers": {
       "main": [
         [
-          { "node": "Send via TG-95", "type": "main", "index": 0 }
+          {
+            "node": "Build Cross-Sell Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Cross-Sell Email": {
+      "main": [
+        [
+          {
+            "node": "Send via TG-95",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
     "Send via TG-95": {
       "main": [
         [
-          { "node": "Telegram Summary", "type": "main", "index": 0 }
+          {
+            "node": "Telegram Summary",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     }
-  }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
 }
