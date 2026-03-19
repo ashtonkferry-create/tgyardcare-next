@@ -64,10 +64,10 @@ function seeded(i: number, offset: number) {
 }
 
 const DENSITY_COUNTS: Record<Density, { orbs: number; dots: number; sparkles: number }> = {
-  sparse: { orbs: 2, dots: 12, sparkles: 8 },
-  normal: { orbs: 3, dots: 18, sparkles: 12 },
-  dense: { orbs: 4, dots: 24, sparkles: 16 },
-  ultra: { orbs: 5, dots: 48, sparkles: 32 },
+  sparse: { orbs: 3, dots: 28, sparkles: 18 },
+  normal: { orbs: 4, dots: 36, sparkles: 24 },
+  dense: { orbs: 5, dots: 48, sparkles: 32 },
+  ultra: { orbs: 6, dots: 64, sparkles: 42 },
 };
 
 export function AmbientParticles({ density = 'normal', className = '' }: Props) {
