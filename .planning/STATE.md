@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 17 of 20 (Social Media Machine)
-Plan: 2 of 3 in Phase 17
-Status: In progress
-Last activity: 2026-03-19 — Completed 17-02-PLAN.md (review-to-social pipeline)
+Plan: 3 of 3 in Phase 17 -- PHASE COMPLETE
+Status: Phase 17 complete
+Last activity: 2026-03-19 — Completed 17-03-PLAN.md (daily publisher + engagement tracker)
 
-Progress M4: [███████████████████████░░░░░░░░░] 30/62 requirements (Phase 17 in progress)
+Progress M4: [████████████████████████░░░░░░░░] 31/62 requirements (Phase 17 COMPLETE)
 Progress M3: [████████████████████████████████] 36/36 plans (COMPLETE)
 Progress M2: [█████████████████████████████████] 34/34 plans (COMPLETE)
 
@@ -27,7 +27,7 @@ Progress M2: [██████████████████████
 - M4 Phase 14: 2 plans complete (14-01 review request, 14-02 review monitoring + response pipeline)
 - M4 Phase 15: 4 plans complete (15-01 referral, 15-02 loyalty, 15-03 winback, 15-04 newsletter + cross-sell) -- PHASE COMPLETE
 - M4 Phase 16: 3 plans complete (16-01 content generation, 16-02 rank monitoring, 16-03 content refresh) -- PHASE COMPLETE
-- M4 Phase 17: 2 plans complete (17-01 content batch generator, 17-02 review-to-social pipeline)
+- M4 Phase 17: 3 plans complete (17-01 content batch generator, 17-02 review-to-social pipeline, 17-03 daily publisher + engagement tracker) -- PHASE COMPLETE
 
 ## Accumulated Context
 
