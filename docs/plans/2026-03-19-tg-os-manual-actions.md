@@ -4,6 +4,15 @@
 
 ---
 
+## CRITICAL: FACEBOOK IS HACKED
+- Facebook business page (`/totalguardyard/`) is compromised
+- Do NOT post to or interact with Facebook until resolved
+- Options: (1) Recover the page via Facebook support, (2) Create a new page
+- Once resolved, update all codebase references if the URL changes
+- Upload-Post: connect all platforms EXCEPT Facebook
+
+---
+
 ## PRIORITY 1: IMMEDIATE (Do First)
 
 ### 1. Verify Twilio A2P 10DLC Campaign
