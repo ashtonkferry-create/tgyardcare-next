@@ -18,6 +18,7 @@ import { GlassCard } from '@/components/GlassCard';
 import { TrustStrip } from '@/components/TrustStrip';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
 import { cn } from '@/lib/utils';
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 function imgSrc(img: string | { src: string }): string {
   return typeof img === 'string' ? img : img.src;
@@ -147,7 +148,8 @@ export default function CommercialPropertyEnhancementContent() {
   const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen text-white" style={{ background: bg.page }}>
+    <div className="min-h-screen text-white relative isolate" style={{ background: bg.page }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <BreadcrumbSchema items={[
         { name: 'Home', url: 'https://tgyardcare.com' },
         { name: 'Commercial', url: 'https://tgyardcare.com/commercial' },

@@ -16,6 +16,7 @@ import { TrustStrip } from '@/components/TrustStrip';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
 import { cn } from '@/lib/utils';
+import { AmbientParticles } from "@/components/AmbientParticles";
 import {
   Building2,
   Store,
@@ -218,7 +219,8 @@ export default function CommercialContent() {
   const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen text-white" style={{ background: bg.page }}>
+    <div className="min-h-screen text-white relative isolate" style={{ background: bg.page }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <BreadcrumbSchema items={[
         { name: 'Home', url: 'https://tgyardcare.com' },
         { name: 'Commercial Services', url: 'https://tgyardcare.com/commercial' }

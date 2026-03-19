@@ -9,6 +9,7 @@ import { ScrollProgress } from "@/components/ScrollProgress";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { GlassCard } from "@/components/GlassCard";
 import { TrustStrip } from "@/components/TrustStrip";
+import { AmbientParticles } from "@/components/AmbientParticles";
 import { ResidentialProblemSection, ResidentialSolutionSection } from "@/components/ResidentialSections";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,7 +51,8 @@ const faqs = [
 // ---------------------------------------------------------------------------
 export default function HardscapingContent() {
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#052e16' }}>
+    <div className="min-h-screen flex flex-col relative isolate" style={{ background: '#052e16' }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <BreadcrumbSchema items={[
         { name: 'Home', url: 'https://tgyardcare.com' },
         { name: 'Services', url: 'https://tgyardcare.com/services' },

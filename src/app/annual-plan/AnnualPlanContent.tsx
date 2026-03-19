@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import AnnualPlanConfigurator from '@/components/AnnualPlanConfigurator';
 import { WebPageSchema } from '@/components/schemas/WebPageSchema';
 import { motion } from 'framer-motion';
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 const TRUST_ITEMS = [
   { label: '4.9★ Google Rating' },
@@ -36,7 +37,8 @@ const PARTICLES = [
 
 export default function AnnualPlanContent() {
   return (
-    <div className="min-h-screen" style={{ background: '#052e16' }}>
+    <div className="relative isolate min-h-screen" style={{ background: '#052e16' }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <WebPageSchema
         name="Build Your Custom Annual Lawn Care Plan"
         description="Toggle lawn care services by season, see your price instantly, and lock in an annual plan with TotalGuard Yard Care."

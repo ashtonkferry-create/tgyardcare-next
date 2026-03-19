@@ -6,6 +6,7 @@ import SmartQuoteFlow from '@/components/SmartQuoteFlow';
 import { ContactPageSchema } from '@/components/schemas/ContactPageSchema';
 import { WebPageSchema } from '@/components/schemas/WebPageSchema';
 import { BreadcrumbSchema } from '@/components/schemas/BreadcrumbSchema';
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 export default function GetQuoteContent() {
   const [mounted, setMounted] = useState(false);
@@ -15,7 +16,8 @@ export default function GetQuoteContent() {
   }, []);
 
   return (
-    <div className="min-h-screen" style={{ background: '#052e16' }}>
+    <div className="relative isolate min-h-screen" style={{ background: '#052e16' }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <ContactPageSchema />
       <WebPageSchema
         name="Get a Free Quote"

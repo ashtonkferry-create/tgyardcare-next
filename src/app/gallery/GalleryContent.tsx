@@ -14,6 +14,7 @@ import { ImageLightbox } from '@/components/ImageLightbox';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
 import { galleryImages, categories, resolveImageSrc, type GalleryCategory } from '@/lib/galleryData';
 import { cn } from '@/lib/utils';
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 const seasonalAccent = {
   summer: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', solid: '#10b981' },
@@ -78,7 +79,8 @@ export default function GalleryContent() {
   const isBeforeAfter = (img: { category: string }) => img.category === 'before-after';
 
   return (
-    <div className="min-h-screen text-white" style={{ background: bg.page }}>
+    <div className="relative isolate min-h-screen text-white" style={{ background: bg.page }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <GallerySchema images={galleryImages.filter(img => typeof img.src === 'string').map(img => ({ url: img.src as string, caption: img.title || '' }))} />
       <WebPageSchema name="Work Gallery" description="Before and after photos of our lawn care work in Madison, WI" url="/gallery" />
       <Navigation />

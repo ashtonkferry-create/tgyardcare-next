@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { WebPageSchema } from '@/components/schemas/WebPageSchema';
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 const POSTS_PER_PAGE = 9;
 
@@ -148,7 +149,8 @@ export default function BlogContent() {
   }, [currentPage, activeCategory]);
 
   return (
-    <div className="min-h-screen" style={{ background: '#052e16' }}>
+    <div className="relative isolate min-h-screen" style={{ background: '#052e16' }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <WebPageSchema
         name="Blog"
         description="Lawn care tips and guides for Madison homeowners"

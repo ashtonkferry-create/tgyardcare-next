@@ -25,6 +25,7 @@ import {
   herbicideFAQs,
   snowRemovalFAQs,
 } from "@/data/serviceFAQs";
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 // Collect top FAQs for schema (first 2 from each category for rich results)
 const allFAQsForSchema = [
@@ -97,7 +98,8 @@ export default function FAQContent() {
   const totalFAQs = filteredCategories.reduce((sum, cat) => sum + cat.faqs.length, 0);
 
   return (
-    <div className="min-h-screen" style={{ background: '#052e16' }}>
+    <div className="relative isolate min-h-screen" style={{ background: '#052e16' }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildFAQPageSchema(allFAQsForSchema)) }} />
       <WebPageSchema name="Frequently Asked Questions" description="Common questions about lawn care services in Madison, WI" url="/faq" />
       <Navigation showPromoBanner />

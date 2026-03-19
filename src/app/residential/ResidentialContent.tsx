@@ -34,6 +34,7 @@ import pruningImage from "@/assets/service-pruning.jpg";
 import gardenBedsImage from "@/assets/service-mulching.jpg";
 import aerationImage from "@/assets/hero-aeration.jpg";
 import { sortServicesBySeason } from "@/lib/seasonalServices";
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 function imgSrc(img: string | { src: string }): string {
   return typeof img === 'string' ? img : img.src;
@@ -117,7 +118,8 @@ export default function ResidentialContent() {
   const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen text-white" style={{ background: bg.page }}>
+    <div className="relative isolate min-h-screen text-white" style={{ background: bg.page }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <ScrollProgress variant="minimal" />
 
       <ItemListSchema items={[

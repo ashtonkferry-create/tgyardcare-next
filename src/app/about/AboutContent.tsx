@@ -16,6 +16,7 @@ import {
 import { AboutPageSchema } from '@/components/schemas/AboutPageSchema';
 import { WebPageSchema } from '@/components/schemas/WebPageSchema';
 import Link from "next/link";
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 // Seasonal color tokens
 const seasonalAccent = {
@@ -108,7 +109,8 @@ export default function AboutContent() {
   const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen text-white" style={{ background: bg.page }}>
+    <div className="relative isolate min-h-screen text-white" style={{ background: bg.page }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <AboutPageSchema />
       <WebPageSchema name="About TotalGuard Yard Care" description="Learn about Madison's most reliable yard care company" url="/about" type="AboutPage" />
       <Navigation showPromoBanner />

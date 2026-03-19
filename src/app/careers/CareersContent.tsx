@@ -28,6 +28,7 @@ import {
   Handshake,
   Calendar
 } from "lucide-react";
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 const openPositions = [
   {
@@ -190,7 +191,8 @@ export default function CareersContent() {
   const careersContactUrl = "/contact?service=careers";
 
   return (
-    <div className="min-h-screen" style={{ background: '#052e16' }}>
+    <div className="relative isolate min-h-screen" style={{ background: '#052e16' }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <JobPostingSchema title="Lawn Care Technician" description="Join the TotalGuard team as a lawn care technician. Perform mowing, trimming, mulching, and seasonal cleanup services for residential and commercial properties in the Madison, WI area." datePosted="2026-01-15" />
       <JobPostingSchema title="Crew Leader" description="Lead a team of lawn care professionals at TotalGuard Yard Care. Manage daily routes, ensure quality standards, and deliver exceptional service to our clients in Dane County." datePosted="2026-01-15" />
       <WebPageSchema name="Careers at TotalGuard Yard Care" description="Join Madison's most reliable yard care team" url="/careers" />

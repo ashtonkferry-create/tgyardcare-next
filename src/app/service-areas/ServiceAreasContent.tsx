@@ -11,6 +11,7 @@ import { MapPin, CheckCircle2, Phone, Star, ArrowRight, Sparkles, Award, Scissor
 import { type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 const ServiceAreaMap = dynamic(
   () => import('@/components/ServiceAreaMap').then((m) => m.ServiceAreaMap),
@@ -60,7 +61,8 @@ const areaFeatures = [
 
 export default function ServiceAreasContent() {
   return (
-    <div className="min-h-screen" style={{ background: '#052e16' }}>
+    <div className="relative isolate min-h-screen" style={{ background: '#052e16' }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <ItemListSchema items={[
         { name: 'Madison', url: 'https://tgyardcare.com/locations/madison', position: 1 },
         { name: 'Middleton', url: 'https://tgyardcare.com/locations/middleton', position: 2 },

@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validateContactForm } from "@/lib/validation";
 import { ConciergeConfirmation } from "@/components/ConciergeConfirmation";
 import { getServiceTemplate } from "@/lib/serviceTemplates";
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 const seasonalAccent = {
   summer: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', solid: '#10b981', focus: 'focus:border-emerald-500' },
@@ -249,7 +250,8 @@ export default function ContactContent() {
     } rounded-lg`;
 
   return (
-    <div className="min-h-screen text-white" style={{ background: bg.page }}>
+    <div className="relative isolate min-h-screen text-white" style={{ background: bg.page }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <ContactPageSchema />
       <WebPageSchema name="Contact TotalGuard Yard Care" description="Get in touch for a free lawn care quote in Madison, WI" url="/contact" type="ContactPage" />
       <Navigation />

@@ -24,6 +24,7 @@ import {
   Droplets
 } from "lucide-react";
 import heroImage from "@/assets/service-gutter.jpg";
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 function imgSrc(img: string | { src: string }): string {
   return typeof img === 'string' ? img : img.src;
@@ -77,7 +78,8 @@ const whyChooseUs = [
 
 export default function GutterCleaningMadisonContent() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative isolate min-h-screen bg-background">
+      <AmbientParticles density="sparse" className="-z-10" />
       <ScrollProgress variant="minimal" />
 
       <ServicePageSchemas slug="gutter-cleaning" faqs={faqs} />

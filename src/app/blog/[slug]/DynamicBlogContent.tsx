@@ -14,6 +14,7 @@ import SocialShareButtons from '@/components/blog/SocialShareButtons';
 import RelatedPosts from '@/components/blog/RelatedPosts';
 import PostNavigation from '@/components/blog/PostNavigation';
 import LeadMagnetCTA from '@/components/LeadMagnetCTA';
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 interface DynamicBlogContentProps {
   title: string;
@@ -80,7 +81,8 @@ export default function DynamicBlogContent({
     CATEGORY_NAMES[category] || category.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
   return (
-    <div className="min-h-screen" style={{ background: '#052e16' }}>
+    <div className="relative isolate min-h-screen" style={{ background: '#052e16' }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <ArticleSchema
         title={title}
         description={meta_description}

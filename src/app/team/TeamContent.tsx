@@ -18,6 +18,7 @@ import { WebPageSchema } from "@/components/schemas/WebPageSchema";
 import { BreadcrumbSchema } from "@/components/schemas/BreadcrumbSchema";
 import alexPortrait from "@/assets/alex-portrait.png";
 import vancePortrait from "@/assets/vance-portrait.png";
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 const seasonalAccent = {
   summer: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', solid: '#10b981', glow: 'shadow-emerald-500/25' },
@@ -84,7 +85,8 @@ export default function TeamContent() {
   const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen text-white" style={{ background: bg.page }}>
+    <div className="relative isolate min-h-screen text-white" style={{ background: bg.page }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <AboutPageSchema />
       <WebPageSchema name="Our Team" description="Meet the TotalGuard Yard Care team, locally owned lawn care in Madison, WI since 2023" url="/team" />
       <BreadcrumbSchema items={[

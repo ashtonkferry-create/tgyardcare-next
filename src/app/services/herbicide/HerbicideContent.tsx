@@ -25,6 +25,7 @@ import { useState } from 'react';
 import SmartQuoteFlow from '@/components/SmartQuoteFlow';
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { cn } from '@/lib/utils';
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 function imgSrc(img: string | { src: string }): string {
   return typeof img === 'string' ? img : img.src;
@@ -37,7 +38,8 @@ export default function HerbicideContent() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#052e16' }}>
+    <div className="min-h-screen flex flex-col relative isolate" style={{ background: '#052e16' }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <BreadcrumbSchema items={[
         { name: 'Home', url: 'https://tgyardcare.com' },
         { name: 'Services', url: 'https://tgyardcare.com/services' },

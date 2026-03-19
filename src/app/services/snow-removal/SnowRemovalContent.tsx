@@ -25,6 +25,7 @@ import SmartQuoteFlow from '@/components/SmartQuoteFlow';
 import { MOBILE_ORDER } from '@/components/mobile/MobileSectionOrder';
 import { MobilePricingPreview } from '@/components/mobile/MobilePricingPreview';
 import { cn } from '@/lib/utils';
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 function imgSrc(img: string | { src: string }): string {
   return typeof img === 'string' ? img : img.src;
@@ -59,7 +60,8 @@ export default function SnowRemovalContent() {
       <ServicePageSchemas slug="snow-removal" faqs={snowRemovalFAQs} />
       <WebPageSchema name="Snow Removal Services" description="Professional snow and ice removal in Madison and Dane County WI" url="/services/snow-removal" />
 
-      <div className="min-h-screen flex flex-col" style={{ background: '#020810' }}>
+      <div className="min-h-screen flex flex-col relative isolate" style={{ background: '#020810' }}>
+        <AmbientParticles density="sparse" className="-z-10" />
         <Navigation />
 
         {/* TL;DR for AI/Answer Engines */}

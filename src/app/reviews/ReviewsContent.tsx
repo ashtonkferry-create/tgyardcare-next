@@ -11,6 +11,7 @@ import { ScrollReveal } from '@/components/ScrollReveal';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
 import Link from "next/link";
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 const seasonalAccent = {
   summer: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', solid: '#10b981' },
@@ -64,7 +65,8 @@ export default function ReviewsContent() {
   const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen text-white" style={{ background: bg.page }}>
+    <div className="relative isolate min-h-screen text-white" style={{ background: bg.page }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <ReviewPageSchema />
       <WebPageSchema name="Customer Reviews" description="Read what Madison homeowners say about TotalGuard Yard Care" url="/reviews" />
       <Navigation />

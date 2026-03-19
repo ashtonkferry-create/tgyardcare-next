@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Calendar, ArrowRight, Clock, ArrowLeft, Leaf, Droplets, TreePine, Snowflake, Scissors } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WebPageSchema } from "@/components/schemas/WebPageSchema";
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 interface BlogPost {
   id: string;
@@ -61,7 +62,8 @@ export default function CategoryContent({ category, categoryName, posts }: Categ
   const description = CATEGORY_DESCRIPTIONS[category] || '';
 
   return (
-    <div className="min-h-screen" style={{ background: '#052e16' }}>
+    <div className="relative isolate min-h-screen" style={{ background: '#052e16' }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <WebPageSchema
         name={`${categoryName} - Blog`}
         description={description}

@@ -21,6 +21,7 @@ import { useLocationBySlug, useLocationServices } from '@/hooks/useLocations';
 import { useFAQsByLocation } from '@/hooks/useFAQs';
 import { useReviewsByLocation } from '@/hooks/useReviews';
 import heroImage from '@/assets/hero-lawn.jpg';
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 function imgSrc(img: string | { src: string }): string {
   return typeof img === 'string' ? img : img.src;
@@ -61,7 +62,8 @@ export function LocationPageFromDB({ slug: propSlug }: LocationPageFromDBProps) 
   const cityName = location.name;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative isolate min-h-screen bg-background">
+      <AmbientParticles density="sparse" className="-z-10" />
       <ScrollProgress variant="minimal" />
 
       {/* SEO metadata handled by page.tsx server component */}

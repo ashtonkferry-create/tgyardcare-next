@@ -12,6 +12,7 @@ import CTASection from '@/components/CTASection';
 import { GlassCard } from '@/components/GlassCard';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { TrustStrip } from '@/components/TrustStrip';
+import { AmbientParticles } from "@/components/AmbientParticles";
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
 import {
   ArrowRight, Scissors, Trees, Sparkles, Leaf, Trash2, CloudRain,
@@ -134,7 +135,8 @@ export default function ServicesContent() {
   const bg = seasonalBg[activeSeason];
 
   return (
-    <div className="min-h-screen text-white" style={{ background: bg.page }}>
+    <div className="min-h-screen text-white relative isolate" style={{ background: bg.page }}>
+      <AmbientParticles density="sparse" className="-z-10" />
       <ScrollProgress variant="minimal" />
 
       <BreadcrumbSchema items={[
