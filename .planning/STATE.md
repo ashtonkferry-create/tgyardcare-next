@@ -103,6 +103,13 @@ Progress M2: [██████████████████████
 - [M4 Phase 15]: TG-32 seasonal router deployed (n8n ID: 2kXMNdKdLW9l0m40), 1st of month 9am CT, routes March/Sept/Nov
 - [M4 Phase 15]: TG-14 spring deployed (nAYg8H9q6kqhtGbT), TG-15 fall (RRym6KRyPue6GABC), TG-16 snow (EUZtUKUAHDMUfgmi)
 - [M4 Phase 15]: Seasonal campaigns use FSRv5y8YzMjpyBtc (canonical TG-95), n8n POST /activate works
+- [M4 Phase 15]: TG-81 monthly newsletter rebuilt — 8 nodes, 15th of month, 12 seasonal tips, review spotlight
+- [M4 Phase 15]: TG-81 deployed (n8n ID: dk884SJOQYXVUL7b), active
+- [M4 Phase 15]: TG-10 cross-sell engine rebuilt — 7 nodes, bi-monthly, 11-service cross-sell map
+- [M4 Phase 15]: TG-10 deployed (n8n ID: 5DYd0WpgnHJVLA21), active
+- [M4 Phase 15]: Newsletter uses TG-95 per-recipient; recommend Brevo campaigns if customer count exceeds 100
+- [M4 Phase 15]: n8n API PUT requires removing 'active' field from body (read-only field causes 400)
+- [M4 Phase 15]: Two TG-95 copies exist — FSRv5y8YzMjpyBtc (canonical) and IUDLrQrAkcLFLsIC (old copy, also active)
 
 ### Pending Todos
 
@@ -130,6 +137,10 @@ Progress M2: [██████████████████████
 - Ensure TG_OPENWEATHER_API_KEY n8n variable is set for TG-56 weather checks
 - Create weather_campaigns table in Supabase (see 15-03-SUMMARY.md for SQL)
 - Add winback_sent_at column to leads table: `ALTER TABLE leads ADD COLUMN IF NOT EXISTS winback_sent_at timestamptz;`
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-81 Telegram Summary node with Vance's actual Telegram chat ID
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-10 Telegram Summary node with Vance's actual Telegram chat ID
+- Set SUPABASE_ANON_KEY_PLACEHOLDER in TG-81 (Fetch 5-Star Review + Fetch Active Customers, 4 occurrences)
+- Set SUPABASE_ANON_KEY_PLACEHOLDER in TG-10 (Fetch Customers, 2 occurrences)
 
 ### Blockers/Concerns
 
@@ -143,6 +154,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 15-03-PLAN.md (weather campaigns + win-back engine)
+Stopped at: Completed 15-04-PLAN.md (monthly newsletter + cross-sell engine) -- Phase 15 COMPLETE
 Resume file: None
-Next: Continue Phase 15 remaining plans
+Next: Phase 16 planning
