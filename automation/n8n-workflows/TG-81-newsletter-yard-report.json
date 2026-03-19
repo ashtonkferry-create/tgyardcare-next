@@ -1,7 +1,5 @@
 {
-  "name": "TG-81-newsletter-yard-report",
-  "active": false,
-  "settings": { "executionOrder": "v1" },
+  "name": "TG-81 Monthly Newsletter",
   "nodes": [
     {
       "parameters": {
@@ -14,167 +12,261 @@
           ]
         }
       },
-      "id": "schedule",
-      "name": "Monthly 15th 10am CT",
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [0, 300]
     },
     {
       "parameters": {
-        "jsCode": "const now = new Date();\nconst month = now.getMonth() + 1;\nconst MONTHS = [\n  { name: 'January',   season: 'Winter',        tip: 'Avoid walking on frozen grass. Plan spring care now.',                    upsell: 'Snow Removal' },\n  { name: 'February',  season: 'Late Winter',    tip: 'Test soil pH before the thaw. Start planning spring cleanup.',             upsell: 'Spring Cleanup' },\n  { name: 'March',     season: 'Early Spring',   tip: 'Time for spring cleanup! Remove debris before new growth.',                upsell: 'Fertilization' },\n  { name: 'April',     season: 'Spring',         tip: 'Mow at 3-3.5 inches. Apply pre-emergent before soil hits 55F.',          upsell: 'Herbicide Services' },\n  { name: 'May',       season: 'Late Spring',    tip: 'May is peak mulching season. Edge beds for a crisp, polished look.',      upsell: 'Mulching' },\n  { name: 'June',      season: 'Early Summer',   tip: 'Raise mower to 4 inches. Mulch beds to retain moisture.',                 upsell: 'Mulching' },\n  { name: 'July',      season: 'Summer',         tip: 'Water deeply 2-3x/week, early morning only. Watch for brown patch.',      upsell: 'Fertilization' },\n  { name: 'August',    season: 'Late Summer',    tip: 'Book September aeration now. Start reducing watering frequency.',         upsell: 'Aeration' },\n  { name: 'September', season: 'Early Fall',     tip: 'Fall is BEST time to fertilize. Cool nights + warm soil.',                upsell: 'Fall Fertilization' },\n  { name: 'October',   season: 'Fall',           tip: 'Lower final mow height to 2.5 inches. Remove leaves weekly.',            upsell: 'Leaf Removal' },\n  { name: 'November',  season: 'Late Fall',      tip: 'Final leaf cleanup before snow. Consider gutter guards.',                 upsell: 'Gutter Cleaning' },\n  { name: 'December',  season: 'Early Winter',   tip: 'Avoid salt damage to lawn edges. Rest your lawn.',                        upsell: 'Snow Removal' }\n];\nconst m = MONTHS[month - 1];\nreturn [{ json: { monthName: m.name, season: m.season, tip: m.tip, upsell: m.upsell, month } }];"
+        "jsCode": "const month = new Date().getMonth() + 1;\nconst monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];\nconst monthName = monthNames[month - 1];\n\nconst seasonalContent = {\n  1: { season: 'Winter', tip: 'Avoid walking on frozen grass -- it damages the crown. Plan your spring lawn care now for early booking discounts.', upsell: 'Snow Removal' },\n  2: { season: 'Late Winter', tip: 'Start planning spring cleanup. Test your soil pH -- we can help interpret results and recommend amendments.', upsell: 'Spring Cleanup' },\n  3: { season: 'Early Spring', tip: 'Time for spring cleanup! Remove debris and thatch before new growth starts. Early fertilization sets up success.', upsell: 'Fertilization' },\n  4: { season: 'Spring', tip: 'Begin mowing at 3-3.5 inches. Don\\'t cut more than 1/3 of blade height. Aerate compacted areas now.', upsell: 'Aeration & Overseeding' },\n  5: { season: 'Late Spring', tip: 'Apply pre-emergent herbicide before crabgrass germinates. Water deeply but infrequently -- 1 inch per week.', upsell: 'Herbicide Treatment' },\n  6: { season: 'Early Summer', tip: 'Raise mower height to 4 inches during heat. Mulch garden beds to retain moisture and suppress weeds.', upsell: 'Mulching' },\n  7: { season: 'Summer', tip: 'Water early morning to reduce evaporation. Watch for grub damage -- brown patches that pull up easily.', upsell: 'Lawn Care' },\n  8: { season: 'Late Summer', tip: 'Best time for overseeding thin lawns. Core aerate first for best seed-to-soil contact.', upsell: 'Aeration & Overseeding' },\n  9: { season: 'Early Fall', tip: 'Fall is the BEST time to fertilize. Cool nights + warm soil = maximum root growth. Aerate and overseed now.', upsell: 'Fall Fertilization' },\n  10: { season: 'Fall', tip: 'Keep leaves off your lawn -- they block sunlight and trap moisture. Last mow should be at 2.5 inches.', upsell: 'Fall Cleanup & Leaf Removal' },\n  11: { season: 'Late Fall', tip: 'Winterize irrigation systems. Clean gutters before freeze. Apply final winterizer fertilizer.', upsell: 'Gutter Cleaning' },\n  12: { season: 'Early Winter', tip: 'Avoid salt damage to lawn edges. Mark sprinkler heads before snow covers them. Rest your lawn.', upsell: 'Snow Removal' }\n};\n\nconst content = seasonalContent[month];\nreturn [{ json: { monthName, ...content } }];"
       },
       "id": "month-context",
       "name": "Determine Month Context",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 300]
+      "position": [280, 300]
     },
     {
       "parameters": {
-        "method": "GET",
-        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_reviews?rating=eq.5&select=author_name,review_text&order=created_at.desc&limit=3",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/reviews",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "rating",
+              "value": "eq.5"
+            },
+            {
+              "name": "select",
+              "value": "author_name,text"
+            },
+            {
+              "name": "order",
+              "value": "created_at.desc"
+            },
+            {
+              "name": "limit",
+              "value": "5"
+            }
+          ]
+        },
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
-            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+            {
+              "name": "apikey",
+              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+            }
           ]
-        }
+        },
+        "options": {}
       },
       "id": "fetch-review",
       "name": "Fetch 5-Star Review",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 150]
+      "position": [280, 80],
+      "continueOnFail": true
     },
     {
       "parameters": {
-        "method": "GET",
-        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads?status=in.(customer,active,converted)&email=not.is.null&select=id,first_name,email",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "in.(customer,active,converted)"
+            },
+            {
+              "name": "email",
+              "value": "not.is.null"
+            },
+            {
+              "name": "select",
+              "value": "id,first_name,email"
+            }
+          ]
+        },
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "={{$vars.TG_SUPABASE_ANON_KEY}}" },
-            { "name": "Authorization", "value": "=Bearer {{$vars.TG_SUPABASE_SERVICE_KEY}}" }
+            {
+              "name": "apikey",
+              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+            }
           ]
-        }
+        },
+        "options": {}
       },
       "id": "fetch-customers",
       "name": "Fetch Active Customers",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 450]
+      "position": [280, 520],
+      "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "const ctx = $('Determine Month Context').first().json;\nconst reviews = $('Fetch 5-Star Review').all().map(i => i.json);\nconst customers = $('Fetch Active Customers').all().map(i => i.json);\n\nconst review = reviews[0] || { author_name: 'A Happy Customer', review_text: 'TotalGuard does amazing work. Highly recommend!' };\n\nconst FONT = \"-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif\";\nconst GREEN = '#2D5A27';\nconst GOLD = '#C5A55A';\nconst DARK = '#1a1a2e';\n\nfunction buildNewsletter(firstName) {\n  return `<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head><body style=\"margin:0;padding:0;background:#f4f4f4;font-family:${FONT};\">\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f4f4f4;\"><tr><td align=\"center\" style=\"padding:20px 0;\">\n<table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:600px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);\">\n<!-- Header -->\n<tr><td style=\"background:${GREEN};padding:16px 24px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"font-size:18px;font-weight:700;color:#fff;\">TotalGuard Yard Care</td><td align=\"right\" style=\"font-size:14px;\"><a href=\"tel:+16085356057\" style=\"color:#fff;text-decoration:none;font-weight:600;\">(608) 535-6057</a></td></tr><tr><td colspan=\"2\" align=\"center\" style=\"padding-top:8px;font-size:12px;color:${GOLD};letter-spacing:1.5px;text-transform:uppercase;font-weight:600;\">Madison's Most Trusted Yard Care</td></tr></table></td></tr>\n<!-- Hero -->\n<tr><td style=\"background:linear-gradient(135deg,${GREEN} 0%,#3d7a34 50%,${GREEN} 100%);padding:40px 32px;text-align:center;\"><h1 style=\"margin:0;font-size:26px;font-weight:800;color:#fff;line-height:1.2;\">${ctx.monthName} Yard Report</h1><p style=\"margin:12px 0 0;font-size:15px;color:${GOLD};font-weight:500;\">${ctx.season} Edition &mdash; Tips for Madison Homeowners</p></td></tr>\n<!-- Seasonal Tip -->\n<tr><td style=\"padding:32px 32px 16px;\"><h2 style=\"margin:0 0 12px;font-size:18px;color:${GREEN};\">&#127793; Seasonal Tip</h2><p style=\"margin:0;font-size:15px;color:#333;line-height:1.7;\">Hi ${firstName} &mdash; ${ctx.tip}</p></td></tr>\n<!-- Featured Service -->\n<tr><td style=\"padding:16px 32px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f0f8f0;border:2px solid ${GREEN};border-radius:8px;\"><tr><td style=\"padding:20px 24px;\"><p style=\"margin:0 0 8px;font-size:16px;font-weight:700;color:${GREEN};\">&#11088; Featured Service: ${ctx.upsell}</p><p style=\"margin:0 0 16px;font-size:14px;color:#333;line-height:1.6;\">This ${ctx.season.toLowerCase()} season is the perfect time to add ${ctx.upsell.toLowerCase()} to your yard care plan. Ask us for a free estimate!</p><table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;\"><tr><td align=\"center\" style=\"border-radius:6px;background:${GREEN};\"><a href=\"https://tgyardcare.com/contact?utm_source=email&utm_medium=newsletter&utm_campaign=yard-report-${ctx.monthName.toLowerCase()}\" style=\"display:block;padding:14px 28px;font-size:15px;font-weight:700;color:#fff;text-decoration:none;border-radius:6px;text-align:center;\">Get a Free Estimate</a></td></tr></table></td></tr></table></td></tr>\n<!-- Review Spotlight -->\n<tr><td style=\"padding:16px 32px;\"><h2 style=\"margin:0 0 12px;font-size:18px;color:${GREEN};\">&#11088; Review Spotlight</h2><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f9f9f9;border-radius:8px;\"><tr><td style=\"padding:20px 24px;\"><div style=\"color:${GOLD};font-size:20px;letter-spacing:2px;\">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p style=\"margin:12px 0 8px;font-style:italic;font-size:14px;color:#333;line-height:1.6;\">&ldquo;${review.review_text}&rdquo;</p><p style=\"margin:0;font-size:13px;font-weight:700;color:#1a1a1a;\">&mdash; ${review.author_name}</p></td></tr></table></td></tr>\n<!-- CTA -->\n<tr><td style=\"padding:24px 32px;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;\"><tr><td align=\"center\" style=\"border-radius:6px;background:${GREEN};\"><a href=\"https://tgyardcare.com/contact?utm_source=email&utm_medium=newsletter&utm_campaign=yard-report-${ctx.monthName.toLowerCase()}\" style=\"display:block;padding:16px 32px;font-size:16px;font-weight:700;color:#fff;text-decoration:none;border-radius:6px;text-align:center;\">Schedule Your Next Service</a></td></tr></table></td></tr>\n<!-- Trust Bar -->\n<tr><td style=\"padding:0 32px 24px;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:${GREEN};border-radius:6px;\"><tr><td align=\"center\" style=\"padding:14px 16px;font-size:12px;color:#fff;line-height:2;\">&#10003; Licensed &amp; Insured &bull; &#10003; 4.9&#9733; Rating &bull; &#10003; 500+ Properties &bull; &#10003; Satisfaction Guarantee</td></tr></table></td></tr>\n<!-- Footer -->\n<tr><td style=\"background:${DARK};border-radius:0 0 8px 8px;padding:24px 32px;text-align:center;\"><p style=\"margin:0 0 8px;font-size:16px;font-weight:700;color:#fff;\">TotalGuard Yard Care</p><p style=\"margin:0 0 8px;font-size:13px;color:#999;\">7610 Welton Dr, Madison, WI 53711 &bull; <a href=\"tel:+16085356057\" style=\"color:${GOLD};text-decoration:none;\">(608) 535-6057</a> &bull; <a href=\"mailto:totalguardllc@gmail.com\" style=\"color:${GOLD};text-decoration:none;\">totalguardllc@gmail.com</a></p><p style=\"margin:8px 0 0;font-size:11px;color:#666;\">You're receiving this because you're a TotalGuard customer. <a href=\"https://tgyardcare.com/unsubscribe\" style=\"color:#999;text-decoration:underline;\">Unsubscribe</a></p></td></tr>\n</table></td></tr></table></body></html>`;\n}\n\nconst results = [];\nfor (const c of customers) {\n  if (!c.email) continue;\n  const firstName = c.first_name || 'there';\n  const subject = `${ctx.monthName} Yard Report from TotalGuard`;\n  const html_body = buildNewsletter(firstName);\n\n  results.push({\n    json: {\n      to_email: c.email,\n      subject: subject,\n      html_body: html_body,\n      workflow_name: 'TG-81',\n      email_type: 'monthly_newsletter'\n    }\n  });\n}\n\nreturn results.length > 0 ? results : [{ json: { _skip: true, reason: 'No customers found' } }];"
+        "mode": "combine",
+        "mergeByFields": {
+          "values": []
+        },
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "id": "merge-data",
+      "name": "Merge Context + Reviews + Customers",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [560, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Extract month context from first item (comes from merge)\nconst firstItem = items[0].json;\nconst monthName = firstItem.monthName || 'This Month';\nconst season = firstItem.season || '';\nconst tip = firstItem.tip || '';\nconst upsell = firstItem.upsell || '';\n\n// Collect reviews and customers from merged data\nlet reviews = [];\nlet customers = [];\n\nfor (const item of items) {\n  const d = item.json;\n  if (d.author_name && d.text) {\n    reviews.push({ author_name: d.author_name, text: d.text });\n  }\n  if (d.email && d.id) {\n    customers.push({ id: d.id, first_name: d.first_name || 'Neighbor', email: d.email });\n  }\n}\n\n// Deduplicate customers by email\nconst seen = new Set();\ncustomers = customers.filter(c => {\n  if (seen.has(c.email)) return false;\n  seen.add(c.email);\n  return true;\n});\n\n// Pick a random 5-star review\nconst review = reviews.length > 0\n  ? reviews[Math.floor(Math.random() * reviews.length)]\n  : { author_name: 'A Happy Customer', text: 'TotalGuard does an amazing job every time. Highly recommend!' };\n\nconst reviewSnippet = review.text.length > 200 ? review.text.substring(0, 200) + '...' : review.text;\n\nconst results = [];\nfor (const c of customers) {\n  const name = c.first_name || 'Neighbor';\n  const subject = `${monthName} Yard Report from TotalGuard`;\n  const previewText = `Your ${monthName} lawn care tips + a special offer inside`;\n\n  const html_body = `<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n</head>\n<body style=\"margin:0; padding:0; background-color:#f4f4f4; font-family:Arial, Helvetica, sans-serif;\">\n  <span style=\"display:none;font-size:0;color:#f4f4f4;\">${previewText}</span>\n  <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f4f4f4; padding:20px 0;\">\n    <tr>\n      <td align=\"center\">\n        <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#ffffff; border-radius:8px; overflow:hidden;\">\n          <!-- Header -->\n          <tr>\n            <td style=\"background:linear-gradient(135deg, #166534, #15803d); padding:32px 40px; text-align:center;\">\n              <h1 style=\"margin:0; color:#ffffff; font-size:24px; font-weight:700;\">TotalGuard Yard Care</h1>\n              <p style=\"margin:8px 0 0; color:#bbf7d0; font-size:14px;\">${monthName} Yard Report</p>\n            </td>\n          </tr>\n          <!-- Greeting -->\n          <tr>\n            <td style=\"padding:32px 40px 16px;\">\n              <p style=\"margin:0; font-size:18px; color:#333; font-weight:600;\">Hi ${name},</p>\n              <p style=\"margin:12px 0 0; font-size:15px; line-height:1.6; color:#555;\">Here's your ${monthName} yard care update with seasonal tips to keep your property looking its best.</p>\n            </td>\n          </tr>\n          <!-- Seasonal Tip -->\n          <tr>\n            <td style=\"padding:0 40px 24px;\">\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f0fdf4; border-radius:8px; border-left:4px solid #166534;\">\n                <tr>\n                  <td style=\"padding:20px 24px;\">\n                    <p style=\"margin:0 0 4px; font-size:13px; color:#166534; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;\">Seasonal Tip: ${season}</p>\n                    <p style=\"margin:0; font-size:15px; line-height:1.6; color:#333;\">${tip}</p>\n                  </td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n          <!-- Featured Service -->\n          <tr>\n            <td style=\"padding:0 40px 24px;\">\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#fffbeb; border-radius:8px; border-left:4px solid #d4a017;\">\n                <tr>\n                  <td style=\"padding:20px 24px;\">\n                    <p style=\"margin:0 0 4px; font-size:13px; color:#92400e; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;\">Featured This Month</p>\n                    <p style=\"margin:0 0 12px; font-size:15px; line-height:1.6; color:#333;\">This is the perfect time for <strong>${upsell}</strong>. Ask us about scheduling -- we have availability this month!</p>\n                    <a href=\"https://tgyardcare.com/contact\" target=\"_blank\" style=\"display:inline-block; background-color:#166534; color:#ffffff; font-size:14px; font-weight:600; text-decoration:none; padding:10px 24px; border-radius:6px;\">Book ${upsell}</a>\n                  </td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n          <!-- Review Spotlight -->\n          <tr>\n            <td style=\"padding:0 40px 32px;\">\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#fafafa; border-radius:8px;\">\n                <tr>\n                  <td style=\"padding:20px 24px;\">\n                    <p style=\"margin:0 0 8px; font-size:18px; color:#d4a017;\">&#9733;&#9733;&#9733;&#9733;&#9733;</p>\n                    <p style=\"margin:0 0 8px; font-size:14px; line-height:1.6; color:#555; font-style:italic;\">&ldquo;${reviewSnippet}&rdquo;</p>\n                    <p style=\"margin:0; font-size:13px; color:#888; font-weight:600;\">-- ${review.author_name}</p>\n                  </td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n          <!-- Footer -->\n          <tr>\n            <td style=\"background-color:#1a1a2e; padding:24px 40px; text-align:center;\">\n              <p style=\"margin:0 0 8px; font-size:14px; color:#a0a0b0;\">TotalGuard Yard Care</p>\n              <p style=\"margin:0 0 8px; font-size:14px; color:#a0a0b0;\">Madison, WI &bull; (608) 535-6057</p>\n              <p style=\"margin:0; font-size:12px; color:#666680;\">You received this because you are a valued TotalGuard customer.</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>`;\n\n  results.push({\n    json: {\n      to_email: c.email,\n      subject,\n      html_body,\n      workflow_name: 'TG-81',\n      email_type: 'monthly_newsletter'\n    }\n  });\n}\n\n// Store count for telegram summary\nif (results.length > 0) {\n  results[results.length - 1].json._total_sent = results.length;\n  results[results.length - 1].json._monthName = monthName;\n  results[results.length - 1].json._upsell = upsell;\n}\n\nreturn results;"
       },
       "id": "build-newsletter",
       "name": "Build Newsletter",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [700, 300]
+      "position": [820, 300]
     },
     {
       "parameters": {
-        "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
-          "conditions": [
-            {
-              "leftValue": "={{ $json._skip }}",
-              "rightValue": true,
-              "operator": { "type": "boolean", "operation": "notEquals" }
-            }
-          ],
-          "combinator": "and"
-        }
+        "workflowId": "FSRv5y8YzMjpyBtc"
       },
-      "id": "filter-skip",
-      "name": "Filter Skipped",
-      "type": "n8n-nodes-base.filter",
-      "typeVersion": 2,
-      "position": [920, 300]
-    },
-    {
-      "parameters": {
-        "workflowId": "IUDLrQrAkcLFLsIC"
-      },
-      "id": "send-via-tg95",
+      "id": "send-email",
       "name": "Send via TG-95",
       "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1,
-      "position": [1140, 300]
+      "typeVersion": 1.1,
+      "position": [1060, 300]
     },
     {
       "parameters": {
         "chatId": "OWNER_TELEGRAM_CHAT_ID",
-        "text": "=\ud83d\udce8 TG-81 Newsletter Sent\n\nMonth: {{ $('Determine Month Context').first().json.monthName }}\nSeason: {{ $('Determine Month Context').first().json.season }}\nRecipients: {{ $('Fetch Active Customers').all().length }}\nFeatured Service: {{ $('Determine Month Context').first().json.upsell }}",
-        "additionalFields": {}
+        "text": "=**TG-81 Monthly Newsletter Sent**\n\nMonth: {{ $json._monthName || 'Unknown' }}\nRecipients: {{ $json._total_sent || '?' }}\nFeatured: {{ $json._upsell || 'N/A' }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
       },
       "id": "telegram-summary",
       "name": "Telegram Summary",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [1360, 300],
+      "position": [1300, 300],
       "credentials": {
         "telegramApi": {
           "id": "V404qLIDXjmyzNeS",
-          "name": "Telegram account"
+          "name": "Telegram"
         }
       }
     }
   ],
   "connections": {
-    "Monthly 15th 10am CT": {
+    "Schedule Trigger": {
       "main": [
         [
-          { "node": "Determine Month Context", "type": "main", "index": 0 }
+          {
+            "node": "Determine Month Context",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch 5-Star Review",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Active Customers",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
     "Determine Month Context": {
       "main": [
         [
-          { "node": "Fetch 5-Star Review", "type": "main", "index": 0 },
-          { "node": "Fetch Active Customers", "type": "main", "index": 0 }
+          {
+            "node": "Merge Context + Reviews + Customers",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
     "Fetch 5-Star Review": {
       "main": [
         [
-          { "node": "Build Newsletter", "type": "main", "index": 0 }
+          {
+            "node": "Merge Context + Reviews + Customers",
+            "type": "main",
+            "index": 1
+          }
         ]
       ]
     },
     "Fetch Active Customers": {
       "main": [
         [
-          { "node": "Build Newsletter", "type": "main", "index": 0 }
+          {
+            "node": "Merge Context + Reviews + Customers",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge Context + Reviews + Customers": {
+      "main": [
+        [
+          {
+            "node": "Build Newsletter",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
     "Build Newsletter": {
       "main": [
         [
-          { "node": "Filter Skipped", "type": "main", "index": 0 }
-        ]
-      ]
-    },
-    "Filter Skipped": {
-      "main": [
-        [
-          { "node": "Send via TG-95", "type": "main", "index": 0 }
+          {
+            "node": "Send via TG-95",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
     "Send via TG-95": {
       "main": [
         [
-          { "node": "Telegram Summary", "type": "main", "index": 0 }
+          {
+            "node": "Telegram Summary",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     }
-  }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
 }
