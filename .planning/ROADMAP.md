@@ -113,6 +113,12 @@ Plans:
 **Goal**: Every customer lifecycle stage is automated — referrals, annual plans, cross-sell, seasonal nurture, weather campaigns, win-back, newsletter — maximizing lifetime value.
 **Depends on**: Phase 14 (review system feeds referral triggers)
 **Requirements**: RETN-01 through RETN-09
+**Plans:** 4 plans
+Plans:
+- [ ] 15-01-PLAN.md — TG-22 review-to-referral + TG-34 referral program (RETN-01/02)
+- [ ] 15-02-PLAN.md — TG-14/15/16 seasonal campaigns + TG-32 seasonal router (RETN-03/04)
+- [ ] 15-03-PLAN.md — TG-56 weather campaigns + TG-63 win-back engine (RETN-05/06/07)
+- [ ] 15-04-PLAN.md — TG-81 monthly newsletter + TG-10 cross-sell (RETN-08/09)
 **Success Criteria**:
   1. 5-star reviewers receive referral SMS within 1h
   2. Seasonal campaigns auto-launch (spring March, fall Sept, snow Nov)
@@ -188,7 +194,7 @@ Plans:
 | 12. Conversion Engine | M4 | 7/7 | Complete | 2026-03-19 |
 | 13. Delivery Excellence | M4 | 0/3 | In Progress | - |
 | 14. Review Generation | M4 | 0/2 | Not Started | - |
-| 15. Retention & LTV | M4 | 0/? | Not Started | - |
+| 15. Retention & LTV | M4 | 0/4 | Not Started | - |
 | 16. Content & SEO | M4 | 0/3 | Not Started | - |
 | 17. Social Media | M4 | 0/3 | Not Started | - |
 | 18. GBP Domination | M4 | 0/? | Not Started | - |
