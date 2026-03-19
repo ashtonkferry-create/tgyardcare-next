@@ -1,0 +1,253 @@
+{
+  "id": "byGsDMUSiClnuH1G",
+  "name": "TG-132 Review Response Drafter",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "tg132-trigger",
+      "name": "When Called by TG-131",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const review = $input.first().json;\nconst name = review.author_name || 'there';\nconst rating = review.rating || 3;\nconst reviewText = review.review_text || '';\nconst firstName = name.split(' ')[0];\n\n// Extract service mention from review text for personalization\nconst serviceKeywords = ['mowing', 'lawn', 'landscaping', 'fertiliz', 'aerat', 'leaf', 'snow', 'clean', 'trim', 'hedge', 'mulch', 'weed', 'spring', 'fall', 'yard', 'garden', 'grass', 'edge', 'blow', 'plow'];\nlet mentionedService = '';\nconst lowerText = reviewText.toLowerCase();\nfor (const kw of serviceKeywords) {\n  if (lowerText.includes(kw)) {\n    mentionedService = kw;\n    break;\n  }\n}\n\n// Template-based response drafts by star rating\nlet draft = '';\n\nconst fiveStarTemplates = [\n  `Thank you so much, ${firstName}! We're thrilled to hear you had a great experience${mentionedService ? ' with your ' + mentionedService : ''}. Your kind words mean the world to our team. We truly love what we do, and customers like you make it all worthwhile. We look forward to keeping your yard looking amazing!\\n\\n- Vance, Owner of TotalGuard Yard Care`,\n  `${firstName}, thank you for the wonderful review! It makes our day knowing you're happy with our work${mentionedService ? ' on your ' + mentionedService : ''}. We take pride in every yard we care for, and your feedback is the best reward. Can't wait to see you next time!\\n\\n- Vance, Owner of TotalGuard Yard Care`,\n  `Wow, thank you ${firstName}! A 5-star review means everything to us. We put our heart into every property${mentionedService ? ', especially the ' + mentionedService : ''}, and hearing that it shows is incredibly rewarding. Thank you for trusting TotalGuard with your yard!\\n\\n- Vance, Owner of TotalGuard Yard Care`\n];\n\nconst fourStarTemplates = [\n  `Thank you for the great review, ${firstName}! We're glad you had a positive experience${mentionedService ? ' with your ' + mentionedService : ''}. We always strive for perfection, so if there's anything we could do to earn that 5th star next time, we'd love to hear about it. Your feedback helps us improve!\\n\\n- Vance, Owner of TotalGuard Yard Care`,\n  `${firstName}, we really appreciate you taking the time to leave a review! We're happy to hear things went well${mentionedService ? ' with the ' + mentionedService : ''}. We're always looking to go above and beyond - is there anything we could do differently to make your experience perfect? We value your input!\\n\\n- Vance, Owner of TotalGuard Yard Care`\n];\n\nconst threeStarTemplates = [\n  `${firstName}, thank you for your honest feedback. We appreciate you sharing your experience${mentionedService ? ' with our ' + mentionedService + ' service' : ''}. A 3-star review tells us we have room to grow, and we take that seriously. We'd love the chance to make things right and exceed your expectations next time. Would you be open to a quick call so I can personally address your concerns? You can reach me at (608) 535-6057.\\n\\n- Vance, Owner of TotalGuard Yard Care`,\n  `Thank you for sharing your thoughts, ${firstName}. We want every customer to have an outstanding experience, and it sounds like we fell short${mentionedService ? ' with the ' + mentionedService : ''}. I'd really appreciate the opportunity to discuss how we can do better. Please feel free to call me directly at (608) 535-6057 - I want to earn your 5 stars.\\n\\n- Vance, Owner of TotalGuard Yard Care`\n];\n\nconst lowStarTemplates = [\n  `${firstName}, I'm truly sorry to hear about your experience. This is not the standard we hold ourselves to${mentionedService ? ', especially when it comes to ' + mentionedService : ''}. I take full responsibility and want to personally make this right. Please call me directly at (608) 535-6057 so we can discuss how to fix this immediately. Your satisfaction is my top priority.\\n\\nSincerely,\\nVance, Owner of TotalGuard Yard Care`,\n  `${firstName}, I sincerely apologize for your experience. Every customer deserves excellent service, and we clearly missed the mark${mentionedService ? ' with your ' + mentionedService : ''}. I want to personally address your concerns and make things right. Please reach out to me directly at (608) 535-6057 - I will not rest until you're satisfied.\\n\\nSincerely,\\nVance, Owner of TotalGuard Yard Care`\n];\n\n// Pick a random template based on rating\nconst pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];\n\nif (rating === 5) {\n  draft = pickRandom(fiveStarTemplates);\n} else if (rating === 4) {\n  draft = pickRandom(fourStarTemplates);\n} else if (rating === 3) {\n  draft = pickRandom(threeStarTemplates);\n} else {\n  draft = pickRandom(lowStarTemplates);\n}\n\nreturn [{\n  json: {\n    review_id: review.review_id,\n    author_name: review.author_name,\n    rating: review.rating,\n    review_text: review.review_text,\n    is_five_star: review.is_five_star,\n    response_draft: draft\n  }\n}];"
+      },
+      "id": "tg132-draft",
+      "name": "Generate Template Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        470,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_reviews?review_id=eq.{{ $json.review_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_ANON_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_ANON_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"response_draft\": {{ JSON.stringify($json.response_draft) }} }",
+        "options": {}
+      },
+      "id": "tg132-save",
+      "name": "Save Response Draft to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        690,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const review = $('Generate Template Response').first().json;\nconst stars = '\\u2B50'.repeat(review.rating || 1);\nconst socialNote = review.is_five_star ? '\\n\\n\\uD83C\\uDF1F QUEUED FOR SOCIAL MEDIA AMPLIFICATION' : '';\n\nconst urgencyLabel = review.rating <= 2 ? '\\uD83D\\uDEA8 URGENT - ' : (review.rating === 3 ? '\\u26A0\\uFE0F ATTENTION - ' : '');\n\nconst msg = `${urgencyLabel}NEW GOOGLE REVIEW ${stars}\\n\\nFrom: ${review.author_name || 'Anonymous'}\\nRating: ${review.rating}/5\\n\\n\\u201C${review.review_text || 'No text provided'}\\u201D\\n\\n\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\n\\nDRAFT RESPONSE:\\n\\n${review.response_draft}\\n\\n\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014${socialNote}\\n\\nReply APPROVE to post as-is, or type your edited response.`;\n\nreturn [{ json: { telegram_message: msg, review_id: review.review_id, is_five_star: review.is_five_star } }];"
+      },
+      "id": "tg132-build-tg",
+      "name": "Build Telegram Approval Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        910,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.telegram_message }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "tg132-send-tg",
+      "name": "Send Draft to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1130,
+        300
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "V404qLIDXjmyzNeS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "tg132-cond-five",
+              "leftValue": "={{ $('Generate Template Response').first().json.is_five_star }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "tg132-social-flag",
+      "name": "Is 5-Star Review?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1350,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_reviews?review_id=eq.{{ $('Generate Template Response').first().json.review_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_ANON_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_ANON_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{ \"social_media_queued\": true }",
+        "options": {}
+      },
+      "id": "tg132-social-update",
+      "name": "Mark Queued for Social Media",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1570,
+        200
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "When Called by TG-131": {
+      "main": [
+        [
+          {
+            "node": "Generate Template Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Template Response": {
+      "main": [
+        [
+          {
+            "node": "Save Response Draft to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Response Draft to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Build Telegram Approval Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Telegram Approval Message": {
+      "main": [
+        [
+          {
+            "node": "Send Draft to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Draft to Telegram": {
+      "main": [
+        [
+          {
+            "node": "Is 5-Star Review?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is 5-Star Review?": {
+      "main": [
+        [
+          {
+            "node": "Mark Queued for Social Media",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": []
+}

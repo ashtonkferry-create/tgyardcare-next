@@ -1,0 +1,350 @@
+{
+  "id": "iU1iQCwa6QivxXgw",
+  "name": "TG-131 Google Review Poller",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "tg131-trigger",
+      "name": "Every 6 Hours Review Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://places.googleapis.com/v1/places/ChIJMQEDNR3apwMRFbkOyDYmDAE",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Goog-Api-Key",
+              "value": "GOOGLE_PLACES_API_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "X-Goog-FieldMask",
+              "value": "reviews,rating,userRatingCount"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg131-fetch",
+      "name": "Fetch Place Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        470,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst reviews = input.reviews || [];\nconst overallRating = input.rating || null;\nconst totalReviews = input.userRatingCount || 0;\n\nconst results = [];\nfor (const r of reviews) {\n  const authorName = (r.authorAttribution && r.authorAttribution.displayName) || 'Anonymous';\n  const rating = r.rating || 0;\n  const reviewText = (r.text && r.text.text) || (r.originalText && r.originalText.text) || '';\n  const publishTime = r.publishTime || '';\n\n  // Create a stable review_id from author + publishTime for dedup\n  const raw = authorName + '|' + publishTime;\n  let hash = 0;\n  for (let i = 0; i < raw.length; i++) {\n    const ch = raw.charCodeAt(i);\n    hash = ((hash << 5) - hash) + ch;\n    hash = hash & hash;\n  }\n  const reviewId = 'gr_' + Math.abs(hash).toString(36);\n\n  results.push({\n    json: {\n      review_id: reviewId,\n      author_name: authorName,\n      rating: rating,\n      review_text: reviewText,\n      publish_time: publishTime,\n      overall_rating: overallRating,\n      total_reviews: totalReviews,\n      is_five_star: rating === 5\n    }\n  });\n}\n\nreturn results.length > 0 ? results : [{ json: { _skip: true, message: 'No reviews found' } }];"
+      },
+      "id": "tg131-extract",
+      "name": "Extract Reviews",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        690,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst newReviews = [];\n\nfor (const item of items) {\n  const review = item.json;\n\n  // Skip if no reviews were found\n  if (review._skip) continue;\n\n  const reviewId = review.review_id;\n  const checkUrl = `https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_reviews?review_id=eq.${encodeURIComponent(reviewId)}&select=id`;\n\n  try {\n    const response = await this.helpers.httpRequest({\n      method: 'GET',\n      url: checkUrl,\n      headers: {\n        'apikey': 'SUPABASE_ANON_KEY_PLACEHOLDER',\n        'Authorization': 'Bearer SUPABASE_ANON_KEY_PLACEHOLDER',\n        'Content-Type': 'application/json'\n      },\n      returnFullResponse: false\n    });\n\n    const existing = Array.isArray(response) ? response : [];\n    if (existing.length === 0) {\n      newReviews.push({ json: review });\n    }\n  } catch (e) {\n    // On error, treat as new review (safe side)\n    newReviews.push({ json: review });\n  }\n}\n\nreturn newReviews.length > 0 ? newReviews : [];"
+      },
+      "id": "tg131-dedup",
+      "name": "Filter Out Already-Synced",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        910,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_reviews",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"review_id\": \"{{ $json.review_id }}\",\n  \"author_name\": \"{{ $json.author_name }}\",\n  \"rating\": {{ $json.rating }},\n  \"review_text\": {{ JSON.stringify($json.review_text) }},\n  \"publish_time\": \"{{ $json.publish_time }}\",\n  \"overall_rating\": {{ $json.overall_rating || 'null' }},\n  \"total_reviews\": {{ $json.total_reviews || 0 }},\n  \"is_five_star\": {{ $json.is_five_star }},\n  \"needs_response\": true,\n  \"social_media_queued\": false\n}",
+        "options": {}
+      },
+      "id": "tg131-save",
+      "name": "Save to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1130,
+        300
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.rating }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lte"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "negative"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.rating }}",
+                    "rightValue": 5,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "five_star"
+            }
+          ],
+          "fallbackOutput": {
+            "type": "extra",
+            "outputKey": "four_star"
+          }
+        },
+        "options": {}
+      },
+      "id": "tg131-switch",
+      "name": "Route by Rating",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        1350,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "GHL1BUPFZL8Ic6Bc",
+        "fields": {
+          "values": [
+            {
+              "name": "alert_type",
+              "value": "negative_google_review"
+            },
+            {
+              "name": "severity",
+              "value": "CRITICAL"
+            },
+            {
+              "name": "alert_title",
+              "value": "=NEGATIVE REVIEW: {{ $json.rating }} stars from {{ $json.author_name }}"
+            },
+            {
+              "name": "alert_body",
+              "value": "={{ $json.review_text }}"
+            },
+            {
+              "name": "source_workflow",
+              "value": "TG-131"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg131-neg-alert",
+      "name": "Send Negative Alert",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1570,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "byGsDMUSiClnuH1G",
+        "fields": {
+          "values": [
+            {
+              "name": "review_id",
+              "value": "={{ $json.review_id }}"
+            },
+            {
+              "name": "author_name",
+              "value": "={{ $json.author_name }}"
+            },
+            {
+              "name": "rating",
+              "value": "={{ $json.rating }}"
+            },
+            {
+              "name": "review_text",
+              "value": "={{ $json.review_text }}"
+            },
+            {
+              "name": "is_five_star",
+              "value": "={{ $json.is_five_star }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tg131-call-drafter",
+      "name": "Draft AI Response",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1790,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Every 6 Hours Review Check": {
+      "main": [
+        [
+          {
+            "node": "Fetch Place Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Place Details": {
+      "main": [
+        [
+          {
+            "node": "Extract Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Reviews": {
+      "main": [
+        [
+          {
+            "node": "Filter Out Already-Synced",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Out Already-Synced": {
+      "main": [
+        [
+          {
+            "node": "Save to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Route by Rating",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Rating": {
+      "main": [
+        [
+          {
+            "node": "Send Negative Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Draft AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Draft AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Negative Alert": {
+      "main": [
+        [
+          {
+            "node": "Draft AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": []
+}
