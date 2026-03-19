@@ -20,10 +20,10 @@
     },
     {
       "parameters": {
-        "jsCode": "// GSC data has a 2-day lag. Calculate the sync date.\nconst now = new Date();\nconst syncDate = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);\nconst dateStr = syncDate.toISOString().split('T')[0];\n\nreturn [{ json: { syncDate: dateStr, startRow: 0 } }];"
+        "jsCode": "// GSC data has a 2-day lag. Pull last 3 days to catch any backfill.\nconst dates = [];\nfor (let i = 2; i <= 4; i++) {\n  const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);\n  dates.push(d.toISOString().split('T')[0]);\n}\n// Most recent available date first\nconst startDate = dates[dates.length - 1];\nconst endDate = dates[0];\n\nreturn [{ json: { startDate, endDate, syncDates: dates } }];"
       },
       "id": "calc-date",
-      "name": "Calculate Sync Date",
+      "name": "Calculate Sync Dates",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [220, 300]
@@ -32,33 +32,28 @@
       "parameters": {
         "method": "POST",
         "url": "https://searchconsole.googleapis.com/v1/sites/https%3A%2F%2Ftgyardcare.com/searchAnalytics/query",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ startDate: $json.syncDate, endDate: $json.syncDate, dimensions: ['page'], dataState: 'final', rowLimit: 25000, startRow: 0 }) }}"
+        "jsonBody": "={{ JSON.stringify({ startDate: $json.startDate, endDate: $json.endDate, dimensions: ['page', 'date'], dataState: 'final', rowLimit: 25000, startRow: 0 }) }}"
       },
       "id": "fetch-page-data",
       "name": "Fetch Page Data",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [440, 300],
-      "notes": "Pagination: If >25K pages, add a loop incrementing startRow by 25000. TG site currently has <100 pages so single request suffices."
+      "credentials": {
+        "googleApi": {
+          "id": "GOOGLE_CREDENTIAL_ID",
+          "name": "Google Service Account (GSC)"
+        }
+      },
+      "notes": "Uses n8n Google Service Account credential. Vance must create this credential in n8n and update the ID."
     },
     {
       "parameters": {
-        "jsCode": "// Transform GSC page-level rows to gsc_pages schema\nconst syncDate = $('Calculate Sync Date').first().json.syncDate;\nconst rows = $input.first().json.rows || [];\n\nif (rows.length === 0) {\n  return [{ json: { upsertData: [], rowCount: 0, syncDate } }];\n}\n\nconst transformed = rows.map(r => ({\n  page: r.keys[0],\n  date: syncDate,\n  clicks: r.clicks || 0,\n  impressions: r.impressions || 0,\n  ctr: Math.round((r.ctr || 0) * 10000) / 10000,\n  avg_position: Math.round((r.position || 0) * 100) / 100\n}));\n\nreturn [{ json: { upsertData: transformed, rowCount: transformed.length, syncDate } }];"
+        "jsCode": "// Transform GSC page-level rows to gsc_pages schema\nconst rows = $input.first().json.rows || [];\n\nif (rows.length === 0) {\n  return [{ json: { upsertData: [], rowCount: 0 } }];\n}\n\nconst transformed = rows.map(r => ({\n  page: r.keys[0],\n  date: r.keys[1],\n  clicks: r.clicks || 0,\n  impressions: r.impressions || 0,\n  ctr: Math.round((r.ctr || 0) * 10000) / 10000,\n  avg_position: Math.round((r.position || 0) * 100) / 100\n}));\n\nreturn [{ json: { upsertData: transformed, rowCount: transformed.length } }];"
       },
       "id": "transform-pages",
       "name": "Transform Page Rows",
@@ -75,11 +70,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Content-Type",
@@ -105,33 +100,27 @@
       "parameters": {
         "method": "POST",
         "url": "https://searchconsole.googleapis.com/v1/sites/https%3A%2F%2Ftgyardcare.com/searchAnalytics/query",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ startDate: $('Calculate Sync Date').first().json.syncDate, endDate: $('Calculate Sync Date').first().json.syncDate, dimensions: ['query'], dataState: 'final', rowLimit: 25000, startRow: 0 }) }}"
+        "jsonBody": "={{ JSON.stringify({ startDate: $('Calculate Sync Dates').first().json.startDate, endDate: $('Calculate Sync Dates').first().json.endDate, dimensions: ['query', 'date'], dataState: 'final', rowLimit: 25000, startRow: 0 }) }}"
       },
       "id": "fetch-query-data",
       "name": "Fetch Query Data",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [1100, 300],
-      "notes": "Pagination: If >25K queries, add a loop incrementing startRow by 25000."
+      "credentials": {
+        "googleApi": {
+          "id": "GOOGLE_CREDENTIAL_ID",
+          "name": "Google Service Account (GSC)"
+        }
+      }
     },
     {
       "parameters": {
-        "jsCode": "// Transform GSC query-level rows to gsc_search_queries schema\n// Unique index is (query, COALESCE(page,''), date, COALESCE(device,''))\n// For query-only dimension, page='' and device=null\nconst syncDate = $('Calculate Sync Date').first().json.syncDate;\nconst rows = $input.first().json.rows || [];\n\nif (rows.length === 0) {\n  return [{ json: { upsertData: [], rowCount: 0, syncDate } }];\n}\n\nconst transformed = rows.map(r => ({\n  query: r.keys[0],\n  page: null,\n  country: 'USA',\n  device: null,\n  date: syncDate,\n  clicks: r.clicks || 0,\n  impressions: r.impressions || 0,\n  ctr: Math.round((r.ctr || 0) * 10000) / 10000,\n  position: Math.round((r.position || 0) * 100) / 100\n}));\n\nreturn [{ json: { upsertData: transformed, rowCount: transformed.length, syncDate } }];"
+        "jsCode": "// Transform GSC query-level rows to gsc_search_queries schema\nconst rows = $input.first().json.rows || [];\n\nif (rows.length === 0) {\n  return [{ json: { upsertData: [], rowCount: 0 } }];\n}\n\nconst transformed = rows.map(r => ({\n  query: r.keys[0],\n  date: r.keys[1],\n  page: null,\n  country: 'USA',\n  device: null,\n  clicks: r.clicks || 0,\n  impressions: r.impressions || 0,\n  ctr: Math.round((r.ctr || 0) * 10000) / 10000,\n  position: Math.round((r.position || 0) * 100) / 100\n}));\n\nreturn [{ json: { upsertData: transformed, rowCount: transformed.length } }];"
       },
       "id": "transform-queries",
       "name": "Transform Query Rows",
@@ -148,11 +137,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Content-Type",
@@ -176,22 +165,45 @@
     },
     {
       "parameters": {
-        "workflowId": "NPxVFCf05a15PjBH"
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/automation_runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ workflow_id: 'TG-96', workflow_name: 'gsc-daily-sync', status: 'success', metadata: { pages: $('Transform Page Rows').first().json.rowCount, queries: $json.rowCount, startDate: $('Calculate Sync Dates').first().json.startDate, endDate: $('Calculate Sync Dates').first().json.endDate }, ran_at: new Date().toISOString() }) }}",
+        "options": {}
       },
-      "id": "trigger-tg97",
-      "name": "Trigger TG-97",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.1,
-      "position": [1760, 300]
+      "id": "log-run",
+      "name": "Log to automation_runs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1760, 300],
+      "continueOnFail": true
     }
   ],
   "connections": {
     "Daily 6am UTC": {
       "main": [
-        [{ "node": "Calculate Sync Date", "type": "main", "index": 0 }]
+        [{ "node": "Calculate Sync Dates", "type": "main", "index": 0 }]
       ]
     },
-    "Calculate Sync Date": {
+    "Calculate Sync Dates": {
       "main": [
         [{ "node": "Fetch Page Data", "type": "main", "index": 0 }]
       ]
@@ -223,7 +235,7 @@
     },
     "Upsert gsc_search_queries": {
       "main": [
-        [{ "node": "Trigger TG-97", "type": "main", "index": 0 }]
+        [{ "node": "Log to automation_runs", "type": "main", "index": 0 }]
       ]
     }
   },

@@ -20,7 +20,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Target keywords for TotalGuard Yard Care — Madison, WI\n// These are the top 20 keywords we track daily for rank movement.\nconst keywords = [\n  'lawn care madison wi',\n  'lawn mowing madison',\n  'fertilization service madison',\n  'lawn fertilization madison wi',\n  'weed control madison wi',\n  'aeration and overseeding madison',\n  'lawn aeration madison wi',\n  'spring lawn care madison',\n  'fall lawn care madison',\n  'organic lawn care madison wi',\n  'yard maintenance madison wi',\n  'grass cutting service madison',\n  'lawn treatment madison wi',\n  'lawn care near me madison',\n  'best lawn care madison wi',\n  'affordable lawn care madison',\n  'commercial lawn care madison wi',\n  'lawn care service dane county',\n  'lawn mowing service near me',\n  'totalguard yard care'\n];\n\n// Use yesterday as the sync date (GSC data has ~2 day lag,\n// but TG-96 already synced the latest available date at 6am)\nconst syncDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)\n  .toISOString().split('T')[0];\n\nreturn [{ json: { keywords, syncDate } }];"
+        "jsCode": "// Target keywords for TotalGuard Yard Care\n// Core service keywords + city variants across 12 service areas\nconst coreKeywords = [\n  'lawn care',\n  'lawn mowing',\n  'fertilization service',\n  'lawn fertilization',\n  'weed control',\n  'aeration and overseeding',\n  'lawn aeration',\n  'spring lawn care',\n  'fall lawn care',\n  'yard maintenance',\n  'grass cutting service',\n  'lawn treatment',\n  'snow removal',\n  'landscaping'\n];\n\n// 12 TotalGuard service areas\nconst cities = [\n  'madison wi',\n  'sun prairie wi',\n  'middleton wi',\n  'fitchburg wi',\n  'verona wi',\n  'waunakee wi',\n  'deforest wi',\n  'monona wi',\n  'mcfarland wi',\n  'cottage grove wi',\n  'cross plains wi',\n  'oregon wi'\n];\n\n// Build keyword list: core x city combos + generic near-me + brand\nconst keywords = [];\nfor (const kw of coreKeywords) {\n  for (const city of cities) {\n    keywords.push(`${kw} ${city}`);\n  }\n}\n// Add generic near-me terms\nkeywords.push('lawn care near me');\nkeywords.push('lawn mowing service near me');\nkeywords.push('yard care near me');\nkeywords.push('best lawn care madison wi');\nkeywords.push('affordable lawn care madison');\nkeywords.push('commercial lawn care madison wi');\nkeywords.push('lawn care service dane county');\nkeywords.push('organic lawn care madison wi');\nkeywords.push('totalguard yard care');\n\n// GSC data lag: use same date range as TG-96\nconst syncDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)\n  .toISOString().split('T')[0];\n\nreturn [{ json: { keywords, keywordCount: keywords.length, syncDate } }];"
       },
       "id": "define-keywords",
       "name": "Define Target Keywords",
@@ -37,11 +37,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             }
           ]
         }
@@ -71,11 +71,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Content-Type",
@@ -106,11 +106,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Content-Type",
@@ -120,7 +120,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ workflow_id: 'TG-45', workflow_name: 'keyword-rank-tracker', status: 'success', metadata: { tracked: $json.trackedCount, missing: $json.missingCount, syncDate: $json.syncDate }, ran_at: new Date().toISOString() }) }}",
+        "jsonBody": "={{ JSON.stringify({ workflow_id: 'TG-45', workflow_name: 'keyword-rank-tracker', status: 'success', metadata: { tracked: $json.trackedCount, missing: $json.missingCount, totalKeywords: $('Define Target Keywords').first().json.keywordCount, syncDate: $json.syncDate }, ran_at: new Date().toISOString() }) }}",
         "options": {}
       },
       "id": "log-run",

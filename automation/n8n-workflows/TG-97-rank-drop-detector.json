@@ -2,16 +2,25 @@
   "name": "TG-97-rank-drop-detector",
   "nodes": [
     {
-      "parameters": {},
-      "id": "trigger",
-      "name": "Execute Workflow Trigger",
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1,
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Daily 10am UTC",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
       "position": [0, 300]
     },
     {
       "parameters": {
-        "jsCode": "// Calculate date range: current syncDate vs 7 days prior\nconst syncDate = $json.syncDate;\nconst prevDate = new Date(new Date(syncDate).getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];\nreturn [{ json: { currentDate: syncDate, previousDate: prevDate } }];"
+        "jsCode": "// Calculate date range: today-2 (latest GSC) vs today-9 (7 days prior)\nconst now = new Date();\nconst currentDate = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];\nconst previousDate = new Date(now.getTime() - 9 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];\nreturn [{ json: { currentDate, previousDate } }];"
       },
       "id": "calc-range",
       "name": "Calculate Date Range",
@@ -28,20 +37,13 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             }
           ]
-        },
-        "options": {
-          "response": {
-            "response": {
-              "fullResponse": true
-            }
-          }
         }
       },
       "id": "fetch-current",
@@ -59,20 +61,13 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             }
           ]
-        },
-        "options": {
-          "response": {
-            "response": {
-              "fullResponse": true
-            }
-          }
         }
       },
       "id": "fetch-previous",
@@ -83,7 +78,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Compare current vs previous week queries for rank drops and CTR anomalies\nconst current = $('Fetch Current Queries').first().json.body || [];\nconst previous = $('Fetch Previous Queries').first().json.body || [];\nconst prevMap = new Map(previous.map(p => [p.query, p]));\n\nconst urgentAlerts = [];  // Telegram alert: drop > 3 positions AND >= 50 impressions\nconst warnings = [];      // Weekly digest only: drop > 3 positions with lower impressions\nconst ctrAnomalies = [];  // CTR drops > 30%\n\nfor (const cur of current) {\n  const prev = prevMap.get(cur.query);\n  if (!prev) continue;\n\n  const positionDrop = cur.position - prev.position; // positive = worse ranking\n\n  // Urgent: drop >= 10 positions AND >= 50 weekly impressions\n  if (positionDrop > 3 && prev.impressions >= 50) {\n    urgentAlerts.push({\n      type: 'urgent_rank_drop',\n      query: cur.query,\n      page: cur.page,\n      oldPosition: Math.round(prev.position),\n      newPosition: Math.round(cur.position),\n      drop: Math.round(positionDrop),\n      impressions: cur.impressions\n    });\n  }\n  // Warning: drop 5-9 positions AND >= 20 impressions\n  else if (positionDrop > 3 && prev.impressions >= 20) {\n    warnings.push({\n      type: 'rank_drop_warning',\n      query: cur.query,\n      page: cur.page,\n      oldPosition: Math.round(prev.position),\n      newPosition: Math.round(cur.position),\n      drop: Math.round(positionDrop)\n    });\n  }\n\n  // CTR anomaly: >30% drop with stable impressions (both >= 50)\n  if (prev.impressions >= 50 && cur.impressions >= 50 && prev.ctr > 0) {\n    const ctrDrop = (prev.ctr - cur.ctr) / prev.ctr;\n    if (ctrDrop > 0.30) {\n      ctrAnomalies.push({\n        type: 'ctr_anomaly',\n        query: cur.query,\n        page: cur.page,\n        oldCtr: (prev.ctr * 100).toFixed(1) + '%',\n        newCtr: (cur.ctr * 100).toFixed(1) + '%',\n        dropPct: (ctrDrop * 100).toFixed(0) + '%',\n        impressions: cur.impressions\n      });\n    }\n  }\n}\n\nreturn [{ json: {\n  urgentAlerts,\n  warnings,\n  ctrAnomalies,\n  hasUrgent: urgentAlerts.length > 0,\n  hasCtrAnomaly: ctrAnomalies.length > 0,\n  summary: {\n    queriesCompared: current.length,\n    urgentCount: urgentAlerts.length,\n    warningCount: warnings.length,\n    ctrAnomalyCount: ctrAnomalies.length\n  }\n}}];"
+        "jsCode": "// Compare current vs previous week queries for rank drops and CTR anomalies\nconst currentRaw = $('Fetch Current Queries').first().json;\nconst previousRaw = $('Fetch Previous Queries').first().json;\nconst current = Array.isArray(currentRaw) ? currentRaw : (currentRaw.body || currentRaw || []);\nconst previous = Array.isArray(previousRaw) ? previousRaw : (previousRaw.body || previousRaw || []);\nconst prevMap = new Map(previous.map(p => [p.query, p]));\n\nconst urgentAlerts = [];  // Telegram alert: drop > 3 positions\nconst warnings = [];      // Lower-priority drops\nconst ctrAnomalies = [];  // CTR drops > 30%\nconst disappeared = [];   // Keywords that vanished entirely\n\n// Check for keywords that disappeared (were in previous but not in current)\nconst currentQueries = new Set(current.map(c => c.query));\nfor (const prev of previous) {\n  if (prev.impressions >= 20 && !currentQueries.has(prev.query)) {\n    disappeared.push({\n      type: 'disappeared',\n      query: prev.query,\n      page: prev.page,\n      lastPosition: Math.round(prev.position),\n      lastImpressions: prev.impressions\n    });\n  }\n}\n\nfor (const cur of current) {\n  const prev = prevMap.get(cur.query);\n  if (!prev) continue;\n\n  const positionDrop = cur.position - prev.position; // positive = worse ranking\n\n  // Urgent: drop > 3 positions AND >= 10 impressions\n  if (positionDrop > 3 && prev.impressions >= 10) {\n    urgentAlerts.push({\n      type: 'urgent_rank_drop',\n      query: cur.query,\n      page: cur.page,\n      oldPosition: Math.round(prev.position * 10) / 10,\n      newPosition: Math.round(cur.position * 10) / 10,\n      drop: Math.round(positionDrop * 10) / 10,\n      impressions: cur.impressions\n    });\n  }\n\n  // CTR anomaly: >30% drop with stable impressions (both >= 50)\n  if (prev.impressions >= 50 && cur.impressions >= 50 && prev.ctr > 0) {\n    const ctrDrop = (prev.ctr - cur.ctr) / prev.ctr;\n    if (ctrDrop > 0.30) {\n      ctrAnomalies.push({\n        type: 'ctr_anomaly',\n        query: cur.query,\n        page: cur.page,\n        oldCtr: (prev.ctr * 100).toFixed(1) + '%',\n        newCtr: (cur.ctr * 100).toFixed(1) + '%',\n        dropPct: (ctrDrop * 100).toFixed(0) + '%',\n        impressions: cur.impressions\n      });\n    }\n  }\n}\n\nconst hasAlerts = urgentAlerts.length > 0 || ctrAnomalies.length > 0 || disappeared.length > 0;\n\nreturn [{ json: {\n  urgentAlerts,\n  warnings,\n  ctrAnomalies,\n  disappeared,\n  hasAlerts,\n  summary: {\n    queriesCompared: current.length,\n    urgentCount: urgentAlerts.length,\n    warningCount: warnings.length,\n    ctrAnomalyCount: ctrAnomalies.length,\n    disappearedCount: disappeared.length\n  }\n}}];"
       },
       "id": "detect-drops",
       "name": "Detect Rank Drops + CTR Anomalies",
@@ -93,48 +88,36 @@
     },
     {
       "parameters": {
-        "jsCode": "// Store alert data for weekly summary aggregation by TG-102\nconst data = $json;\n\n// Calculate Monday of current week for week_start\nconst now = new Date();\nconst day = now.getDay();\nconst diff = now.getDate() - day + (day === 0 ? -6 : 1);\nconst mondayDate = new Date(now);\nmondayDate.setDate(diff);\nconst monday = mondayDate.toISOString().split('T')[0];\n\n// Calculate Sunday (week_end = monday + 6 days)\nconst sundayDate = new Date(mondayDate);\nsundayDate.setDate(sundayDate.getDate() + 6);\nconst sunday = sundayDate.toISOString().split('T')[0];\n\nreturn [{ json: {\n  ...data,\n  storePayload: {\n    week_start: monday,\n    week_end: sunday,\n    report_data: {\n      rank_drops: data.urgentAlerts,\n      warnings: data.warnings,\n      ctr_anomalies: data.ctrAnomalies,\n      summary: data.summary\n    },\n    top_losing_keywords: data.urgentAlerts.concat(data.warnings).map(a => a.query),\n    declining_pages: data.urgentAlerts.map(a => a.page).filter(Boolean)\n  }\n}}];"
-      },
-      "id": "prepare-store",
-      "name": "Prepare Store Payload",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [920, 300]
-    },
-    {
-      "parameters": {
         "method": "POST",
-        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/seo_weekly_reports",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/automation_runs",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Content-Type",
               "value": "application/json"
-            },
-            {
-              "name": "Prefer",
-              "value": "resolution=merge-duplicates,return=minimal"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.storePayload) }}"
+        "jsonBody": "={{ JSON.stringify({ workflow_id: 'TG-97', workflow_name: 'rank-drop-detector', status: 'success', metadata: $json.summary, ran_at: new Date().toISOString() }) }}",
+        "options": {}
       },
-      "id": "store-alerts",
-      "name": "Store Alert Data",
+      "id": "log-run",
+      "name": "Log to automation_runs",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1140, 300]
+      "position": [920, 300],
+      "continueOnFail": true
     },
     {
       "parameters": {
@@ -146,17 +129,8 @@
           },
           "conditions": [
             {
-              "id": "urgent-check",
-              "leftValue": "={{ $json.hasUrgent }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "equals"
-              }
-            },
-            {
-              "id": "ctr-check",
-              "leftValue": "={{ $json.hasCtrAnomaly }}",
+              "id": "alert-check",
+              "leftValue": "={{ $json.hasAlerts }}",
               "rightValue": true,
               "operator": {
                 "type": "boolean",
@@ -167,25 +141,25 @@
           "combinator": "or"
         }
       },
-      "id": "if-urgent",
-      "name": "Has Urgent Alerts",
+      "id": "if-alerts",
+      "name": "Has Alerts?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [1360, 300]
+      "position": [1140, 300]
     },
     {
       "parameters": {
-        "jsCode": "// Build Telegram alert message for rank drops > 3 positions\nconst data = $json;\nconst lines = ['\\ud83d\\udea8 *TG SEO Alert*'];\n\nif (data.urgentAlerts.length > 0) {\n  lines.push('');\n  lines.push('*Rank Drops (>3 positions):*');\n  data.urgentAlerts.slice(0, 5).forEach(a => {\n    lines.push(`\\u2022 \"${a.query}\" dropped ${a.drop} pos (${a.oldPosition} \\u2192 ${a.newPosition})`);\n  });\n  if (data.urgentAlerts.length > 5) lines.push(`_+${data.urgentAlerts.length - 5} more_`);\n}\n\nif (data.ctrAnomalies.length > 0) {\n  lines.push('');\n  lines.push('*CTR Anomalies:*');\n  data.ctrAnomalies.slice(0, 3).forEach(a => {\n    lines.push(`\\u2022 \"${a.query}\" CTR ${a.oldCtr} \\u2192 ${a.newCtr} (${a.dropPct} drop)`);\n  });\n  if (data.ctrAnomalies.length > 3) lines.push(`_+${data.ctrAnomalies.length - 3} more_`);\n}\n\nlines.push('');\nlines.push(`_Compared ${data.summary.queriesCompared} queries_`);\n\nreturn [{ json: { text: lines.join('\\n') } }];"
+        "jsCode": "// Build Telegram alert message for rank drops > 3 positions\nconst data = $json;\nconst lines = ['\\ud83d\\udea8 *TG SEO Alert*'];\n\nif (data.urgentAlerts.length > 0) {\n  lines.push('');\n  lines.push('*Rank Drops (>3 positions):*');\n  data.urgentAlerts.slice(0, 8).forEach(a => {\n    lines.push(`\\u2022 \"${a.query}\" dropped ${a.drop} pos (${a.oldPosition} \\u2192 ${a.newPosition})`);\n  });\n  if (data.urgentAlerts.length > 8) lines.push(`_+${data.urgentAlerts.length - 8} more_`);\n}\n\nif (data.disappeared.length > 0) {\n  lines.push('');\n  lines.push('*Disappeared Keywords:*');\n  data.disappeared.slice(0, 5).forEach(a => {\n    lines.push(`\\u2022 \"${a.query}\" was at pos ${a.lastPosition} (${a.lastImpressions} imp)`);\n  });\n  if (data.disappeared.length > 5) lines.push(`_+${data.disappeared.length - 5} more_`);\n}\n\nif (data.ctrAnomalies.length > 0) {\n  lines.push('');\n  lines.push('*CTR Anomalies:*');\n  data.ctrAnomalies.slice(0, 3).forEach(a => {\n    lines.push(`\\u2022 \"${a.query}\" CTR ${a.oldCtr} \\u2192 ${a.newCtr} (${a.dropPct} drop)`);\n  });\n  if (data.ctrAnomalies.length > 3) lines.push(`_+${data.ctrAnomalies.length - 3} more_`);\n}\n\nlines.push('');\nlines.push(`_Compared ${data.summary.queriesCompared} queries (7d window)_`);\n\nreturn [{ json: { text: lines.join('\\n') } }];"
       },
       "id": "build-telegram-msg",
       "name": "Build Telegram Alert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1580, 200]
+      "position": [1360, 200]
     },
     {
       "parameters": {
-        "chatId": "TELEGRAM_CHAT_ID_PLACEHOLDER",
+        "chatId": "OWNER_TELEGRAM_CHAT_ID",
         "text": "={{ $json.text }}",
         "additionalFields": {
           "parse_mode": "Markdown"
@@ -195,17 +169,17 @@
       "name": "Send Telegram Alert",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [1800, 200],
+      "position": [1580, 200],
       "credentials": {
         "telegramApi": {
           "id": "V404qLIDXjmyzNeS",
-          "name": "Telegram TG-97"
+          "name": "Telegram TG Bot"
         }
       }
     }
   ],
   "connections": {
-    "Execute Workflow Trigger": {
+    "Daily 10am UTC": {
       "main": [
         [{ "node": "Calculate Date Range", "type": "main", "index": 0 }]
       ]
@@ -230,20 +204,15 @@
     },
     "Detect Rank Drops + CTR Anomalies": {
       "main": [
-        [{ "node": "Prepare Store Payload", "type": "main", "index": 0 }]
+        [{ "node": "Log to automation_runs", "type": "main", "index": 0 }]
       ]
     },
-    "Prepare Store Payload": {
+    "Log to automation_runs": {
       "main": [
-        [{ "node": "Store Alert Data", "type": "main", "index": 0 }]
+        [{ "node": "Has Alerts?", "type": "main", "index": 0 }]
       ]
     },
-    "Store Alert Data": {
-      "main": [
-        [{ "node": "Has Urgent Alerts", "type": "main", "index": 0 }]
-      ]
-    },
-    "Has Urgent Alerts": {
+    "Has Alerts?": {
       "main": [
         [{ "node": "Build Telegram Alert", "type": "main", "index": 0 }],
         []
