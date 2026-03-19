@@ -59,7 +59,7 @@ export function SmartBreadcrumb() {
   if (trail.length <= 1) return null;
 
   return (
-    <div className="bg-[#052e16] border-b border-white/[0.04]">
+    <div className="bg-[#052e16] border-b border-white/[0.04] relative z-30">
       <div className="container mx-auto px-4 sm:px-6 py-2.5">
         <nav
           aria-label="Breadcrumb"

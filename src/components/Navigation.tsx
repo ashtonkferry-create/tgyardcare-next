@@ -784,14 +784,14 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
       <div className="container mx-auto px-3 sm:px-4 relative z-10">
         <div className={cn("flex items-center justify-between transition-all duration-300", isCondensed ? "h-14 md:h-15 lg:h-16" : "h-16 md:h-18 lg:h-20")}>
           {/* ---- Logo ---- */}
-          <Link href="/" className="flex items-center group flex-shrink-0 -my-4">
+          <Link href="/" className="flex items-center group flex-shrink-0 -my-4 relative z-20">
             <Image
               alt="TotalGuard Yard Care - Professional Lawn Care Services in Madison Wisconsin"
               src="/images/totalguard-logo-summer.png"
               width={150}
               height={150}
               className={cn(
-                "w-auto hover:scale-105 transition-all duration-300",
+                "w-auto group-hover:scale-105 transition-all duration-300 pointer-events-none",
                 isCondensed ? "h-[6.5rem] md:h-[7.5rem] lg:h-[8.5rem]" : "h-32 md:h-36 lg:h-40"
               )}
               priority
