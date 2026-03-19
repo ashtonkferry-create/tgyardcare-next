@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Menu, ChevronDown, Phone, Sprout, Flower2, Calendar, Home, Snowflake,
   Scissors, SprayCan, Leaf, CircleDot, Trees, Sparkles, CloudRain,
   Shield, ArrowRight, Users, Award, Droplets, Building2,
-  TreePine, CheckCircle2, Clock, FileText, Layers, type LucideIcon,
+  TreePine, CheckCircle2, Clock, FileText, Layers, MapPin, type LucideIcon,
 } from "lucide-react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import Image from "next/image";
@@ -24,37 +24,33 @@ import { useMagneticCursor } from '@/hooks/useMagneticCursor';
 // Spring-based animation variants
 // ---------------------------------------------------------------------------
 
-// Container — stagger children on open, reverse-stagger on exit
+// Container — fast tween, no blur filters (blur = GPU lag)
 const dropdownVariants = {
-  hidden: { opacity: 0, y: -10, scale: 0.96, filter: 'blur(4px)' },
+  hidden: { opacity: 0, y: -6 },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
-    filter: 'blur(0px)',
-    transition: { type: 'spring', stiffness: 400, damping: 28, staggerChildren: 0.03 },
+    transition: { duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94], staggerChildren: 0.02 },
   },
   exit: {
     opacity: 0,
-    y: -6,
-    scale: 0.98,
-    filter: 'blur(2px)',
-    transition: { type: 'spring', stiffness: 500, damping: 35, staggerChildren: 0.015, staggerDirection: -1 },
+    y: -4,
+    transition: { duration: 0.12, ease: [0.55, 0.06, 0.68, 0.19] },
   },
 } as Variants;
 
-// Individual item cascade
+// Individual item cascade — lightweight, no blur
 const itemVariants = {
-  hidden: { opacity: 0, y: 8, filter: 'blur(4px)' },
-  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { type: 'spring', stiffness: 400, damping: 30 } },
-  exit: { opacity: 0, y: -4, filter: 'blur(2px)' },
+  hidden: { opacity: 0, y: 6 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.15, ease: 'easeOut' } },
+  exit: { opacity: 0 },
 } as Variants;
 
-// Sidebar slides in from right
+// Sidebar slides in from right — lightweight
 const sidebarVariants = {
-  hidden: { opacity: 0, x: 20, filter: 'blur(4px)' },
-  visible: { opacity: 1, x: 0, filter: 'blur(0px)', transition: { type: 'spring', stiffness: 350, damping: 30, delay: 0.08 } },
-  exit: { opacity: 0, x: 10, filter: 'blur(2px)' },
+  hidden: { opacity: 0, x: 12 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.2, ease: 'easeOut', delay: 0.06 } },
+  exit: { opacity: 0, x: 8 },
 } as Variants;
 
 // Chevron spring rotation
@@ -336,7 +332,6 @@ const aboutPages = [
   { name: "Service Areas", path: "/service-areas", icon: TreePine, description: "Cities we serve" },
   { name: "FAQ", path: "/faq", icon: FileText, description: "Common questions" },
   { name: "Blog", path: "/blog", icon: FileText, description: "Tips & lawn care guides" },
-  { name: "Careers", path: "/careers", icon: Award, description: "Join our growing team" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -528,20 +523,14 @@ function MegaMenu({
 
   return (
     <div className={cn(
-      "w-[960px] rounded-xl shadow-2xl overflow-hidden relative",
-      "backdrop-blur-xl border border-white/[0.08]",
+      "w-[920px] rounded-xl shadow-2xl overflow-hidden relative",
+      "border border-white/[0.08]",
       "bg-gradient-to-br",
-      season === 'winter' ? 'from-slate-950/90 via-slate-900/85 to-blue-950/90' :
-      season === 'fall' ? 'from-stone-950/90 via-stone-900/85 to-amber-950/90' :
-      'from-[#0f2a1a]/90 via-[#142e1e]/85 to-[#1a3a2a]/90',
+      season === 'winter' ? 'from-slate-950 via-slate-900 to-blue-950' :
+      season === 'fall' ? 'from-stone-950 via-stone-900 to-amber-950' :
+      'from-[#0f2a1a] via-[#142e1e] to-[#1a3a2a]',
     )}>
-      {/* Shimmer sweep on open */}
-      <motion.div
-        initial={{ x: '-100%' }}
-        animate={{ x: '200%' }}
-        transition={{ duration: 0.8, ease: 'easeInOut' }}
-        className={cn("absolute top-0 left-0 w-1/3 h-1 z-10", accent.barGradient, "opacity-60")}
-      />
+      {/* Gradient top bar */}
       {/* Static gradient top bar */}
       <div className={`h-px ${accent.barGradient} opacity-40`} />
       {/* Inner top-edge highlight */}
@@ -573,7 +562,7 @@ function MegaMenu({
                     </div>
                     <span className={`text-xs font-bold ${accent.headerText} tracking-widest uppercase`}>{col.heading}</span>
                   </div>
-                  <p className="text-[10px] text-white/25 -mt-1">★ 4.9 · 500+ properties served</p>
+                  <p className="text-[10px] text-white/40 -mt-1">★ 4.9 · 500+ properties served</p>
 
                   {/* Service items — hovered item + related upsell items highlight */}
                   <motion.div className="space-y-0.5" variants={dropdownVariants}>
@@ -599,19 +588,13 @@ function MegaMenu({
                                   : 'hover:bg-white/[0.06]'
                             )}
                           >
-                            <motion.div
-                              whileHover={{ scale: 1.15 }}
-                              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-                              className="flex-shrink-0"
-                            >
-                              <ItemIcon className={cn(
-                                "h-4 w-4 transition-colors duration-200",
-                                active ? accent.activeItemText :
-                                isHovered ? accent.iconColor :
-                                related ? 'text-white/60' :
-                                `text-white/40 ${accent.hoverText}`
-                              )} />
-                            </motion.div>
+                            <ItemIcon className={cn(
+                              "h-4 w-4 flex-shrink-0 transition-colors duration-150",
+                              active ? accent.activeItemText :
+                              isHovered ? accent.iconColor :
+                              related ? 'text-white/60' :
+                              `text-white/50 ${accent.hoverText}`
+                            )} />
                             <div className="min-w-0 flex-1">
                               <span className={cn(
                                 "block text-sm leading-tight transition-all duration-200",
@@ -624,7 +607,7 @@ function MegaMenu({
                               </span>
                               <span className={cn(
                                 "block text-[11px] leading-tight mt-0.5 transition-colors duration-200",
-                                related ? 'text-white/50' : 'text-white/35 group-hover:text-white/55'
+                                related ? 'text-white/60' : 'text-white/50 group-hover:text-white/70'
                               )}>
                                 {item.description}
                               </span>
@@ -636,16 +619,12 @@ function MegaMenu({
                                 Booking Now
                               </span>
                             )}
-                            {/* Arrow indicator fades in on hover */}
+                            {/* Arrow indicator — CSS transition, no motion.div */}
                             {!isSeasonal && (
-                              <motion.div
-                                initial={{ opacity: 0, x: -4 }}
-                                animate={isHovered ? { opacity: 1, x: 0 } : { opacity: 0, x: -4 }}
-                                transition={{ duration: 0.15 }}
-                                className="flex-shrink-0"
-                              >
-                                <ArrowRight className={`h-3 w-3 ${accent.iconColor}`} />
-                              </motion.div>
+                              <ArrowRight className={cn(
+                                "h-3 w-3 flex-shrink-0 transition-all duration-150",
+                                isHovered ? `${accent.iconColor} opacity-100 translate-x-0` : 'opacity-0 -translate-x-1'
+                              )} />
                             )}
                             {active && (
                               <div className={`w-1.5 h-1.5 ${accent.pulseDot} rounded-full animate-pulse flex-shrink-0`} />
@@ -676,7 +655,7 @@ function MegaMenu({
         </div>
 
         {/* ---- Sidebar Panel (dynamic — updates on service hover) ---- */}
-        <motion.div variants={sidebarVariants} className="w-[260px] bg-white/[0.04] backdrop-blur-sm border-l border-white/[0.06] p-5 flex flex-col">
+        <motion.div variants={sidebarVariants} className="w-[240px] bg-white/[0.05] border-l border-white/[0.06] p-5 flex flex-col">
           {/* Icon + heading */}
           <div className="flex items-center gap-2 mb-3 transition-all duration-200">
             <div className={`p-2 ${accent.sidebarIconBg} rounded-lg transition-colors duration-200`}>
@@ -686,7 +665,7 @@ function MegaMenu({
           </div>
 
           {/* Description */}
-          <p className="text-[11px] text-white/50 leading-relaxed mb-3">
+          <p className="text-[11px] text-white/60 leading-relaxed mb-3">
             {activeSidebar.description}
           </p>
 
@@ -712,13 +691,13 @@ function MegaMenu({
           </motion.div>
 
           {/* Or call */}
-          <p className="text-[10px] text-white/35 text-center">
+          <p className="text-[10px] text-white/50 text-center">
             Or call{' '}
-            <a href="tel:608-535-6057" className="text-white/60 hover:text-white transition-colors underline underline-offset-2">
+            <a href="tel:608-535-6057" className="text-white/70 hover:text-white transition-colors underline underline-offset-2">
               (608) 535-6057
             </a>
           </p>
-          <p className="text-[9px] text-white/25 text-center mb-3">Same-day quotes available</p>
+          <p className="text-[9px] text-white/40 text-center mb-3">Same-day quotes available</p>
 
           {/* Trust badges */}
           <div className="mt-auto space-y-2 pt-3 border-t border-white/10">
@@ -739,8 +718,8 @@ function MegaMenu({
 
       {/* Bottom trust bar */}
       <div className="px-5 py-2 border-t border-white/[0.04] flex items-center justify-center gap-2">
-        <Shield className="h-3 w-3 text-white/20" />
-        <p className="text-[9px] text-white/20 tracking-wide">
+        <Shield className="h-3 w-3 text-white/35" />
+        <p className="text-[9px] text-white/35 tracking-wide">
           Licensed & Insured · Serving All of Dane County · Est. 2024
         </p>
       </div>
@@ -1061,17 +1040,10 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
                     }}
                   >
                     <div className={cn(
-                      "w-[420px] rounded-xl shadow-2xl overflow-hidden relative",
-                      "backdrop-blur-xl border border-white/[0.08]",
-                      "bg-gradient-to-br from-[#1a1a1a]/90 via-[#222222]/85 to-[#1a1a1a]/90",
+                      "w-[400px] rounded-xl shadow-2xl overflow-hidden relative",
+                      "border border-white/[0.08]",
+                      "bg-gradient-to-br from-[#1a1a1a] via-[#222222] to-[#1a1a1a]",
                     )}>
-                      {/* Shimmer sweep */}
-                      <motion.div
-                        initial={{ x: '-100%' }}
-                        animate={{ x: '200%' }}
-                        transition={{ duration: 0.8, ease: 'easeInOut' }}
-                        className="absolute top-0 left-0 w-1/3 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-60 z-10"
-                      />
                       <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
                       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
@@ -1102,7 +1074,7 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
                                     )}>
                                       {page.name}
                                     </span>
-                                    <span className="block text-[10px] text-white/35 group-hover:text-white/50 transition-colors">
+                                    <span className="block text-[10px] text-white/45 group-hover:text-white/65 transition-colors">
                                       {page.description}
                                     </span>
                                   </div>
@@ -1112,25 +1084,50 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
                           })}
                         </motion.div>
 
-                        {/* Right: About card */}
-                        <motion.div variants={sidebarVariants} className="w-[160px] bg-white/[0.03] border-l border-white/[0.06] p-4 flex flex-col items-center text-center">
-                          <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center mb-2">
-                            <TreePine className="h-5 w-5 text-primary" />
-                          </div>
-                          <p className="text-xs font-bold text-white leading-tight">TotalGuard</p>
-                          <p className="text-[10px] text-white/40 mt-0.5">Yard Care</p>
-                          <div className="flex items-center gap-1 mt-2">
-                            <span className="text-[10px] text-amber-400">★★★★★</span>
-                            <span className="text-[10px] text-white/40">4.9</span>
-                          </div>
-                          <p className="text-[9px] text-white/30 mt-1">Madison, WI</p>
-                          <a
-                            href="tel:608-535-6057"
-                            className="mt-3 flex items-center gap-1.5 text-[10px] text-primary hover:text-primary/80 transition-colors font-semibold"
-                          >
-                            <Phone className="h-3 w-3" />
-                            Call Us
+                        {/* Right: Quick contact + trust signals */}
+                        <motion.div variants={sidebarVariants} className="w-[170px] bg-white/[0.03] border-l border-white/[0.06] p-4 flex flex-col">
+                          {/* Get in touch */}
+                          <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-3">Get in Touch</p>
+
+                          <a href="tel:608-535-6057" className="flex items-center gap-2 mb-2 group">
+                            <div className="p-1.5 bg-primary/15 rounded-lg group-hover:bg-primary/25 transition-colors">
+                              <Phone className="h-3.5 w-3.5 text-primary" />
+                            </div>
+                            <div>
+                              <span className="block text-xs font-bold text-white">(608) 535-6057</span>
+                              <span className="block text-[9px] text-white/40">Mon–Sat 7am–7pm</span>
+                            </div>
                           </a>
+
+                          <Link href="/contact" className="flex items-center gap-2 mb-4 group">
+                            <div className="p-1.5 bg-primary/15 rounded-lg group-hover:bg-primary/25 transition-colors">
+                              <ArrowRight className="h-3.5 w-3.5 text-primary" />
+                            </div>
+                            <div>
+                              <span className="block text-xs font-bold text-white">Free Quote</span>
+                              <span className="block text-[9px] text-white/40">Same-day response</span>
+                            </div>
+                          </Link>
+
+                          {/* Trust signals */}
+                          <div className="border-t border-white/[0.06] pt-3 space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Shield className="h-3.5 w-3.5 text-primary/70" />
+                              <span className="text-[10px] text-white/50">Licensed & Insured</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Users className="h-3.5 w-3.5 text-primary/70" />
+                              <span className="text-[10px] text-white/50">Same Crew Every Visit</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-3.5 w-3.5 text-primary/70" />
+                              <span className="text-[10px] text-white/50">500+ Properties Served</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-3.5 w-3.5 text-primary/70" />
+                              <span className="text-[10px] text-white/50">All of Dane County</span>
+                            </div>
+                          </div>
                         </motion.div>
                       </div>
                     </div>
@@ -1138,6 +1135,14 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Careers standalone link */}
+            <Link
+              href="/careers"
+              className={`text-white/90 ${t.hoverText} hover:bg-white/5 transition-all font-semibold text-sm tracking-wide px-4 py-2 rounded-lg`}
+            >
+              Careers
+            </Link>
           </div>
 
           {/* ---- Desktop Right Side (Phone + CTA) ---- */}

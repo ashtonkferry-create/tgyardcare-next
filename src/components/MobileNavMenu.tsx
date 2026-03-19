@@ -146,39 +146,39 @@ const sheetVariants = {
   hidden: { y: '100%' },
   visible: {
     y: '0%',
-    transition: { type: 'spring', stiffness: 350, damping: 35 },
+    transition: { type: 'spring' as const, stiffness: 350, damping: 35 },
   },
   exit: {
     y: '100%',
-    transition: { type: 'spring', stiffness: 400, damping: 40 },
+    transition: { duration: 0.2, ease: [0.55, 0.06, 0.68, 0.19] as const },
   },
 };
 
 const sectionVariants = {
   hidden: { height: 0, opacity: 0 },
   visible: {
-    height: 'auto',
+    height: 'auto' as const,
     opacity: 1,
     transition: {
-      height: { type: 'spring', stiffness: 400, damping: 35 },
-      opacity: { duration: 0.2, delay: 0.05 },
-      staggerChildren: 0.025,
+      height: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] as const },
+      opacity: { duration: 0.15, delay: 0.05 },
+      staggerChildren: 0.02,
     },
   },
   exit: {
     height: 0,
     opacity: 0,
     transition: {
-      height: { type: 'spring', stiffness: 500, damping: 40 },
-      opacity: { duration: 0.1 },
+      height: { duration: 0.15, ease: [0.55, 0.06, 0.68, 0.19] as const },
+      opacity: { duration: 0.08 },
     },
   },
 };
 
 const itemFadeVariants = {
-  hidden: { opacity: 0, x: -8 },
-  visible: { opacity: 1, x: 0, transition: { type: 'spring', stiffness: 400, damping: 30 } },
-  exit: { opacity: 0, x: -8 },
+  hidden: { opacity: 0, x: -6 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.12, ease: 'easeOut' as const } },
+  exit: { opacity: 0, x: -6 },
 };
 
 export function MobileNavMenu({ isOpen, onClose }: MobileNavMenuProps) {
@@ -234,7 +234,7 @@ export function MobileNavMenu({ isOpen, onClose }: MobileNavMenuProps) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/75"
             onClick={onClose}
           />
 
@@ -304,7 +304,7 @@ export function MobileNavMenu({ isOpen, onClose }: MobileNavMenuProps) {
                           key={service.path}
                           href={service.path}
                           onClick={onClose}
-                          className={`relative flex flex-col gap-1.5 p-3.5 rounded-xl text-sm font-semibold backdrop-blur-md border transition-all active:scale-[0.97] ${
+                          className={`relative flex flex-col gap-1.5 p-3.5 rounded-xl text-sm font-semibold border transition-all active:scale-[0.97] ${
                             isSnow
                               ? 'bg-sky-600/10 text-sky-300 border-sky-400/20'
                               : 'bg-white/[0.06] text-white border-white/[0.08]'
