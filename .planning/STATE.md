@@ -117,6 +117,13 @@ Progress M2: [██████████████████████
 - [M4 Phase 16]: 30 workflows now active (added TG-96, TG-45, TG-97)
 - [M4 Phase 16]: TG-96 uses n8n Google Service Account credential reference (GOOGLE_CREDENTIAL_ID placeholder)
 - [M4 Phase 16]: TG-97 detects disappeared keywords + CTR anomalies in addition to rank drops
+- [M4 Phase 16]: TG-99 rebuilt with internal linking (service + city page URLs in Claude prompt), Telegram replaces SMS
+- [M4 Phase 16]: TG-103 rebuilt with internal linking (service pages + recent blog posts), removed stale TG-104 ref
+- [M4 Phase 16]: TG-47 rebuilt with error handling (Check IndexNow Result node), enhanced logging
+- [M4 Phase 16]: TG-99 deployed (ANcn1PWAky4GoCbb), TG-103 (igtaJUnj9xDXcV2B), TG-47 (rshVSBVpDprurfIa) — all active
+- [M4 Phase 16]: TG-99/TG-103 call TG-47 as sub-workflow for IndexNow (DRY pattern)
+- [M4 Phase 16]: n8n API PUT rejects read-only 'tags' field — strip before deployment
+- [M4 Phase 16]: 33 workflows now active (added TG-99, TG-103, TG-47)
 
 ### Pending Todos
 
@@ -152,6 +159,10 @@ Progress M2: [██████████████████████
 - Update GOOGLE_CREDENTIAL_ID in TG-96 with actual n8n credential ID
 - Replace OWNER_TELEGRAM_CHAT_ID in TG-97 Send Telegram Alert node with Vance's actual Telegram chat ID
 - Create gsc_pages, gsc_search_queries, seo_rankings, seo_weekly_reports tables in Supabase
+- Replace OWNER_TELEGRAM_CHAT_ID in TG-99 Telegram Notification node with Vance's actual Telegram chat ID
+- Set ANTHROPIC_API_KEY in n8n for TG-99 and TG-103 Claude content generation
+- Set SUPABASE_SECRET_KEY in n8n for TG-99, TG-103, TG-47 Supabase API calls
+- Create seo_target_cities table in Supabase for TG-103 city processing
 
 ### Blockers/Concerns
 
@@ -165,6 +176,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 16-02-PLAN.md (rank monitoring pipeline)
+Stopped at: Completed 16-01-PLAN.md (content production pipeline)
 Resume file: None
 Next: 16-03-PLAN.md (weekly SEO digest)
