@@ -71,6 +71,12 @@ Plans:
 **Goal**: Every quote form submission gets instant multi-channel response (SMS + Telegram + email), followed by a 5-touch follow-up sequence with dynamic social proof — nobody falls through the cracks.
 **Depends on**: Phase 11 (infrastructure workflows active)
 **Requirements**: CONV-01, CONV-02, CONV-03, CONV-04, CONV-05, CONV-06, CONV-07
+**Plans:** 4 plans
+Plans:
+- [ ] 12-01-PLAN.md — Enhance TG-01 with instant SMS + Telegram + email (CONV-01, CONV-02, CONV-03)
+- [ ] 12-02-PLAN.md — Speed-to-lead timer with escalating Telegram warnings (CONV-04)
+- [ ] 12-03-PLAN.md — 5-touch follow-up sequence with dynamic Google reviews (CONV-05, CONV-06)
+- [ ] 12-04-PLAN.md — Lead scoring with engagement signals + hot lead alerts (CONV-07)
 **Success Criteria**:
   1. Quote form submit → SMS arrives on customer phone within 5 seconds
   2. Quote form submit → Telegram message appears on Vance's phone instantly
@@ -165,7 +171,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 11. Foundation & Infrastructure | M4 | 5/5 | Complete | 2026-03-19 |
-| 12. Conversion Engine | M4 | 0/? | Not Started | - |
+| 12. Conversion Engine | M4 | 0/7 | Planned | - |
 | 13. Delivery Excellence | M4 | 0/? | Not Started | - |
 | 14. Review Generation | M4 | 0/? | Not Started | - |
 | 15. Retention & LTV | M4 | 0/? | Not Started | - |
