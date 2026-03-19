@@ -129,10 +129,14 @@ Progress M2: [██████████████████████
 - [M4 Phase 16]: TG-50 uses dual fetch: rank-prioritized RPC with age-based fallback (90-day threshold)
 - [M4 Phase 16]: TG-50 direct HTTP to IndexNow (not sub-workflow), structured Claude prompt format
 - [M4 Phase 16]: 34 workflows now active (added TG-50) — Phase 16 COMPLETE, all 8 SEO requirements covered
+- [M4 Phase 17]: TG-133 Weekly Content Batch deployed (n8n ID: 412qRf23ZeC9HxTC), Monday 6am CT, 8 nodes, active
+- [M4 Phase 17]: TG-133 generates 7 pillar-based posts via Claude Haiku 4.5, stores in social_posts table
+- [M4 Phase 17]: Platforms: Instagram + Google Business Profile only (no Facebook, no TikTok)
+- [M4 Phase 17]: social_posts table needs manual creation in Supabase (SQL in SOCIAL-CONTENT-CALENDAR.md)
 - [M4 Phase 17]: TG-134 review-to-social deployed (n8n ID: KQ8jyy2xFQ4ud6YH), daily 8am CT, 8 nodes
 - [M4 Phase 17]: TG-134 converts 5-star reviews into branded social posts for Instagram/LinkedIn/Pinterest
 - [M4 Phase 17]: social_posted flag on google_reviews for dedup, Wednesday 10am CT scheduled posting
-- [M4 Phase 17]: 35 workflows now active (added TG-134)
+- [M4 Phase 17]: 36 workflows now active (added TG-133, TG-134)
 
 ### Pending Todos
 
@@ -176,6 +180,9 @@ Progress M2: [██████████████████████
 - Set CLAUDE_API_KEY env variable in n8n for TG-50 AI refresh
 - Add last_refreshed_at column to blog_posts table: `ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS last_refreshed_at timestamptz;`
 - (Optional) Create get_stale_posts_ranked RPC in Supabase for rank-prioritized refresh ordering
+- Create social_posts table in Supabase SQL Editor (SQL in automation/SOCIAL-CONTENT-CALENDAR.md)
+- Set ANTHROPIC_API_KEY in TG-133 Generate 7 Posts node x-api-key header
+- Set TELEGRAM_BOT_TOKEN and OWNER_TELEGRAM_CHAT_ID env variables in n8n for TG-133 Telegram notification
 
 ### Blockers/Concerns
 
@@ -189,6 +196,6 @@ Progress M2: [██████████████████████
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 16-03-PLAN.md (content refresh pipeline) — Phase 16 COMPLETE
+Stopped at: Completed 17-01-PLAN.md (weekly content batch generator) — deployed TG-133 to n8n
 Resume file: None
-Next: Phase 17 (Social Media Engine) or next M4 phase
+Next: 17-03-PLAN.md (daily social publisher) or next Phase 17 plan
