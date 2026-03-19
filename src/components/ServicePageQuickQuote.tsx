@@ -1,427 +1,221 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { Phone, Star, Users, Clock, Award } from 'lucide-react';
+import SmartQuoteFlow from '@/components/SmartQuoteFlow';
 
 interface ServicePageQuickQuoteProps {
   serviceName: string;
   serviceSlug: string;
+  serviceEmoji?: string;
 }
 
-interface FormFields {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-}
-
-interface FieldErrors {
-  name?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  form?: string;
-}
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function validateFields(fields: FormFields): FieldErrors {
-  const errors: FieldErrors = {};
-
-  if (!fields.name.trim() || fields.name.trim().length < 2) {
-    errors.name = 'Name must be at least 2 characters';
-  } else if (!/^[a-zA-Z\s'-]+$/.test(fields.name.trim())) {
-    errors.name = 'Name can only contain letters, spaces, hyphens, and apostrophes.';
-  }
-
-  if (!fields.email.trim() || !EMAIL_REGEX.test(fields.email.trim())) {
-    errors.email = 'Please enter a valid email address';
-  }
-
-  const digitsOnly = fields.phone.replace(/\D/g, '');
-  if (!fields.phone.trim() || digitsOnly.length < 10) {
-    errors.phone = 'Phone number must be at least 10 digits';
-  }
-
-  if (!fields.address.trim() || fields.address.trim().length < 5) {
-    errors.address = 'Address must be at least 5 characters';
-  }
-
-  return errors;
-}
-
-const inputBase: React.CSSProperties = {
-  width: '100%',
-  padding: '12px 16px',
-  background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.10)',
-  borderRadius: '12px',
-  color: 'white',
-  fontSize: '15px',
-  outline: 'none',
-  transition: 'border-color 0.2s ease',
+const SERVICE_EMOJIS: Record<string, string> = {
+  mowing: '🌿',
+  fertilization: '🌱',
+  aeration: '🌾',
+  'spring-cleanup': '🌸',
+  'fall-cleanup': '🍂',
+  'leaf-removal': '🍁',
+  mulching: '🪵',
+  'gutter-cleaning': '🏠',
+  'gutter-guards': '🛡️',
+  'snow-removal': '❄️',
+  herbicide: '🌿',
+  weeding: '✂️',
+  'garden-beds': '🌺',
+  pruning: '🌳',
+  hardscaping: '🪨',
 };
 
-function Field({
-  label,
-  id,
-  type = 'text',
-  value,
-  placeholder,
-  error,
-  onChange,
-}: {
-  label: string;
-  id: keyof FormFields;
-  type?: string;
-  value: string;
-  placeholder: string;
-  error?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}) {
-  const [focused, setFocused] = useState(false);
+// Dot pattern SVG as data URI — 1.5px dots on 20px grid at 12% opacity
+const DOT_PATTERN = `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1.5' fill='rgba(34%2C197%2C94%2C0.12)'/%3E%3C/svg%3E")`;
 
-  const borderColor = error
-    ? 'rgba(248,113,113,0.40)'
-    : focused
-    ? 'rgba(34,197,94,0.40)'
-    : 'rgba(255,255,255,0.10)';
-
-  return (
-    <div>
-      <label
-        htmlFor={id}
-        style={{
-          display: 'block',
-          fontSize: '13px',
-          fontWeight: 600,
-          color: 'rgba(255,255,255,0.65)',
-          marginBottom: '6px',
-        }}
-      >
-        {label}
-      </label>
-      <input
-        id={id}
-        name={id}
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        required
-        autoComplete={
-          id === 'name'
-            ? 'name'
-            : id === 'email'
-            ? 'email'
-            : id === 'phone'
-            ? 'tel'
-            : 'street-address'
-        }
-        onChange={onChange}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        style={{ ...inputBase, borderColor }}
-        aria-invalid={error ? 'true' : 'false'}
-        aria-describedby={error ? `${id}-error` : undefined}
-      />
-      {error && (
-        <p
-          id={`${id}-error`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            marginTop: '6px',
-            fontSize: '12px',
-            color: '#f87171',
-          }}
-        >
-          <AlertCircle size={13} />
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
+const TRUST_PILLS = [
+  { icon: Star,  text: '4.9 Google Rating' },
+  { icon: Users, text: '80+ Families Served' },
+  { icon: Clock, text: 'Same-Day Response' },
+  { icon: Award, text: 'Nextdoor Fave' },
+] as const;
 
 export default function ServicePageQuickQuote({
   serviceName,
   serviceSlug,
+  serviceEmoji,
 }: ServicePageQuickQuoteProps) {
-  const [fields, setFields] = useState<FormFields>({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-  });
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [quoteOpen, setQuoteOpen] = useState(false);
+  const [btnHovered, setBtnHovered] = useState(false);
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFields((prev) => ({ ...prev, [name]: value }));
-    if (errors[name as keyof FieldErrors]) {
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next[name as keyof FieldErrors];
-        return next;
-      });
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const validationErrors = validateFields(fields);
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    setErrors({});
-    setIsSubmitting(true);
-
-    try {
-      const message = `I'm interested in ${serviceName} service.`;
-
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: fields.name.trim(),
-          email: fields.email.trim().toLowerCase(),
-          phone: fields.phone.trim(),
-          address: fields.address.trim(),
-          message,
-          service: serviceSlug,
-        }),
-      });
-
-      const json = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        throw new Error(
-          (json as { error?: string })?.error ?? `Server error (${res.status})`
-        );
-      }
-
-      setSubmitted(true);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to submit form. Please try again.';
-      setErrors({ form: message });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const emoji = serviceEmoji ?? SERVICE_EMOJIS[serviceSlug] ?? '🌿';
 
   return (
-    <section
-      style={{ background: '#052e16', paddingTop: '40px', paddingBottom: '56px' }}
-      className="py-10 md:py-14"
-    >
-      <div className="container mx-auto px-4">
-        <div style={{ maxWidth: '560px', margin: '0 auto' }}>
-          <AnimatePresence mode="wait">
-            {submitted ? (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
+    <>
+      <section
+        ref={ref}
+        className="relative overflow-hidden"
+        style={{ background: '#030c06' }}
+      >
+        {/* Dot pattern */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ backgroundImage: DOT_PATTERN }}
+        />
+
+        {/* Left glowing border */}
+        <div
+          className="absolute left-0 top-0 bottom-0 w-1 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(180deg, transparent 0%, #22c55e 30%, #22c55e 70%, transparent 100%)',
+            boxShadow: '4px 0 24px rgba(34,197,94,0.20)',
+          }}
+        />
+
+        {/* Top edge shine */}
+        <div
+          className="absolute top-0 left-0 right-0 h-px pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(90deg, transparent 10%, rgba(34,197,94,0.25) 50%, transparent 90%)',
+          }}
+        />
+
+        {/* Content */}
+        <div className="relative container mx-auto px-6 py-14 md:py-20">
+          <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10">
+
+            {/* ── Left: Text + Trust ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              className="flex-1 max-w-xl"
+            >
+              {/* Service badge */}
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-5"
                 style={{
-                  background: 'rgba(16,185,129,0.08)',
-                  border: '1px solid rgba(16,185,129,0.25)',
-                  borderRadius: '16px',
-                  padding: '40px 32px',
-                  textAlign: 'center',
+                  background: 'rgba(34,197,94,0.10)',
+                  border: '1px solid rgba(34,197,94,0.25)',
+                  color: '#86efac',
                 }}
               >
-                <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '56px',
-                    height: '56px',
-                    borderRadius: '50%',
-                    background: 'rgba(16,185,129,0.15)',
-                    marginBottom: '16px',
-                  }}
-                >
-                  <CheckCircle size={28} color="#10b981" />
-                </div>
-                <h3
-                  style={{
-                    fontSize: '20px',
-                    fontWeight: 700,
-                    color: 'white',
-                    marginBottom: '10px',
-                  }}
-                >
-                  Quote Request Received
-                </h3>
-                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>
-                  Our team will reach out to discuss your property and get you scheduled — typically
-                  within the same business day.
-                </p>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="form"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.10)',
-                  borderRadius: '16px',
-                  padding: '32px',
-                }}
-                className="md:p-8"
+                <span>{emoji}</span>
+                <span>{serviceName}</span>
+              </div>
+
+              {/* Headline */}
+              <h2
+                className="font-display font-bold text-white mb-4 leading-tight"
+                style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}
               >
-                {/* Header */}
-                <div style={{ marginBottom: '24px' }}>
-                  <h2
+                Get Your Free {serviceName} Quote
+              </h2>
+
+              {/* Subline */}
+              <p
+                className="text-sm mb-8 leading-relaxed"
+                style={{ color: 'rgba(255,255,255,0.50)' }}
+              >
+                Answer a few quick questions — we&apos;ll call you back with a price built for
+                your exact property. No obligations. Same-day response.
+              </p>
+
+              {/* Trust pills */}
+              <div className="flex flex-wrap gap-3">
+                {TRUST_PILLS.map(({ icon: Icon, text }) => (
+                  <div
+                    key={text}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium"
                     style={{
-                      fontSize: '22px',
-                      fontWeight: 700,
-                      color: 'white',
-                      marginBottom: '6px',
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      color: 'rgba(255,255,255,0.55)',
                     }}
-                    className="text-xl md:text-2xl font-bold"
                   >
-                    Get Your {serviceName} Quote
-                  </h2>
-                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)' }}>
-                    We'll reach out to discuss your property and get you scheduled.
-                  </p>
-                </div>
-
-                {/* Form */}
-                <form onSubmit={handleSubmit} noValidate>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <Field
-                      label="Full Name"
-                      id="name"
-                      type="text"
-                      value={fields.name}
-                      placeholder="John Smith"
-                      error={errors.name}
-                      onChange={handleChange}
-                    />
-                    <Field
-                      label="Email Address"
-                      id="email"
-                      type="email"
-                      value={fields.email}
-                      placeholder="john@example.com"
-                      error={errors.email}
-                      onChange={handleChange}
-                    />
-                    <Field
-                      label="Phone Number"
-                      id="phone"
-                      type="tel"
-                      value={fields.phone}
-                      placeholder="(608) 555-1234"
-                      error={errors.phone}
-                      onChange={handleChange}
-                    />
-                    <Field
-                      label="Property Address"
-                      id="address"
-                      type="text"
-                      value={fields.address}
-                      placeholder="123 Main St, Madison, WI 53703"
-                      error={errors.address}
-                      onChange={handleChange}
-                    />
-
-                    {/* Form-level error */}
-                    {errors.form && (
-                      <p
-                        role="alert"
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '10px 14px',
-                          background: 'rgba(248,113,113,0.08)',
-                          border: '1px solid rgba(248,113,113,0.25)',
-                          borderRadius: '10px',
-                          fontSize: '13px',
-                          color: '#f87171',
-                        }}
-                      >
-                        <AlertCircle size={14} />
-                        {errors.form}
-                      </p>
-                    )}
-
-                    {/* Submit */}
-                    <motion.button
-                      type="submit"
-                      disabled={isSubmitting}
-                      whileHover={isSubmitting ? {} : { scale: 1.02 }}
-                      whileTap={isSubmitting ? {} : { scale: 0.98 }}
-                      style={{
-                        width: '100%',
-                        padding: '14px 24px',
-                        borderRadius: '12px',
-                        background: isSubmitting
-                          ? 'rgba(34,197,94,0.5)'
-                          : 'linear-gradient(135deg, #22c55e, #16a34a)',
-                        border: 'none',
-                        color: 'white',
-                        fontWeight: 700,
-                        fontSize: '15px',
-                        cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        transition: 'box-shadow 0.2s ease',
-                        marginTop: '4px',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isSubmitting) {
-                          (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                            '0 0 24px rgba(34,197,94,0.30)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none';
-                      }}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
-                          Sending Request…
-                        </>
-                      ) : (
-                        'Request My Free Quote'
-                      )}
-                    </motion.button>
+                    <Icon className="w-3 h-3" style={{ color: '#4ade80' }} />
+                    {text}
                   </div>
-                </form>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+                ))}
+              </div>
+            </motion.div>
 
-      {/* Spinner keyframe */}
+            {/* ── Right: CTA ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.15, ease: 'easeOut' }}
+              className="flex flex-col items-center md:items-end gap-4 w-full md:w-auto"
+              style={{ minWidth: '240px' }}
+            >
+              {/* Amber shimmer CTA */}
+              <motion.button
+                onClick={() => setQuoteOpen(true)}
+                onHoverStart={() => setBtnHovered(true)}
+                onHoverEnd={() => setBtnHovered(false)}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="relative w-full md:w-auto px-8 py-4 rounded-2xl font-bold text-base text-white overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+                  boxShadow: btnHovered
+                    ? '0 0 48px rgba(245,158,11,0.50), 0 8px 32px rgba(0,0,0,0.40)'
+                    : '0 0 24px rgba(245,158,11,0.25), 0 4px 16px rgba(0,0,0,0.30)',
+                  transition: 'box-shadow 0.25s ease',
+                  minWidth: '220px',
+                }}
+              >
+                {/* Shimmer sweep */}
+                <span
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                  style={{ animation: 'shimmer-spcq 2.5s infinite linear' }}
+                />
+                <span className="relative flex items-center justify-center gap-2">
+                  <span>{emoji}</span>
+                  <span>Get My Free Quote →</span>
+                </span>
+              </motion.button>
+
+              {/* Phone link */}
+              <a
+                href="tel:+16085356057"
+                className="flex items-center gap-2 text-sm transition-colors duration-200"
+                style={{ color: 'rgba(255,255,255,0.35)' }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.70)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.35)';
+                }}
+              >
+                <Phone className="w-3.5 h-3.5" />
+                (608) 535-6057
+              </a>
+            </motion.div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* Quote flow modal */}
+      <SmartQuoteFlow
+        serviceSlug={serviceSlug}
+        serviceName={serviceName}
+        serviceEmoji={emoji}
+        isOpen={quoteOpen}
+        onClose={() => setQuoteOpen(false)}
+      />
+
+      {/* Shimmer keyframe */}
       <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
+        @keyframes shimmer-spcq {
+          0%   { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
         }
       `}</style>
-    </section>
+    </>
   );
 }
