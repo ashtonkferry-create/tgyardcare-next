@@ -15,13 +15,13 @@
 
 ### Conversion Engine (CONV)
 
-- [ ] **CONV-01**: Quote form submission triggers instant SMS to customer within 5 seconds
-- [ ] **CONV-02**: Quote form submission triggers instant Telegram alert to Vance with one-tap call
-- [ ] **CONV-03**: Branded email confirmation sent to customer immediately after quote submission
-- [ ] **CONV-04**: Speed-to-lead timer: Telegram warning if lead not contacted within 2 hours
-- [ ] **CONV-05**: 5-touch follow-up sequence across SMS + email over 14 days
-- [ ] **CONV-06**: Every follow-up includes dynamic latest 5-star Google review
-- [ ] **CONV-07**: Lead scoring based on engagement signals
+- [x] **CONV-01**: Quote form submission triggers instant SMS to customer within 5 seconds
+- [x] **CONV-02**: Quote form submission triggers instant Telegram alert to Vance with one-tap call
+- [x] **CONV-03**: Branded email confirmation sent to customer immediately after quote submission
+- [x] **CONV-04**: Speed-to-lead timer: Telegram warning if lead not contacted within 2 hours
+- [x] **CONV-05**: 5-touch follow-up sequence across SMS + email over 14 days
+- [x] **CONV-06**: Every follow-up includes dynamic latest 5-star Google review
+- [x] **CONV-07**: Lead scoring based on engagement signals
 
 ### Delivery Excellence (DELV)
 
@@ -119,7 +119,7 @@
 | INFRA-01 | Phase 11 | Complete |
 | INFRA-02 | Phase 11 | Complete |
 | INFRA-03 to INFRA-05 | Phase 11 | Complete |
-| CONV-01 to CONV-07 | Phase 12 | Pending |
+| CONV-01 to CONV-07 | Phase 12 | Complete |
 | DELV-01 to DELV-05 | Phase 13 | Pending |
 | REVW-01 to REVW-07 | Phase 14 | Pending |
 | RETN-01 to RETN-09 | Phase 15 | Pending |

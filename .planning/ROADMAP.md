@@ -73,16 +73,11 @@ Plans:
 **Requirements**: CONV-01, CONV-02, CONV-03, CONV-04, CONV-05, CONV-06, CONV-07
 **Plans:** 4 plans
 Plans:
-- [ ] 12-01-PLAN.md — Enhance TG-01 with instant SMS + Telegram + email (CONV-01, CONV-02, CONV-03)
-- [ ] 12-02-PLAN.md — Speed-to-lead timer with escalating Telegram warnings (CONV-04)
-- [ ] 12-03-PLAN.md — 5-touch follow-up sequence with dynamic Google reviews (CONV-05, CONV-06)
-- [ ] 12-04-PLAN.md — Lead scoring with engagement signals + hot lead alerts (CONV-07)
-**Success Criteria**:
-  1. Quote form submit → SMS arrives on customer phone within 5 seconds
-  2. Quote form submit → Telegram message appears on Vance's phone instantly
-  3. Lead not contacted in 2h → escalating Telegram warnings
-  4. 5-touch follow-up fires automatically over 14 days with latest Google review
-  5. Lead scoring ranks leads by engagement signals in Supabase
+- [x] 12-01-PLAN.md — TG-01 enhanced with instant SMS + Telegram + email (CONV-01/02/03)
+- [x] 12-02-PLAN.md — TG-126 speed-to-lead timer deployed (CONV-04)
+- [x] 12-03-PLAN.md — TG-09 rebuilt with 5-touch sequence + dynamic reviews (CONV-05/06)
+- [x] 12-04-PLAN.md — TG-07 rebuilt with 3-dimension scoring + hot lead alerts (CONV-07)
+**Status**: Complete (2026-03-19)
 
 ### Phase 13: Delivery Excellence
 **Goal**: Every Jobber email event triggers appropriate automation — pre-job reminders, on-my-way SMS, post-job quality checks — making every customer feel like they have a personal lawn care concierge.
@@ -171,7 +166,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 11. Foundation & Infrastructure | M4 | 5/5 | Complete | 2026-03-19 |
-| 12. Conversion Engine | M4 | 0/7 | Planned | - |
+| 12. Conversion Engine | M4 | 7/7 | Complete | 2026-03-19 |
 | 13. Delivery Excellence | M4 | 0/? | Not Started | - |
 | 14. Review Generation | M4 | 0/? | Not Started | - |
 | 15. Retention & LTV | M4 | 0/? | Not Started | - |
