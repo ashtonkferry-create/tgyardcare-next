@@ -523,7 +523,7 @@ function MegaMenu({
 
   return (
     <div className={cn(
-      "w-[720px] rounded-xl shadow-2xl overflow-hidden relative",
+      "w-[920px] rounded-xl shadow-2xl overflow-hidden relative",
       "border border-white/[0.08]",
       "bg-gradient-to-br",
       season === 'winter' ? 'from-slate-950 via-slate-900 to-blue-950' :
@@ -550,19 +550,18 @@ function MegaMenu({
       <div className="flex relative">
         {/* ---- 3 Service Columns + Hardscaping Link ---- */}
         <div className="flex-1 flex flex-col">
-          <div className="p-4 pb-2 grid grid-cols-3 gap-4">
+          <div className="p-4 pb-1 grid grid-cols-3 gap-5">
             {columns.map((col) => {
               const ColIcon = col.icon;
               return (
-                <div key={col.heading} className="space-y-3">
+                <div key={col.heading} className="space-y-1">
                   {/* Column header — static, no hover effect */}
-                  <div className={`flex items-center gap-2 pb-2.5 border-b ${accent.headerBorder}`}>
-                    <div className={`p-1.5 ${accent.headerBg} rounded-lg`}>
-                      <ColIcon className={`h-4 w-4 ${accent.iconColor}`} />
+                  <div className={`flex items-center gap-2 pb-1.5 border-b ${accent.headerBorder}`}>
+                    <div className={`p-1 ${accent.headerBg} rounded-md`}>
+                      <ColIcon className={`h-3.5 w-3.5 ${accent.iconColor}`} />
                     </div>
-                    <span className={`text-xs font-bold ${accent.headerText} tracking-widest uppercase`}>{col.heading}</span>
+                    <span className={`text-[11px] font-bold ${accent.headerText} tracking-widest uppercase`}>{col.heading}</span>
                   </div>
-                  <p className="text-[10px] text-white/40 -mt-1">★ 4.9 · 500+ properties served</p>
 
                   {/* Service items — hovered item + related upsell items highlight */}
                   <motion.div className="space-y-0.5" variants={dropdownVariants}>
@@ -580,7 +579,7 @@ function MegaMenu({
                             onMouseEnter={() => setHoveredItem(item)}
                             onMouseLeave={() => setHoveredItem(null)}
                             className={cn(
-                              "group flex items-center gap-2.5 py-2.5 px-2.5 -mx-2.5 rounded-lg transition-all duration-200",
+                              "group flex items-center gap-2.5 py-1.5 px-2.5 -mx-2.5 rounded-lg transition-all duration-200",
                               active
                                 ? `${accent.activeItemBg} ${accent.activeItemText}`
                                 : related
@@ -640,7 +639,7 @@ function MegaMenu({
           </div>
 
           {/* Hardscaping partner link */}
-          <div className="px-5 pb-4 pt-1 border-t border-white/[0.06] mt-auto">
+          <div className="px-5 pb-3 pt-1 border-t border-white/[0.06] mt-auto">
             <Link
               href="/services/hardscaping"
               className="group inline-flex items-center gap-2 py-2 px-3 -mx-3 rounded-lg hover:bg-white/10 transition-all duration-200"
@@ -655,22 +654,22 @@ function MegaMenu({
         </div>
 
         {/* ---- Sidebar Panel (dynamic — updates on service hover) ---- */}
-        <motion.div variants={sidebarVariants} className="w-[200px] bg-white/[0.05] border-l border-white/[0.06] p-4 flex flex-col">
+        <motion.div variants={sidebarVariants} className="w-[240px] bg-white/[0.05] border-l border-white/[0.06] p-4 flex flex-col">
           {/* Icon + heading */}
-          <div className="flex items-center gap-2 mb-3 transition-all duration-200">
-            <div className={`p-2 ${accent.sidebarIconBg} rounded-lg transition-colors duration-200`}>
-              <ActiveSidebarIcon className={`h-5 w-5 ${accent.sidebarIconColor} transition-colors duration-200`} />
+          <div className="flex items-center gap-2 mb-2 transition-all duration-200">
+            <div className={`p-1.5 ${accent.sidebarIconBg} rounded-lg transition-colors duration-200`}>
+              <ActiveSidebarIcon className={`h-4 w-4 ${accent.sidebarIconColor} transition-colors duration-200`} />
             </div>
-            <h3 className="text-sm font-bold text-white leading-tight">{activeSidebar.heading}</h3>
+            <h3 className="text-[13px] font-bold text-white leading-tight">{activeSidebar.heading}</h3>
           </div>
 
           {/* Description */}
-          <p className="text-[11px] text-white/60 leading-relaxed mb-3">
+          <p className="text-[11px] text-white/60 leading-snug mb-2">
             {activeSidebar.description}
           </p>
 
           {/* Bullet list */}
-          <ul className="space-y-1.5 mb-4">
+          <ul className="space-y-1 mb-3">
             {activeSidebar.bullets.map((bullet) => (
               <li key={bullet} className="flex items-start gap-2 text-[11px] text-white/70">
                 <CheckCircle2 className={`h-3 w-3 ${accent.bulletColor} flex-shrink-0 mt-0.5`} />
@@ -697,10 +696,10 @@ function MegaMenu({
               (608) 535-6057
             </a>
           </p>
-          <p className="text-[9px] text-white/40 text-center mb-3">Same-day quotes available</p>
+          <p className="text-[9px] text-white/40 text-center mb-2">Same-day quotes available</p>
 
           {/* Trust badges */}
-          <div className="mt-auto space-y-2 pt-3 border-t border-white/10">
+          <div className="mt-auto space-y-1.5 pt-2 border-t border-white/10">
             {activeSidebar.badges.map((badge) => {
               const BadgeIcon = badge.icon;
               return (
