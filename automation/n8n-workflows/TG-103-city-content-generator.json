@@ -158,7 +158,7 @@
           "parameters": [
             {
               "name": "x-api-key",
-              "value": "=ANTHROPIC_API_KEY"
+              "value": "={{ $env.TG_{{ $env.TG_ANTHROPIC_API_KEY }} }}"
             },
             {
               "name": "anthropic-version",

@@ -57,11 +57,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}"
             }
           ]
         },
@@ -132,11 +132,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Content-Type",

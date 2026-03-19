@@ -41,11 +41,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}"
             }
           ]
         },
@@ -119,7 +119,7 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "{{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "=**TG-10 Cross-Sell Campaign Complete**\n\nEmails sent: {{ $json._sent_count || 0 }}\nSchedule: Bi-monthly (1st of Jan/Mar/May/Jul/Sep/Nov)\nNext run: 1st of next odd month at 10am CT",
         "additionalFields": {
           "parse_mode": "Markdown"

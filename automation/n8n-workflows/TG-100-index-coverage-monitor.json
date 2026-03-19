@@ -27,11 +27,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             }
           ]
         },
@@ -68,11 +68,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             }
           ]
         },
@@ -121,7 +121,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_GSC_BEARER_TOKEN }}"
             },
             {
               "name": "Content-Type",
@@ -158,11 +158,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -234,7 +234,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Build SMS alert for deindex events\nconst data = $json;\nconst lines = ['TG DEINDEX ALERT'];\ndata.deindexed.forEach(d => {\n  const shortUrl = d.page_url.replace('https://tgyardcare.com', '');\n  lines.push(`${shortUrl}: was indexed, now ${d.verdict}`);\n});\nlines.push(`${data.totalChecked} pages checked, ${data.totalIssues} total issues`);\nreturn [{ json: {\n  to_phone: 'OWNER_PHONE_PLACEHOLDER',\n  message_body: lines.join('\\n'),\n  workflow_name: 'TG-100',\n  message_type: 'deindex_alert'\n}}];"
+        "jsCode": "// Build SMS alert for deindex events\nconst data = $json;\nconst lines = ['TG DEINDEX ALERT'];\ndata.deindexed.forEach(d => {\n  const shortUrl = d.page_url.replace('https://tgyardcare.com', '');\n  lines.push(`${shortUrl}: was indexed, now ${d.verdict}`);\n});\nlines.push(`${data.totalChecked} pages checked, ${data.totalIssues} total issues`);\nreturn [{ json: {\n  to_phone: '{{ $env.TG_OWNER_PHONE }}',\n  message_body: lines.join('\\n'),\n  workflow_name: 'TG-100',\n  message_type: 'deindex_alert'\n}}];"
       },
       "id": "build-deindex-sms",
       "name": "Build Deindex SMS",

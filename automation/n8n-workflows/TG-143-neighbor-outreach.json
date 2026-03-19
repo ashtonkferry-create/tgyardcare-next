@@ -83,7 +83,7 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "{{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "={{ (function() {\n  const d = $input.first().json;\n  const logged = d.logged || [];\n  const zips = [...new Set(logged.map(l => l.zip).filter(Boolean))];\n  const details = logged.map(l => `  - ${l.name || 'Unknown'} (${l.zip})`).join('\\n');\n  return `NEIGHBOR OUTREACH COMPLETE\\n\\nLeads contacted: ${logged.length}\\nZip codes covered: ${zips.join(', ') || 'none'}\\n\\n${details || 'No leads contacted today.'}`;\n})() }}",
         "additionalFields": {
           "parse_mode": "HTML"

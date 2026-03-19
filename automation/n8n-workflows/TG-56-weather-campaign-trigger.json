@@ -90,7 +90,7 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "{{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "=Weather campaign triggered!\n\nType: {{ $('Analyze Weather Conditions').item.json.type }}\nTemp: {{ $('Analyze Weather Conditions').item.json.current_temp }}F\nConditions: {{ $('Analyze Weather Conditions').item.json.conditions }}\nWind: {{ $('Analyze Weather Conditions').item.json.wind_speed }} mph\n\nSending email campaign to all active customers.",
         "additionalFields": {}
       },

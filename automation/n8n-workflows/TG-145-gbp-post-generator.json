@@ -39,7 +39,7 @@
           "parameters": [
             {
               "name": "x-api-key",
-              "value": "ANTHROPIC_API_KEY"
+              "value": "{{ $env.TG_{{ $env.TG_ANTHROPIC_API_KEY }} }}"
             },
             {
               "name": "anthropic-version",
@@ -108,7 +108,7 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "{{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "=📋 *New GBP Post Ready for Review*\n\n🌿 *Season:* {{ $('Parse AI Response').item.json.season }}\n📌 *Topic:* {{ $('Parse AI Response').item.json.topic }}\n\n---\n{{ $('Parse AI Response').item.json.post_content }}\n---\n\n📏 Characters: {{ $('Parse AI Response').item.json.char_count }}/300\n🖼️ Image suggestion: {{ $('Parse AI Response').item.json.image_prompt }}\n\n🆔 Post ID: `{{ $json[0].id }}`\n\n*Commands:*\n✅ `approve <id>` — approve & queue for posting\n❌ `reject <id>` — reject this post\n✏️ `edit <id> <new text>` — replace with your text",
         "additionalFields": {
           "parse_mode": "Markdown"

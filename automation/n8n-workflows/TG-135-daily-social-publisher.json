@@ -271,7 +271,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN || 'TELEGRAM_BOT_TOKEN' }}/sendMessage",
+        "url": "=https://api.telegram.org/bot{{ $env.{{ $env.TG_TELEGRAM_BOT_TOKEN }} || '{{ $env.TG_TELEGRAM_BOT_TOKEN }}' }}/sendMessage",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -283,7 +283,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ (() => { const post = $('IF Post Found').first().json; const published = $('Check Result').first().json.success === true; const postPreview = (post.post_text || '').substring(0, 50); if (published) { return JSON.stringify({ chat_id: $env.OWNER_TELEGRAM_CHAT_ID || 'OWNER_TELEGRAM_CHAT_ID', text: '\\u2705 Published: \"' + postPreview + '...\"', parse_mode: 'HTML' }); } else { return JSON.stringify({ chat_id: $env.OWNER_TELEGRAM_CHAT_ID || 'OWNER_TELEGRAM_CHAT_ID', text: '\\u274c FAILED to publish (ID: ' + post.id + ')', parse_mode: 'HTML' }); } })() }}",
+        "jsonBody": "={{ (() => { const post = $('IF Post Found').first().json; const published = $('Check Result').first().json.success === true; const postPreview = (post.post_text || '').substring(0, 50); if (published) { return JSON.stringify({ chat_id: $env.{{ $env.TG_TELEGRAM_CHAT_ID }} || '{{ $env.TG_TELEGRAM_CHAT_ID }}', text: '\\u2705 Published: \"' + postPreview + '...\"', parse_mode: 'HTML' }); } else { return JSON.stringify({ chat_id: $env.{{ $env.TG_TELEGRAM_CHAT_ID }} || '{{ $env.TG_TELEGRAM_CHAT_ID }}', text: '\\u274c FAILED to publish (ID: ' + post.id + ')', parse_mode: 'HTML' }); } })() }}",
         "options": {}
       },
       "id": "telegram-summary",
@@ -295,7 +295,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN || 'TELEGRAM_BOT_TOKEN' }}/sendMessage",
+        "url": "=https://api.telegram.org/bot{{ $env.{{ $env.TG_TELEGRAM_BOT_TOKEN }} || '{{ $env.TG_TELEGRAM_BOT_TOKEN }}' }}/sendMessage",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -307,7 +307,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"chat_id\": \"{{ $env.OWNER_TELEGRAM_CHAT_ID || 'OWNER_TELEGRAM_CHAT_ID' }}\", \"text\": \"No social post scheduled for today\", \"parse_mode\": \"HTML\" }",
+        "jsonBody": "={ \"chat_id\": \"{{ $env.{{ $env.TG_TELEGRAM_CHAT_ID }} || '{{ $env.TG_TELEGRAM_CHAT_ID }}' }}\", \"text\": \"No social post scheduled for today\", \"parse_mode\": \"HTML\" }",
         "options": {}
       },
       "id": "telegram-no-post",

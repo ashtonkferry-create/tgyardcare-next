@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Detect the source of the inbound webhook and classify SMS intent\nconst body = $input.first().json.body || $input.first().json;\n\nlet source = 'unknown';\nlet event_type = 'unknown';\n\nif (body.From && body.Body !== undefined && body.MessageSid) {\n  source = 'twilio_sms';\n  event_type = 'inbound_sms';\n} else if (body.first_name || body.email) {\n  source = 'web_form';\n  event_type = 'lead_capture';\n}\n\nlet smsIntent = null;\nif (source === 'twilio_sms') {\n  const from = (body.From || '').replace(/[^0-9+]/g, '');\n  const text = (body.Body || '').trim().toLowerCase();\n  const isOwner = from === 'OWNER_PHONE_PLACEHOLDER';\n\n  if (isOwner && ['1', 'yes', 'confirm'].includes(text)) smsIntent = 'dispatch_confirm';\n  else if (isOwner && ['2', 'no', 'flag'].includes(text)) smsIntent = 'dispatch_flag';\n  else if (['stop', 'unsubscribe', 'quit', 'cancel', 'end'].includes(text)) smsIntent = 'opt_out';\n  else if (['start', 'subscribe'].includes(text)) smsIntent = 'opt_in';\n  else if (text === 'help') smsIntent = 'help';\n  else smsIntent = 'general';\n}\n\nreturn [{\n  json: {\n    source,\n    event_type,\n    smsIntent,\n    idempotency_key: body.MessageSid || null,\n    from_phone: body.From || null,\n    message_body: body.Body || null,\n    raw_payload: body\n  }\n}];"
+        "jsCode": "// Detect the source of the inbound webhook and classify SMS intent\nconst body = $input.first().json.body || $input.first().json;\n\nlet source = 'unknown';\nlet event_type = 'unknown';\n\nif (body.From && body.Body !== undefined && body.MessageSid) {\n  source = 'twilio_sms';\n  event_type = 'inbound_sms';\n} else if (body.first_name || body.email) {\n  source = 'web_form';\n  event_type = 'lead_capture';\n}\n\nlet smsIntent = null;\nif (source === 'twilio_sms') {\n  const from = (body.From || '').replace(/[^0-9+]/g, '');\n  const text = (body.Body || '').trim().toLowerCase();\n  const isOwner = from === '{{ $env.TG_OWNER_PHONE }}';\n\n  if (isOwner && ['1', 'yes', 'confirm'].includes(text)) smsIntent = 'dispatch_confirm';\n  else if (isOwner && ['2', 'no', 'flag'].includes(text)) smsIntent = 'dispatch_flag';\n  else if (['stop', 'unsubscribe', 'quit', 'cancel', 'end'].includes(text)) smsIntent = 'opt_out';\n  else if (['start', 'subscribe'].includes(text)) smsIntent = 'opt_in';\n  else if (text === 'help') smsIntent = 'help';\n  else smsIntent = 'general';\n}\n\nreturn [{\n  json: {\n    source,\n    event_type,\n    smsIntent,\n    idempotency_key: body.MessageSid || null,\n    from_phone: body.From || null,\n    message_body: body.Body || null,\n    raw_payload: body\n  }\n}];"
       },
       "id": "tg92-detect-source",
       "name": "Detect Source",
@@ -32,8 +32,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" }
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" }
           ]
         },
         "options": {
@@ -119,8 +119,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" },
             { "name": "Prefer", "value": "return=representation" }
           ]
@@ -328,8 +328,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" },
             { "name": "Prefer", "value": "return=representation" }
           ]
@@ -352,8 +352,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },
@@ -376,8 +376,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" },
             { "name": "Prefer", "value": "return=representation" }
           ]
@@ -400,8 +400,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },
@@ -424,8 +424,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" },
             { "name": "Prefer", "value": "resolution=merge-duplicates,return=representation" }
           ]
@@ -453,7 +453,7 @@
         },
         "sendBody": true,
         "specifyBody": "string",
-        "body": "=To={{ encodeURIComponent($('Prepare Route Data').first().json.from_phone) }}&From=TWILIO_FROM_PLACEHOLDER&Body={{ encodeURIComponent(\"You've been unsubscribed from TotalGuard messages. Reply START to resubscribe.\") }}",
+        "body": "=To={{ encodeURIComponent($('Prepare Route Data').first().json.from_phone) }}&From={{ $env.TG_TWILIO_FROM_PHONE }}&Body={{ encodeURIComponent(\"You've been unsubscribed from TotalGuard messages. Reply START to resubscribe.\") }}",
         "options": { "timeout": 10000 },
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "twilioApi"
@@ -478,8 +478,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" },
             { "name": "Prefer", "value": "resolution=merge-duplicates,return=representation" }
           ]
@@ -507,7 +507,7 @@
         },
         "sendBody": true,
         "specifyBody": "string",
-        "body": "=To={{ encodeURIComponent($('Prepare Route Data').first().json.from_phone) }}&From=TWILIO_FROM_PLACEHOLDER&Body={{ encodeURIComponent('Welcome back! You are subscribed to TotalGuard messages.') }}",
+        "body": "=To={{ encodeURIComponent($('Prepare Route Data').first().json.from_phone) }}&From={{ $env.TG_TWILIO_FROM_PHONE }}&Body={{ encodeURIComponent('Welcome back! You are subscribed to TotalGuard messages.') }}",
         "options": { "timeout": 10000 },
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "twilioApi"
@@ -532,8 +532,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" }
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" }
           ]
         },
         "options": {
@@ -593,8 +593,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },
@@ -617,8 +617,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Prefer", "value": "count=exact" },
             { "name": "Range-Unit", "value": "items" },
             { "name": "Range", "value": "0-0" }
@@ -681,8 +681,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },
@@ -726,8 +726,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },
@@ -793,8 +793,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },
@@ -839,8 +839,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },

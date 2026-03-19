@@ -56,11 +56,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -98,11 +98,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -150,11 +150,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -192,11 +192,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -230,11 +230,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Content-Type",

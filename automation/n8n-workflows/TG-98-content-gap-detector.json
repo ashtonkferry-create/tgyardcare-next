@@ -37,7 +37,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_GSC_BEARER_TOKEN }}"
             },
             {
               "name": "Content-Type",
@@ -58,17 +58,17 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "SUPABASE_URL_PLACEHOLDER/rest/v1/gsc_pages?select=page&order=page",
+        "url": "{{ $env.TG_SUPABASE_URL }}/rest/v1/gsc_pages?select=page&order=page",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             }
           ]
         },
@@ -89,17 +89,17 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "SUPABASE_URL_PLACEHOLDER/rest/v1/blog_posts?select=slug,title,target_keyword&status=eq.published",
+        "url": "{{ $env.TG_SUPABASE_URL }}/rest/v1/blog_posts?select=slug,title,target_keyword&status=eq.published",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             }
           ]
         },
@@ -130,17 +130,17 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "SUPABASE_URL_PLACEHOLDER/rest/v1/seo_content_gaps",
+        "url": "{{ $env.TG_SUPABASE_URL }}/rest/v1/seo_content_gaps",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Content-Type",

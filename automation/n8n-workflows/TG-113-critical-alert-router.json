@@ -79,7 +79,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Prepare SMS payload for critical alerts\nconst data = $('Build Alert Email HTML').first().json;\nconst truncated = data.alert_body.length > 120 ? data.alert_body.substring(0, 117) + '...' : data.alert_body;\nreturn [{ json: {\n  to_phone: 'OWNER_PHONE_PLACEHOLDER',\n  message_body: `[TG ALERT] ${data.alert_title}: ${truncated}`,\n  workflow_name: 'TG-113',\n  message_type: 'alert'\n}}];"
+        "jsCode": "// Prepare SMS payload for critical alerts\nconst data = $('Build Alert Email HTML').first().json;\nconst truncated = data.alert_body.length > 120 ? data.alert_body.substring(0, 117) + '...' : data.alert_body;\nreturn [{ json: {\n  to_phone: '{{ $env.TG_OWNER_PHONE }}',\n  message_body: `[TG ALERT] ${data.alert_title}: ${truncated}`,\n  workflow_name: 'TG-113',\n  message_type: 'alert'\n}}];"
       },
       "id": "build-sms",
       "name": "Build SMS Payload",

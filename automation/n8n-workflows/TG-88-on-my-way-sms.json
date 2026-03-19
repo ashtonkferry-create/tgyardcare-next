@@ -34,7 +34,7 @@
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             }
           ]
         },
@@ -104,7 +104,7 @@
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             }
           ]
         },
@@ -165,7 +165,7 @@
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             }
           ]
         },

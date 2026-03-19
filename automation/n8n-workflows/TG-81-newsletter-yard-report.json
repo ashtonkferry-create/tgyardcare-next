@@ -59,11 +59,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}"
             }
           ]
         },
@@ -103,11 +103,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}"
             }
           ]
         },
@@ -157,7 +157,7 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "{{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "=**TG-81 Monthly Newsletter Sent**\n\nMonth: {{ $json._monthName || 'Unknown' }}\nRecipients: {{ $json._total_sent || '?' }}\nFeatured: {{ $json._upsell || 'N/A' }}",
         "additionalFields": {
           "parse_mode": "Markdown"

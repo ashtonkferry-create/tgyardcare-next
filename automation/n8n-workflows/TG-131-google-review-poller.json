@@ -31,7 +31,7 @@
           "parameters": [
             {
               "name": "X-Goog-Api-Key",
-              "value": "GOOGLE_PLACES_API_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_GOOGLE_PLACES_API_KEY }}"
             },
             {
               "name": "X-Goog-FieldMask",
@@ -66,7 +66,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst newReviews = [];\n\nfor (const item of items) {\n  const review = item.json;\n\n  // Skip if no reviews were found\n  if (review._skip) continue;\n\n  const reviewId = review.review_id;\n  const checkUrl = `https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_reviews?review_id=eq.${encodeURIComponent(reviewId)}&select=id`;\n\n  try {\n    const response = await this.helpers.httpRequest({\n      method: 'GET',\n      url: checkUrl,\n      headers: {\n        'apikey': 'SUPABASE_ANON_KEY_PLACEHOLDER',\n        'Authorization': 'Bearer SUPABASE_ANON_KEY_PLACEHOLDER',\n        'Content-Type': 'application/json'\n      },\n      returnFullResponse: false\n    });\n\n    const existing = Array.isArray(response) ? response : [];\n    if (existing.length === 0) {\n      newReviews.push({ json: review });\n    }\n  } catch (e) {\n    // On error, treat as new review (safe side)\n    newReviews.push({ json: review });\n  }\n}\n\nreturn newReviews.length > 0 ? newReviews : [];"
+        "jsCode": "const items = $input.all();\nconst newReviews = [];\n\nfor (const item of items) {\n  const review = item.json;\n\n  // Skip if no reviews were found\n  if (review._skip) continue;\n\n  const reviewId = review.review_id;\n  const checkUrl = `https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/google_reviews?review_id=eq.${encodeURIComponent(reviewId)}&select=id`;\n\n  try {\n    const response = await this.helpers.httpRequest({\n      method: 'GET',\n      url: checkUrl,\n      headers: {\n        'apikey': '{{ $env.TG_SUPABASE_ANON_KEY }}',\n        'Authorization': 'Bearer {{ $env.TG_SUPABASE_ANON_KEY }}',\n        'Content-Type': 'application/json'\n      },\n      returnFullResponse: false\n    });\n\n    const existing = Array.isArray(response) ? response : [];\n    if (existing.length === 0) {\n      newReviews.push({ json: review });\n    }\n  } catch (e) {\n    // On error, treat as new review (safe side)\n    newReviews.push({ json: review });\n  }\n}\n\nreturn newReviews.length > 0 ? newReviews : [];"
       },
       "id": "tg131-dedup",
       "name": "Filter Out Already-Synced",
@@ -86,11 +86,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Content-Type",

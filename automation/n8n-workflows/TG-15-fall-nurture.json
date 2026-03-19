@@ -60,7 +60,7 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "{{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "=\ud83c\udf42 **TG-15 Fall Nurture Complete**\n\nEmails sent: {{ $input.all().length }}\nCampaign: fall_campaign",
         "additionalFields": { "parse_mode": "Markdown" }
       },

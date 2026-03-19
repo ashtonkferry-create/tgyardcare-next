@@ -144,7 +144,7 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "{{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "=\ud83d\udd04 **Win-Back Engine Complete**\n\nDormant customers contacted: {{ $('Identify Dormant').all().length }}\nSMS sent: {{ $('Route by Channel').all().filter(i => i.json.channel === 'sms').length }}\nEmails sent: {{ $('Route by Channel').all().filter(i => i.json.channel === 'email').length }}\n\nOffer: 10% off first service back",
         "additionalFields": { "parse_mode": "Markdown" }
       },

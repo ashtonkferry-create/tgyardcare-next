@@ -34,7 +34,7 @@
           "parameters": [
             {
               "name": "x-api-key",
-              "value": "CLAUDE_API_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_{{ $env.TG_ANTHROPIC_API_KEY }} }}"
             },
             {
               "name": "anthropic-version",
@@ -69,11 +69,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -115,7 +115,7 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "{{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "={{ $json.telegram_message }}",
         "additionalFields": {
           "parse_mode": "HTML"
@@ -165,11 +165,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Content-Type",

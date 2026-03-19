@@ -37,7 +37,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer GSC_BEARER_TOKEN_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_GSC_BEARER_TOKEN }}"
             },
             {
               "name": "Content-Type",

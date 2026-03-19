@@ -34,8 +34,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" }
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_ANON_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}" }
           ]
         },
         "options": {}
@@ -84,8 +84,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" }
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_ANON_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}" }
           ]
         },
         "options": {}
@@ -146,8 +146,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_ANON_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },
@@ -165,7 +165,7 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "{{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "=TG-22 Referral SMS sent to {{ $('Build Referral SMS').item.json.author_name }} ({{ $('Build Referral SMS').item.json.to_phone }}) after their 5-star review!",
         "additionalFields": {}
       },

@@ -31,17 +31,17 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ 'SUPABASE_URL_PLACEHOLDER/rest/v1/blog_posts?select=id,title,slug,updated_at,category,target_keyword&status=eq.published&updated_at=lt.' + $json.threshold + '&order=updated_at.asc' }}",
+        "url": "={{ '{{ $env.TG_SUPABASE_URL }}/rest/v1/blog_posts?select=id,title,slug,updated_at,category,target_keyword&status=eq.published&updated_at=lt.' + $json.threshold + '&order=updated_at.asc' }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             }
           ]
         },
@@ -62,17 +62,17 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ 'SUPABASE_URL_PLACEHOLDER/rest/v1/seo_location_pages?select=id,city,service_type,slug,updated_at,status&updated_at=lt.' + $json.threshold + '&order=updated_at.asc' }}",
+        "url": "={{ '{{ $env.TG_SUPABASE_URL }}/rest/v1/seo_location_pages?select=id,city,service_type,slug,updated_at,status&updated_at=lt.' + $json.threshold + '&order=updated_at.asc' }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}"
             }
           ]
         },

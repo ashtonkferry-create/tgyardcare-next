@@ -84,7 +84,7 @@
     },
     {
       "parameters": {
-        "chatId": "={{ $vars.OWNER_TELEGRAM_CHAT_ID }}",
+        "chatId": "={{ $vars.{{ $env.TG_TELEGRAM_CHAT_ID }} }}",
         "text": "={{ (function() {\n  const d = $json;\n  const lines = [\n    '\\ud83d\\udd0d COMPETITOR MONITOR',\n    `Week of ${d.snapshot_date}`,\n    `Tracked: ${d.competitors.length} competitors`,\n    `Snapshots stored: ${d.stored}/${d.competitors.length}`,\n    ''\n  ];\n  for (const c of d.competitors) {\n    const status = c.website_status === 'up' ? '\\u2705' : '\\u274c';\n    lines.push(`${status} ${c.name} (${c.domain || 'no domain'})`);\n    if (c.website_title) lines.push(`   Title: ${c.website_title.substring(0, 60)}`);\n    if (c.changes && c.changes.length > 0) {\n      for (const ch of c.changes) lines.push(`   \\u26a0\\ufe0f ${ch}`);\n    }\n  }\n  if (d.alerts && d.alerts.length > 0) {\n    lines.push('');\n    lines.push('\\ud83d\\udea8 ALERTS:');\n    for (const a of d.alerts) lines.push(`- ${a}`);\n  }\n  return lines.join('\\n');\n})() }}",
         "additionalFields": {
           "parse_mode": "HTML"

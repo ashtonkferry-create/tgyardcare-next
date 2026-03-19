@@ -124,7 +124,7 @@
           "parameters": [
             {
               "name": "x-api-key",
-              "value": "=ANTHROPIC_API_KEY"
+              "value": "={{ $env.TG_{{ $env.TG_ANTHROPIC_API_KEY }} }}"
             },
             {
               "name": "anthropic-version",
@@ -309,7 +309,7 @@
     },
     {
       "parameters": {
-        "chatId": "=OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "={{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "=New blog published!\n\n{{ $('Validate + Structure').first().json.title }}\n{{ $('Validate + Structure').first().json.word_count }} words | {{ $('Validate + Structure').first().json.internal_link_count }} internal links\nCategory: {{ $('Validate + Structure').first().json.category }}\n\nhttps://tgyardcare.com/blog/{{ $('Validate + Structure').first().json.slug }}",
         "additionalFields": {
           "parse_mode": "HTML"

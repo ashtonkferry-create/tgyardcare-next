@@ -48,11 +48,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}"
             }
           ]
         },
@@ -96,7 +96,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  const phone = item.json.customer_phone;\n  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();\n\n  try {\n    const response = await this.helpers.httpRequest({\n      method: 'GET',\n      url: `https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/review_requests`,\n      qs: {\n        customer_phone: `eq.${phone}`,\n        created_at: `gte.${thirtyDaysAgo}`,\n        select: 'id'\n      },\n      headers: {\n        apikey: 'SUPABASE_ANON_KEY_PLACEHOLDER',\n        Authorization: 'Bearer SUPABASE_ANON_KEY_PLACEHOLDER'\n      },\n      json: true\n    });\n\n    if (!response || response.length === 0) {\n      results.push(item);\n    }\n  } catch (error) {\n    // On error, include the item anyway so we don't miss a review request\n    results.push(item);\n  }\n}\n\nreturn results;"
+        "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  const phone = item.json.customer_phone;\n  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();\n\n  try {\n    const response = await this.helpers.httpRequest({\n      method: 'GET',\n      url: `https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/review_requests`,\n      qs: {\n        customer_phone: `eq.${phone}`,\n        created_at: `gte.${thirtyDaysAgo}`,\n        select: 'id'\n      },\n      headers: {\n        apikey: '{{ $env.TG_SUPABASE_ANON_KEY }}',\n        Authorization: 'Bearer {{ $env.TG_SUPABASE_ANON_KEY }}'\n      },\n      json: true\n    });\n\n    if (!response || response.length === 0) {\n      results.push(item);\n    }\n  } catch (error) {\n    // On error, include the item anyway so we don't miss a review request\n    results.push(item);\n  }\n}\n\nreturn results;"
       },
       "id": "tg129-dedup",
       "name": "Check Already Requested",
@@ -133,11 +133,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
+              "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}"
             },
             {
               "name": "Content-Type",

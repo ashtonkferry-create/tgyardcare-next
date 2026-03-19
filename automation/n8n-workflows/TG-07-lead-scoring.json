@@ -131,7 +131,7 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "{{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "={{ '\\ud83d\\udd25 HOT LEAD ALERT\\n\\n' + '\\ud83d\\udc64 ' + ($json.first_name || '') + ' ' + ($json.last_name || '') + '\\n' + '\\ud83d\\udcf1 ' + ($json.phone || 'No phone') + '\\n' + '\\ud83d\\udd27 ' + ($json.service || 'Not specified') + '\\n' + '\\ud83d\\udcca Score: ' + $json.lead_score + '/100\\n\\n' + '\\ud83d\\udcde Call NOW: tel:' + ($json.phone || '').replace(/[^+\\d]/g, '') + '\\n\\n' + 'This lead just became HOT \\u2014 prioritize callback!' }}",
         "additionalFields": {}
       },

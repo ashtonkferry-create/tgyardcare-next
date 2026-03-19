@@ -211,8 +211,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY_PLACEHOLDER" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },
@@ -237,8 +237,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_SECRET_KEY_PLACEHOLDER" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_SECRET_KEY_PLACEHOLDER" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_SECRET_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_SECRET_KEY }}" },
             { "name": "Content-Type", "value": "application/json" }
           ]
         },

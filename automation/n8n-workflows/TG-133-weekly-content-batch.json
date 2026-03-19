@@ -95,7 +95,7 @@
           "parameters": [
             {
               "name": "x-api-key",
-              "value": "ANTHROPIC_API_KEY"
+              "value": "{{ $env.TG_{{ $env.TG_ANTHROPIC_API_KEY }} }}"
             },
             {
               "name": "anthropic-version",
@@ -171,10 +171,10 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "url": "=https://api.telegram.org/bot{{ $env.{{ $env.TG_TELEGRAM_BOT_TOKEN }} }}/sendMessage",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"chat_id\": \"{{ $env.OWNER_TELEGRAM_CHAT_ID }}\",\n  \"parse_mode\": \"Markdown\",\n  \"text\": \"*Weekly Content Batch Ready*\\n\\n7 social posts generated for week of {{ $('Get Current Context').item.json.batchWeek }}.\\n\\nSeason: {{ $('Get Current Context').item.json.season }}\\nMonth: {{ $('Get Current Context').item.json.month }}\\n\\nPosts are scheduled at 10am CT each day (Mon-Sun).\\n\\nReview and edit in Supabase table editor if needed.\"\n}",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $env.{{ $env.TG_TELEGRAM_CHAT_ID }} }}\",\n  \"parse_mode\": \"Markdown\",\n  \"text\": \"*Weekly Content Batch Ready*\\n\\n7 social posts generated for week of {{ $('Get Current Context').item.json.batchWeek }}.\\n\\nSeason: {{ $('Get Current Context').item.json.season }}\\nMonth: {{ $('Get Current Context').item.json.month }}\\n\\nPosts are scheduled at 10am CT each day (Mon-Sun).\\n\\nReview and edit in Supabase table editor if needed.\"\n}",
         "options": {}
       },
       "id": "node-8-telegram-notify",

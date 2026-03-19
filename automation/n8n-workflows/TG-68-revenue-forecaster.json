@@ -70,7 +70,7 @@
           "parameters": [
             {
               "name": "x-api-key",
-              "value": "={{ $vars.TG_ANTHROPIC_API_KEY }}"
+              "value": "={{ $vars.TG_{{ $env.TG_ANTHROPIC_API_KEY }} }}"
             },
             {
               "name": "anthropic-version",

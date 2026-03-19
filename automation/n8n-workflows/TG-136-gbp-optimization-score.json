@@ -27,7 +27,7 @@
           "parameters": [
             {
               "name": "X-Goog-Api-Key",
-              "value": "GOOGLE_PLACES_API_KEY_PLACEHOLDER"
+              "value": "{{ $env.TG_GOOGLE_PLACES_API_KEY }}"
             },
             {
               "name": "X-Goog-FieldMask",
@@ -122,7 +122,7 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "{{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "={{ (() => { const d = $('Calculate Score').first().json; const b = d.breakdown; let msg = `\\ud83c\\udfe2 *GBP Optimization Score — ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}*\\n\\n`; msg += `Score: *${d.score}/100* (Grade: *${d.grade}*)\\n\\n`; msg += `*Breakdown:*\\n`; msg += `\\u2022 Posts (30d): ${b.posts}/25 pts (${d.post_count_30d} posts)\\n`; msg += `\\u2022 Reviews: ${b.reviews}/20 pts (${d.review_count} total)\\n`; msg += `\\u2022 Rating: ${b.rating}/15 pts (${d.review_rating}\\u2b50)\\n`; msg += `\\u2022 Photos: ${b.photos}/15 pts (${d.photo_count} photos)\\n`; msg += `\\u2022 FAQ Freshness: ${b.faq_freshness}/15 pts\\n`; msg += `\\u2022 Hours: ${b.hours}/10 pts\\n`; if (d.recommendations.length > 0) { msg += `\\n*Recommendations:*\\n`; d.recommendations.forEach(r => { msg += `\\u27a1\\ufe0f ${r}\\n`; }); } return msg; })() }}",
         "additionalFields": {
           "parse_mode": "Markdown"

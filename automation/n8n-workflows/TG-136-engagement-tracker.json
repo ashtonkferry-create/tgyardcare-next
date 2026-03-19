@@ -85,7 +85,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN || 'TELEGRAM_BOT_TOKEN' }}/sendMessage",
+        "url": "=https://api.telegram.org/bot{{ $env.{{ $env.TG_TELEGRAM_BOT_TOKEN }} || '{{ $env.TG_TELEGRAM_BOT_TOKEN }}' }}/sendMessage",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -97,7 +97,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"chat_id\": \"{{ $env.OWNER_TELEGRAM_CHAT_ID || 'OWNER_TELEGRAM_CHAT_ID' }}\", \"text\": {{ JSON.stringify($json.report) }}, \"parse_mode\": \"HTML\" }",
+        "jsonBody": "={ \"chat_id\": \"{{ $env.{{ $env.TG_TELEGRAM_CHAT_ID }} || '{{ $env.TG_TELEGRAM_CHAT_ID }}' }}\", \"text\": {{ JSON.stringify($json.report) }}, \"parse_mode\": \"HTML\" }",
         "options": {}
       },
       "id": "telegram-report",

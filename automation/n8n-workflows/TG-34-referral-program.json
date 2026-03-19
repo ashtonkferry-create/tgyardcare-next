@@ -53,8 +53,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" }
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_ANON_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}" }
           ]
         },
         "options": {}
@@ -83,8 +83,8 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
-            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "apikey", "value": "{{ $env.TG_SUPABASE_ANON_KEY }}" },
+            { "name": "Authorization", "value": "Bearer {{ $env.TG_SUPABASE_ANON_KEY }}" },
             { "name": "Content-Type", "value": "application/json" },
             { "name": "Prefer", "value": "return=minimal" }
           ]
@@ -145,7 +145,7 @@
     },
     {
       "parameters": {
-        "chatId": "OWNER_TELEGRAM_CHAT_ID",
+        "chatId": "{{ $env.TG_TELEGRAM_CHAT_ID }}",
         "text": "=New referral! {{ $('Extract Referrer Info').item.json.referrer_name }} referred {{ $('Extract Referrer Info').item.json.new_lead_name }} for {{ $('Extract Referrer Info').item.json.service }}. Referral logged in Supabase.{{ $('Extract Referrer Info').item.json.referrer_phone ? ' Thank-you SMS sent.' : ' No phone found for referrer.' }}",
         "additionalFields": {}
       },
