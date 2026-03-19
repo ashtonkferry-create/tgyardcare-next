@@ -22,7 +22,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "{{SUPABASE_SECRET}}"
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Content-Type",
@@ -34,7 +34,7 @@
             },
             {
               "name": "Authorization",
-              "value": "{{SUPABASE_SECRET}}"
+              "value": "Bearer SUPABASE_SECRET_KEY"
             }
           ]
         },
@@ -49,7 +49,8 @@
       "position": [
         220,
         0
-      ]
+      ],
+      "continueOnFail": true
     },
     {
       "parameters": {
@@ -63,10 +64,10 @@
             {
               "id": "consent-check",
               "leftValue": "={{ $json }}",
-              "rightValue": true,
+              "rightValue": false,
               "operator": {
                 "type": "boolean",
-                "operation": "equals"
+                "operation": "notEquals"
               }
             }
           ],
@@ -91,7 +92,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "{{SUPABASE_SECRET}}"
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Content-Type",
@@ -103,13 +104,13 @@
             },
             {
               "name": "Authorization",
-              "value": "{{SUPABASE_SECRET}}"
+              "value": "Bearer SUPABASE_SECRET_KEY"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"to_phone\": \"{{ $('When Called by TG-05').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-88-on-my-way-sms\",\n  \"message_body\": \"Hi {{ $('When Called by TG-05').item.json.customer_name || 'there' }}! The TotalGuard crew is on the way to {{ $('When Called by TG-05').item.json.address || 'your property' }}. ETA approximately 15-30 minutes. Questions? Call 608-535-6057\",\n  \"status\": \"pending\"\n}"
+        "jsonBody": "={\n  \"to_phone\": \"{{ $('When Called by TG-05').item.json.customer_phone }}\",\n  \"workflow_name\": \"TG-88-on-my-way-sms\",\n  \"message_body\": \"Hi {{ $('When Called by TG-05').item.json.customer_name || 'there' }}! TotalGuard crew is heading to {{ $('When Called by TG-05').item.json.address || 'your property' }}. now. ETA ~15-30 min. Gates unlocked & pets secured? Questions: 608-535-6057\",\n  \"status\": \"pending\"\n}"
       },
       "id": "tg88-log-send",
       "name": "Log SMS Send",
@@ -125,7 +126,7 @@
       "parameters": {
         "from": "+16089953554",
         "to": "={{ $('When Called by TG-05').item.json.customer_phone }}",
-        "message": "=Hi {{ $('When Called by TG-05').item.json.customer_name || 'there' }}! The TotalGuard crew is on the way to {{ $('When Called by TG-05').item.json.address || 'your property' }}. ETA approximately 15-30 minutes. Questions? Call 608-535-6057"
+        "message": "=Hi {{ $('When Called by TG-05').item.json.customer_name || 'there' }}! TotalGuard crew is heading to {{ $('When Called by TG-05').item.json.address || 'your property' }}. now. ETA ~15-30 min. Gates unlocked & pets secured? Questions: 608-535-6057"
       },
       "id": "tg88-send-sms",
       "name": "Send On My Way SMS",
@@ -152,7 +153,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "{{SUPABASE_SECRET}}"
+              "value": "sb_publishable_DeX21ldoDKl3NyJeFZzR1w_eWBUkx-v"
             },
             {
               "name": "Content-Type",
@@ -164,7 +165,7 @@
             },
             {
               "name": "Authorization",
-              "value": "{{SUPABASE_SECRET}}"
+              "value": "Bearer SUPABASE_SECRET_KEY"
             }
           ]
         },
@@ -222,7 +223,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "{{SUPABASE_SECRET}}"
+              "value": "Bearer RESEND_API_KEY"
             },
             {
               "name": "Content-Type",
