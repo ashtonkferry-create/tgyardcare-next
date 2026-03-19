@@ -12,92 +12,125 @@
       "name": "Webhook Trigger",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [
-        0,
-        300
-      ],
+      "position": [0, 300],
       "webhookId": "tg34-referral-log"
     },
     {
       "parameters": {
+        "jsCode": "const body = $input.item.json.body || $input.item.json;\nconst referrerName = (body.referrer_name || '').trim();\nconst newLeadName = (body.new_lead_name || '').trim();\nconst newLeadPhone = (body.new_lead_phone || '').trim();\nconst service = (body.service || 'yard care').trim();\n\nif (!referrerName || !newLeadName) {\n  return [{ json: { _error: true, reason: 'missing_referrer_or_lead_name' } }];\n}\n\nconst parts = referrerName.split(' ');\nconst referrerFirst = parts[0] || '';\nconst referrerLast = parts.slice(1).join(' ') || '';\n\nreturn [{ json: {\n  referrer_name: referrerName,\n  referrer_first: referrerFirst,\n  referrer_last: referrerLast,\n  new_lead_name: newLeadName,\n  new_lead_phone: newLeadPhone,\n  service: service\n} }];"
+      },
+      "id": "tg34-parse",
+      "name": "Parse Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "error-check",
+              "leftValue": "={{ $json._error }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "notEquals", "name": "filter.operator.notEquals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg34-if-valid",
+      "name": "IF Valid Input",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
         "method": "GET",
-        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads?or=(first_name.ilike.*{{ encodeURIComponent($json.body.referrer_name.split(' ')[0]) }}*,full_name.ilike.*{{ encodeURIComponent($json.body.referrer_name) }}*)&select=id,first_name,last_name,phone,referral_code",
+        "url": "=https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/leads?or=(first_name.ilike.*{{ encodeURIComponent($json.referrer_first) }}*,last_name.ilike.*{{ encodeURIComponent($json.referrer_last) }}*)&select=id,first_name,last_name,phone&limit=1",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
-            }
+            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" }
           ]
         },
         "options": {}
       },
       "id": "tg34-find-referrer",
-      "name": "Find Referrer in Leads",
+      "name": "Find Referrer",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        220,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/referral_events",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "apikey",
-              "value": "SUPABASE_ANON_KEY_PLACEHOLDER"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            },
-            {
-              "name": "Prefer",
-              "value": "return=representation"
-            }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "json",
-        "body": "={{ JSON.stringify({ referral_code: ($json[0] && $json[0].referral_code) || null, referred_name: $('Webhook Trigger').item.json.body.new_lead_name, referred_email: null, status: 'pending', created_at: new Date().toISOString() }) }}",
-        "options": {}
-      },
-      "id": "tg34-log-referral",
-      "name": "Log Referral Event",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        440,
-        300
-      ],
+      "position": [660, 200],
       "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "const webhook = $('Webhook Trigger').item.json.body;\nconst referrer = $('Find Referrer in Leads').item.json;\nconst referrerPhone = (Array.isArray(referrer) && referrer[0] && referrer[0].phone) ? referrer[0].phone : null;\nconst referrerName = webhook.referrer_name || 'there';\nconst newLeadName = webhook.new_lead_name || 'someone';\nconst service = webhook.service || 'yard care';\n\nif (!referrerPhone) {\n  return [{ json: { _skip: true, reason: 'no_referrer_phone_found' } }];\n}\n\nconst firstName = referrerName.split(' ')[0];\n\nconst messageBody = `Hi ${firstName}! Great news — ${newLeadName} just mentioned you when they reached out about ${service}! Thanks for spreading the word. Your discount will be applied to your next service. — TotalGuard`;\n\nreturn [{ json: {\n  to_phone: referrerPhone,\n  message_body: messageBody,\n  workflow_name: 'TG-34',\n  message_type: 'referral_thank_you',\n  referrer_name: referrerName,\n  new_lead_name: newLeadName,\n  service: service\n} }];"
+        "jsCode": "const parsed = $('Parse Input').item.json;\nconst lookupResult = $input.item.json;\n\nlet referrerLeadId = null;\nlet referrerPhone = null;\n\nif (Array.isArray(lookupResult)) {\n  if (lookupResult.length > 0) {\n    referrerLeadId = lookupResult[0].id || null;\n    referrerPhone = lookupResult[0].phone || null;\n  }\n} else if (lookupResult && lookupResult.id) {\n  referrerLeadId = lookupResult.id;\n  referrerPhone = lookupResult.phone || null;\n}\n\nreturn [{ json: {\n  ...parsed,\n  referrer_lead_id: referrerLeadId,\n  referrer_phone: referrerPhone\n} }];"
       },
-      "id": "tg34-build-sms",
-      "name": "Build Thank Referrer SMS",
+      "id": "tg34-extract",
+      "name": "Extract Referrer Info",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        660,
-        300
-      ]
+      "position": [880, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lwtmvzhwekgdxkaisfra.supabase.co/rest/v1/referrals",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_ANON_KEY_PLACEHOLDER" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ referrer_lead_id: $json.referrer_lead_id, referrer_name: $json.referrer_name, referred_name: $json.new_lead_name, referred_phone: $json.new_lead_phone, service: $json.service, status: 'pending', created_at: new Date().toISOString() }) }}",
+        "options": {}
+      },
+      "id": "tg34-log-referral",
+      "name": "Log Referral",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "phone-check",
+              "leftValue": "={{ $('Extract Referrer Info').item.json.referrer_phone }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEquals", "name": "filter.operator.notEquals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "tg34-if-phone",
+      "name": "IF Referrer Has Phone",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1320, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Extract Referrer Info').item.json;\nconst firstName = (d.referrer_name || 'there').split(' ')[0];\n\nreturn [{ json: {\n  to_phone: d.referrer_phone,\n  message_body: `Hi ${firstName}! Great news — ${d.new_lead_name} just mentioned you when they reached out about ${d.service}! Thanks for spreading the word. Your discount will be applied to your next service. — TotalGuard`,\n  workflow_name: 'TG-34',\n  message_type: 'referral_thankyou'\n} }];"
+      },
+      "id": "tg34-build-sms",
+      "name": "Build Thank SMS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 100]
     },
     {
       "parameters": {
@@ -105,95 +138,93 @@
         "options": {}
       },
       "id": "tg34-send-via-tg94",
-      "name": "Send SMS via TG-94",
+      "name": "Thank Referrer SMS",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
-      "position": [
-        880,
-        300
-      ]
+      "position": [1760, 100]
     },
     {
       "parameters": {
         "chatId": "OWNER_TELEGRAM_CHAT_ID",
-        "text": "=TG-34 Referral logged: {{ $('Webhook Trigger').item.json.body.referrer_name }} referred {{ $('Webhook Trigger').item.json.body.new_lead_name }} for {{ $('Webhook Trigger').item.json.body.service || 'yard care' }}. Thank-you SMS sent.",
+        "text": "=New referral! {{ $('Extract Referrer Info').item.json.referrer_name }} referred {{ $('Extract Referrer Info').item.json.new_lead_name }} for {{ $('Extract Referrer Info').item.json.service }}. Referral logged in Supabase.{{ $('Extract Referrer Info').item.json.referrer_phone ? ' Thank-you SMS sent.' : ' No phone found for referrer.' }}",
         "additionalFields": {}
       },
       "id": "tg34-telegram",
       "name": "Telegram Alert",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [
-        1100,
-        300
-      ],
+      "position": [1980, 200],
       "credentials": {
         "telegramApi": {
           "id": "V404qLIDXjmyzNeS",
           "name": "Telegram API"
         }
       }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, message: 'Referral logged and processed' }) }}",
+        "options": {}
+      },
+      "id": "tg34-respond-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2200, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, message: 'Missing referrer_name or new_lead_name' }) }}",
+        "options": { "responseCode": 400 }
+      },
+      "id": "tg34-respond-error",
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [660, 400]
     }
   ],
   "connections": {
     "Webhook Trigger": {
+      "main": [[{ "node": "Parse Input", "type": "main", "index": 0 }]]
+    },
+    "Parse Input": {
+      "main": [[{ "node": "IF Valid Input", "type": "main", "index": 0 }]]
+    },
+    "IF Valid Input": {
       "main": [
-        [
-          {
-            "node": "Find Referrer in Leads",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{ "node": "Find Referrer", "type": "main", "index": 0 }],
+        [{ "node": "Respond Error", "type": "main", "index": 0 }]
       ]
     },
-    "Find Referrer in Leads": {
+    "Find Referrer": {
+      "main": [[{ "node": "Extract Referrer Info", "type": "main", "index": 0 }]]
+    },
+    "Extract Referrer Info": {
+      "main": [[{ "node": "Log Referral", "type": "main", "index": 0 }]]
+    },
+    "Log Referral": {
+      "main": [[{ "node": "IF Referrer Has Phone", "type": "main", "index": 0 }]]
+    },
+    "IF Referrer Has Phone": {
       "main": [
-        [
-          {
-            "node": "Log Referral Event",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{ "node": "Build Thank SMS", "type": "main", "index": 0 }],
+        [{ "node": "Telegram Alert", "type": "main", "index": 0 }]
       ]
     },
-    "Log Referral Event": {
-      "main": [
-        [
-          {
-            "node": "Build Thank Referrer SMS",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+    "Build Thank SMS": {
+      "main": [[{ "node": "Thank Referrer SMS", "type": "main", "index": 0 }]]
     },
-    "Build Thank Referrer SMS": {
-      "main": [
-        [
-          {
-            "node": "Send SMS via TG-94",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+    "Thank Referrer SMS": {
+      "main": [[{ "node": "Telegram Alert", "type": "main", "index": 0 }]]
     },
-    "Send SMS via TG-94": {
-      "main": [
-        [
-          {
-            "node": "Telegram Alert",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+    "Telegram Alert": {
+      "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]]
     }
   },
   "settings": {
     "executionOrder": "v1"
-  },
-  "active": false
+  }
 }
