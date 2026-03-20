@@ -65,7 +65,7 @@ export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
         {/* Back row blades — cut when mower passes */}
         {backRow.map((blade, i) => {
           const bx = blade.x * 10;
-          const isCut = mowerActive && mowerX > blade.x + 3;
+          const isCut = mowerActive && mowerX > blade.x - 1;
           return (
             <path
               key={`b-${i}`}
@@ -84,7 +84,7 @@ export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
         {/* Front row blades — cut when mower passes */}
         {frontRow.map((blade, i) => {
           const bx = blade.x * 10;
-          const isCut = mowerActive && mowerX > blade.x + 3;
+          const isCut = mowerActive && mowerX > blade.x - 1;
           return (
             <path
               key={`f-${i}`}

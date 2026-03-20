@@ -49,8 +49,8 @@ export function SummerHero() {
         </video>
       */}
 
-      {/* MOBILE-FIRST: Reduced min-height for faster value delivery */}
-      <div className="min-h-[500px] sm:min-h-[550px] lg:min-h-[650px]">
+      {/* MOBILE-FIRST: Tightened so grass/character visible without scroll */}
+      <div className="min-h-[420px] sm:min-h-[460px] lg:min-h-[560px] pb-[28px]">
 
         {/* Static background image */}
         <div className="absolute inset-0">
@@ -93,7 +93,7 @@ export function SummerHero() {
         }} />
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 sm:px-6 relative z-10 py-8 sm:py-12 md:py-16 lg:py-20">
+        <div className="container mx-auto px-4 sm:px-6 relative z-10 py-6 sm:py-8 md:py-12 lg:py-16">
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-center max-w-7xl mx-auto">
 
             {/* Content Column — Staggered Framer Motion reveal */}

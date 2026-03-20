@@ -61,11 +61,11 @@ export function MowerCharacter({
 
   return (
     <div
-      className="absolute bottom-[-6px] z-[20] pointer-events-none motion-reduce:hidden"
+      className="absolute bottom-[6px] z-[20] pointer-events-none motion-reduce:hidden"
       style={{
         left: `${xPercent}%`,
-        width: '90px',
-        height: '80px',
+        width: '80px',
+        height: '70px',
         willChange: 'left',
       }}
       aria-hidden="true"
