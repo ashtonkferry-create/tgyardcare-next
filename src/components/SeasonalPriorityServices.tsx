@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useSeasonalTheme, Season } from '@/contexts/SeasonalThemeContext';
 import { motion, type Variants } from 'framer-motion';
+import { AmbientParticles } from '@/components/AmbientParticles';
 
 interface PackageProps {
   name: string;
@@ -500,51 +501,8 @@ export function SeasonalPriorityServices() {
         style={{ background: `radial-gradient(ellipse, ${theme.ambientGlow}, transparent)` }}
       />
 
-      {/* Strategic particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none hidden sm:block">
-        {/* Tier 1: Ambient orbs */}
-        {[
-          { top: '10%', left: '5%', w: 200, h: 200, o: 0.03, d: '18s', dl: '0s' },
-          { top: '60%', right: '8%', w: 160, h: 160, o: 0.025, d: '22s', dl: '-5s' },
-        ].map((orb, i) => (
-          <div
-            key={`orb-${i}`}
-            className={cn("absolute rounded-full blur-3xl", theme.dotColors[i % theme.dotColors.length])}
-            style={{
-              ...Object.fromEntries(Object.entries(orb).filter(([k]) => ['top', 'left', 'right'].includes(k))),
-              width: orb.w,
-              height: orb.h,
-              opacity: orb.o,
-              animationDuration: orb.d,
-              animationDelay: orb.dl,
-            }}
-          />
-        ))}
-        {/* Tier 2: Micro dots */}
-        {[
-          { top: '15%', left: '12%', s: 2, o: 0.2 },
-          { top: '35%', right: '20%', s: 1.5, o: 0.15 },
-          { top: '70%', left: '25%', s: 2, o: 0.18 },
-          { top: '55%', right: '35%', s: 1.5, o: 0.12 },
-          { top: '85%', left: '65%', s: 2, o: 0.15 },
-          { top: '20%', right: '45%', s: 1.5, o: 0.1 },
-        ].map((dot, i) => {
-          const { s, o, ...pos } = dot;
-          return (
-            <div
-              key={`dot-${i}`}
-              className={cn("absolute rounded-full", theme.dotColors[i % theme.dotColors.length])}
-              style={{
-                ...pos,
-                width: s,
-                height: s,
-                opacity: o,
-                filter: 'drop-shadow(0 0 3px currentColor)',
-              }}
-            />
-          );
-        })}
-      </div>
+      {/* Season-adaptive particles — dense for rich atmosphere */}
+      <AmbientParticles density="dense" />
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
 
