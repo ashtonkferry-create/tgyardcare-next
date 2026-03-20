@@ -1,7 +1,7 @@
 'use client';
 
 import { useSeasonalTheme } from '@/contexts/SeasonalThemeContext';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 /**
  * AmbientParticles — Season-adaptive floating particle overlay.
@@ -64,16 +64,45 @@ function seeded(i: number, offset: number) {
 }
 
 const DENSITY_COUNTS: Record<Density, { orbs: number; dots: number; sparkles: number }> = {
-  sparse: { orbs: 3, dots: 28, sparkles: 18 },
-  normal: { orbs: 4, dots: 36, sparkles: 24 },
-  dense: { orbs: 5, dots: 48, sparkles: 32 },
-  ultra: { orbs: 6, dots: 64, sparkles: 42 },
+  sparse: { orbs: 2, dots: 10, sparkles: 6 },
+  normal: { orbs: 3, dots: 14, sparkles: 8 },
+  dense: { orbs: 3, dots: 18, sparkles: 10 },
+  ultra: { orbs: 4, dots: 24, sparkles: 14 },
 };
+
+// Global keyframes — injected once into <head> regardless of how many instances mount
+let stylesInjected = false;
+const KEYFRAMES = `
+  @keyframes _ap-drift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(var(--dx1), var(--dy1)) scale(1.05); }
+    50% { transform: translate(var(--dx2), var(--dy2)) scale(0.95); }
+    75% { transform: translate(var(--dx3), var(--dy3)) scale(1.02); }
+  }
+  ._ap-drift { animation: _ap-drift ease-in-out infinite; }
+  @keyframes _ap-float {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(var(--dx1), var(--dy1)); }
+    45% { transform: translate(var(--dx2), var(--dy2)); }
+    70% { transform: translate(var(--dx3), var(--dy3)); }
+    90% { transform: translate(calc(var(--dx1) * -0.5), calc(var(--dy2) * -0.7)); }
+  }
+  ._ap-float { animation: _ap-float ease-in-out infinite; }
+`;
 
 export function AmbientParticles({ density = 'normal', className = '' }: Props) {
   const { activeSeason } = useSeasonalTheme();
   const palette = SEASON_COLORS[activeSeason];
   const counts = DENSITY_COUNTS[density];
+
+  // Inject keyframes into <head> once globally
+  useEffect(() => {
+    if (stylesInjected) return;
+    const style = document.createElement('style');
+    style.textContent = KEYFRAMES;
+    document.head.appendChild(style);
+    stylesInjected = true;
+  }, []);
 
   // Memoize particle configs — each gets unique motion parameters
   const { orbs, dots, sparkles } = useMemo(() => {
@@ -161,7 +190,7 @@ export function AmbientParticles({ density = 'normal', className = '' }: Props) 
               opacity: dot.opacity,
               animationDuration: dot.duration,
               animationDelay: dot.delay,
-              filter: `blur(0.5px) ${palette.glow}`,
+              filter: 'blur(0.3px)',
               '--dx1': `${dot.dx1}px`, '--dy1': `${dot.dy1}px`,
               '--dx2': `${dot.dx2}px`, '--dy2': `${dot.dy2}px`,
               '--dx3': `${dot.dx3}px`, '--dy3': `${dot.dy3}px`,
@@ -183,33 +212,12 @@ export function AmbientParticles({ density = 'normal', className = '' }: Props) 
             opacity: s.opacity,
             animationDuration: s.duration,
             animationDelay: s.delay,
-            filter: palette.sparkleGlow,
             '--dx1': `${s.dx1}px`, '--dy1': `${s.dy1}px`,
             '--dx2': `${s.dx2}px`, '--dy2': `${s.dy2}px`,
             '--dx3': `0px`, '--dy3': `0px`,
           } as React.CSSProperties}
         />
       ))}
-
-      {/* Per-particle randomized keyframes via CSS custom properties */}
-      <style>{`
-        @keyframes _ap-drift {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(var(--dx1), var(--dy1)) scale(1.05); }
-          50% { transform: translate(var(--dx2), var(--dy2)) scale(0.95); }
-          75% { transform: translate(var(--dx3), var(--dy3)) scale(1.02); }
-        }
-        ._ap-drift { animation: _ap-drift ease-in-out infinite; }
-
-        @keyframes _ap-float {
-          0%, 100% { transform: translate(0, 0); }
-          20% { transform: translate(var(--dx1), var(--dy1)); }
-          45% { transform: translate(var(--dx2), var(--dy2)); }
-          70% { transform: translate(var(--dx3), var(--dy3)); }
-          90% { transform: translate(calc(var(--dx1) * -0.5), calc(var(--dy2) * -0.7)); }
-        }
-        ._ap-float { animation: _ap-float ease-in-out infinite; }
-      `}</style>
     </div>
   );
 }
