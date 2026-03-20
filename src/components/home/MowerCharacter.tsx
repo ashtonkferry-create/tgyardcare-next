@@ -15,7 +15,7 @@ export function MowerCharacter({
   const [isWaving, setIsWaving] = useState(false);
   const rafRef = useRef<number>(0);
   const startTimeRef = useRef<number>(0);
-  const waveTimerRef = useRef<ReturnType<typeof setInterval>>();
+  const waveTimerRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
   useEffect(() => {
     const durationMs = traversalDuration * 1000;
