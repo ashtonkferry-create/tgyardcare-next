@@ -61,7 +61,7 @@ export function MowerCharacter({
 
   return (
     <div
-      className="absolute bottom-[6px] z-[20] pointer-events-none motion-reduce:hidden"
+      className="absolute bottom-[-4px] z-[20] pointer-events-none motion-reduce:hidden"
       style={{
         left: `${xPercent}%`,
         width: '80px',
@@ -230,8 +230,8 @@ export function MowerCharacter({
           <path d="M91,90 L95,84 L92,89" fill="#22c55e" opacity="0.5" className="mc2-clip6" />
         </g>
 
-        {/* === RED PUSH MOWER (wider for better proportions) === */}
-        <g className="mc2-mower-vibrate">
+        {/* === RED PUSH MOWER — shifted up so wheels don't sink below dirt === */}
+        <g className="mc2-mower-vibrate" transform="translate(0, -8)">
           {/* Mower body - wider organic curved shape */}
           <path
             d="M58,76 C58,72 60,69 64,69 L86,69 C90,69 92,72 92,76 L92,82 C92,85 90,87 86,87 L64,87 C60,87 58,85 58,82 Z"
@@ -254,23 +254,6 @@ export function MowerCharacter({
           <circle cx="90" cy="64" r="1.5" fill="white" opacity="0.2" className="mc2-exhaust1" />
           <circle cx="93" cy="62" r="1" fill="white" opacity="0.15" className="mc2-exhaust2" />
 
-          {/* Handle - curves from mower to character's hand */}
-          <path
-            d="M60,75 C55,72 50,64 48,58"
-            fill="none"
-            stroke="url(#mc2-handle)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
-          {/* Handle grip */}
-          <path
-            d="M47,56 C46,55 46,57 48,59"
-            fill="none"
-            stroke="#333"
-            strokeWidth="3"
-            strokeLinecap="round"
-          />
-
           {/* Front wheel (right side, toward direction of travel) */}
           <g className="mc2-wheel-spin" style={{ transformOrigin: '86px 90px' }}>
             <circle cx="86" cy="90" r="4.5" fill="url(#mc2-wheel)" />
@@ -290,6 +273,22 @@ export function MowerCharacter({
             <line x1="62" y1="90" x2="70" y2="90" stroke="#444" strokeWidth="0.6" />
           </g>
         </g>
+
+        {/* Handle — outside mower group so it connects mower (shifted up) to character hands */}
+        <path
+          d="M60,67 C55,64 50,58 48,54"
+          fill="none"
+          stroke="url(#mc2-handle)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M47,52 C46,51 46,53 48,55"
+          fill="none"
+          stroke="#333"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
 
         {/* === CHARACTER === */}
         <g filter="url(#mc2-char-shadow)">
