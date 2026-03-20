@@ -24,23 +24,22 @@ export function MowerCharacter({
     setTimeout(() => setIsWaving(false), 3500);
   }, []);
 
-  // Position reporting for GrassEdge — reads computed style at low frequency
+  // Position reporting for GrassEdge — pure math from animation timing, no DOM reads
   useEffect(() => {
-    if (!containerRef.current || !onPositionChange) return;
+    if (!onPositionChange) return;
+
+    const durationMs = traversalDuration * 1000;
+    const startTime = performance.now();
 
     const interval = setInterval(() => {
-      const el = containerRef.current;
-      if (!el) return;
-      const parent = el.parentElement;
-      if (!parent) return;
-      const parentWidth = parent.offsetWidth;
-      const elLeft = el.offsetLeft;
-      const pct = (elLeft / parentWidth) * 100;
-      onPositionChange(Math.max(0, Math.min(100, pct)));
-    }, 150);
+      const elapsed = (performance.now() - startTime) % durationMs;
+      const progress = elapsed / durationMs;
+      const x = -10 + progress * 120; // matches CSS keyframes: -10% to 110%
+      onPositionChange(Math.max(0, Math.min(100, x)));
+    }, 250); // 4x/sec is plenty for grass cutting
 
     return () => clearInterval(interval);
-  }, [onPositionChange]);
+  }, [onPositionChange, traversalDuration]);
 
   // Speech bubble trigger on each animation cycle
   useEffect(() => {
@@ -225,15 +224,12 @@ export function MowerCharacter({
         {/* Ground shadow */}
         <ellipse cx="60" cy="96" rx="42" ry="4" fill="url(#mc2-shadow)" className="mc2-breathe-shadow" />
 
-        {/* === GRASS CLIPPINGS spraying behind mower === */}
-        <g className="mc2-grass-spray">
-          <path d="M88,86 L91,80 L89,86" fill="#4ade80" opacity="0.7" className="mc2-clip1" />
-          <path d="M90,88 L94,82 L91,87" fill="#22c55e" opacity="0.6" className="mc2-clip2" />
-          <path d="M86,87 L90,83 L88,88" fill="#86efac" opacity="0.5" className="mc2-clip3" />
-          <path d="M92,85 L96,79 L93,84" fill="#4ade80" opacity="0.6" className="mc2-clip4" />
-          <path d="M87,84 L92,78 L89,83" fill="#bbf7d0" opacity="0.4" className="mc2-clip5" />
-          <path d="M91,90 L95,84 L92,89" fill="#22c55e" opacity="0.5" className="mc2-clip6" />
-        </g>
+        {/* === GRASS CLIPPINGS — fly backwards (left) from mower deck === */}
+        <circle cx="56" cy="74" r="1.2" fill="#4ade80" className="mc2-clip1" />
+        <circle cx="58" cy="76" r="1"   fill="#22c55e" className="mc2-clip2" />
+        <circle cx="54" cy="72" r="0.8" fill="#86efac" className="mc2-clip3" />
+        <circle cx="57" cy="78" r="1.1" fill="#4ade80" className="mc2-clip4" />
+        <circle cx="55" cy="75" r="0.9" fill="#bbf7d0" className="mc2-clip5" />
 
         {/* === RED PUSH MOWER — shifted up so wheels don't sink below dirt === */}
         <g className="mc2-mower-vibrate" transform="translate(0, -8)">
@@ -700,35 +696,39 @@ export function MowerCharacter({
         .mc2-exhaust1 { animation: mc2-exhaust1 2s ease-out infinite; }
         .mc2-exhaust2 { animation: mc2-exhaust2 2s ease-out infinite 0.5s; }
 
-        /* === GRASS CLIPPINGS === */
+        /* === GRASS CLIPPINGS — fly backwards (left) and up in arcs === */
         @keyframes mc2-clip-fly1 {
-          0% { opacity: 0.7; transform: translate(0, 0) rotate(0deg); }
-          50% { opacity: 0.5; transform: translate(6px, -10px) rotate(180deg); }
-          100% { opacity: 0; transform: translate(12px, 2px) rotate(360deg); }
+          0% { opacity: 0.7; transform: translate(0, 0); }
+          100% { opacity: 0; transform: translate(-18px, -14px); }
         }
         @keyframes mc2-clip-fly2 {
-          0% { opacity: 0.6; transform: translate(0, 0) rotate(0deg); }
-          50% { opacity: 0.4; transform: translate(8px, -8px) rotate(-150deg); }
-          100% { opacity: 0; transform: translate(14px, 4px) rotate(-300deg); }
+          0% { opacity: 0.6; transform: translate(0, 0); }
+          100% { opacity: 0; transform: translate(-14px, -18px); }
         }
         @keyframes mc2-clip-fly3 {
-          0% { opacity: 0.5; transform: translate(0, 0) rotate(0deg); }
-          50% { opacity: 0.3; transform: translate(5px, -12px) rotate(120deg); }
-          100% { opacity: 0; transform: translate(10px, -2px) rotate(240deg); }
+          0% { opacity: 0.5; transform: translate(0, 0); }
+          100% { opacity: 0; transform: translate(-20px, -10px); }
         }
-        .mc2-clip1 { animation: mc2-clip-fly1 0.8s ease-out infinite; }
-        .mc2-clip2 { animation: mc2-clip-fly2 0.8s ease-out infinite 0.15s; }
-        .mc2-clip3 { animation: mc2-clip-fly3 0.8s ease-out infinite 0.3s; }
-        .mc2-clip4 { animation: mc2-clip-fly1 0.8s ease-out infinite 0.45s; }
-        .mc2-clip5 { animation: mc2-clip-fly2 0.8s ease-out infinite 0.1s; }
-        .mc2-clip6 { animation: mc2-clip-fly3 0.8s ease-out infinite 0.55s; }
+        @keyframes mc2-clip-fly4 {
+          0% { opacity: 0.6; transform: translate(0, 0); }
+          100% { opacity: 0; transform: translate(-12px, -20px); }
+        }
+        @keyframes mc2-clip-fly5 {
+          0% { opacity: 0.5; transform: translate(0, 0); }
+          100% { opacity: 0; transform: translate(-22px, -8px); }
+        }
+        .mc2-clip1 { animation: mc2-clip-fly1 0.6s ease-out infinite; }
+        .mc2-clip2 { animation: mc2-clip-fly2 0.6s ease-out infinite 0.12s; }
+        .mc2-clip3 { animation: mc2-clip-fly3 0.6s ease-out infinite 0.24s; }
+        .mc2-clip4 { animation: mc2-clip-fly4 0.6s ease-out infinite 0.36s; }
+        .mc2-clip5 { animation: mc2-clip-fly5 0.6s ease-out infinite 0.08s; }
 
         /* === REDUCED MOTION === */
         @media (prefers-reduced-motion: reduce) {
           .mc2-walk, .mc2-breathe, .mc2-left-leg, .mc2-right-leg, .mc2-left-arm-mower,
           .mc2-wave-arm, .mc2-right-arm-mower, .mc2-head-bob, .mc2-blink, .mc2-mower-vibrate,
           .mc2-wheel-spin, .mc2-exhaust1, .mc2-exhaust2, .mc2-breathe-shadow,
-          .mc2-clip1, .mc2-clip2, .mc2-clip3, .mc2-clip4, .mc2-clip5, .mc2-clip6,
+          .mc2-clip1, .mc2-clip2, .mc2-clip3, .mc2-clip4, .mc2-clip5,
           .mc-bubble-pop {
             animation: none !important;
           }
