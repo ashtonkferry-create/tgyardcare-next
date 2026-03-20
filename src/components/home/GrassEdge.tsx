@@ -7,7 +7,6 @@ interface GrassEdgeProps {
   mowerActive: boolean;
 }
 
-// Deterministic pseudo-random for consistent blade generation
 function seeded(i: number, offset: number): number {
   let a = (i * 31 + offset * 7919 + 0x9e3779b9) | 0;
   a = Math.imul(a ^ (a >>> 16), 0x85ebca6b);
@@ -15,143 +14,113 @@ function seeded(i: number, offset: number): number {
   return ((a ^ (a >>> 16)) >>> 0) / 4294967295;
 }
 
-const VB_WIDTH = 2000;
-const VB_HEIGHT = 20;
-
-// 3 rows for depth: back (tallest/darkest), middle, front (shortest/lightest)
-const ROWS = [
-  { count: 140, minH: 9, maxH: 11, yBase: VB_HEIGHT, hueMin: 130, hueMax: 135, satMin: 55, satMax: 60, lightMin: 20, lightMax: 25, bladeW: 4.5 },
-  { count: 150, minH: 7, maxH: 9,  yBase: VB_HEIGHT, hueMin: 130, hueMax: 135, satMin: 60, satMax: 65, lightMin: 28, lightMax: 32, bladeW: 4 },
-  { count: 130, minH: 5, maxH: 7,  yBase: VB_HEIGHT, hueMin: 125, hueMax: 130, satMin: 65, satMax: 70, lightMin: 33, lightMax: 38, bladeW: 3.5 },
-];
-
-interface Blade {
-  x: number;
-  h: number;
-  w: number;
-  curve: number;
-  color: string;
-  swayDur: number;
-  swayDelay: number;
-  row: number;
-}
-
-function generateBlades(): Blade[] {
-  const blades: Blade[] = [];
-  ROWS.forEach((row, ri) => {
-    for (let i = 0; i < row.count; i++) {
-      const r = seeded(i, ri * 1000);
-      const x = (i / (row.count - 1)) * VB_WIDTH;
-      // Slight random x offset for natural feel (up to +/- 3px)
-      const xOff = (seeded(i, ri * 1000 + 1) - 0.5) * 6;
-      const h = row.minH + seeded(i, ri * 1000 + 2) * (row.maxH - row.minH);
-      const hue = row.hueMin + seeded(i, ri * 1000 + 3) * (row.hueMax - row.hueMin);
-      const sat = row.satMin + seeded(i, ri * 1000 + 4) * (row.satMax - row.satMin);
-      const light = row.lightMin + seeded(i, ri * 1000 + 5) * (row.lightMax - row.lightMin);
-      const curve = (seeded(i, ri * 1000 + 6) - 0.5) * 3; // slight lean left or right
-
-      blades.push({
-        x: Math.max(0, Math.min(VB_WIDTH, x + xOff)),
-        h,
-        w: row.bladeW,
-        curve,
-        color: `hsl(${Math.round(hue)}, ${Math.round(sat)}%, ${Math.round(light)}%)`,
-        swayDur: 3 + seeded(i, ri * 1000 + 7) * 2,
-        swayDelay: -(seeded(i, ri * 1000 + 8) * 5),
-        row: ri,
-      });
-    }
-  });
-  return blades;
-}
-
 export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
-  const blades = useMemo(() => generateBlades(), []);
+  // Back row: 40 taller, darker blades
+  const backRow = useMemo(() =>
+    Array.from({ length: 40 }, (_, i) => ({
+      x: (i / 39) * 100,
+      h: 11 + seeded(i, 1) * 3, // 11-14px
+      w: 4 + seeded(i, 2) * 2,  // 4-6px
+      sway: Math.floor(seeded(i, 3) * 3), // 0, 1, or 2 — picks animation variant
+    })),
+  []);
+
+  // Front row: 40 shorter, lighter blades (offset by half spacing)
+  const frontRow = useMemo(() =>
+    Array.from({ length: 40 }, (_, i) => ({
+      x: ((i + 0.5) / 40) * 100,
+      h: 8 + seeded(i, 10) * 3, // 8-11px
+      w: 3.5 + seeded(i, 11) * 2, // 3.5-5.5px
+      sway: Math.floor(seeded(i, 12) * 3),
+    })),
+  []);
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-[20px] pointer-events-none z-[15] overflow-hidden">
+    <div className="absolute bottom-0 left-0 right-0 h-[22px] pointer-events-none z-[15]">
       <svg
-        viewBox={`0 0 ${VB_WIDTH} ${VB_HEIGHT}`}
+        viewBox="0 0 1000 22"
         preserveAspectRatio="none"
         className="w-full h-full"
         aria-hidden="true"
       >
-        {/* Soil/ground base strip */}
-        <rect x="0" y={VB_HEIGHT - 3} width={VB_WIDTH} height="3" fill="hsl(30, 30%, 15%)" />
+        <defs>
+          <linearGradient id="ge-back" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="hsl(132, 55%, 18%)" />
+            <stop offset="100%" stopColor="hsl(134, 60%, 26%)" />
+          </linearGradient>
+          <linearGradient id="ge-front" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="hsl(130, 60%, 24%)" />
+            <stop offset="100%" stopColor="hsl(128, 68%, 34%)" />
+          </linearGradient>
+          <linearGradient id="ge-cut" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="hsl(132, 45%, 14%)" />
+            <stop offset="100%" stopColor="hsl(134, 50%, 18%)" />
+          </linearGradient>
+        </defs>
 
-        {blades.map((blade, i) => {
-          // Convert blade x position to percentage for mower comparison
-          const bladePercent = (blade.x / VB_WIDTH) * 100;
-          const isCut = mowerActive && mowerX > bladePercent + 1;
-          const scale = isCut ? 0.6 : 1;
+        {/* Soil base */}
+        <rect x="0" y="18" width="1000" height="4" fill="hsl(25, 40%, 12%)" />
 
-          // Blade path: a slightly curved thick blade
-          const bx = blade.x;
-          const by = VB_HEIGHT; // base at bottom
-          const topY = by - blade.h * scale;
-          const halfW = blade.w / 2;
-          const cpx = bx + blade.curve; // control point x for lean
+        {/* Cut strip — darker area where mower has passed */}
+        {mowerActive && mowerX > 0 && (
+          <rect
+            x="0"
+            y="14"
+            width={mowerX * 10}
+            height="8"
+            fill="url(#ge-cut)"
+            style={{ transition: 'width 0.1s linear' }}
+          />
+        )}
 
+        {/* Back row blades */}
+        {backRow.map((blade, i) => {
+          const bx = blade.x * 10;
           return (
             <path
-              key={i}
-              d={`M${bx - halfW},${by} Q${cpx - halfW * 0.3},${topY + blade.h * 0.3} ${cpx},${topY} Q${cpx + halfW * 0.3},${topY + blade.h * 0.3} ${bx + halfW},${by} Z`}
-              fill={blade.color}
-              className="grass-blade-sway"
-              style={{
-                transformOrigin: `${bx}px ${by}px`,
-                '--sway-dur': `${blade.swayDur}s`,
-                '--sway-delay': `${blade.swayDelay}s`,
-                transition: isCut
-                  ? 'd 0.1s ease-out'
-                  : 'd 3s ease-in-out',
-              } as React.CSSProperties}
+              key={`b-${i}`}
+              d={`M${bx - blade.w / 2},18 Q${bx},${18 - blade.h * 0.4} ${bx},${18 - blade.h} Q${bx},${18 - blade.h * 0.4} ${bx + blade.w / 2},18 Z`}
+              fill="url(#ge-back)"
+              className={`ge-sway-${blade.sway}`}
+              style={{ transformOrigin: `${bx}px 18px` }}
+            />
+          );
+        })}
+
+        {/* Front row blades */}
+        {frontRow.map((blade, i) => {
+          const bx = blade.x * 10;
+          return (
+            <path
+              key={`f-${i}`}
+              d={`M${bx - blade.w / 2},18 Q${bx},${18 - blade.h * 0.4} ${bx},${18 - blade.h} Q${bx},${18 - blade.h * 0.4} ${bx + blade.w / 2},18 Z`}
+              fill="url(#ge-front)"
+              className={`ge-sway-${blade.sway}`}
+              style={{ transformOrigin: `${bx}px 18px` }}
             />
           );
         })}
       </svg>
 
-      {/* Grass clipping particles at mower position */}
-      {mowerActive && (
-        <div
-          className="absolute bottom-[4px] w-[20px] h-[14px]"
-          style={{ left: `${mowerX}%`, transform: 'translateX(-50%)' }}
-        >
-          {[0, 1, 2, 3, 4, 5].map((j) => (
-            <div
-              key={j}
-              className="absolute rounded-full grass-clipping"
-              style={{
-                width: 2 + seeded(j, 50) * 1.5,
-                height: 1.5 + seeded(j, 51) * 1,
-                left: `${seeded(j, 52) * 100}%`,
-                backgroundColor: `hsl(${125 + seeded(j, 53) * 15}, ${55 + seeded(j, 54) * 15}%, ${30 + seeded(j, 55) * 15}%)`,
-                opacity: 0.7,
-                '--clip-dx': `${-4 + seeded(j, 56) * 8}px`,
-                '--clip-dy': `${-6 - seeded(j, 57) * 8}px`,
-                animationDuration: `${0.3 + seeded(j, 58) * 0.3}s`,
-              } as React.CSSProperties}
-            />
-          ))}
-        </div>
-      )}
-
       <style>{`
-        @keyframes grass-sway {
+        @keyframes ge-sway-a {
           0%, 100% { transform: rotate(0deg); }
-          25% { transform: rotate(1.2deg); }
-          75% { transform: rotate(-1deg); }
+          50% { transform: rotate(1.5deg); }
         }
-        .grass-blade-sway {
-          animation: grass-sway var(--sway-dur) ease-in-out infinite;
-          animation-delay: var(--sway-delay);
+        @keyframes ge-sway-b {
+          0%, 100% { transform: rotate(0.5deg); }
+          50% { transform: rotate(-1deg); }
         }
-        @keyframes grass-clipping-fly {
-          0% { transform: translate(0, 0) scale(1); opacity: 0.7; }
-          100% { transform: translate(var(--clip-dx), var(--clip-dy)) scale(0.3); opacity: 0; }
+        @keyframes ge-sway-c {
+          0%, 100% { transform: rotate(-0.5deg); }
+          50% { transform: rotate(1deg); }
         }
-        .grass-clipping {
-          animation: grass-clipping-fly ease-out infinite;
+        .ge-sway-0 { animation: ge-sway-a 3s ease-in-out infinite; }
+        .ge-sway-1 { animation: ge-sway-b 3.5s ease-in-out infinite; }
+        .ge-sway-2 { animation: ge-sway-c 2.8s ease-in-out infinite; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .ge-sway-0, .ge-sway-1, .ge-sway-2 { animation: none !important; }
         }
       `}</style>
     </div>
