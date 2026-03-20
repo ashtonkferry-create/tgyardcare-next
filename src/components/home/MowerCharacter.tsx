@@ -11,14 +11,10 @@ export function MowerCharacter({
   onPositionChange,
   traversalDuration = 18,
 }: MowerCharacterProps) {
-  const [xPercent, setXPercent] = useState(-10);
   const [showBubble, setShowBubble] = useState(false);
-  const rafRef = useRef<number>(0);
-  const startTimeRef = useRef<number>(0);
-  const bubbleTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const lastCycleRef = useRef<number>(-1);
-
   const [isWaving, setIsWaving] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const bubbleTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Speech bubble + wave lifecycle per traversal cycle
   const triggerBubble = useCallback(() => {
@@ -28,45 +24,54 @@ export function MowerCharacter({
     setTimeout(() => setIsWaving(false), 3500);
   }, []);
 
+  // Position reporting for GrassEdge — reads computed style at low frequency
   useEffect(() => {
-    const durationMs = traversalDuration * 1000;
+    if (!containerRef.current || !onPositionChange) return;
 
-    function tick(timestamp: number) {
-      if (!startTimeRef.current) startTimeRef.current = timestamp;
-      const elapsed = (timestamp - startTimeRef.current) % durationMs;
-      const progress = elapsed / durationMs;
-      const x = -10 + progress * 120;
-      setXPercent(x);
-      onPositionChange?.(Math.max(0, Math.min(100, x)));
+    const interval = setInterval(() => {
+      const el = containerRef.current;
+      if (!el) return;
+      const parent = el.parentElement;
+      if (!parent) return;
+      const parentWidth = parent.offsetWidth;
+      const elLeft = el.offsetLeft;
+      const pct = (elLeft / parentWidth) * 100;
+      onPositionChange(Math.max(0, Math.min(100, pct)));
+    }, 150);
 
-      // Detect new cycle for speech bubble
-      const currentCycle = Math.floor((timestamp - startTimeRef.current) / durationMs);
-      if (currentCycle !== lastCycleRef.current) {
-        lastCycleRef.current = currentCycle;
-        setShowBubble(false);
-        setIsWaving(false);
-        clearTimeout(bubbleTimerRef.current);
-        bubbleTimerRef.current = setTimeout(triggerBubble, 2000);
-      }
+    return () => clearInterval(interval);
+  }, [onPositionChange]);
 
-      rafRef.current = requestAnimationFrame(tick);
-    }
+  // Speech bubble trigger on each animation cycle
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
 
-    rafRef.current = requestAnimationFrame(tick);
+    const handleIteration = () => {
+      setShowBubble(false);
+      setIsWaving(false);
+      clearTimeout(bubbleTimerRef.current);
+      bubbleTimerRef.current = setTimeout(triggerBubble, 2000);
+    };
+
+    el.addEventListener('animationiteration', handleIteration);
+    // Trigger on first mount
+    bubbleTimerRef.current = setTimeout(triggerBubble, 2000);
+
     return () => {
-      cancelAnimationFrame(rafRef.current);
+      el.removeEventListener('animationiteration', handleIteration);
       clearTimeout(bubbleTimerRef.current);
     };
-  }, [traversalDuration, onPositionChange, triggerBubble]);
+  }, [triggerBubble]);
 
   return (
     <div
-      className="absolute bottom-[-4px] z-[20] pointer-events-none motion-reduce:hidden"
+      ref={containerRef}
+      className="absolute bottom-[-4px] z-[20] pointer-events-none motion-reduce:hidden mc2-walk"
       style={{
-        left: `${xPercent}%`,
         width: '80px',
         height: '70px',
-        willChange: 'left',
+        animationDuration: `${traversalDuration}s`,
       }}
       aria-hidden="true"
     >
@@ -578,6 +583,16 @@ export function MowerCharacter({
       </svg>
 
       <style>{`
+        /* === WALK ACROSS — CSS-driven movement, zero JS per frame === */
+        @keyframes mc2-walk-across {
+          0% { left: -10%; }
+          100% { left: 110%; }
+        }
+        .mc2-walk {
+          animation: mc2-walk-across linear infinite;
+          will-change: left;
+        }
+
         /* === SPEECH BUBBLE POP === */
         @keyframes mc2-bubble-pop {
           0% { transform: translateX(-50%) scale(0); opacity: 0; }
@@ -710,7 +725,7 @@ export function MowerCharacter({
 
         /* === REDUCED MOTION === */
         @media (prefers-reduced-motion: reduce) {
-          .mc2-breathe, .mc2-left-leg, .mc2-right-leg, .mc2-left-arm-mower,
+          .mc2-walk, .mc2-breathe, .mc2-left-leg, .mc2-right-leg, .mc2-left-arm-mower,
           .mc2-wave-arm, .mc2-right-arm-mower, .mc2-head-bob, .mc2-blink, .mc2-mower-vibrate,
           .mc2-wheel-spin, .mc2-exhaust1, .mc2-exhaust2, .mc2-breathe-shadow,
           .mc2-clip1, .mc2-clip2, .mc2-clip3, .mc2-clip4, .mc2-clip5, .mc2-clip6,
