@@ -633,16 +633,16 @@ export function MowerCharacter({
         }
         .mc2-left-arm-mower { animation: mc2-left-arm-mower 0.7s cubic-bezier(0.37, 0, 0.63, 1) infinite; }
 
-        /* === WAVE (smooth natural wave with proper easing) === */
+        /* === WAVE — arm lifts UP above head and waves === */
         @keyframes mc2-wave {
           0% { transform: rotate(0deg); }
-          12% { transform: rotate(-75deg); }
-          24% { transform: rotate(-55deg); }
-          36% { transform: rotate(-75deg); }
-          48% { transform: rotate(-55deg); }
-          60% { transform: rotate(-75deg); }
-          72% { transform: rotate(-50deg); }
-          85% { transform: rotate(-20deg); }
+          12% { transform: rotate(75deg); }
+          24% { transform: rotate(55deg); }
+          36% { transform: rotate(75deg); }
+          48% { transform: rotate(55deg); }
+          60% { transform: rotate(75deg); }
+          72% { transform: rotate(50deg); }
+          85% { transform: rotate(20deg); }
           100% { transform: rotate(0deg); }
         }
         .mc2-wave-arm { animation: mc2-wave 3s cubic-bezier(0.4, 0, 0.2, 1); }
