@@ -2,7 +2,9 @@
 
 import { Check, X, Shield, Clock, Users, FileText, Star, Undo2 } from 'lucide-react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { AmbientParticles } from '@/components/AmbientParticles';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const rows = [
   { feature: 'Response Time', icon: Clock, us: '24 hours', them: '3–5 days' },
@@ -14,6 +16,10 @@ const rows = [
 ];
 
 export function ComparisonTable() {
+  const header = useScrollReveal({ once: true, margin: '-60px', amount: 0.3 });
+  const table = useScrollReveal({ once: true, margin: '-40px', amount: 0.1 });
+  const cta = useScrollReveal({ once: true, margin: '-40px', amount: 0.5 });
+
   return (
     <section className="relative py-16 md:py-24 overflow-hidden">
       {/* Green cinematic background */}
@@ -28,34 +34,57 @@ export function ComparisonTable() {
         }}
       />
 
-      {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full blur-[120px] bg-emerald-500/[0.15] pointer-events-none" />
+      {/* Ambient glow — pulsing opacity */}
+      <motion.div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full blur-[120px] bg-emerald-500/[0.15] pointer-events-none"
+        animate={{ opacity: [0.15, 0.28, 0.15] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      />
 
       {/* Season-adaptive particles */}
       <AmbientParticles density="sparse" />
 
       <div className="relative container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
+          {/* Header — blur-fade reveal on scroll */}
+          <motion.div
+            ref={header.ref}
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 30, filter: 'blur(12px)' }}
+            animate={
+              header.isInView
+                ? { opacity: 1, y: 0, filter: 'blur(0px)' }
+                : { opacity: 0, y: 30, filter: 'blur(12px)' }
+            }
+            transition={{ duration: 0.7, ease: [0.25, 0.4, 0.25, 1] }}
+          >
             <p className="text-white/60 text-sm font-medium tracking-widest uppercase mb-3">
               Why TotalGuard
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Not All Yard Care Is{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-300">
+              <span className="comparison-shimmer-text text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-200 to-emerald-400">
                 Created Equal
               </span>
             </h2>
             <p className="text-white/50 text-base max-w-xl mx-auto">
               See why 500+ Madison homeowners trust TotalGuard over the competition.
             </p>
-          </div>
+          </motion.div>
 
-          {/* Table */}
-          <div className="rounded-xl border border-white/[0.06] overflow-hidden bg-white/[0.02] backdrop-blur-sm">
+          {/* Table — staggered row reveals */}
+          <div ref={table.ref} className="rounded-xl border border-white/[0.06] overflow-hidden bg-white/[0.02] backdrop-blur-sm">
             {/* Table header */}
-            <div className="grid grid-cols-3 border-b border-white/[0.06]">
+            <motion.div
+              className="grid grid-cols-3 border-b border-white/[0.06]"
+              initial={{ opacity: 0, x: -20 }}
+              animate={
+                table.isInView
+                  ? { opacity: 1, x: 0 }
+                  : { opacity: 0, x: -20 }
+              }
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
               <div className="px-4 md:px-6 py-4 text-white/40 text-xs font-medium uppercase tracking-wider">
                 Feature
               </div>
@@ -67,17 +96,34 @@ export function ComparisonTable() {
               <div className="px-4 md:px-6 py-4 text-center text-white/30 text-xs md:text-sm font-medium uppercase tracking-wider">
                 Typical Company
               </div>
-            </div>
+            </motion.div>
 
-            {/* Table rows */}
+            {/* Table rows — staggered slide-in from left */}
             {rows.map((row, i) => {
               const Icon = row.icon;
               return (
-                <div
+                <motion.div
                   key={row.feature}
                   className={`grid grid-cols-3 border-b border-white/[0.04] last:border-b-0 ${
                     i % 2 === 0 ? 'bg-white/[0.01]' : ''
-                  } hover:bg-white/[0.03] transition-colors duration-200`}
+                  } transition-colors duration-200`}
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={
+                    table.isInView
+                      ? { opacity: 1, x: 0 }
+                      : { opacity: 0, x: -30 }
+                  }
+                  transition={{
+                    duration: 0.5,
+                    delay: 0.08 * (i + 1),
+                    ease: [0.25, 0.4, 0.25, 1],
+                  }}
+                  whileHover={{
+                    scale: 1.01,
+                    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                    boxShadow: '0 0 16px rgba(16, 185, 129, 0.12), inset 0 0 0 1px rgba(16, 185, 129, 0.15)',
+                    transition: { duration: 0.2 },
+                  }}
                 >
                   {/* Feature name */}
                   <div className="flex items-center gap-2.5 px-4 md:px-6 py-4">
@@ -96,22 +142,65 @@ export function ComparisonTable() {
                     <X className="w-3.5 h-3.5 text-red-400/60 flex-shrink-0" />
                     <span className="text-white/30 text-xs md:text-sm">{row.them}</span>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
 
-          {/* Bottom CTA */}
-          <div className="mt-10 text-center">
-            <Link
-              href="/contact"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold text-sm rounded-lg py-3.5 px-8 shadow-lg shadow-emerald-900/30 transition-all duration-200 hover:shadow-emerald-900/50"
+          {/* Bottom CTA — scale-up reveal with pulse glow */}
+          <motion.div
+            ref={cta.ref}
+            className="mt-10 text-center"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={
+              cta.isInView
+                ? { opacity: 1, scale: 1 }
+                : { opacity: 0, scale: 0.85 }
+            }
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.4, 0.25, 1] }}
+          >
+            <motion.div
+              className="inline-block"
+              whileHover={{ scale: 1.03 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
             >
-              Experience the Difference: Get a Free Quote
-            </Link>
-          </div>
+              <Link
+                href="/contact"
+                className="comparison-cta-btn inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold text-sm rounded-lg py-3.5 px-8 shadow-lg shadow-emerald-900/30 transition-all duration-200 hover:shadow-[0_0_24px_rgba(16,185,129,0.4),0_0_48px_rgba(16,185,129,0.15)]"
+              >
+                Experience the Difference: Get a Free Quote
+              </Link>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
+
+      {/* Shimmer keyframe for "Created Equal" gradient text + CTA pulse */}
+      <style jsx global>{`
+        @keyframes comparison-shimmer {
+          0% {
+            background-position: -200% center;
+          }
+          100% {
+            background-position: 200% center;
+          }
+        }
+        .comparison-shimmer-text {
+          background-size: 200% auto;
+          animation: comparison-shimmer 4s linear infinite;
+        }
+        @keyframes comparison-cta-pulse {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2), 0 4px 12px rgba(16, 185, 129, 0.15);
+          }
+          50% {
+            box-shadow: 0 0 28px rgba(16, 185, 129, 0.35), 0 4px 16px rgba(16, 185, 129, 0.25);
+          }
+        }
+        .comparison-cta-btn {
+          animation: comparison-cta-pulse 3s ease-in-out infinite;
+        }
+      `}</style>
     </section>
   );
 }
