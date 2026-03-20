@@ -17,7 +17,7 @@ import { MowerCharacter } from '@/components/home/MowerCharacter';
 /** Stagger container variant */
 const stagger: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.08 } },
 };
 
 /** Fade-up child variant */
@@ -38,7 +38,10 @@ export function SummerHero() {
   }, []);
 
   return (
-    <section className="relative bg-[#1a3a2a] overflow-hidden">
+    <section className="relative overflow-hidden">
+      {/* Cinematic gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-green-950 via-[#0a3520] to-green-950" />
+
       {/*
         VIDEO SWAP SLOT:
         Replace the static background image with a <video> for cinematic looping hero.
@@ -58,16 +61,19 @@ export function SummerHero() {
             src={heroSummerMowing}
             alt=""
             aria-hidden="true"
-            className="absolute inset-0 w-full h-full object-cover opacity-20"
+            className="absolute inset-0 w-full h-full object-cover opacity-[0.15]"
             priority
             sizes="100vw"
             fill
           />
         </div>
 
-        {/* Gradient overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1a3a2a]/95 via-[#1a3a2a]/80 to-[#1a3a2a]/60" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1a3a2a]/50 via-transparent to-transparent" />
+        {/* Gradient overlays for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-green-950/95 via-[#0a3520]/80 to-[#0a3520]/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-green-950/50 via-transparent to-transparent" />
+
+        {/* Center radial glow — draws the eye to content */}
+        <div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full blur-[150px] bg-emerald-500/[0.08] pointer-events-none" />
 
         {/* Ambient Orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none motion-reduce:hidden">
@@ -87,7 +93,7 @@ export function SummerHero() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/25 pointer-events-none" />
 
         {/* Subtle Grid Pattern - hidden on mobile */}
-        <div className="absolute inset-0 opacity-[0.02] hidden lg:block pointer-events-none" style={{
+        <div className="absolute inset-0 opacity-[0.03] hidden lg:block pointer-events-none" style={{
           backgroundImage: 'linear-gradient(rgba(34,197,94,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,.3) 1px, transparent 1px)',
           backgroundSize: '60px 60px'
         }} />
@@ -104,7 +110,7 @@ export function SummerHero() {
               animate="visible"
             >
               {/* Season Badge */}
-              <motion.div variants={fadeUp} className="inline-flex items-center gap-2 bg-green-800/50 backdrop-blur-md text-white px-3 py-2 rounded-full text-xs sm:text-sm font-semibold mb-4 lg:mb-6 border border-green-500/30 w-fit">
+              <motion.div variants={fadeUp} className="inline-flex items-center gap-2 bg-white/[0.06] backdrop-blur-md text-white px-3 py-2 rounded-full text-xs sm:text-sm font-semibold mb-4 lg:mb-6 border border-emerald-500/20 w-fit">
                 <Sun className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-yellow-400 animate-spin" style={{ animationDuration: '10s' }} />
                 <span className="text-green-100">{getSeasonLabel('summer')}</span>
                 <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
@@ -112,14 +118,14 @@ export function SummerHero() {
               </motion.div>
 
               {/* Problem-First Headline — word-by-word blur-fade reveal */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white mb-3 sm:mb-4 lg:mb-5 leading-[1.15] tracking-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white mb-3 sm:mb-4 lg:mb-5 leading-[1.15] tracking-tight">
                 {['Tired', 'of', 'Lawn', 'Guys'].map((word, i) => (
                   <motion.span
                     key={word}
                     className="inline-block mr-[0.3em]"
                     initial={{ opacity: 0, y: 12, filter: 'blur(8px)' }}
                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                    transition={{ delay: 0.3 + i * 0.12, duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
+                    transition={{ delay: 0.15 + i * 0.08, duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
                   >
                     {word}
                   </motion.span>
@@ -127,11 +133,11 @@ export function SummerHero() {
                 {["Who", "Don\u2019t", 'Show', 'Up?'].map((word, i) => (
                   <motion.span
                     key={word}
-                    className="inline-block mr-[0.3em] text-amber-400"
+                    className="inline-block mr-[0.3em] hero-shimmer-text bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-green-300 to-emerald-400 bg-[length:200%_auto]"
                     initial={{ opacity: 0, y: 12, filter: 'blur(8px)' }}
                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                     transition={{
-                      delay: 0.3 + (4 + i) * 0.12,
+                      delay: 0.15 + (4 + i) * 0.08,
                       duration: 0.5,
                       ease: [0.25, 0.4, 0.25, 1],
                     }}
@@ -144,7 +150,9 @@ export function SummerHero() {
               {/* Value Prop Subhead */}
               <motion.p variants={fadeUp} className="text-base sm:text-lg md:text-xl text-green-100/90 mb-4 lg:mb-6 leading-relaxed">
                 We show up. Same crew. Same day. Every week.
-                <span className="block mt-1 text-green-300 font-semibold">No excuses. No surprises.</span>
+                <span className="block mt-2 text-emerald-300 font-bold text-lg md:text-xl" style={{ textShadow: '0 0 20px rgba(52,211,153,0.3)' }}>
+                  No excuses. No surprises.
+                </span>
               </motion.p>
 
               {/* MOBILE: Compact value chips */}
@@ -174,7 +182,7 @@ export function SummerHero() {
                 {['80+ Google Reviews', '4.9\u2605 Rating', 'Fully Insured'].map((chip) => (
                   <span
                     key={chip}
-                    className="inline-flex items-center gap-1.5 bg-green-800/40 backdrop-blur-md text-green-100 px-3.5 py-2 rounded-full text-sm font-medium border border-green-500/40 hover:bg-green-700/50 hover:border-green-400/50 transition-all duration-300 cursor-default"
+                    className="inline-flex items-center gap-1.5 bg-white/[0.05] backdrop-blur-md text-green-100 px-3.5 py-2 rounded-full text-sm font-medium border border-white/[0.1] hover:bg-white/[0.08] hover:border-white/[0.15] transition-all duration-300 cursor-default"
                   >
                     <Shield className="h-3.5 w-3.5 text-green-400" />
                     {chip}
@@ -192,7 +200,8 @@ export function SummerHero() {
                 <MagneticButton>
                   <Button
                     size="lg"
-                    className="group bg-amber-500 hover:bg-amber-400 text-black text-base font-bold px-6 sm:px-7 h-12 sm:h-14 shadow-xl shadow-amber-900/40 hover:shadow-2xl hover:shadow-amber-800/50 transition-all duration-300 hover:scale-[1.02] tap-target w-full sm:w-auto animate-shimmer-btn bg-[length:200%_auto] shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+                    className="group text-white text-base font-bold px-6 sm:px-7 h-12 sm:h-14 shadow-xl transition-all duration-300 hover:scale-[1.02] tap-target w-full sm:w-auto rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-green-500 hover:from-emerald-500 hover:via-emerald-400 hover:to-green-400 shadow-emerald-900/40 hover:shadow-emerald-800/50 hover:shadow-2xl animate-shimmer-btn bg-[length:200%_auto]"
+                    style={{ boxShadow: '0 0 25px rgba(16,185,129,0.35)' }}
                     asChild
                   >
                     <Link href="/contact?service=mowing">
@@ -219,6 +228,26 @@ export function SummerHero() {
                 </MagneticButton>
               </motion.div>
 
+              {/* Floating Stats — Glass Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4, duration: 0.6 }}
+                className="hidden lg:grid grid-cols-4 gap-4 mb-4 p-4 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/[0.08]"
+              >
+                {[
+                  { value: '500+', label: 'Properties' },
+                  { value: '4.9\u2605', label: 'Google Rating' },
+                  { value: '12', label: 'Cities Served' },
+                  { value: '24hr', label: 'Quote Response' },
+                ].map((stat) => (
+                  <div key={stat.label} className="text-center">
+                    <div className="text-xl font-black text-white">{stat.value}</div>
+                    <div className="text-[10px] text-emerald-300/60 font-medium uppercase tracking-wider">{stat.label}</div>
+                  </div>
+                ))}
+              </motion.div>
+
               {/* Social Proof */}
               <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-3 lg:gap-4 pt-2">
                 <div className="flex items-center gap-2 lg:gap-3">
@@ -226,7 +255,7 @@ export function SummerHero() {
                     {['J', 'M', 'S', '+'].map((letter, i) => (
                       <div
                         key={letter}
-                        className="w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-[10px] lg:text-xs font-bold text-white ring-2 ring-[#1a3a2a] shadow-lg"
+                        className="w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-[10px] lg:text-xs font-bold text-white ring-2 ring-green-950 shadow-lg"
                         style={{
                           background: i === 3
                             ? 'linear-gradient(135deg, #475569, #334155)'
@@ -267,19 +296,22 @@ export function SummerHero() {
               transition={{ duration: 0.7, delay: 0.3, ease: 'easeOut' }}
             >
               {/* Subtle Glow Effect */}
-              <div className="absolute -inset-6 bg-green-600/10 rounded-3xl blur-3xl" />
+              <div className="absolute -inset-6 bg-emerald-500/[0.08] rounded-3xl blur-3xl" />
 
               <div className="relative w-full group">
+                {/* Pulsing green glow border */}
+                <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-emerald-500/20 via-transparent to-emerald-500/20 animate-pulse pointer-events-none" style={{ animationDuration: '3s' }} />
+
                 <Image
                   src={heroSummerMowing}
                   alt="Professional lawn mowing service with commercial mower creating perfect striped patterns in Madison Wisconsin"
-                  className="rounded-2xl shadow-2xl w-full h-auto object-cover aspect-[16/10] border border-green-500/20 group-hover:scale-[1.02] transition-transform duration-500"
+                  className="rounded-2xl shadow-2xl w-full h-auto object-cover aspect-[16/10] border border-white/[0.1] group-hover:scale-[1.02] transition-transform duration-500"
                   priority
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
 
                 {/* Floating Stats Card */}
-                <div className="absolute -bottom-4 -left-4 bg-[#1a3a2a] rounded-xl p-4 shadow-2xl border border-green-600/30 hidden sm:block animate-fade-in hover:scale-105 transition-transform duration-300" style={{ animationDelay: '0.6s' }}>
+                <div className="absolute -bottom-4 -left-4 rounded-xl p-4 shadow-2xl hidden sm:block animate-fade-in hover:scale-105 transition-transform duration-300 bg-white/[0.06] backdrop-blur-xl border border-white/[0.1]" style={{ animationDelay: '0.6s' }}>
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-full bg-green-600 shadow-lg">
                       <CheckCircle2 className="h-5 w-5 text-white" />
@@ -305,6 +337,17 @@ export function SummerHero() {
       {/* Grass edge + Mower character at bottom */}
       <GrassEdge mowerXRef={mowerXRef} mowerActive={true} />
       <MowerCharacter onPositionChange={handleMowerPosition} traversalDuration={20} />
+
+      {/* Hero shimmer animation */}
+      <style>{`
+        @keyframes hero-shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        .hero-shimmer-text {
+          animation: hero-shimmer 4s linear infinite;
+        }
+      `}</style>
     </section>
   );
 }
