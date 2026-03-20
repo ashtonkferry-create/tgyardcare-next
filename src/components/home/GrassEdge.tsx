@@ -15,30 +15,30 @@ function seeded(i: number, offset: number): number {
 }
 
 export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
-  // Back row: 40 taller, darker blades
   const backRow = useMemo(() =>
-    Array.from({ length: 40 }, (_, i) => ({
-      x: (i / 39) * 100,
-      h: 11 + seeded(i, 1) * 3, // 11-14px
-      w: 4 + seeded(i, 2) * 2,  // 4-6px
-      sway: Math.floor(seeded(i, 3) * 3), // 0, 1, or 2 — picks animation variant
+    Array.from({ length: 50 }, (_, i) => ({
+      x: (i / 49) * 100,
+      h: 10 + seeded(i, 1) * 4,
+      w: 4 + seeded(i, 2) * 2.5,
+      sway: Math.floor(seeded(i, 3) * 4),
     })),
   []);
 
-  // Front row: 40 shorter, lighter blades (offset by half spacing)
   const frontRow = useMemo(() =>
-    Array.from({ length: 40 }, (_, i) => ({
-      x: ((i + 0.5) / 40) * 100,
-      h: 8 + seeded(i, 10) * 3, // 8-11px
-      w: 3.5 + seeded(i, 11) * 2, // 3.5-5.5px
-      sway: Math.floor(seeded(i, 12) * 3),
+    Array.from({ length: 50 }, (_, i) => ({
+      x: ((i + 0.5) / 50) * 100,
+      h: 7 + seeded(i, 10) * 3,
+      w: 3.5 + seeded(i, 11) * 2,
+      sway: Math.floor(seeded(i, 12) * 4),
     })),
   []);
+
+  const baseY = 16; // blades grow from soil line
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-[22px] pointer-events-none z-[15]">
+    <div className="absolute bottom-0 left-0 right-0 h-[24px] pointer-events-none z-[15]">
       <svg
-        viewBox="0 0 1000 22"
+        viewBox="0 0 1000 24"
         preserveAspectRatio="none"
         className="w-full h-full"
         aria-hidden="true"
@@ -46,32 +46,21 @@ export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
         <defs>
           <linearGradient id="ge-back" x1="0" y1="1" x2="0" y2="0">
             <stop offset="0%" stopColor="hsl(132, 55%, 18%)" />
-            <stop offset="100%" stopColor="hsl(134, 60%, 26%)" />
+            <stop offset="100%" stopColor="hsl(134, 60%, 28%)" />
           </linearGradient>
           <linearGradient id="ge-front" x1="0" y1="1" x2="0" y2="0">
             <stop offset="0%" stopColor="hsl(130, 60%, 24%)" />
-            <stop offset="100%" stopColor="hsl(128, 68%, 34%)" />
+            <stop offset="100%" stopColor="hsl(128, 68%, 36%)" />
           </linearGradient>
-          <linearGradient id="ge-cut" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0%" stopColor="hsl(132, 45%, 14%)" />
-            <stop offset="100%" stopColor="hsl(134, 50%, 18%)" />
+          <linearGradient id="ge-soil" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="hsl(28, 45%, 16%)" />
+            <stop offset="60%" stopColor="hsl(25, 40%, 12%)" />
+            <stop offset="100%" stopColor="hsl(22, 35%, 8%)" />
           </linearGradient>
         </defs>
 
-        {/* Soil base */}
-        <rect x="0" y="18" width="1000" height="4" fill="hsl(25, 40%, 12%)" />
-
-        {/* Cut strip — darker area where mower has passed */}
-        {mowerActive && mowerX > 0 && (
-          <rect
-            x="0"
-            y="14"
-            width={mowerX * 10}
-            height="8"
-            fill="url(#ge-cut)"
-            style={{ transition: 'width 0.1s linear' }}
-          />
-        )}
+        {/* Soil base — thick visible dirt */}
+        <rect x="0" y="16" width="1000" height="8" fill="url(#ge-soil)" />
 
         {/* Back row blades */}
         {backRow.map((blade, i) => {
@@ -79,10 +68,10 @@ export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
           return (
             <path
               key={`b-${i}`}
-              d={`M${bx - blade.w / 2},18 Q${bx},${18 - blade.h * 0.4} ${bx},${18 - blade.h} Q${bx},${18 - blade.h * 0.4} ${bx + blade.w / 2},18 Z`}
+              d={`M${bx - blade.w / 2},${baseY} Q${bx},${baseY - blade.h * 0.4} ${bx},${baseY - blade.h} Q${bx},${baseY - blade.h * 0.4} ${bx + blade.w / 2},${baseY} Z`}
               fill="url(#ge-back)"
               className={`ge-sway-${blade.sway}`}
-              style={{ transformOrigin: `${bx}px 18px` }}
+              style={{ transformOrigin: `${bx}px ${baseY}px` }}
             />
           );
         })}
@@ -93,10 +82,10 @@ export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
           return (
             <path
               key={`f-${i}`}
-              d={`M${bx - blade.w / 2},18 Q${bx},${18 - blade.h * 0.4} ${bx},${18 - blade.h} Q${bx},${18 - blade.h * 0.4} ${bx + blade.w / 2},18 Z`}
+              d={`M${bx - blade.w / 2},${baseY} Q${bx},${baseY - blade.h * 0.4} ${bx},${baseY - blade.h} Q${bx},${baseY - blade.h * 0.4} ${bx + blade.w / 2},${baseY} Z`}
               fill="url(#ge-front)"
               className={`ge-sway-${blade.sway}`}
-              style={{ transformOrigin: `${bx}px 18px` }}
+              style={{ transformOrigin: `${bx}px ${baseY}px` }}
             />
           );
         })}
@@ -105,22 +94,27 @@ export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
       <style>{`
         @keyframes ge-sway-a {
           0%, 100% { transform: rotate(0deg); }
-          50% { transform: rotate(1.5deg); }
+          50% { transform: rotate(2deg); }
         }
         @keyframes ge-sway-b {
           0%, 100% { transform: rotate(0.5deg); }
-          50% { transform: rotate(-1deg); }
+          50% { transform: rotate(-1.5deg); }
         }
         @keyframes ge-sway-c {
           0%, 100% { transform: rotate(-0.5deg); }
-          50% { transform: rotate(1deg); }
+          50% { transform: rotate(1.8deg); }
         }
-        .ge-sway-0 { animation: ge-sway-a 3s ease-in-out infinite; }
-        .ge-sway-1 { animation: ge-sway-b 3.5s ease-in-out infinite; }
-        .ge-sway-2 { animation: ge-sway-c 2.8s ease-in-out infinite; }
+        @keyframes ge-sway-d {
+          0%, 100% { transform: rotate(1deg); }
+          50% { transform: rotate(-2deg); }
+        }
+        .ge-sway-0 { animation: ge-sway-a 2.8s ease-in-out infinite; }
+        .ge-sway-1 { animation: ge-sway-b 3.2s ease-in-out infinite; }
+        .ge-sway-2 { animation: ge-sway-c 2.5s ease-in-out infinite; }
+        .ge-sway-3 { animation: ge-sway-d 3.5s ease-in-out infinite; }
 
         @media (prefers-reduced-motion: reduce) {
-          .ge-sway-0, .ge-sway-1, .ge-sway-2 { animation: none !important; }
+          .ge-sway-0, .ge-sway-1, .ge-sway-2, .ge-sway-3 { animation: none !important; }
         }
       `}</style>
     </div>
