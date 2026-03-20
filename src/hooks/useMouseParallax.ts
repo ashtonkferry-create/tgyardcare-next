@@ -39,14 +39,20 @@ export function useMouseParallax({
       x: Math.max(-1, Math.min(1, (e.clientX - cx) / (rect.width / 2))),
       y: Math.max(-1, Math.min(1, (e.clientY - cy) / (rect.height / 2))),
     };
-  }, []);
+    startLoop(); // kick off RAF only when mouse moves
+  }, [startLoop]);
 
   const handleMouseLeave = useCallback(() => {
     targetRef.current = { x: 0, y: 0 };
-  }, []);
+    startLoop(); // animate back to center then stop
+  }, [startLoop]);
 
-  useEffect(() => {
-    if (!enabled || prefersReduced) return;
+  // RAF loop that stops itself when position converges (no continuous loop)
+  const isRunningRef = useRef(false);
+
+  const startLoop = useCallback(() => {
+    if (isRunningRef.current) return;
+    isRunningRef.current = true;
 
     function tick() {
       const cur = currentRef.current;
@@ -54,16 +60,29 @@ export function useMouseParallax({
       cur.x += (tgt.x - cur.x) * smoothing;
       cur.y += (tgt.y - cur.y) * smoothing;
 
-      if (Math.abs(cur.x - tgt.x) > 0.001 || Math.abs(cur.y - tgt.y) > 0.001 ||
-          Math.abs(cur.x) > 0.001 || Math.abs(cur.y) > 0.001) {
+      const moving = Math.abs(cur.x - tgt.x) > 0.001 || Math.abs(cur.y - tgt.y) > 0.001 ||
+                     Math.abs(cur.x) > 0.001 || Math.abs(cur.y) > 0.001;
+
+      if (moving) {
         setPosition({ x: cur.x, y: cur.y });
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        // Converged — stop the loop, save battery
+        isRunningRef.current = false;
+        if (cur.x !== 0 || cur.y !== 0) {
+          cur.x = 0;
+          cur.y = 0;
+          setPosition({ x: 0, y: 0 });
+        }
       }
-      rafRef.current = requestAnimationFrame(tick);
     }
 
     rafRef.current = requestAnimationFrame(tick);
+  }, [smoothing]);
+
+  useEffect(() => {
     return () => cancelAnimationFrame(rafRef.current);
-  }, [enabled, smoothing, prefersReduced]);
+  }, []);
 
   useEffect(() => {
     if (!enabled || prefersReduced) return;

@@ -27,17 +27,26 @@ export default function MobileStickyCTA() {
   const btnGradient = seasonalBtnGradient[activeSeason] ?? seasonalBtnGradient.summer;
 
   useEffect(() => {
+    let rafId = 0;
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight;
-      const winHeight = window.innerHeight;
-      setVisible(scrollY > 500);
-      setAtFooter(scrollY + winHeight > docHeight - 300);
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight;
+        const winHeight = window.innerHeight;
+        const nextVisible = scrollY > 500;
+        const nextAtFooter = scrollY + winHeight > docHeight - 300;
+        setVisible(prev => prev !== nextVisible ? nextVisible : prev);
+        setAtFooter(prev => prev !== nextAtFooter ? nextAtFooter : prev);
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const show = visible && !atFooter;

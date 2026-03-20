@@ -750,9 +750,18 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
   useEffect(() => {
     if (!showPromoBanner) { setNavTop(0); return; }
 
+    let rafId = 0;
+    let lastNavTop = -1;
     const update = () => {
-      const bh = bannerRef.current?.offsetHeight ?? 0;
-      setNavTop(Math.max(0, bh - window.scrollY));
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const bh = bannerRef.current?.offsetHeight ?? 0;
+        const next = Math.max(0, bh - window.scrollY);
+        if (next !== lastNavTop) {
+          lastNavTop = next;
+          setNavTop(next);
+        }
+      });
     };
 
     // ResizeObserver for banner height changes (e.g. dismiss)
@@ -761,7 +770,7 @@ export default function Navigation({ showPromoBanner = false }: NavigationProps)
 
     window.addEventListener('scroll', update, { passive: true });
     update();
-    return () => { ro.disconnect(); window.removeEventListener('scroll', update); };
+    return () => { ro.disconnect(); window.removeEventListener('scroll', update); cancelAnimationFrame(rafId); };
   }, [showPromoBanner]);
 
   // Track fixed wrapper height so spacer always matches exactly
