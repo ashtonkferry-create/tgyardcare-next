@@ -82,7 +82,7 @@ export function GrassEdge({ mowerXRef, mowerActive }: GrassEdgeProps) {
           }
         }
       });
-    }, 250);
+    }, 80); // Fast polling — ref read is free, DOM updates only on change
 
     return () => clearInterval(interval);
   }, [mowerActive, mowerXRef, backRow, frontRow]);

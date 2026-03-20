@@ -31,14 +31,16 @@ export function MowerCharacter({
   useEffect(() => {
     const durationMs = traversalDuration * 1000;
     const startTime = performance.now();
+    let rafId = 0;
 
-    const interval = setInterval(() => {
+    // Use RAF for position — grass cuts instantly as mower passes
+    const tick = () => {
       const now = performance.now();
       const elapsed = (now - startTime) % durationMs;
       const progress = elapsed / durationMs;
       const x = -10 + progress * 120;
 
-      // Report position for grass cutting
+      // Report position for grass cutting — every frame, but it's just a ref write (no re-render)
       onPositionChange?.(Math.max(0, Math.min(100, x)));
 
       // Detect new cycle — trigger bubble every loop
@@ -50,13 +52,17 @@ export function MowerCharacter({
         clearTimeout(bubbleTimerRef.current);
         bubbleTimerRef.current = setTimeout(triggerBubble, 2000);
       }
-    }, 250);
+
+      rafId = requestAnimationFrame(tick);
+    };
+
+    rafId = requestAnimationFrame(tick);
 
     // First cycle bubble
     bubbleTimerRef.current = setTimeout(triggerBubble, 2000);
 
     return () => {
-      clearInterval(interval);
+      cancelAnimationFrame(rafId);
       clearTimeout(bubbleTimerRef.current);
     };
   }, [onPositionChange, traversalDuration, triggerBubble]);
