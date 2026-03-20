@@ -24,44 +24,42 @@ export function MowerCharacter({
     setTimeout(() => setIsWaving(false), 3500);
   }, []);
 
-  // Position reporting for GrassEdge — pure math from animation timing, no DOM reads
-  useEffect(() => {
-    if (!onPositionChange) return;
+  // Unified timing loop — position reporting + speech bubble trigger
+  // Pure math from animation timing, zero DOM reads
+  const lastCycleRef = useRef(-1);
 
+  useEffect(() => {
     const durationMs = traversalDuration * 1000;
     const startTime = performance.now();
 
     const interval = setInterval(() => {
-      const elapsed = (performance.now() - startTime) % durationMs;
+      const now = performance.now();
+      const elapsed = (now - startTime) % durationMs;
       const progress = elapsed / durationMs;
-      const x = -10 + progress * 120; // matches CSS keyframes: -10% to 110%
-      onPositionChange(Math.max(0, Math.min(100, x)));
-    }, 250); // 4x/sec is plenty for grass cutting
+      const x = -10 + progress * 120;
 
-    return () => clearInterval(interval);
-  }, [onPositionChange, traversalDuration]);
+      // Report position for grass cutting
+      onPositionChange?.(Math.max(0, Math.min(100, x)));
 
-  // Speech bubble trigger on each animation cycle
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
+      // Detect new cycle — trigger bubble every loop
+      const currentCycle = Math.floor((now - startTime) / durationMs);
+      if (currentCycle !== lastCycleRef.current) {
+        lastCycleRef.current = currentCycle;
+        setShowBubble(false);
+        setIsWaving(false);
+        clearTimeout(bubbleTimerRef.current);
+        bubbleTimerRef.current = setTimeout(triggerBubble, 2000);
+      }
+    }, 250);
 
-    const handleIteration = () => {
-      setShowBubble(false);
-      setIsWaving(false);
-      clearTimeout(bubbleTimerRef.current);
-      bubbleTimerRef.current = setTimeout(triggerBubble, 2000);
-    };
-
-    el.addEventListener('animationiteration', handleIteration);
-    // Trigger on first mount
+    // First cycle bubble
     bubbleTimerRef.current = setTimeout(triggerBubble, 2000);
 
     return () => {
-      el.removeEventListener('animationiteration', handleIteration);
+      clearInterval(interval);
       clearTimeout(bubbleTimerRef.current);
     };
-  }, [triggerBubble]);
+  }, [onPositionChange, traversalDuration, triggerBubble]);
 
   return (
     <div
