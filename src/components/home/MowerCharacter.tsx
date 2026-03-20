@@ -20,13 +20,17 @@ export function MowerCharacter({
   const bubbleFadeRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lastCycleRef = useRef<number>(-1);
 
-  // Speech bubble lifecycle per traversal cycle
+  const [isWaving, setIsWaving] = useState(false);
+
+  // Speech bubble + wave lifecycle per traversal cycle
   const triggerBubble = useCallback(() => {
+    setIsWaving(true);
     setShowBubble(true);
     setBubbleOpacity(1);
     // Hold for 4 seconds then fade
     bubbleFadeRef.current = setTimeout(() => {
       setBubbleOpacity(0);
+      setIsWaving(false);
       setTimeout(() => setShowBubble(false), 500);
     }, 4000);
   }, []);
@@ -67,7 +71,7 @@ export function MowerCharacter({
 
   return (
     <div
-      className="absolute bottom-[18px] z-[20] pointer-events-none motion-reduce:hidden"
+      className="absolute bottom-[8px] z-[20] pointer-events-none motion-reduce:hidden"
       style={{
         left: `${xPercent}%`,
         width: '90px',
@@ -378,24 +382,50 @@ export function MowerCharacter({
               />
             </g>
 
-            {/* === LEFT ARM (swinging arm) === */}
-            <g className="mc2-left-arm" style={{ transformOrigin: '30px 43px' }}>
-              {/* Sleeve */}
-              <path
-                d="M28,41 C26,41 24,43 24,45 L24,48 C24,50 26,51 28,51 L32,51 C32,49 32,43 30,41 Z"
-                fill="url(#mc2-shirt-sleeve)"
-              />
-              {/* Forearm */}
-              <path
-                d="M25,50 C24,50 23,52 23,54 L23,58 C23,60 24,61 26,61 L29,61 C31,61 31,60 31,58 L31,54 C31,52 30,50 29,50 Z"
-                fill="url(#mc2-skin)"
-              />
-              {/* Hand */}
-              <path
-                d="M24,59 C23,60 23,62 25,63 C27,64 29,63 30,62 C31,61 31,59 29,59 Z"
-                fill="url(#mc2-skin)"
-              />
-            </g>
+            {/* === LEFT ARM === */}
+            {isWaving ? (
+              /* WAVING: arm lifts up and waves */
+              <g className="mc2-wave-arm" style={{ transformOrigin: '30px 43px' }}>
+                {/* Sleeve */}
+                <path
+                  d="M28,41 C26,41 24,43 24,45 L24,48 C24,50 26,51 28,51 L32,51 C32,49 32,43 30,41 Z"
+                  fill="url(#mc2-shirt-sleeve)"
+                />
+                {/* Forearm */}
+                <path
+                  d="M25,50 C24,50 23,52 23,54 L23,58 C23,60 24,61 26,61 L29,61 C31,61 31,60 31,58 L31,54 C31,52 30,50 29,50 Z"
+                  fill="url(#mc2-skin)"
+                />
+                {/* Open hand waving */}
+                <path
+                  d="M23,58 C22,59 22,62 24,63 L26,63.5 L28,63 C30,62 30,59 29,58 Z"
+                  fill="url(#mc2-skin)"
+                />
+                {/* Fingers spread */}
+                <path d="M23.5,60 L22,58.5" stroke="url(#mc2-skin)" strokeWidth="1.2" strokeLinecap="round" />
+                <path d="M25,59.5 L24,57" stroke="url(#mc2-skin)" strokeWidth="1.2" strokeLinecap="round" />
+                <path d="M27,59.5 L27,57" stroke="url(#mc2-skin)" strokeWidth="1.2" strokeLinecap="round" />
+              </g>
+            ) : (
+              /* DEFAULT: left arm on mower handle (mirrored from right arm) */
+              <g className="mc2-left-arm-mower" style={{ transformOrigin: '30px 43px' }}>
+                {/* Sleeve */}
+                <path
+                  d="M28,41 C26,41 24,43 24,45 L24,48 C24,50 26,51 28,51 L32,51 C32,49 32,43 30,41 Z"
+                  fill="url(#mc2-shirt-sleeve)"
+                />
+                {/* Forearm reaching toward handle */}
+                <path
+                  d="M26,50 C24,50 24,51 25,53 L27,57 C28,58 29,58 30,57 L29,53 C29,51 28,50 26,50 Z"
+                  fill="url(#mc2-skin)"
+                />
+                {/* Hand gripping handle */}
+                <path
+                  d="M26,56 C25,57 26,59 28,59 C30,59 30,58 29,56 Z"
+                  fill="url(#mc2-skin)"
+                />
+              </g>
+            )}
 
             {/* === RIGHT ARM (on mower handle) === */}
             <g className="mc2-right-arm-mower" style={{ transformOrigin: '50px 43px' }}>
@@ -591,13 +621,28 @@ export function MowerCharacter({
         .mc2-left-leg { animation: mc2-left-leg-walk 0.7s cubic-bezier(0.37, 0, 0.63, 1) infinite; }
         .mc2-right-leg { animation: mc2-right-leg-walk 0.7s cubic-bezier(0.37, 0, 0.63, 1) infinite; }
 
-        /* === ARM SWING (left arm swings with walk) === */
-        @keyframes mc2-arm-swing {
-          0% { transform: rotate(6deg); }
-          50% { transform: rotate(-6deg); }
-          100% { transform: rotate(6deg); }
+        /* === LEFT ARM ON MOWER (subtle grip motion like right arm) === */
+        @keyframes mc2-left-arm-mower {
+          0%, 100% { transform: rotate(1deg); }
+          50% { transform: rotate(-1deg); }
         }
-        .mc2-left-arm { animation: mc2-arm-swing 0.7s cubic-bezier(0.37, 0, 0.63, 1) infinite; }
+        .mc2-left-arm-mower { animation: mc2-left-arm-mower 0.7s cubic-bezier(0.37, 0, 0.63, 1) infinite; }
+
+        /* === WAVE (left arm lifts and waves when greeting) === */
+        @keyframes mc2-wave {
+          0% { transform: rotate(0deg); }
+          10% { transform: rotate(-70deg); }
+          20% { transform: rotate(-55deg); }
+          30% { transform: rotate(-70deg); }
+          40% { transform: rotate(-55deg); }
+          50% { transform: rotate(-70deg); }
+          60% { transform: rotate(-55deg); }
+          70% { transform: rotate(-70deg); }
+          80% { transform: rotate(-55deg); }
+          90% { transform: rotate(-30deg); }
+          100% { transform: rotate(0deg); }
+        }
+        .mc2-wave-arm { animation: mc2-wave 3.5s ease-in-out; }
 
         /* === RIGHT ARM subtle motion on mower === */
         @keyframes mc2-arm-mower {
@@ -677,8 +722,8 @@ export function MowerCharacter({
 
         /* === REDUCED MOTION === */
         @media (prefers-reduced-motion: reduce) {
-          .mc2-breathe, .mc2-left-leg, .mc2-right-leg, .mc2-left-arm,
-          .mc2-right-arm-mower, .mc2-head-bob, .mc2-blink, .mc2-mower-vibrate,
+          .mc2-breathe, .mc2-left-leg, .mc2-right-leg, .mc2-left-arm-mower,
+          .mc2-wave-arm, .mc2-right-arm-mower, .mc2-head-bob, .mc2-blink, .mc2-mower-vibrate,
           .mc2-wheel-spin, .mc2-exhaust1, .mc2-exhaust2, .mc2-breathe-shadow,
           .mc2-clip1, .mc2-clip2, .mc2-clip3, .mc2-clip4, .mc2-clip5, .mc2-clip6,
           .mc-bubble-pop {
