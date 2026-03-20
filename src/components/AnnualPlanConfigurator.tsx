@@ -99,6 +99,7 @@ const STATIC_SERVICES: {
   { id: 'garden-beds',     name: 'Garden Beds',                 emoji: '🌺', desc: 'Edging, weeding, seasonal planting & maintenance.', availableSeasons: ['spring','summer','fall'] },
   { id: 'pruning',         name: 'Bush Trimming & Pruning',     emoji: '✂️', desc: 'Shrubs shaped, cleaned, debris removed.',           availableSeasons: ['spring','summer','fall'] },
   { id: 'snow-removal',    name: 'Snow Removal',                emoji: '❄️', desc: 'Driveway, walkway, and parking area snow & ice.',   availableSeasons: ['winter'] },
+  { id: 'salting',          name: 'Salting & Ice Management',    emoji: '🧂', desc: 'Sidewalk, driveway & entry salt application.',     availableSeasons: ['winter'] },
   { id: 'gutter-cleaning', name: 'Gutter Cleaning',             emoji: '🏠', desc: 'Full gutter flush and downspout clear.',            availableSeasons: ['spring','fall'] },
   { id: 'gutter-guards',   name: 'Gutter Guards',               emoji: '🛡️', desc: 'Micro-mesh guard installation with warranty.',      availableSeasons: ['spring','summer','fall'] },
 ];
