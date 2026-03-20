@@ -200,8 +200,7 @@ export function SummerHero() {
                 <MagneticButton>
                   <Button
                     size="lg"
-                    className="group text-white text-base font-bold px-6 sm:px-7 h-12 sm:h-14 shadow-xl transition-all duration-300 hover:scale-[1.02] tap-target w-full sm:w-auto rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-green-500 hover:from-emerald-500 hover:via-emerald-400 hover:to-green-400 shadow-emerald-900/40 hover:shadow-emerald-800/50 hover:shadow-2xl animate-shimmer-btn bg-[length:200%_auto]"
-                    style={{ boxShadow: '0 0 25px rgba(16,185,129,0.35)' }}
+                    className="group text-white text-base font-bold px-6 sm:px-7 h-12 sm:h-14 shadow-lg transition-all duration-300 hover:scale-[1.02] tap-target w-full sm:w-auto rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-green-500 hover:from-emerald-500 hover:via-emerald-400 hover:to-green-400 shadow-emerald-900/30 hover:shadow-emerald-800/40 hover:shadow-xl"
                     asChild
                   >
                     <Link href="/contact?service=mowing">
