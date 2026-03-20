@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 
 interface GrassEdgeProps {
   mowerX: number;
@@ -13,6 +13,8 @@ function seeded(i: number, offset: number): number {
   a = Math.imul(a ^ (a >>> 13), 0xc2b2ae35);
   return ((a ^ (a >>> 16)) >>> 0) / 4294967295;
 }
+
+const BASE_Y = 16;
 
 export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
   const backRow = useMemo(() =>
@@ -33,7 +35,51 @@ export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
     })),
   []);
 
-  const baseY = 16; // blades grow from soil line
+  // Direct DOM refs for each blade — avoids React re-renders on mowerX change
+  const backRefs = useRef<(SVGPathElement | null)[]>([]);
+  const frontRefs = useRef<(SVGPathElement | null)[]>([]);
+  const cutStateBack = useRef<boolean[]>(new Array(50).fill(false));
+  const cutStateFront = useRef<boolean[]>(new Array(50).fill(false));
+
+  // Update blade cut state via direct DOM manipulation — no React re-render
+  useEffect(() => {
+    backRow.forEach((blade, i) => {
+      const el = backRefs.current[i];
+      if (!el) return;
+      const shouldCut = mowerActive && mowerX > blade.x - 1;
+      if (shouldCut !== cutStateBack.current[i]) {
+        cutStateBack.current[i] = shouldCut;
+        if (shouldCut) {
+          el.style.transform = 'scaleY(0.35)';
+          el.style.transition = 'transform 0.12s ease-out';
+          el.classList.remove(`ge-sway-${blade.sway}`);
+        } else {
+          el.style.transform = '';
+          el.style.transition = 'transform 2.5s ease-in-out';
+          // Re-add sway after regrowth
+          setTimeout(() => el.classList.add(`ge-sway-${blade.sway}`), 2500);
+        }
+      }
+    });
+
+    frontRow.forEach((blade, i) => {
+      const el = frontRefs.current[i];
+      if (!el) return;
+      const shouldCut = mowerActive && mowerX > blade.x - 1;
+      if (shouldCut !== cutStateFront.current[i]) {
+        cutStateFront.current[i] = shouldCut;
+        if (shouldCut) {
+          el.style.transform = 'scaleY(0.3)';
+          el.style.transition = 'transform 0.12s ease-out';
+          el.classList.remove(`ge-sway-${blade.sway}`);
+        } else {
+          el.style.transform = '';
+          el.style.transition = 'transform 2.5s ease-in-out';
+          setTimeout(() => el.classList.add(`ge-sway-${blade.sway}`), 2500);
+        }
+      }
+    });
+  }, [mowerX, mowerActive, backRow, frontRow]);
 
   return (
     <div className="absolute bottom-0 left-0 right-0 h-[24px] pointer-events-none z-[15]">
@@ -59,43 +105,35 @@ export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
           </linearGradient>
         </defs>
 
-        {/* Soil base — thick visible dirt */}
+        {/* Soil base */}
         <rect x="0" y="16" width="1000" height="8" fill="url(#ge-soil)" />
 
-        {/* Back row blades — cut when mower passes */}
+        {/* Back row — rendered once, cut state managed via refs */}
         {backRow.map((blade, i) => {
           const bx = blade.x * 10;
-          const isCut = mowerActive && mowerX > blade.x - 1;
           return (
             <path
               key={`b-${i}`}
-              d={`M${bx - blade.w / 2},${baseY} Q${bx},${baseY - blade.h * 0.4} ${bx},${baseY - blade.h} Q${bx},${baseY - blade.h * 0.4} ${bx + blade.w / 2},${baseY} Z`}
+              ref={el => { backRefs.current[i] = el; }}
+              d={`M${bx - blade.w / 2},${BASE_Y} Q${bx},${BASE_Y - blade.h * 0.4} ${bx},${BASE_Y - blade.h} Q${bx},${BASE_Y - blade.h * 0.4} ${bx + blade.w / 2},${BASE_Y} Z`}
               fill="url(#ge-back)"
-              className={isCut ? '' : `ge-sway-${blade.sway}`}
-              style={{
-                transformOrigin: `${bx}px ${baseY}px`,
-                transform: isCut ? 'scaleY(0.35)' : undefined,
-                transition: isCut ? 'transform 0.12s ease-out' : 'transform 2.5s ease-in-out',
-              }}
+              className={`ge-sway-${blade.sway}`}
+              style={{ transformOrigin: `${bx}px ${BASE_Y}px` }}
             />
           );
         })}
 
-        {/* Front row blades — cut when mower passes */}
+        {/* Front row */}
         {frontRow.map((blade, i) => {
           const bx = blade.x * 10;
-          const isCut = mowerActive && mowerX > blade.x - 1;
           return (
             <path
               key={`f-${i}`}
-              d={`M${bx - blade.w / 2},${baseY} Q${bx},${baseY - blade.h * 0.4} ${bx},${baseY - blade.h} Q${bx},${baseY - blade.h * 0.4} ${bx + blade.w / 2},${baseY} Z`}
+              ref={el => { frontRefs.current[i] = el; }}
+              d={`M${bx - blade.w / 2},${BASE_Y} Q${bx},${BASE_Y - blade.h * 0.4} ${bx},${BASE_Y - blade.h} Q${bx},${BASE_Y - blade.h * 0.4} ${bx + blade.w / 2},${BASE_Y} Z`}
               fill="url(#ge-front)"
-              className={isCut ? '' : `ge-sway-${blade.sway}`}
-              style={{
-                transformOrigin: `${bx}px ${baseY}px`,
-                transform: isCut ? 'scaleY(0.3)' : undefined,
-                transition: isCut ? 'transform 0.12s ease-out' : 'transform 2.5s ease-in-out',
-              }}
+              className={`ge-sway-${blade.sway}`}
+              style={{ transformOrigin: `${bx}px ${BASE_Y}px` }}
             />
           );
         })}
