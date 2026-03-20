@@ -62,30 +62,40 @@ export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
         {/* Soil base — thick visible dirt */}
         <rect x="0" y="16" width="1000" height="8" fill="url(#ge-soil)" />
 
-        {/* Back row blades */}
+        {/* Back row blades — cut when mower passes */}
         {backRow.map((blade, i) => {
           const bx = blade.x * 10;
+          const isCut = mowerActive && mowerX > blade.x + 3;
           return (
             <path
               key={`b-${i}`}
               d={`M${bx - blade.w / 2},${baseY} Q${bx},${baseY - blade.h * 0.4} ${bx},${baseY - blade.h} Q${bx},${baseY - blade.h * 0.4} ${bx + blade.w / 2},${baseY} Z`}
               fill="url(#ge-back)"
-              className={`ge-sway-${blade.sway}`}
-              style={{ transformOrigin: `${bx}px ${baseY}px` }}
+              className={isCut ? '' : `ge-sway-${blade.sway}`}
+              style={{
+                transformOrigin: `${bx}px ${baseY}px`,
+                transform: isCut ? 'scaleY(0.35)' : undefined,
+                transition: isCut ? 'transform 0.12s ease-out' : 'transform 2.5s ease-in-out',
+              }}
             />
           );
         })}
 
-        {/* Front row blades */}
+        {/* Front row blades — cut when mower passes */}
         {frontRow.map((blade, i) => {
           const bx = blade.x * 10;
+          const isCut = mowerActive && mowerX > blade.x + 3;
           return (
             <path
               key={`f-${i}`}
               d={`M${bx - blade.w / 2},${baseY} Q${bx},${baseY - blade.h * 0.4} ${bx},${baseY - blade.h} Q${bx},${baseY - blade.h * 0.4} ${bx + blade.w / 2},${baseY} Z`}
               fill="url(#ge-front)"
-              className={`ge-sway-${blade.sway}`}
-              style={{ transformOrigin: `${bx}px ${baseY}px` }}
+              className={isCut ? '' : `ge-sway-${blade.sway}`}
+              style={{
+                transformOrigin: `${bx}px ${baseY}px`,
+                transform: isCut ? 'scaleY(0.3)' : undefined,
+                transition: isCut ? 'transform 0.12s ease-out' : 'transform 2.5s ease-in-out',
+              }}
             />
           );
         })}
