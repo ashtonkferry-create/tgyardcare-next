@@ -48,8 +48,7 @@ export default function HomePage() {
       {/* Client island — season-aware hero with parallax */}
       <HeroSection />
 
-      {/* Client island — animated stat counters */}
-      <StatsStrip />
+      {/* Stats now integrated into hero glass card — StatsStrip removed */}
 
       {/* Client island — needs seasonal context for service prioritization */}
       <SeasonalServicesSection />
