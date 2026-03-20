@@ -15,25 +15,7 @@ const TRUST_ITEMS = [
   { label: 'No Contracts Required' },
 ];
 
-// Deterministic particle positions to avoid hydration mismatches
-const PARTICLES = [
-  { left: '6%',  top: '25%', size: 3, opacity: 0.3, duration: 5.2, delay: 0 },
-  { left: '12%', top: '60%', size: 2, opacity: 0.2, duration: 6.8, delay: 1.2 },
-  { left: '19%', top: '40%', size: 4, opacity: 0.35, duration: 4.5, delay: 0.5 },
-  { left: '25%', top: '70%', size: 2, opacity: 0.2, duration: 7.1, delay: 2.0 },
-  { left: '31%', top: '30%', size: 3, opacity: 0.25, duration: 5.8, delay: 0.8 },
-  { left: '38%', top: '55%', size: 2, opacity: 0.3, duration: 6.3, delay: 1.5 },
-  { left: '44%', top: '20%', size: 5, opacity: 0.2, duration: 4.9, delay: 0.3 },
-  { left: '50%', top: '65%', size: 3, opacity: 0.25, duration: 5.5, delay: 1.8 },
-  { left: '56%', top: '35%', size: 2, opacity: 0.3, duration: 7.2, delay: 0.6 },
-  { left: '63%', top: '75%', size: 4, opacity: 0.2, duration: 4.7, delay: 2.2 },
-  { left: '69%', top: '45%', size: 3, opacity: 0.28, duration: 6.0, delay: 1.0 },
-  { left: '75%', top: '28%', size: 2, opacity: 0.22, duration: 5.3, delay: 0.4 },
-  { left: '81%', top: '58%', size: 3, opacity: 0.3, duration: 6.7, delay: 1.6 },
-  { left: '88%', top: '38%', size: 4, opacity: 0.25, duration: 5.1, delay: 0.9 },
-  { left: '93%', top: '68%', size: 2, opacity: 0.2, duration: 7.4, delay: 2.4 },
-  { left: '97%', top: '22%', size: 3, opacity: 0.28, duration: 4.8, delay: 1.3 },
-];
+// Particles handled by AmbientParticles component — no inline JS-driven particles
 
 export default function AnnualPlanContent() {
   return (
@@ -86,30 +68,7 @@ export default function AnnualPlanContent() {
           </svg>
         </div>
 
-        {/* Floating particles — deterministic positions */}
-        {PARTICLES.map((p, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full pointer-events-none"
-            style={{
-              width: p.size,
-              height: p.size,
-              left: p.left,
-              top: p.top,
-              background: `rgba(34,197,94,${p.opacity})`,
-            }}
-            animate={{
-              y: [0, -28, 0],
-              opacity: [p.opacity * 0.5, p.opacity, p.opacity * 0.5],
-            }}
-            transition={{
-              duration: p.duration,
-              repeat: Infinity,
-              delay: p.delay,
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
+        {/* Particles handled by AmbientParticles at page level */}
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
@@ -190,12 +149,7 @@ export default function AnnualPlanContent() {
               whileHover={{ y: 3 }}
             >
               Start Building
-              <motion.span
-                animate={{ y: [0, 4, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                ↓
-              </motion.span>
+              <span className="inline-block animate-bounce-gentle">↓</span>
             </motion.a>
           </div>
         </div>

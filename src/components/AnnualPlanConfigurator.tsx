@@ -87,14 +87,20 @@ const STATIC_SERVICES: {
   emoji: string;
   availableSeasons: Season[];
 }[] = [
-  { id: 'mowing',         name: 'Lawn Mowing',                emoji: '🌿', desc: 'Weekly or bi-weekly cuts, edging & trimming.',     availableSeasons: ['spring','summer','fall'] },
-  { id: 'fertilization',  name: 'Fertilization & Weed Control', emoji: '🌱', desc: 'Custom treatment for a thick, weed-free lawn.',   availableSeasons: ['spring','summer','fall'] },
-  { id: 'aeration',       name: 'Aeration & Overseeding',     emoji: '🌾', desc: 'Core aeration + seed for a dense, healthy lawn.',  availableSeasons: ['spring','fall'] },
-  { id: 'spring-cleanup', name: 'Spring Cleanup',             emoji: '🌸', desc: 'Full property reset — debris, beds, edging.',      availableSeasons: ['spring'] },
-  { id: 'fall-cleanup',   name: 'Fall Cleanup',               emoji: '🍂', desc: 'Leaf removal, bed clearing, and winter prep.',     availableSeasons: ['fall'] },
-  { id: 'mulching',       name: 'Mulching',                   emoji: '🪵', desc: 'Fresh mulch for garden beds and trees.',           availableSeasons: ['spring','fall'] },
-  { id: 'snow-removal',   name: 'Snow Removal',               emoji: '❄️', desc: 'Driveway, walkway, and parking area snow & ice.',  availableSeasons: ['winter'] },
-  { id: 'gutter-cleaning',name: 'Gutter Cleaning',            emoji: '🏠', desc: 'Full gutter flush and downspout clear.',           availableSeasons: ['spring','fall'] },
+  { id: 'mowing',          name: 'Lawn Mowing',                 emoji: '🌿', desc: 'Weekly or bi-weekly cuts, edging & trimming.',      availableSeasons: ['spring','summer','fall'] },
+  { id: 'fertilization',   name: 'Fertilization & Weed Control',emoji: '🌱', desc: 'Custom treatment for a thick, weed-free lawn.',    availableSeasons: ['spring','summer','fall'] },
+  { id: 'herbicide',       name: 'Herbicide Treatment',         emoji: '🧪', desc: 'Targeted weed & pest spray with 7-14 day results.', availableSeasons: ['spring','summer','fall'] },
+  { id: 'aeration',        name: 'Aeration & Overseeding',      emoji: '🌾', desc: 'Core aeration + seed for a dense, healthy lawn.',   availableSeasons: ['spring','fall'] },
+  { id: 'spring-cleanup',  name: 'Spring Cleanup',              emoji: '🌸', desc: 'Full property reset — debris, beds, edging.',       availableSeasons: ['spring'] },
+  { id: 'fall-cleanup',    name: 'Fall Cleanup',                emoji: '🍂', desc: 'Leaf removal, bed clearing, and winter prep.',      availableSeasons: ['fall'] },
+  { id: 'leaf-removal',    name: 'Leaf Removal',                emoji: '🍁', desc: 'Full property cleared and hauled. Zero left behind.', availableSeasons: ['fall'] },
+  { id: 'mulching',        name: 'Mulching',                    emoji: '🪵', desc: 'Fresh mulch for garden beds and trees.',            availableSeasons: ['spring','fall'] },
+  { id: 'weeding',         name: 'Weeding',                     emoji: '🌻', desc: 'Hand-pulled, roots removed. Chemical-free option.', availableSeasons: ['spring','summer','fall'] },
+  { id: 'garden-beds',     name: 'Garden Beds',                 emoji: '🌺', desc: 'Edging, weeding, seasonal planting & maintenance.', availableSeasons: ['spring','summer','fall'] },
+  { id: 'pruning',         name: 'Bush Trimming & Pruning',     emoji: '✂️', desc: 'Shrubs shaped, cleaned, debris removed.',           availableSeasons: ['spring','summer','fall'] },
+  { id: 'snow-removal',    name: 'Snow Removal',                emoji: '❄️', desc: 'Driveway, walkway, and parking area snow & ice.',   availableSeasons: ['winter'] },
+  { id: 'gutter-cleaning', name: 'Gutter Cleaning',             emoji: '🏠', desc: 'Full gutter flush and downspout clear.',            availableSeasons: ['spring','fall'] },
+  { id: 'gutter-guards',   name: 'Gutter Guards',               emoji: '🛡️', desc: 'Micro-mesh guard installation with warranty.',      availableSeasons: ['spring','summer','fall'] },
 ];
 
 /* ─────────────────────── State ─────────────────────── */
