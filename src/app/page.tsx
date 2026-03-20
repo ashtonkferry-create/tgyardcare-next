@@ -74,8 +74,12 @@ export default function HomePage() {
       {/* Server component — wraps client ProcessTimeline */}
       <HowItWorks />
 
-      <section className="py-16 md:py-20" style={{ background: '#0a3520' }}>
-        <div className="container mx-auto px-4">
+      <section className="relative py-16 md:py-20 overflow-hidden">
+        {/* Green cinematic background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-green-950 via-[#0a3520] to-green-950" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(34,197,94,0.10),transparent_60%)]" />
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+        <div className="relative container mx-auto px-4">
           <LatestBlogPosts />
         </div>
       </section>

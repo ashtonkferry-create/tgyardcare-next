@@ -19,6 +19,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
+import { AmbientParticles } from "@/components/AmbientParticles";
 
 /* ─── Data ─── */
 
@@ -142,27 +143,14 @@ export function FullSeasonContract() {
   const contactLink = "/contact?service=full-season";
 
   return (
-    <section
-      className="relative py-20 md:py-32 overflow-hidden"
-      style={{ backgroundColor: "#052e16" }}
-    >
-      {/* ── Background: dot grid + warm radial glow ── */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, #22c55e 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-          opacity: 0.04,
-        }}
-      />
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse at center 60%, rgba(34,197,94,0.08) 0%, transparent 70%)",
-        }}
-      />
+    <section className="relative py-20 md:py-32 overflow-hidden">
+      {/* ── Cinematic green background system ── */}
+      <div className="absolute inset-0 bg-gradient-to-b from-green-950 via-[#0a3520] to-green-950" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(34,197,94,0.12),transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_80%,rgba(16,185,129,0.08),transparent_60%)]" />
+      <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full blur-[120px] bg-emerald-500/[0.15] pointer-events-none" />
+      <AmbientParticles density="sparse" />
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
