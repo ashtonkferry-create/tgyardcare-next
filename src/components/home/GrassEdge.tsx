@@ -3,7 +3,7 @@
 import { useMemo, useRef, useEffect } from 'react';
 
 interface GrassEdgeProps {
-  mowerX: number;
+  mowerXRef: React.RefObject<number>;
   mowerActive: boolean;
 }
 
@@ -16,7 +16,7 @@ function seeded(i: number, offset: number): number {
 
 const BASE_Y = 16;
 
-export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
+export function GrassEdge({ mowerXRef, mowerActive }: GrassEdgeProps) {
   const backRow = useMemo(() =>
     Array.from({ length: 50 }, (_, i) => ({
       x: (i / 49) * 100,
@@ -41,45 +41,51 @@ export function GrassEdge({ mowerX, mowerActive }: GrassEdgeProps) {
   const cutStateBack = useRef<boolean[]>(new Array(50).fill(false));
   const cutStateFront = useRef<boolean[]>(new Array(50).fill(false));
 
-  // Update blade cut state via direct DOM manipulation — no React re-render
+  // Poll mowerXRef and update blade cut state via direct DOM manipulation — no React re-renders
   useEffect(() => {
-    backRow.forEach((blade, i) => {
-      const el = backRefs.current[i];
-      if (!el) return;
-      const shouldCut = mowerActive && mowerX > blade.x - 1;
-      if (shouldCut !== cutStateBack.current[i]) {
-        cutStateBack.current[i] = shouldCut;
-        if (shouldCut) {
-          el.style.transform = 'scaleY(0.35)';
-          el.style.transition = 'transform 0.12s ease-out';
-          el.classList.remove(`ge-sway-${blade.sway}`);
-        } else {
-          el.style.transform = '';
-          el.style.transition = 'transform 2.5s ease-in-out';
-          // Re-add sway after regrowth
-          setTimeout(() => el.classList.add(`ge-sway-${blade.sway}`), 2500);
-        }
-      }
-    });
+    const interval = setInterval(() => {
+      const mowerX = mowerXRef.current ?? 0;
 
-    frontRow.forEach((blade, i) => {
-      const el = frontRefs.current[i];
-      if (!el) return;
-      const shouldCut = mowerActive && mowerX > blade.x - 1;
-      if (shouldCut !== cutStateFront.current[i]) {
-        cutStateFront.current[i] = shouldCut;
-        if (shouldCut) {
-          el.style.transform = 'scaleY(0.3)';
-          el.style.transition = 'transform 0.12s ease-out';
-          el.classList.remove(`ge-sway-${blade.sway}`);
-        } else {
-          el.style.transform = '';
-          el.style.transition = 'transform 2.5s ease-in-out';
-          setTimeout(() => el.classList.add(`ge-sway-${blade.sway}`), 2500);
+      backRow.forEach((blade, i) => {
+        const el = backRefs.current[i];
+        if (!el) return;
+        const shouldCut = mowerActive && mowerX > blade.x - 1;
+        if (shouldCut !== cutStateBack.current[i]) {
+          cutStateBack.current[i] = shouldCut;
+          if (shouldCut) {
+            el.style.transform = 'scaleY(0.35)';
+            el.style.transition = 'transform 0.12s ease-out';
+            el.classList.remove(`ge-sway-${blade.sway}`);
+          } else {
+            el.style.transform = '';
+            el.style.transition = 'transform 2.5s ease-in-out';
+            // Re-add sway after regrowth
+            setTimeout(() => el.classList.add(`ge-sway-${blade.sway}`), 2500);
+          }
         }
-      }
-    });
-  }, [mowerX, mowerActive, backRow, frontRow]);
+      });
+
+      frontRow.forEach((blade, i) => {
+        const el = frontRefs.current[i];
+        if (!el) return;
+        const shouldCut = mowerActive && mowerX > blade.x - 1;
+        if (shouldCut !== cutStateFront.current[i]) {
+          cutStateFront.current[i] = shouldCut;
+          if (shouldCut) {
+            el.style.transform = 'scaleY(0.3)';
+            el.style.transition = 'transform 0.12s ease-out';
+            el.classList.remove(`ge-sway-${blade.sway}`);
+          } else {
+            el.style.transform = '';
+            el.style.transition = 'transform 2.5s ease-in-out';
+            setTimeout(() => el.classList.add(`ge-sway-${blade.sway}`), 2500);
+          }
+        }
+      });
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, [mowerActive, mowerXRef, backRow, frontRow]);
 
   return (
     <div className="absolute bottom-0 left-0 right-0 h-[24px] pointer-events-none z-[15]">

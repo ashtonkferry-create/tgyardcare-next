@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from '@/components/ui/button';
@@ -31,10 +31,10 @@ const fadeUp: Variants = {
 };
 
 export function SummerHero() {
-  const [mowerX, setMowerX] = useState(0);
+  const mowerXRef = useRef(0);
 
   const handleMowerPosition = useCallback((x: number) => {
-    setMowerX(x);
+    mowerXRef.current = x;
   }, []);
 
   return (
@@ -303,7 +303,7 @@ export function SummerHero() {
       </div>
 
       {/* Grass edge + Mower character at bottom */}
-      <GrassEdge mowerX={mowerX} mowerActive={true} />
+      <GrassEdge mowerXRef={mowerXRef} mowerActive={true} />
       <MowerCharacter onPositionChange={handleMowerPosition} traversalDuration={20} />
     </section>
   );

@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
+  },
   typescript: {
     // Supabase generated types are incomplete (missing faqs, locations, services, pricing, etc.)
     // The source Vite project didn't type-check these either
