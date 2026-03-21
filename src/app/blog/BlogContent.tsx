@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from '@/components/Navigation';
@@ -89,15 +89,22 @@ function calculateReadingTime(content: string): number {
   return Math.ceil(words / 200);
 }
 
-export default function BlogContent() {
+interface BlogContentProps {
+  initialPosts?: BlogPost[];
+  initialTotalCount?: number;
+}
+
+export default function BlogContent({ initialPosts = [], initialTotalCount = 0 }: BlogContentProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const activeCategory = searchParams.get('category') || 'all';
 
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const hasInitialData = initialPosts.length > 0;
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(initialPosts);
+  const [loading, setLoading] = useState(!hasInitialData);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(initialTotalCount);
+  const skipInitialFetch = useRef(hasInitialData);
 
   const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
 
@@ -116,6 +123,12 @@ export default function BlogContent() {
   );
 
   useEffect(() => {
+    // Skip the first client-side fetch when server already provided initial data
+    if (skipInitialFetch.current) {
+      skipInitialFetch.current = false;
+      return;
+    }
+
     const fetchPosts = async () => {
       setLoading(true);
 
