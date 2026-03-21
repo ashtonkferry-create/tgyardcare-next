@@ -17,15 +17,15 @@ function imgSrc(img: string | { src: string }): string {
 
 export default function MadisonContent() {
   const services = [
-    "Lawn Mowing & Maintenance",
-    "Herbicide Treatments",
-    "Fertilization & Overseeding",
-    "Weeding & Garden Bed Care",
-    "Mulching Services",
-    "Spring & Fall Cleanup",
-    "Leaf Removal",
-    "Gutter Cleaning & Guards",
-    "Snow Removal (Seasonal)"
+    { name: "Lawn Mowing & Maintenance", slug: "mowing" },
+    { name: "Herbicide Treatments", slug: "herbicide" },
+    { name: "Fertilization & Overseeding", slug: "fertilization" },
+    { name: "Weeding & Garden Bed Care", slug: "weeding" },
+    { name: "Mulching Services", slug: "mulching" },
+    { name: "Spring & Fall Cleanup", slug: "spring-cleanup" },
+    { name: "Leaf Removal", slug: "leaf-removal" },
+    { name: "Gutter Cleaning & Guards", slug: "gutter-cleaning" },
+    { name: "Snow Removal (Seasonal)", slug: "snow-removal" },
   ];
 
   const neighborhoods = [
@@ -140,9 +140,9 @@ export default function MadisonContent() {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="text-lg font-bold text-white mb-2">{service}</h3>
+                    <h3 className="text-lg font-bold text-white mb-2">{service.name}</h3>
                     <Link
-                      href={`/services/${service.toLowerCase().split(' ')[0]}`}
+                      href={`/services/${service.slug}`}
                       className="text-primary hover:underline text-sm font-medium"
                     >
                       Learn more →
@@ -154,7 +154,7 @@ export default function MadisonContent() {
           </div>
 
           <div className="text-center mt-12">
-            <Link href="/services/mowing">
+            <Link href="/services">
               <Button size="lg" variant="outline" className="font-bold">
                 View All Services
               </Button>
