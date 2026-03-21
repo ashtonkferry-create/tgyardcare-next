@@ -27,9 +27,12 @@ export const metadata: Metadata = {
     canonical: 'https://tgyardcare.com',
   },
   openGraph: {
+    type: 'website',
     title: '#1 Lawn Care in Madison WI — 4.9★ Rated | TotalGuard Yard Care',
     description: "Madison's top-rated lawn care company. Same crew every week, 500+ properties served across Dane County. Free quote today!",
-    url: '/',
+    url: 'https://tgyardcare.com',
+    siteName: 'TotalGuard Yard Care',
+    locale: 'en_US',
   },
 };
 
@@ -37,7 +40,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <ScrollProgress variant="minimal" />
-      <WebPageSchema name="TotalGuard Yard Care" description="Madison's most reliable lawn care and landscaping" url="/" />
+      <WebPageSchema name="TotalGuard Yard Care" description="Madison's most reliable lawn care and landscaping" url="https://tgyardcare.com" />
       <Navigation showPromoBanner />
 
       {/* Server-rendered sr-only section — visible in view-source, indexable by search engines */}

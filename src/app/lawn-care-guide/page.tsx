@@ -14,6 +14,7 @@ export const metadata: Metadata = {
     title: 'Madison Lawn Care Guide 2026 | TotalGuard Yard Care',
     description:
       'Your complete resource for lawn care in Madison, WI. Seasonal schedules, local tips, and expert advice.',
+    url: 'https://tgyardcare.com/lawn-care-guide',
   },
 };
 

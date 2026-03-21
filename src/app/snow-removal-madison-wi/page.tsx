@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Snow Plowing Madison WI | Cleared by 7am | TG Yard Care',
     description: 'Professional snow removal in Madison, WI. Driveways & walkways cleared by 7am with salt included. Per-visit or seasonal contracts available.',
-    url: '/snow-removal-madison-wi',
+    url: 'https://tgyardcare.com/snow-removal-madison-wi',
   },
 };
 

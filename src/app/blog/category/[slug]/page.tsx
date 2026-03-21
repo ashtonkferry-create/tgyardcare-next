@@ -70,7 +70,7 @@ export async function generateMetadata({
     openGraph: {
       title,
       description: category.description,
-      url: `/blog/category/${slug}`,
+      url: `https://tgyardcare.com/blog/category/${slug}`,
       siteName: 'TotalGuard Yard Care',
     },
     ...(hasPublishedPosts ? {} : { robots: { index: false, follow: true } }),

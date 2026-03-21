@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Spring Lawn Care Checklist Madison WI | Expert Tips 2026',
     description: 'Prepare your Madison lawn for spring! Complete checklist: debris cleanup, dethatching, fertilizing & more.',
-    url: '/blog/spring-lawn-care-checklist',
+    url: 'https://tgyardcare.com/blog/spring-lawn-care-checklist',
     type: 'article',
     authors: ['TotalGuard Yard Care'],
     publishedTime: '2024-03-15',

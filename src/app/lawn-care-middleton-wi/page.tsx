@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Lawn Mowing Middleton WI | Same Crew Weekly | TG Yard Care',
     description: 'Professional lawn mowing in Middleton, WI with weekly service and same crew consistency. Serving Pheasant Branch, Middleton Hills & all neighborhoods.',
-    url: '/lawn-care-middleton-wi',
+    url: 'https://tgyardcare.com/lawn-care-middleton-wi',
   },
 };
 

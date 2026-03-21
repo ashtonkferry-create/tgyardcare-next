@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Professional Lawn Care Madison WI | Weekly | TG Yard Care',
     description: 'Professional lawn mowing in Madison, WI with weekly service and same crew every visit. Edging, trimming & blowing included. 500+ Madison properties.',
-    url: '/lawn-care-madison-wi',
+    url: 'https://tgyardcare.com/lawn-care-madison-wi',
   },
 };
 

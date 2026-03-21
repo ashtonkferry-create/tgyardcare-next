@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Gutter Cleaning Service Madison WI | Photos | TG Yard Care',
     description: 'Professional gutter cleaning in Madison, WI. Complete debris removal, downspout flushing & before/after photos included. Prevent ice dams & water damage.',
-    url: '/gutter-cleaning-madison-wi',
+    url: 'https://tgyardcare.com/gutter-cleaning-madison-wi',
   },
 };
 

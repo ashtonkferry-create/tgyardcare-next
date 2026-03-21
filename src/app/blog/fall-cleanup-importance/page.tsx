@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Why Fall Cleanup Matters | Madison Lawn Care Tips 2026',
     description: 'Discover why fall cleanup is critical for lawn health! Prevent snow mold, protect grass & save money on spring repairs.',
-    url: '/blog/fall-cleanup-importance',
+    url: 'https://tgyardcare.com/blog/fall-cleanup-importance',
     type: 'article',
     authors: ['TotalGuard Yard Care'],
     publishedTime: '2023-10-08',

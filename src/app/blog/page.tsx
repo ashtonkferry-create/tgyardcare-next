@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Lawn Care Tips Madison WI | Expert Blog | TG Yard Care',
     description: 'Expert lawn care advice from Madison pros. Seasonal guides, maintenance tips & landscaping insights to keep your yard beautiful year-round.',
-    url: '/blog',
+    url: 'https://tgyardcare.com/blog',
   },
 };
 
