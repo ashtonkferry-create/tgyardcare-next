@@ -245,9 +245,14 @@ export default function ContactContent() {
   const fieldClass = (field: string) =>
     `flex-1 border bg-black/30 backdrop-blur-sm text-white placeholder:text-white/30 transition-all duration-300 ${
       focusedField === field
-        ? `border-[${acc.solid}] ring-1 ring-[${acc.solid}]/30`
+        ? 'ring-1'
         : 'border-white/10 hover:border-white/20'
     } rounded-lg`;
+
+  const fieldStyle = (field: string): React.CSSProperties =>
+    focusedField === field
+      ? { borderColor: acc.solid, boxShadow: `0 0 0 1px ${acc.solid}4d` }
+      : {};
 
   return (
     <div className="relative isolate min-h-screen text-white" style={{ background: bg.page }}>
@@ -393,6 +398,7 @@ export default function ContactContent() {
                         onFocus={() => setFocusedField('name')} onBlur={() => handleFieldBlur('name')}
                         required maxLength={100} placeholder="John Smith"
                         className={fieldClass('name')}
+                        style={fieldStyle('name')}
                         aria-invalid={errors.name ? "true" : "false"}
                       />
                     </div>
@@ -409,6 +415,7 @@ export default function ContactContent() {
                         onFocus={() => setFocusedField('email')} onBlur={() => handleFieldBlur('email')}
                         required maxLength={255} placeholder="john@example.com"
                         className={fieldClass('email')}
+                        style={fieldStyle('email')}
                         aria-invalid={errors.email ? "true" : "false"}
                       />
                     </div>
@@ -425,6 +432,7 @@ export default function ContactContent() {
                         onFocus={() => setFocusedField('phone')} onBlur={() => handleFieldBlur('phone')}
                         required maxLength={20} placeholder="(920) 555-1234"
                         className={fieldClass('phone')}
+                        style={fieldStyle('phone')}
                         aria-invalid={errors.phone ? "true" : "false"}
                       />
                     </div>
@@ -442,6 +450,7 @@ export default function ContactContent() {
                         onFocus={() => setFocusedField('address')} onBlur={() => handleFieldBlur('address')}
                         required maxLength={300} placeholder="123 Main St, Madison, WI 53703"
                         className={fieldClass('address')}
+                        style={fieldStyle('address')}
                         aria-invalid={errors.address ? "true" : "false"}
                       />
                     </div>
@@ -462,6 +471,7 @@ export default function ContactContent() {
                           required maxLength={2000}
                           placeholder="Describe the services you're interested in and any specific details about your property..."
                           className={`${fieldClass('message')} min-h-[140px] resize-none`}
+                          style={fieldStyle('message')}
                           aria-invalid={errors.message ? "true" : "false"}
                         />
                         <p className={`text-xs mt-1.5 text-right ${
