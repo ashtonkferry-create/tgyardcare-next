@@ -23,11 +23,16 @@ export function AnimatedCounter({
 }: AnimatedCounterProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-40px' });
-  const [display, setDisplay] = useState('0');
+  const finalDisplay = decimals > 0 ? end.toFixed(decimals) : String(end);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const [display, setDisplay] = useState(finalDisplay);
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView || hasAnimated) return;
 
+    // Reset to 0 and animate up when scrolled into view
+    setDisplay('0');
+    setHasAnimated(true);
     const startTime = performance.now();
 
     function tick(now: number) {
@@ -41,7 +46,7 @@ export function AnimatedCounter({
     }
 
     requestAnimationFrame(tick);
-  }, [isInView, end, duration, decimals]);
+  }, [isInView, end, duration, decimals, hasAnimated]);
 
   return (
     <span ref={ref} className={cn('tabular-nums', className)}>
