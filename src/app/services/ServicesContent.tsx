@@ -68,10 +68,10 @@ const serviceCategories = [
     title: "Lawn Care & Maintenance",
     description: "Keep your Madison lawn healthy, green, and professionally maintained all season long.",
     services: [
-      { icon: Scissors, title: "Lawn Mowing", slug: "mowing", description: "Weekly mowing with trimming and blowing. Same crew every visit, consistent quality.", image: mowingImage },
-      { icon: SprayCan, title: "Herbicide Treatment", slug: "herbicide", description: "Targeted weed control with visible results in 7-14 days. Documentation provided.", image: herbicideImage },
-      { icon: Sprout, title: "Fertilization", slug: "fertilization", description: "4-6 seasonal applications timed to Wisconsin growing cycles for optimal lawn health.", image: fertilizationImage },
-      { icon: CircleDot, title: "Aeration", slug: "aeration", description: "Core aeration reduces compaction and improves water absorption. Fall or spring service.", image: aerationImage },
+      { icon: Scissors, title: "Lawn Mowing", slug: "mowing", description: "Weekly mowing with trimming and blowing. Same crew every visit, consistent quality.", image: mowingImage, startingPrice: "From $35/visit" },
+      { icon: SprayCan, title: "Herbicide Treatment", slug: "herbicide", description: "Targeted weed control with visible results in 7-14 days. Documentation provided.", image: herbicideImage, startingPrice: "From $45/visit" },
+      { icon: Sprout, title: "Fertilization", slug: "fertilization", description: "4-6 seasonal applications timed to Wisconsin growing cycles for optimal lawn health.", image: fertilizationImage, startingPrice: "From $55/app" },
+      { icon: CircleDot, title: "Aeration", slug: "aeration", description: "Core aeration reduces compaction and improves water absorption. Fall or spring service.", image: aerationImage, startingPrice: "From $150" },
     ]
   },
   {
@@ -79,10 +79,10 @@ const serviceCategories = [
     title: "Garden & Bed Maintenance",
     description: "Transform and maintain your garden beds with professional mulching, weeding, and seasonal care.",
     services: [
-      { icon: Trees, title: "Mulching", slug: "mulching", description: "Premium mulch installation at 2-3\" depth. Old mulch removed, edges defined.", image: mulchingImage },
-      { icon: Leaf, title: "Weeding", slug: "weeding", description: "Hand-pulled weeds with roots removed. Chemical-free option available.", image: weedingImage },
-      { icon: Flower2, title: "Garden Beds", slug: "garden-beds", description: "Edging, weeding, and seasonal planting. Monthly or per-visit maintenance plans.", image: gardenBedsImage },
-      { icon: Scissors, title: "Bush Trimming & Pruning", slug: "pruning", description: "Shape and trim shrubs professionally. Debris removed, before/after photos provided.", image: pruningImage },
+      { icon: Trees, title: "Mulching", slug: "mulching", description: "Premium mulch installation at 2-3\" depth. Old mulch removed, edges defined.", image: mulchingImage, startingPrice: "From $200" },
+      { icon: Leaf, title: "Weeding", slug: "weeding", description: "Hand-pulled weeds with roots removed. Chemical-free option available.", image: weedingImage, startingPrice: "From $40/visit" },
+      { icon: Flower2, title: "Garden Beds", slug: "garden-beds", description: "Edging, weeding, and seasonal planting. Monthly or per-visit maintenance plans.", image: gardenBedsImage, startingPrice: "From $50/visit" },
+      { icon: Scissors, title: "Bush Trimming & Pruning", slug: "pruning", description: "Shape and trim shrubs professionally. Debris removed, before/after photos provided.", image: pruningImage, startingPrice: "From $75" },
     ]
   },
   {
@@ -90,10 +90,10 @@ const serviceCategories = [
     title: "Seasonal Cleanup Services",
     description: "Prepare your property for each Wisconsin season with comprehensive cleanup and maintenance.",
     services: [
-      { icon: Sparkles, title: "Spring Cleanup", slug: "spring-cleanup", description: "Debris removal, bed edging, first mow, and gutter check. One visit, 2-4 hours.", image: springCleanupImage },
-      { icon: CloudRain, title: "Fall Cleanup", slug: "fall-cleanup", description: "Leaf removal, final mow, gutter cleanout, winterization. Done before first frost.", image: fallCleanupImage },
-      { icon: Trash2, title: "Leaf Removal", slug: "leaf-removal", description: "Full property cleared. Leaves bagged and hauled or mulched. Zero left behind.", image: leafRemovalImage },
-      { icon: Snowflake, title: "Snow Removal", slug: "snow-removal", description: "Triggered at 2\"+ snowfall. Driveway, walkways, porch cleared. Salt included.", image: snowRemovalImage },
+      { icon: Sparkles, title: "Spring Cleanup", slug: "spring-cleanup", description: "Debris removal, bed edging, first mow, and gutter check. One visit, 2-4 hours.", image: springCleanupImage, startingPrice: "From $175" },
+      { icon: CloudRain, title: "Fall Cleanup", slug: "fall-cleanup", description: "Leaf removal, final mow, gutter cleanout, winterization. Done before first frost.", image: fallCleanupImage, startingPrice: "From $200" },
+      { icon: Trash2, title: "Leaf Removal", slug: "leaf-removal", description: "Full property cleared. Leaves bagged and hauled or mulched. Zero left behind.", image: leafRemovalImage, startingPrice: "From $125" },
+      { icon: Snowflake, title: "Snow Removal", slug: "snow-removal", description: "Triggered at 2\"+ snowfall. Driveway, walkways, porch cleared. Salt included.", image: snowRemovalImage, startingPrice: "From $45/visit" },
     ]
   },
   {
@@ -101,8 +101,8 @@ const serviceCategories = [
     title: "Gutter Services",
     description: "Protect your home with professional gutter cleaning and guard installation.",
     services: [
-      { icon: Home, title: "Gutter Cleaning", slug: "gutter-cleaning", description: "Full cleanout, downspout flush, roof-line inspection. Photos sent after completion.", image: gutterImage },
-      { icon: Shield, title: "Gutter Guards", slug: "gutter-guards", description: "LeafFilter-style micro-mesh guards. Professional installation with warranty.", image: gutterGuardsImage },
+      { icon: Home, title: "Gutter Cleaning", slug: "gutter-cleaning", description: "Full cleanout, downspout flush, roof-line inspection. Photos sent after completion.", image: gutterImage, startingPrice: "From $125" },
+      { icon: Shield, title: "Gutter Guards", slug: "gutter-guards", description: "LeafFilter-style micro-mesh guards. Professional installation with warranty.", image: gutterGuardsImage, startingPrice: "From $400" },
     ]
   }
 ];
@@ -328,7 +328,8 @@ export default function ServicesContent() {
                           {service.title}
                         </h3>
                         <p className="text-white/40 text-sm mb-3 line-clamp-2 leading-relaxed">{service.description}</p>
-                        <div className={`${acc.text} text-sm font-semibold flex items-center gap-1`}>
+                        <p className="text-emerald-400 font-bold text-sm mt-2">{service.startingPrice}</p>
+                        <div className={`${acc.text} text-sm font-semibold flex items-center gap-1 mt-2`}>
                           Learn More <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
