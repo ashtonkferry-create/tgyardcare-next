@@ -15,7 +15,7 @@ import { GoogleReviewsSection } from '@/components/GoogleReviewsSection';
 import { ComparisonTable } from '@/components/ComparisonTable';
 import { ServiceStandard } from '@/components/home/ServiceStandard';
 import { HowItWorks } from '@/components/home/HowItWorks';
-import LatestBlogPosts from '@/components/blog/LatestBlogPosts';
+import { PricingPreview } from '@/components/home/PricingPreview';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
 
@@ -82,7 +82,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(34,197,94,0.10),transparent_60%)]" />
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
         <div className="relative container mx-auto px-4">
-          <LatestBlogPosts />
+          <PricingPreview />
         </div>
       </section>
 
